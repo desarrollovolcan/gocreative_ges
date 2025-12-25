@@ -10,10 +10,10 @@
             <div class="col-md-4"><strong>Entrega:</strong> <?php echo e($project['delivery_date']); ?></div>
         </div>
         <div class="row mt-3">
-            <div class="col-md-6"><strong>Mandante:</strong> <?php echo e($project['mandante_name']); ?></div>
-            <div class="col-md-6"><strong>Mandante RUT:</strong> <?php echo e($project['mandante_rut']); ?></div>
-            <div class="col-md-6"><strong>Mandante Teléfono:</strong> <?php echo e($project['mandante_phone']); ?></div>
-            <div class="col-md-6"><strong>Mandante Correo:</strong> <?php echo e($project['mandante_email']); ?></div>
+            <div class="col-md-6"><strong>Mandante:</strong> <?php echo e($project['mandante_name'] ?? '-'); ?></div>
+            <div class="col-md-6"><strong>Mandante RUT:</strong> <?php echo e($project['mandante_rut'] ?? '-'); ?></div>
+            <div class="col-md-6"><strong>Mandante Teléfono:</strong> <?php echo e($project['mandante_phone'] ?? '-'); ?></div>
+            <div class="col-md-6"><strong>Mandante Correo:</strong> <?php echo e($project['mandante_email'] ?? '-'); ?></div>
         </div>
     </div>
 </div>

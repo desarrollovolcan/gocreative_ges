@@ -7,29 +7,54 @@
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="id" value="<?php echo $client['id']; ?>">
             <div class="row">
+                <div class="col-12">
+                    <h5 class="mt-0">Datos de la empresa</h5>
+                </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Razón social</label>
-                    <input type="text" name="name" class="form-control" value="<?php echo e($client['name']); ?>" required>
+                    <input type="text" name="name" class="form-control" value="<?php echo e($client['name'] ?? ''); ?>" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">RUT</label>
-                    <input type="text" name="rut" class="form-control" value="<?php echo e($client['rut']); ?>">
+                    <input type="text" name="rut" class="form-control" value="<?php echo e($client['rut'] ?? ''); ?>">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Email principal</label>
-                    <input type="email" name="email" class="form-control" value="<?php echo e($client['email']); ?>" required>
+                    <input type="email" name="email" class="form-control" value="<?php echo e($client['email'] ?? ''); ?>" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Email cobranza</label>
-                    <input type="email" name="billing_email" class="form-control" value="<?php echo e($client['billing_email']); ?>">
+                    <input type="email" name="billing_email" class="form-control" value="<?php echo e($client['billing_email'] ?? ''); ?>">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Teléfono</label>
-                    <input type="text" name="phone" class="form-control" value="<?php echo e($client['phone']); ?>">
+                    <input type="text" name="phone" class="form-control" value="<?php echo e($client['phone'] ?? ''); ?>">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Contacto</label>
-                    <input type="text" name="contact" class="form-control" value="<?php echo e($client['contact']); ?>">
+                    <input type="text" name="contact" class="form-control" value="<?php echo e($client['contact'] ?? ''); ?>">
+                </div>
+                <div class="col-12">
+                    <h5 class="mt-3">Datos del mandante</h5>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Nombre</label>
+                    <input type="text" name="mandante_name" class="form-control" value="<?php echo e($client['mandante_name'] ?? ''); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - RUT</label>
+                    <input type="text" name="mandante_rut" class="form-control" value="<?php echo e($client['mandante_rut'] ?? ''); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Teléfono</label>
+                    <input type="text" name="mandante_phone" class="form-control" value="<?php echo e($client['mandante_phone'] ?? ''); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Correo</label>
+                    <input type="email" name="mandante_email" class="form-control" value="<?php echo e($client['mandante_email'] ?? ''); ?>">
+                </div>
+                <div class="col-12">
+                    <h5 class="mt-3">Datos adicionales</h5>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Mandante - Nombre</label>
@@ -49,18 +74,18 @@
                 </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Dirección</label>
-                    <input type="text" name="address" class="form-control" value="<?php echo e($client['address']); ?>">
+                    <input type="text" name="address" class="form-control" value="<?php echo e($client['address'] ?? ''); ?>">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Estado</label>
                     <select name="status" class="form-select">
-                        <option value="activo" <?php echo $client['status'] === 'activo' ? 'selected' : ''; ?>>Activo</option>
-                        <option value="inactivo" <?php echo $client['status'] === 'inactivo' ? 'selected' : ''; ?>>Inactivo</option>
+                        <option value="activo" <?php echo ($client['status'] ?? '') === 'activo' ? 'selected' : ''; ?>>Activo</option>
+                        <option value="inactivo" <?php echo ($client['status'] ?? '') === 'inactivo' ? 'selected' : ''; ?>>Inactivo</option>
                     </select>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Notas</label>
-                    <textarea name="notes" class="form-control" rows="3"><?php echo e($client['notes']); ?></textarea>
+                    <textarea name="notes" class="form-control" rows="3"><?php echo e($client['notes'] ?? ''); ?></textarea>
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2">

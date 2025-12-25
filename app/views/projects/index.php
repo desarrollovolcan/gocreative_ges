@@ -57,7 +57,7 @@
                         <tr>
                             <td><?php echo e($project['name']); ?></td>
                             <td><?php echo e($project['client_name']); ?></td>
-                            <td><?php echo e($project['mandante_name']); ?></td>
+                            <td><?php echo e($project['mandante_name'] ?? '-'); ?></td>
                             <td><span class="badge bg-secondary-subtle text-secondary"><?php echo e($project['status']); ?></span></td>
                             <td><?php echo e($project['delivery_date']); ?></td>
                             <td class="text-end">

@@ -2,16 +2,16 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="mb-2"><?php echo e($client['name']); ?></h5>
-                <p class="mb-1"><strong>Email:</strong> <?php echo e($client['email']); ?></p>
-                <p class="mb-1"><strong>Teléfono:</strong> <?php echo e($client['phone']); ?></p>
-                <p class="mb-1"><strong>Contacto:</strong> <?php echo e($client['contact']); ?></p>
-                <p class="mb-1"><strong>Mandante:</strong> <?php echo e($client['mandante_name']); ?></p>
-                <p class="mb-1"><strong>Mandante RUT:</strong> <?php echo e($client['mandante_rut']); ?></p>
-                <p class="mb-1"><strong>Mandante Teléfono:</strong> <?php echo e($client['mandante_phone']); ?></p>
-                <p class="mb-1"><strong>Mandante Correo:</strong> <?php echo e($client['mandante_email']); ?></p>
-                <p class="mb-1"><strong>Dirección:</strong> <?php echo e($client['address']); ?></p>
-                <p class="mb-0"><strong>Estado:</strong> <?php echo e($client['status']); ?></p>
+                <h5 class="mb-2"><?php echo e($client['name'] ?? ''); ?></h5>
+                <p class="mb-1"><strong>Email:</strong> <?php echo e($client['email'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Teléfono:</strong> <?php echo e($client['phone'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Contacto:</strong> <?php echo e($client['contact'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Mandante:</strong> <?php echo e($client['mandante_name'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Mandante RUT:</strong> <?php echo e($client['mandante_rut'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Mandante Teléfono:</strong> <?php echo e($client['mandante_phone'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Mandante Correo:</strong> <?php echo e($client['mandante_email'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Dirección:</strong> <?php echo e($client['address'] ?? '-'); ?></p>
+                <p class="mb-0"><strong>Estado:</strong> <?php echo e($client['status'] ?? '-'); ?></p>
             </div>
         </div>
     </div>

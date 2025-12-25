@@ -60,9 +60,7 @@
                                 <p class="text-muted fs-xs mb-3">Si no cuentas con el código, solicita el acceso a tu ejecutivo.</p>
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-primary fw-semibold">Ingresar al portal</button>
-                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#adminAccessModal">
-                                        Acceso administrador
-                                    </button>
+                                    <a class="btn btn-outline-primary" href="login.php">Acceso administrador / operador</a>
                                 </div>
                             </form>
                         </div>
@@ -82,32 +80,6 @@
                         <p class="mb-0">Revisa tus proyectos, pagos y facturas en un solo lugar.</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="adminAccessModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Acceso administrador</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">Ingresa tus credenciales de administración para acceder al panel interno.</p>
-                <form method="post" action="login.php">
-                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                    <div class="mb-3">
-                        <label class="form-label">Correo</label>
-                        <input type="email" name="email" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Contraseña</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Entrar al panel</button>
-                </form>
             </div>
         </div>
     </div>

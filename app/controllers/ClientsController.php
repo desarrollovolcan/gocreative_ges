@@ -146,6 +146,42 @@ class ClientsController extends Controller
         ]);
     }
 
+    public function portalLogin(): void
+    {
+        $error = null;
+        $email = '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            verify_csrf();
+            $email = trim($_POST['email'] ?? '');
+            $accessCode = trim($_POST['access_code'] ?? '');
+            if (!Validator::email($email) || $accessCode === '') {
+                $error = 'Completa los datos solicitados.';
+            } else {
+                $client = $this->db->fetch(
+                    'SELECT * FROM clients WHERE email = :email AND portal_token = :token AND deleted_at IS NULL',
+                    [
+                        'email' => $email,
+                        'token' => $accessCode,
+                    ]
+                );
+                if (!$client) {
+                    $error = 'Las credenciales no son válidas.';
+                } else {
+                    $this->redirect('index.php?route=clients/portal&token=' . urlencode($client['portal_token']));
+                }
+            }
+        }
+
+        $this->renderPublic('clients/login', [
+            'title' => 'Acceso Intranet Cliente',
+            'pageTitle' => 'Acceso Portal Cliente',
+            'error' => $error,
+            'email' => $email,
+            'showAdminAccess' => true,
+            'hidePortalHeader' => true,
+        ]);
+    }
+
     public function portal(): void
     {
         $token = trim($_GET['token'] ?? '');
@@ -188,6 +224,8 @@ class ClientsController extends Controller
             'SELECT * FROM invoices WHERE client_id = :id AND estado != "pagado" AND deleted_at IS NULL ORDER BY fecha_vencimiento ASC',
             ['id' => $client['id']]
         );
+        $pendingTotal = array_sum(array_map(static fn(array $invoice) => (float)$invoice['total'], $pendingInvoices));
+        $paidTotal = array_sum(array_map(static fn(array $payment) => (float)$payment['monto'], $payments));
 
         $this->renderPublic('clients/portal', [
             'title' => 'Portal Cliente',
@@ -196,6 +234,8 @@ class ClientsController extends Controller
             'activities' => $activities,
             'payments' => $payments,
             'pendingInvoices' => $pendingInvoices,
+            'pendingTotal' => $pendingTotal,
+            'paidTotal' => $paidTotal,
         ]);
     }
 
@@ -206,7 +246,7 @@ class ClientsController extends Controller
         if ($token === '') {
             return '';
         }
-        $path = 'index.php?route=clients/portal&token=' . urlencode($token);
+        $path = 'index.php?route=clients/login';
         return $baseUrl !== '' ? $baseUrl . '/' . $path : $path;
     }
 

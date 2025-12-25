@@ -78,12 +78,20 @@
                     <label class="form-label">Link intranet</label>
                     <div class="input-group">
                         <input type="text" class="form-control" value="<?php echo e($portalUrl ?? ''); ?>" readonly>
-                        <button class="btn btn-soft-primary" type="button" data-copy-portal <?php echo empty($portalUrl) ? 'disabled' : ''; ?>>Copiar</button>
+                        <button class="btn btn-soft-primary" type="button" data-copy-input <?php echo empty($portalUrl) ? 'disabled' : ''; ?>>Copiar</button>
                     </div>
                     <?php if (empty($portalUrl)): ?>
                         <small class="text-muted">Guarda para generar el link.</small>
                     <?php endif; ?>
                     <input type="hidden" name="portal_token" value="<?php echo e($client['portal_token'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Código de acceso</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="<?php echo e($client['portal_token'] ?? ''); ?>" readonly>
+                        <button class="btn btn-soft-primary" type="button" data-copy-input <?php echo empty($client['portal_token'] ?? '') ? 'disabled' : ''; ?>>Copiar</button>
+                    </div>
+                    <small class="text-muted">Comparte este código con el cliente.</small>
                 </div>
                 <div class="col-md-4 mb-3 d-flex align-items-end">
                     <div class="form-check">
@@ -101,21 +109,22 @@
 </div>
 
 <script>
-    const copyPortalButton = document.querySelector('[data-copy-portal]');
-    copyPortalButton?.addEventListener('click', async () => {
-        const input = copyPortalButton.closest('.input-group')?.querySelector('input');
-        if (!input) {
-            return;
-        }
-        try {
-            await navigator.clipboard.writeText(input.value);
-            copyPortalButton.textContent = 'Copiado';
-            setTimeout(() => {
-                copyPortalButton.textContent = 'Copiar';
-            }, 2000);
-        } catch (error) {
-            input.select();
-            document.execCommand('copy');
-        }
+    document.querySelectorAll('[data-copy-input]').forEach((button) => {
+        button.addEventListener('click', async () => {
+            const input = button.closest('.input-group')?.querySelector('input');
+            if (!input) {
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(input.value);
+                button.textContent = 'Copiado';
+                setTimeout(() => {
+                    button.textContent = 'Copiar';
+                }, 2000);
+            } catch (error) {
+                input.select();
+                document.execCommand('copy');
+            }
+        });
     });
 </script>

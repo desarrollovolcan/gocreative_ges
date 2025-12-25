@@ -178,6 +178,7 @@ class ClientsController extends Controller
             'error' => $error,
             'email' => $email,
             'showAdminAccess' => true,
+            'hidePortalHeader' => true,
         ]);
     }
 

@@ -154,8 +154,11 @@ class ClientsController extends Controller
             verify_csrf();
             $email = trim($_POST['email'] ?? '');
             $accessCode = trim($_POST['access_code'] ?? '');
-            if (!Validator::email($email) || $accessCode === '') {
+            $password = trim($_POST['password'] ?? '');
+            if (!Validator::email($email) || $accessCode === '' || $password === '') {
                 $error = 'Completa los datos solicitados.';
+            } elseif ($accessCode !== $password) {
+                $error = 'Las credenciales no son válidas.';
             } else {
                 $client = $this->db->fetch(
                     'SELECT * FROM clients WHERE email = :email AND portal_token = :token AND deleted_at IS NULL',

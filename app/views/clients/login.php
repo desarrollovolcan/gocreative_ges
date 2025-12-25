@@ -41,7 +41,7 @@
                     <div class="mt-auto">
                         <div class="p-2 text-center">
                             <h3 class="fw-bold my-2">Acceso a Intranet Cliente</h3>
-                            <p class="text-muted mb-0">Ingresa con tu correo y el código de acceso entregado.</p>
+                            <p class="text-muted mb-0">Ingresa con tu correo, código y contraseña de acceso.</p>
 
                             <?php if (!empty($error)): ?>
                                 <div class="alert alert-danger text-start mt-3"><?php echo e($error); ?></div>
@@ -57,16 +57,25 @@
                                     <input type="text" name="access_code" class="form-control py-2" placeholder="Código de acceso" required>
                                     <i data-lucide="key-round" class="app-search-icon text-muted"></i>
                                 </div>
-                                <p class="text-muted fs-xs mb-3">Si no cuentas con el código, solicita el acceso a tu ejecutivo.</p>
+                                <div class="app-search w-100 input-group rounded-pill mb-2">
+                                    <input type="password" name="password" class="form-control py-2" placeholder="Contraseña de acceso" required>
+                                    <i data-lucide="lock" class="app-search-icon text-muted"></i>
+                                </div>
+                                <p class="text-muted fs-xs mb-3">Si no cuentas con tus credenciales, solicita el acceso a tu ejecutivo.</p>
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-primary fw-semibold">Ingresar al portal</button>
-                                    <a class="btn btn-outline-primary" href="login.php">Acceso administrador / operador</a>
                                 </div>
                             </form>
                         </div>
                     </div>
 
-                    <p class="text-center text-muted mt-auto mb-0">
+                    <div class="text-center mt-4">
+                        <h5 class="fw-semibold mb-2">Acceso administrador</h5>
+                        <p class="text-muted mb-3">Ingresa al panel de control si eres administrador u operador.</p>
+                        <a class="btn btn-outline-primary" href="login.php">Ir al panel de control</a>
+                    </div>
+
+                    <p class="text-center text-muted mt-4 mb-0">
                         ¿Necesitas ayuda? Escríbenos y con gusto revisamos tu acceso.
                     </p>
                 </div>

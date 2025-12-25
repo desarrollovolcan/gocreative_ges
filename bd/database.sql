@@ -211,7 +211,7 @@ INSERT INTO roles (name, created_at, updated_at) VALUES
 ('operador', NOW(), NOW());
 
 INSERT INTO users (name, email, password, role_id, created_at, updated_at) VALUES
-('Administrador', 'admin@admin.com', '$2y$10$8t6L7LQsoM0t9SX8Rhy2nOn2vJk9Z3rroWAtxEvsC0BpvyOukgqS6', 1, NOW(), NOW());
+('E Isla', 'eisla@gocreative.cl', '$2y$12$Aa7Lucu.iaa3mUMBZjxAyO96KI0d6yNaKuOD/Rdru1FsOhn9Kmtga', 1, NOW(), NOW());
 
 INSERT INTO settings (`key`, value, created_at, updated_at) VALUES
 ('company', '{"name":"GoCreative","rut":"","bank":"","account_type":"","account_number":"","email":"contacto@gocreative.cl","signature":"Saludos"}', NOW(), NOW()),

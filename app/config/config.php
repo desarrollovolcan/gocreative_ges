@@ -2,7 +2,7 @@
 
 return [
     'app' => [
-        'name' => '[[NOMBRE_SISTEMA]]',
+        'name' => 'GoCreative Ges',
         'base_url' => '',
         'timezone' => 'America/Santiago',
     ],

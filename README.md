@@ -1,4 +1,4 @@
-# [[NOMBRE_SISTEMA]]
+# GoCreative Ges
 
 Sistema minimalista para gestión de clientes, proyectos, servicios recurrentes, cobranzas y automatización de correos.
 
@@ -13,8 +13,8 @@ Sistema minimalista para gestión de clientes, proyectos, servicios recurrentes,
 3. Configura las credenciales en `app/config/config.php`.
 4. Apunta tu servidor web a la raíz del proyecto.
 5. Ingresa con:
-   - **Usuario:** admin@admin.com
-   - **Contraseña:** Admin123!
+   - **Usuario:** eisla@gocreative.cl
+   - **Contraseña:** Ei1245.$
 
 ## Configuración SMTP
 - Ingresar en **Configuración -> SMTP** y completar ambas cuentas (Cobranza e Información).

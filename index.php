@@ -11,5 +11,12 @@ if (!isset($routes[$route])) {
 }
 
 [$controllerName, $method] = $routes[$route];
-$controller = new $controllerName($config, $db);
-$controller->$method();
+try {
+    $controller = new $controllerName($config, $db);
+    $controller->$method();
+} catch (Throwable $e) {
+    log_message('error', sprintf('Route %s failed: %s', $route, $e->getMessage()));
+    http_response_code(500);
+    include __DIR__ . '/error-500.php';
+    exit;
+}

@@ -26,8 +26,10 @@ class Mailer
             $mail->Username = $config['username'] ?? '';
             $mail->Password = $config['password'] ?? '';
             $security = $config['security'] ?? 'tls';
-            if ($security !== 'none') {
-                $mail->SMTPSecure = $security;
+            if ($security === 'ssl') {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            } elseif ($security === 'tls') {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             }
 
             $mail->setFrom($config['from_email'] ?? $config['username'] ?? '', $config['from_name'] ?? '');

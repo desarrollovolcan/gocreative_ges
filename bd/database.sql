@@ -30,6 +30,11 @@ CREATE TABLE clients (
     phone VARCHAR(50) NULL,
     address VARCHAR(255) NULL,
     contact VARCHAR(150) NULL,
+    mandante_name VARCHAR(150) NULL,
+    mandante_rut VARCHAR(50) NULL,
+    mandante_phone VARCHAR(50) NULL,
+    mandante_email VARCHAR(150) NULL,
+    portal_token VARCHAR(64) NULL,
     notes TEXT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'activo',
     created_at DATETIME NOT NULL,
@@ -46,6 +51,10 @@ CREATE TABLE projects (
     start_date DATE NULL,
     delivery_date DATE NULL,
     value DECIMAL(12,2) NULL,
+    mandante_name VARCHAR(150) NULL,
+    mandante_rut VARCHAR(50) NULL,
+    mandante_phone VARCHAR(50) NULL,
+    mandante_email VARCHAR(150) NULL,
     notes TEXT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
@@ -200,6 +209,7 @@ CREATE TABLE audit_logs (
 );
 
 CREATE INDEX idx_clients_status ON clients(status);
+CREATE UNIQUE INDEX idx_clients_portal_token ON clients(portal_token);
 CREATE INDEX idx_services_status ON services(status);
 CREATE INDEX idx_services_due_date ON services(due_date);
 CREATE INDEX idx_invoices_estado ON invoices(estado);

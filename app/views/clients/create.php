@@ -6,6 +6,9 @@
         <form method="post" action="index.php?route=clients/store">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <div class="row">
+                <div class="col-12">
+                    <h5 class="form-section-title mt-0">Datos de la empresa</h5>
+                </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Razón social</label>
                     <input type="text" name="name" class="form-control" required>
@@ -29,6 +32,28 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Contacto</label>
                     <input type="text" name="contact" class="form-control">
+                </div>
+                <div class="col-12">
+                    <h5 class="form-section-title">Datos del mandante</h5>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Nombre</label>
+                    <input type="text" name="mandante_name" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - RUT</label>
+                    <input type="text" name="mandante_rut" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Teléfono</label>
+                    <input type="text" name="mandante_phone" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Correo</label>
+                    <input type="email" name="mandante_email" class="form-control">
+                </div>
+                <div class="col-12">
+                    <h5 class="form-section-title">Datos adicionales</h5>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Dirección</label>

@@ -15,11 +15,42 @@ class ProjectsController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $projects = $this->db->fetchAll('SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL ORDER BY projects.id DESC');
+        $conditions = ['projects.deleted_at IS NULL'];
+        $params = [];
+        $clientId = (int)($_GET['client_id'] ?? 0);
+        if ($clientId > 0) {
+            $conditions[] = 'projects.client_id = :client_id';
+            $params['client_id'] = $clientId;
+        }
+        $status = trim($_GET['status'] ?? '');
+        if ($status !== '') {
+            $conditions[] = 'projects.status = :status';
+            $params['status'] = $status;
+        }
+        $mandante = trim($_GET['mandante'] ?? '');
+        if ($mandante !== '') {
+            $conditions[] = 'projects.mandante_name LIKE :mandante';
+            $params['mandante'] = '%' . $mandante . '%';
+        }
+        $name = trim($_GET['name'] ?? '');
+        if ($name !== '') {
+            $conditions[] = 'projects.name LIKE :name';
+            $params['name'] = '%' . $name . '%';
+        }
+        $where = implode(' AND ', $conditions);
+        $projects = $this->db->fetchAll("SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$where} ORDER BY projects.id DESC", $params);
+        $clients = $this->clients->active();
         $this->render('projects/index', [
             'title' => 'Proyectos',
             'pageTitle' => 'Proyectos',
             'projects' => $projects,
+            'clients' => $clients,
+            'filters' => [
+                'client_id' => $clientId,
+                'status' => $status,
+                'mandante' => $mandante,
+                'name' => $name,
+            ],
         ]);
     }
 
@@ -46,6 +77,10 @@ class ProjectsController extends Controller
             'start_date' => $_POST['start_date'] ?? null,
             'delivery_date' => $_POST['delivery_date'] ?? null,
             'value' => $_POST['value'] ?? null,
+            'mandante_name' => trim($_POST['mandante_name'] ?? ''),
+            'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
+            'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
+            'mandante_email' => trim($_POST['mandante_email'] ?? ''),
             'notes' => trim($_POST['notes'] ?? ''),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -85,6 +120,10 @@ class ProjectsController extends Controller
             'start_date' => $_POST['start_date'] ?? null,
             'delivery_date' => $_POST['delivery_date'] ?? null,
             'value' => $_POST['value'] ?? null,
+            'mandante_name' => trim($_POST['mandante_name'] ?? ''),
+            'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
+            'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
+            'mandante_email' => trim($_POST['mandante_email'] ?? ''),
             'notes' => trim($_POST['notes'] ?? ''),
             'updated_at' => date('Y-m-d H:i:s'),
         ];

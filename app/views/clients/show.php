@@ -2,12 +2,26 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="mb-2"><?php echo e($client['name']); ?></h5>
-                <p class="mb-1"><strong>Email:</strong> <?php echo e($client['email']); ?></p>
-                <p class="mb-1"><strong>Teléfono:</strong> <?php echo e($client['phone']); ?></p>
-                <p class="mb-1"><strong>Contacto:</strong> <?php echo e($client['contact']); ?></p>
-                <p class="mb-1"><strong>Dirección:</strong> <?php echo e($client['address']); ?></p>
-                <p class="mb-0"><strong>Estado:</strong> <?php echo e($client['status']); ?></p>
+                <h5 class="mb-2"><?php echo e($client['name'] ?? ''); ?></h5>
+                <p class="mb-1"><strong>Email:</strong> <?php echo e($client['email'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Teléfono:</strong> <?php echo e($client['phone'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Contacto:</strong> <?php echo e($client['contact'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Mandante:</strong> <?php echo e($client['mandante_name'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Mandante RUT:</strong> <?php echo e($client['mandante_rut'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Mandante Teléfono:</strong> <?php echo e($client['mandante_phone'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Mandante Correo:</strong> <?php echo e($client['mandante_email'] ?? '-'); ?></p>
+                <p class="mb-1"><strong>Dirección:</strong> <?php echo e($client['address'] ?? '-'); ?></p>
+                <p class="mb-0"><strong>Estado:</strong> <?php echo e($client['status'] ?? '-'); ?></p>
+                <hr>
+                <div class="mb-2 fw-semibold">Acceso intranet</div>
+                <?php if (!empty($portalUrl)): ?>
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="<?php echo e($portalUrl); ?>" readonly>
+                        <button class="btn btn-soft-primary" type="button" data-copy-portal>Copiar</button>
+                    </div>
+                <?php else: ?>
+                    <div class="text-muted">Genera el link desde la edición del cliente.</div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -44,6 +58,26 @@
         </div>
     </div>
 </div>
+
+<script>
+    const copyPortalButton = document.querySelector('[data-copy-portal]');
+    copyPortalButton?.addEventListener('click', async () => {
+        const input = copyPortalButton.closest('.input-group')?.querySelector('input');
+        if (!input) {
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(input.value);
+            copyPortalButton.textContent = 'Copiado';
+            setTimeout(() => {
+                copyPortalButton.textContent = 'Copiar';
+            }, 2000);
+        } catch (error) {
+            input.select();
+            document.execCommand('copy');
+        }
+    });
+</script>
 
 <div class="row">
     <div class="col-lg-6">

@@ -7,7 +7,7 @@ return [
         'timezone' => 'America/Santiago',
     ],
     'db' => [
-        'host' => 'localhost',
+        'host' => '127.0.0.1',
         'name' => 'gocreative_ges',
         'user' => 'root',
         'pass' => '',

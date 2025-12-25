@@ -38,16 +38,19 @@ class ServicesController extends Controller
     {
         $this->requireLogin();
         verify_csrf();
+        $startDate = trim($_POST['start_date'] ?? '');
+        $dueDate = trim($_POST['due_date'] ?? '');
+        $deleteDate = trim($_POST['delete_date'] ?? '');
         $data = [
             'client_id' => (int)($_POST['client_id'] ?? 0),
             'service_type' => $_POST['service_type'] ?? 'dominio',
             'name' => trim($_POST['name'] ?? ''),
-            'cost' => $_POST['cost'] ?? 0,
+            'cost' => (float)($_POST['cost'] ?? 0),
             'currency' => $_POST['currency'] ?? 'CLP',
             'billing_cycle' => $_POST['billing_cycle'] ?? 'anual',
-            'start_date' => $_POST['start_date'] ?? null,
-            'due_date' => $_POST['due_date'] ?? null,
-            'delete_date' => $_POST['delete_date'] ?? null,
+            'start_date' => $startDate !== '' ? $startDate : null,
+            'due_date' => $dueDate !== '' ? $dueDate : null,
+            'delete_date' => $deleteDate !== '' ? $deleteDate : null,
             'notice_days_1' => (int)($_POST['notice_days_1'] ?? 15),
             'notice_days_2' => (int)($_POST['notice_days_2'] ?? 5),
             'status' => $_POST['status'] ?? 'activo',
@@ -83,16 +86,19 @@ class ServicesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $startDate = trim($_POST['start_date'] ?? '');
+        $dueDate = trim($_POST['due_date'] ?? '');
+        $deleteDate = trim($_POST['delete_date'] ?? '');
         $data = [
             'client_id' => (int)($_POST['client_id'] ?? 0),
             'service_type' => $_POST['service_type'] ?? 'dominio',
             'name' => trim($_POST['name'] ?? ''),
-            'cost' => $_POST['cost'] ?? 0,
+            'cost' => (float)($_POST['cost'] ?? 0),
             'currency' => $_POST['currency'] ?? 'CLP',
             'billing_cycle' => $_POST['billing_cycle'] ?? 'anual',
-            'start_date' => $_POST['start_date'] ?? null,
-            'due_date' => $_POST['due_date'] ?? null,
-            'delete_date' => $_POST['delete_date'] ?? null,
+            'start_date' => $startDate !== '' ? $startDate : null,
+            'due_date' => $dueDate !== '' ? $dueDate : null,
+            'delete_date' => $deleteDate !== '' ? $deleteDate : null,
             'notice_days_1' => (int)($_POST['notice_days_1'] ?? 15),
             'notice_days_2' => (int)($_POST['notice_days_2'] ?? 5),
             'status' => $_POST['status'] ?? 'activo',

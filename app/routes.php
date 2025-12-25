@@ -8,6 +8,7 @@ return [
     'clients/edit' => ['ClientsController', 'edit'],
     'clients/update' => ['ClientsController', 'update'],
     'clients/show' => ['ClientsController', 'show'],
+    'clients/login' => ['ClientsController', 'portalLogin'],
     'clients/portal' => ['ClientsController', 'portal'],
     'clients/delete' => ['ClientsController', 'delete'],
     'projects' => ['ProjectsController', 'index'],

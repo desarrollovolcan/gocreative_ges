@@ -40,32 +40,36 @@
 
                     <div class="mt-auto">
                         <div class="p-2 text-center">
-                            <h3 class="fw-bold my-2">Acceso Administrador</h3>
-                            <p class="text-muted mb-0">Ingresa tus credenciales para administrar la plataforma.</p>
+                            <h3 class="fw-bold my-2">Acceso a Intranet Cliente</h3>
+                            <p class="text-muted mb-0">Ingresa con tu correo y el código de acceso entregado.</p>
 
-                            <?php if (!empty($_SESSION['error'])): ?>
-                                <div class="alert alert-danger text-start mt-3"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
+                            <?php if (!empty($error)): ?>
+                                <div class="alert alert-danger text-start mt-3"><?php echo e($error); ?></div>
                             <?php endif; ?>
 
-                            <form class="mt-4" method="post" action="login.php">
+                            <form class="mt-4" method="post" action="index.php?route=clients/login">
                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                 <div class="app-search w-100 input-group rounded-pill mb-3">
-                                    <input type="email" name="email" class="form-control py-2" placeholder="Correo administrador" required>
+                                    <input type="email" name="email" class="form-control py-2" value="<?php echo e($email ?? ''); ?>" placeholder="Correo del cliente" required>
                                     <i data-lucide="circle-user" class="app-search-icon text-muted"></i>
                                 </div>
                                 <div class="app-search w-100 input-group rounded-pill mb-2">
-                                    <input type="password" name="password" class="form-control py-2" placeholder="Contraseña" required>
+                                    <input type="text" name="access_code" class="form-control py-2" placeholder="Código de acceso" required>
                                     <i data-lucide="key-round" class="app-search-icon text-muted"></i>
                                 </div>
-                                <div class="d-grid gap-2 mt-3">
-                                    <button type="submit" class="btn btn-primary fw-semibold">Ingresar</button>
+                                <p class="text-muted fs-xs mb-3">Si no cuentas con el código, solicita el acceso a tu ejecutivo.</p>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary fw-semibold">Ingresar al portal</button>
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#adminAccessModal">
+                                        Acceso administrador
+                                    </button>
                                 </div>
                             </form>
                         </div>
                     </div>
 
                     <p class="text-center text-muted mt-auto mb-0">
-                        © <script>document.write(new Date().getFullYear())</script> GoCreative.
+                        ¿Necesitas ayuda? Escríbenos y con gusto revisamos tu acceso.
                     </p>
                 </div>
             </div>
@@ -74,10 +78,36 @@
             <div class="h-100 position-relative card-side-img rounded-0 overflow-hidden">
                 <div class="p-4 card-img-overlay auth-overlay d-flex align-items-end justify-content-center">
                     <div class="text-center text-white">
-                        <h3 class="mb-2">Panel GoCreative</h3>
-                        <p class="mb-0">Gestiona clientes, servicios y facturación desde un solo lugar.</p>
+                        <h3 class="mb-2">Portal GoCreative</h3>
+                        <p class="mb-0">Revisa tus proyectos, pagos y facturas en un solo lugar.</p>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="adminAccessModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Acceso administrador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Ingresa tus credenciales de administración para acceder al panel interno.</p>
+                <form method="post" action="login.php">
+                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                    <div class="mb-3">
+                        <label class="form-label">Correo</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Entrar al panel</button>
+                </form>
             </div>
         </div>
     </div>

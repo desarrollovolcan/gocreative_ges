@@ -28,7 +28,14 @@ spl_autoload_register(function ($class) {
     }
 });
 
-$db = Database::getInstance($config['db']);
+try {
+    $db = Database::getInstance($config['db']);
+} catch (PDOException $e) {
+    log_message('error', 'DB connection failed: ' . $e->getMessage());
+    http_response_code(500);
+    echo 'Error de conexión a la base de datos. Verifica la configuración.';
+    exit;
+}
 
 if (!isset($_SESSION['timezone_set'])) {
     date_default_timezone_set($config['app']['timezone']);

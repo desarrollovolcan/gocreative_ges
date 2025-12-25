@@ -16,7 +16,12 @@ class Controller
         extract($data);
         $config = $this->config;
         $currentUser = Auth::user();
-        $notifications = $this->db->fetchAll("SELECT * FROM notifications WHERE read_at IS NULL ORDER BY created_at DESC LIMIT 5");
+        try {
+            $notifications = $this->db->fetchAll("SELECT * FROM notifications WHERE read_at IS NULL ORDER BY created_at DESC LIMIT 5");
+        } catch (PDOException $e) {
+            log_message('error', 'Failed to load notifications: ' . $e->getMessage());
+            $notifications = [];
+        }
         $notificationCount = count($notifications);
         include __DIR__ . '/../views/layouts/main.php';
     }

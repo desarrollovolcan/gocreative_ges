@@ -93,6 +93,11 @@
                     </div>
                     <small class="text-muted">Comparte este código con el cliente.</small>
                 </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Contraseña portal</label>
+                    <input type="password" name="portal_password" class="form-control" placeholder="Nueva contraseña">
+                    <small class="text-muted">Deja en blanco para mantener la contraseña actual.</small>
+                </div>
                 <div class="col-md-4 mb-3 d-flex align-items-end">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="1" id="regeneratePortalToken" name="regenerate_portal_token">

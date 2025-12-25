@@ -42,6 +42,11 @@ class ClientsController extends Controller
         }
 
         $portalToken = bin2hex(random_bytes(16));
+        $portalPassword = trim($_POST['portal_password'] ?? '');
+        if ($portalPassword === '') {
+            $_SESSION['error'] = 'Define una contraseña para el acceso del cliente.';
+            $this->redirect('index.php?route=clients/create');
+        }
         $data = [
             'name' => $name,
             'rut' => trim($_POST['rut'] ?? ''),
@@ -55,6 +60,7 @@ class ClientsController extends Controller
             'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
             'mandante_email' => trim($_POST['mandante_email'] ?? ''),
             'portal_token' => $portalToken,
+            'portal_password' => password_hash($portalPassword, PASSWORD_DEFAULT),
             'notes' => trim($_POST['notes'] ?? ''),
             'status' => $_POST['status'] ?? 'activo',
             'created_at' => date('Y-m-d H:i:s'),
@@ -97,6 +103,7 @@ class ClientsController extends Controller
         if (!empty($_POST['regenerate_portal_token']) || $portalToken === '') {
             $portalToken = bin2hex(random_bytes(16));
         }
+        $portalPassword = trim($_POST['portal_password'] ?? '');
         $data = [
             'name' => $name,
             'rut' => trim($_POST['rut'] ?? ''),
@@ -114,6 +121,9 @@ class ClientsController extends Controller
             'status' => $_POST['status'] ?? 'activo',
             'updated_at' => date('Y-m-d H:i:s'),
         ];
+        if ($portalPassword !== '') {
+            $data['portal_password'] = password_hash($portalPassword, PASSWORD_DEFAULT);
+        }
         $this->clients->update($id, $data);
         audit($this->db, Auth::user()['id'], 'update', 'clients', $id);
         $this->redirect('index.php?route=clients');
@@ -157,8 +167,6 @@ class ClientsController extends Controller
             $password = trim($_POST['password'] ?? '');
             if (!Validator::email($email) || $accessCode === '' || $password === '') {
                 $error = 'Completa los datos solicitados.';
-            } elseif ($accessCode !== $password) {
-                $error = 'Las credenciales no son válidas.';
             } else {
                 $client = $this->db->fetch(
                     'SELECT * FROM clients WHERE email = :email AND portal_token = :token AND deleted_at IS NULL',
@@ -167,7 +175,7 @@ class ClientsController extends Controller
                         'token' => $accessCode,
                     ]
                 );
-                if (!$client) {
+                if (!$client || empty($client['portal_password']) || !password_verify($password, $client['portal_password'])) {
                     $error = 'Las credenciales no son válidas.';
                 } else {
                     $this->redirect('index.php?route=clients/portal&token=' . urlencode($client['portal_token']));

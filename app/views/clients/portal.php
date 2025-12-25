@@ -1,188 +1,198 @@
 <?php if (!empty($error)): ?>
     <div class="alert alert-danger"><?php echo e($error); ?></div>
 <?php else: ?>
-    <div class="row g-3 mb-4">
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-muted">Facturas pendientes</div>
-                            <div class="fs-4 fw-semibold"><?php echo count($pendingInvoices ?? []); ?></div>
-                            <div class="text-muted fs-sm">Total: $<?php echo number_format($pendingTotal ?? 0, 0, ',', '.'); ?></div>
-                        </div>
-                        <div class="avatar-md bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="ti ti-file-invoice fs-20"></i>
-                        </div>
+    <div class="row">
+        <div class="col-12">
+            <article class="card overflow-hidden mb-0">
+                <div class="position-relative card-side-img overflow-hidden" style="min-height: 260px; background-image: url(assets/images/profile-bg.jpg);">
+                    <div class="p-4 card-img-overlay rounded-start-0 auth-overlay d-flex align-items-center flex-column justify-content-center">
+                        <h3 class="text-white mb-1 fst-italic">"<?php echo e($client['name'] ?? 'Portal Cliente'); ?>"</h3>
+                        <p class="text-white mb-0">Tu información y estado de cuenta en un solo lugar</p>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-muted">Pagos registrados</div>
-                            <div class="fs-4 fw-semibold"><?php echo count($payments ?? []); ?></div>
-                            <div class="text-muted fs-sm">Total: $<?php echo number_format($paidTotal ?? 0, 0, ',', '.'); ?></div>
-                        </div>
-                        <div class="avatar-md bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="ti ti-credit-card fs-20"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-muted">Actividades recientes</div>
-                            <div class="fs-4 fw-semibold"><?php echo count($activities ?? []); ?></div>
-                            <div class="text-muted fs-sm">Últimas tareas registradas</div>
-                        </div>
-                        <div class="avatar-md bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="ti ti-activity fs-20"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </article>
         </div>
     </div>
-    <div class="row g-4 mb-4">
-        <div class="col-xl-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="avatar-lg bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="ti ti-briefcase fs-24"></i>
-                        </div>
-                        <div>
-                            <h5 class="mb-1"><?php echo e($client['name'] ?? ''); ?></h5>
-                            <div class="text-muted">Rut: <?php echo e($client['rut'] ?? '-'); ?></div>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-column gap-2">
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Correo</span>
-                            <span class="fw-medium"><?php echo e($client['email'] ?? '-'); ?></span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Teléfono</span>
-                            <span class="fw-medium"><?php echo e($client['phone'] ?? '-'); ?></span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Mandante</span>
-                            <span class="fw-medium"><?php echo e($client['mandante_name'] ?? '-'); ?></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6 class="mb-3">Facturas pendientes</h6>
-                    <?php if (!empty($pendingInvoices)): ?>
-                        <div class="list-group list-group-flush">
-                            <?php foreach ($pendingInvoices as $invoice): ?>
-                                <div class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div class="fw-semibold">#<?php echo e($invoice['numero']); ?></div>
-                                            <div class="text-muted fs-xs">Vence: <?php echo e($invoice['fecha_vencimiento']); ?></div>
-                                        </div>
-                                        <div class="text-end">
-                                            <div class="fw-semibold">$<?php echo e($invoice['total']); ?></div>
-                                            <span class="badge bg-warning-subtle text-warning"><?php echo e($invoice['estado']); ?></span>
-                                        </div>
-                                    </div>
+
+    <div class="px-3 mt-n4">
+        <div class="row">
+            <div class="col-xl-4">
+                <div class="card card-top-sticky">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="me-3 position-relative">
+                                <div class="avatar-lg bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="ti ti-building fs-28"></i>
                                 </div>
-                            <?php endforeach; ?>
+                            </div>
+                            <div>
+                                <h5 class="mb-0 d-flex align-items-center">
+                                    <span class="link-reset"><?php echo e($client['name'] ?? ''); ?></span>
+                                </h5>
+                                <p class="text-muted mb-2">Rut: <?php echo e($client['rut'] ?? '-'); ?></p>
+                                <span class="badge text-bg-light badge-label">Cliente activo</span>
+                            </div>
                         </div>
-                    <?php else: ?>
-                        <div class="text-muted">No hay facturas pendientes.</div>
-                    <?php endif; ?>
+
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                <i class="ti ti-mail fs-xl"></i>
+                            </div>
+                            <p class="mb-0 fs-sm">Email <span class="text-dark fw-semibold"><?php echo e($client['email'] ?? '-'); ?></span></p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                <i class="ti ti-phone fs-xl"></i>
+                            </div>
+                            <p class="mb-0 fs-sm">Teléfono <span class="text-dark fw-semibold"><?php echo e($client['phone'] ?? '-'); ?></span></p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                <i class="ti ti-user fs-xl"></i>
+                            </div>
+                            <p class="mb-0 fs-sm">Mandante <span class="text-dark fw-semibold"><?php echo e($client['mandante_name'] ?? '-'); ?></span></p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                <i class="ti ti-map-pin fs-xl"></i>
+                            </div>
+                            <p class="mb-0 fs-sm">Dirección <span class="text-dark fw-semibold"><?php echo e($client['address'] ?? '-'); ?></span></p>
+                        </div>
+
+                        <h4 class="card-title mb-3 mt-4">Resumen</h4>
+                        <div class="d-flex flex-wrap gap-2">
+                            <div class="btn btn-light btn-sm">Facturas pendientes: <?php echo count($pendingInvoices ?? []); ?></div>
+                            <div class="btn btn-light btn-sm">Total pendiente: $<?php echo number_format($pendingTotal ?? 0, 0, ',', '.'); ?></div>
+                            <div class="btn btn-light btn-sm">Pagos registrados: <?php echo count($payments ?? []); ?></div>
+                            <div class="btn btn-light btn-sm">Total pagado: $<?php echo number_format($paidTotal ?? 0, 0, ',', '.'); ?></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-xl-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Actividades recientes</h5>
-                    <span class="badge bg-primary-subtle text-primary"><?php echo count($activities ?? []); ?> actividades</span>
-                </div>
-                <div class="card-body">
-                    <?php if (!empty($activities)): ?>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-striped align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Proyecto</th>
-                                        <th>Actividad</th>
-                                        <th>Estado</th>
-                                        <th>Fecha</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($activities as $activity): ?>
-                                        <tr>
-                                            <td><?php echo e($activity['project_name'] ?? '-'); ?></td>
-                                            <td><?php echo e($activity['title'] ?? '-'); ?></td>
-                                            <td>
-                                                <?php if (!empty($activity['completed'])): ?>
-                                                    <span class="badge bg-success-subtle text-success">Completada</span>
-                                                <?php else: ?>
-                                                    <span class="badge bg-secondary-subtle text-secondary">En progreso</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?php echo e($activity['created_at'] ?? '-'); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+
+            <div class="col-xl-8">
+                <div class="card">
+                    <div class="card-header card-tabs d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h4 class="card-title">Portal Cliente</h4>
                         </div>
-                    <?php else: ?>
-                        <div class="text-muted">No hay actividades registradas.</div>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <div class="card shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Pagos registrados</h5>
-                    <span class="badge bg-success-subtle text-success"><?php echo count($payments ?? []); ?> pagos</span>
-                </div>
-                <div class="card-body">
-                    <?php if (!empty($payments)): ?>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-striped align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Factura</th>
-                                        <th>Monto</th>
-                                        <th>Fecha pago</th>
-                                        <th>Método</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($payments as $payment): ?>
-                                        <tr>
-                                            <td>#<?php echo e($payment['invoice_number'] ?? $payment['invoice_id']); ?></td>
-                                            <td>$<?php echo e($payment['monto'] ?? ''); ?></td>
-                                            <td><?php echo e($payment['fecha_pago'] ?? '-'); ?></td>
-                                            <td><?php echo e($payment['metodo'] ?? '-'); ?></td>
-                                            <td>
-                                                <span class="badge bg-info-subtle text-info"><?php echo e($payment['invoice_status'] ?? '-'); ?></span>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                        <ul class="nav nav-tabs card-header-tabs nav-bordered">
+                            <li class="nav-item">
+                                <a href="#portal-activities" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
+                                    <span class="fw-bold">Actividades</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#portal-payments" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                    <span class="fw-bold">Pagos</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#portal-invoices" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                    <span class="fw-bold">Facturas</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="portal-activities">
+                                <?php if (!empty($activities)): ?>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th>Proyecto</th>
+                                                    <th>Actividad</th>
+                                                    <th>Estado</th>
+                                                    <th>Fecha</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($activities as $activity): ?>
+                                                    <tr>
+                                                        <td><?php echo e($activity['project_name'] ?? '-'); ?></td>
+                                                        <td><?php echo e($activity['title'] ?? '-'); ?></td>
+                                                        <td>
+                                                            <?php if (!empty($activity['completed'])): ?>
+                                                                <span class="badge bg-success-subtle text-success">Completada</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-secondary-subtle text-secondary">En progreso</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td><?php echo e($activity['created_at'] ?? '-'); ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="text-muted">No hay actividades registradas.</div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="tab-pane" id="portal-payments">
+                                <?php if (!empty($payments)): ?>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th>Factura</th>
+                                                    <th>Monto</th>
+                                                    <th>Fecha pago</th>
+                                                    <th>Método</th>
+                                                    <th>Estado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($payments as $payment): ?>
+                                                    <tr>
+                                                        <td>#<?php echo e($payment['invoice_number'] ?? $payment['invoice_id']); ?></td>
+                                                        <td>$<?php echo e($payment['monto'] ?? ''); ?></td>
+                                                        <td><?php echo e($payment['fecha_pago'] ?? '-'); ?></td>
+                                                        <td><?php echo e($payment['metodo'] ?? '-'); ?></td>
+                                                        <td>
+                                                            <span class="badge bg-info-subtle text-info"><?php echo e($payment['invoice_status'] ?? '-'); ?></span>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="text-muted">No hay pagos registrados.</div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="tab-pane" id="portal-invoices">
+                                <?php if (!empty($pendingInvoices)): ?>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th>Número</th>
+                                                    <th>Vence</th>
+                                                    <th>Total</th>
+                                                    <th>Estado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($pendingInvoices as $invoice): ?>
+                                                    <tr>
+                                                        <td>#<?php echo e($invoice['numero']); ?></td>
+                                                        <td><?php echo e($invoice['fecha_vencimiento']); ?></td>
+                                                        <td>$<?php echo e($invoice['total']); ?></td>
+                                                        <td><span class="badge bg-warning-subtle text-warning"><?php echo e($invoice['estado']); ?></span></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="text-muted">No hay facturas pendientes.</div>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                    <?php else: ?>
-                        <div class="text-muted">No hay pagos registrados.</div>
-                    <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>

@@ -41,6 +41,7 @@ return [
     'email-queue' => ['EmailQueueController', 'index'],
     'email-queue/compose' => ['EmailQueueController', 'compose'],
     'email-queue/store' => ['EmailQueueController', 'store'],
+    'email-queue/send' => ['EmailQueueController', 'sendNow'],
     'settings' => ['SettingsController', 'index'],
     'settings/update' => ['SettingsController', 'update'],
     'settings/test-smtp' => ['SettingsController', 'testSmtp'],

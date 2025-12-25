@@ -55,4 +55,73 @@ class EmailQueueController extends Controller
         audit($this->db, Auth::user()['id'], 'create', 'email_queue');
         $this->redirect('index.php?route=email-queue');
     }
+
+    public function sendNow(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $id = (int)($_POST['id'] ?? 0);
+        $email = $this->db->fetch('SELECT * FROM email_queue WHERE id = :id', ['id' => $id]);
+        if (!$email) {
+            $this->redirect('index.php?route=email-queue');
+        }
+
+        if ($email['status'] === 'sent') {
+            $this->createNotification('Correo enviado', 'El correo ya fue enviado previamente.', 'info');
+            $this->redirect('index.php?route=email-queue');
+        }
+
+        $client = null;
+        if (!empty($email['client_id'])) {
+            $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $email['client_id']]);
+        }
+        $to = $client['billing_email'] ?? $client['email'] ?? null;
+        if (!$to) {
+            $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = "Sin email" WHERE id = :id', ['id' => $email['id']]);
+            $this->createNotification('Correo fallido', 'No hay email asociado al cliente para enviar.', 'danger');
+            $this->redirect('index.php?route=email-queue');
+        }
+
+        $mailer = new Mailer($this->db);
+        $sent = $mailer->send($email['type'], $to, $email['subject'], $email['body_html']);
+
+        if ($sent) {
+            $this->db->execute('UPDATE email_queue SET status = "sent", updated_at = NOW() WHERE id = :id', ['id' => $email['id']]);
+            $this->storeEmailLog($email, 'sent');
+            $this->createNotification('Correo enviado', 'El correo se envió correctamente.', 'success');
+        } else {
+            $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = "Error envío" WHERE id = :id', ['id' => $email['id']]);
+            $this->createNotification('Correo fallido', 'No se pudo enviar el correo.', 'danger');
+        }
+
+        $this->redirect('index.php?route=email-queue');
+    }
+
+    private function createNotification(string $title, string $message, string $type): void
+    {
+        try {
+            $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+                'title' => $title,
+                'message' => $message,
+                'type' => $type,
+            ]);
+        } catch (PDOException $e) {
+            log_message('error', 'Notification insert failed: ' . $e->getMessage());
+        }
+    }
+
+    private function storeEmailLog(array $email, string $status): void
+    {
+        try {
+            $this->db->execute('INSERT INTO email_logs (client_id, type, subject, body_html, status, created_at, updated_at) VALUES (:client_id, :type, :subject, :body_html, :status, NOW(), NOW())', [
+                'client_id' => $email['client_id'],
+                'type' => $email['type'],
+                'subject' => $email['subject'],
+                'body_html' => $email['body_html'],
+                'status' => $status,
+            ]);
+        } catch (PDOException $e) {
+            log_message('error', 'Email log insert failed: ' . $e->getMessage());
+        }
+    }
 }

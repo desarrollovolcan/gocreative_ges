@@ -90,6 +90,18 @@ class SettingsController extends Controller
         verify_csrf();
         $type = $_POST['smtp_type'] ?? 'cobranza';
         $to = Auth::user()['email'] ?? '';
+        if ($to === '') {
+            $company = $this->settings->get('company', []);
+            $to = $company['email'] ?? '';
+        }
+        if ($to === '') {
+            $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+                'title' => 'Prueba SMTP',
+                'message' => 'No se encontró correo para enviar la prueba.',
+                'type' => 'danger',
+            ]);
+            $this->redirect('index.php?route=settings');
+        }
 
         $mailer = new Mailer($this->db);
         $sent = $mailer->send($type, $to, 'Prueba SMTP', '<p>Correo de prueba exitoso.</p>');

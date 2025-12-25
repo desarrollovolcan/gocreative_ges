@@ -31,6 +31,22 @@
                     <label class="form-label">Contacto</label>
                     <input type="text" name="contact" class="form-control" value="<?php echo e($client['contact']); ?>">
                 </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Nombre</label>
+                    <input type="text" name="mandante_name" class="form-control" value="<?php echo e($client['mandante_name']); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - RUT</label>
+                    <input type="text" name="mandante_rut" class="form-control" value="<?php echo e($client['mandante_rut']); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Teléfono</label>
+                    <input type="text" name="mandante_phone" class="form-control" value="<?php echo e($client['mandante_phone']); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Correo</label>
+                    <input type="email" name="mandante_email" class="form-control" value="<?php echo e($client['mandante_email']); ?>">
+                </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Dirección</label>
                     <input type="text" name="address" class="form-control" value="<?php echo e($client['address']); ?>">

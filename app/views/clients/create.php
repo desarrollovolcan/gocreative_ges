@@ -30,6 +30,22 @@
                     <label class="form-label">Contacto</label>
                     <input type="text" name="contact" class="form-control">
                 </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Nombre</label>
+                    <input type="text" name="mandante_name" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - RUT</label>
+                    <input type="text" name="mandante_rut" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Teléfono</label>
+                    <input type="text" name="mandante_phone" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mandante - Correo</label>
+                    <input type="email" name="mandante_email" class="form-control">
+                </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Dirección</label>
                     <input type="text" name="address" class="form-control">

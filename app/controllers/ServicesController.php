@@ -5,6 +5,7 @@ class ServicesController extends Controller
     private ServicesModel $services;
     private ClientsModel $clients;
     private EmailQueueModel $queue;
+    private EmailTemplatesModel $templates;
 
     public function __construct(array $config, Database $db)
     {
@@ -12,6 +13,7 @@ class ServicesController extends Controller
         $this->services = new ServicesModel($db);
         $this->clients = new ClientsModel($db);
         $this->queue = new EmailQueueModel($db);
+        $this->templates = new EmailTemplatesModel($db);
     }
 
     public function index(): void
@@ -215,14 +217,18 @@ class ServicesController extends Controller
 
         $this->queue->create([
             'client_id' => $client['id'],
-            'template_id' => null,
+            'template_id' => $this->getTemplateId('Registro de servicio'),
             'subject' => 'Registro del servicio con éxito',
-            'body_html' => $this->renderServiceEmail(
-                'Registro del servicio con éxito',
-                'Hemos registrado tu servicio correctamente. Te mantendremos informado sobre los próximos vencimientos.',
-                '#166534',
-                '#dcfce7',
-                $company,
+            'body_html' => $this->renderTemplateOrFallback(
+                'Registro de servicio',
+                $this->renderServiceEmail(
+                    'Registro del servicio con éxito',
+                    'Hemos registrado tu servicio correctamente. Te mantendremos informado sobre los próximos vencimientos.',
+                    '#166534',
+                    '#dcfce7',
+                    $company,
+                    $context
+                ),
                 $context
             ),
             'type' => 'informativo',
@@ -238,23 +244,27 @@ class ServicesController extends Controller
                 ?: new DateTimeImmutable($service['due_date'] . ' ' . $sendTime, new DateTimeZone($timezone));
 
             $reminders = [
-                ['days' => 15, 'subject' => 'Primer aviso: vence en 15 días'],
-                ['days' => 10, 'subject' => 'Segundo aviso: vence en 10 días'],
-                ['days' => 5, 'subject' => 'Tercer aviso: vence en 5 días'],
+                ['days' => 15, 'subject' => 'Primer aviso: vence en 15 días', 'template' => 'Cobranza 15 días'],
+                ['days' => 10, 'subject' => 'Segundo aviso: vence en 10 días', 'template' => 'Cobranza 10 días'],
+                ['days' => 5, 'subject' => 'Tercer aviso: vence en 5 días', 'template' => 'Cobranza 5 días'],
             ];
 
             foreach ($reminders as $reminder) {
                 $scheduledAt = $dueDate->sub(new DateInterval('P' . $reminder['days'] . 'D'))->format('Y-m-d H:i:s');
                 $this->queue->create([
                     'client_id' => $client['id'],
-                    'template_id' => null,
+                    'template_id' => $this->getTemplateId($reminder['template']),
                     'subject' => $reminder['subject'],
-                    'body_html' => $this->renderServiceEmail(
-                        $reminder['subject'],
-                        'Te recordamos que tu servicio está próximo a vencer. Evita la suspensión realizando el pago a tiempo.',
-                        '#9a3412',
-                        '#ffedd5',
-                        $company,
+                    'body_html' => $this->renderTemplateOrFallback(
+                        $reminder['template'],
+                        $this->renderServiceEmail(
+                            $reminder['subject'],
+                            'Te recordamos que tu servicio está próximo a vencer. Evita la suspensión realizando el pago a tiempo.',
+                            '#9a3412',
+                            '#ffedd5',
+                            $company,
+                            $context
+                        ),
                         $context
                     ),
                     'type' => 'cobranza',
@@ -269,14 +279,18 @@ class ServicesController extends Controller
             $suspensionSubject = 'Servicio suspendido por vencimiento';
             $this->queue->create([
                 'client_id' => $client['id'],
-                'template_id' => null,
+                'template_id' => $this->getTemplateId('Servicio suspendido'),
                 'subject' => $suspensionSubject,
-                'body_html' => $this->renderServiceEmail(
-                    $suspensionSubject,
-                    'Debido al no pago, el servicio se encuentra vencido y será suspendido en la fecha indicada.',
-                    '#7f1d1d',
-                    '#fee2e2',
-                    $company,
+                'body_html' => $this->renderTemplateOrFallback(
+                    'Servicio suspendido',
+                    $this->renderServiceEmail(
+                        $suspensionSubject,
+                        'Debido al no pago, el servicio se encuentra vencido y será suspendido en la fecha indicada.',
+                        '#7f1d1d',
+                        '#fee2e2',
+                        $company,
+                        $context
+                    ),
                     $context
                 ),
                 'type' => 'cobranza',
@@ -436,5 +450,26 @@ class ServicesController extends Controller
 </table>';
 
         return render_template_vars($html, $context);
+    }
+
+    private function renderTemplateOrFallback(string $name, string $fallback, array $context): string
+    {
+        $template = $this->db->fetch('SELECT body_html FROM email_templates WHERE name = :name AND deleted_at IS NULL', [
+            'name' => $name,
+        ]);
+        if (!$template) {
+            return $fallback;
+        }
+
+        return render_template_vars($template['body_html'], $context);
+    }
+
+    private function getTemplateId(string $name): ?int
+    {
+        $template = $this->db->fetch('SELECT id FROM email_templates WHERE name = :name AND deleted_at IS NULL', [
+            'name' => $name,
+        ]);
+
+        return $template ? (int)$template['id'] : null;
     }
 }

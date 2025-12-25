@@ -221,6 +221,515 @@ INSERT INTO settings (`key`, value, created_at, updated_at) VALUES
 ('smtp_info', '{"host":"mail.gocreative.cl","port":465,"security":"ssl","username":"info@gocreative.cl","password":"ln&}+6F{~351tYNK","from_name":"Información","from_email":"info@gocreative.cl","reply_to":"info@gocreative.cl"}', NOW(), NOW());
 
 INSERT INTO email_templates (name, subject, body_html, type, created_by, created_at, updated_at) VALUES
-('Aviso vencimiento 15 días', 'Tu servicio vence pronto', '<p>Hola {{cliente_nombre}}, tu servicio {{servicio_nombre}} vence el {{fecha_vencimiento}}.</p>', 'cobranza', 1, NOW(), NOW()),
-('Aviso vencimiento 5 días', 'Tu servicio vence en 5 días', '<p>Hola {{cliente_nombre}}, recuerda que {{servicio_nombre}} vence el {{fecha_vencimiento}}.</p>', 'cobranza', 1, NOW(), NOW()),
-('Aviso vencido', 'Servicio vencido', '<p>Hola {{cliente_nombre}}, tu servicio {{servicio_nombre}} está vencido desde {{fecha_vencimiento}}.</p>', 'cobranza', 1, NOW(), NOW());
+('Registro de servicio', 'Registro del servicio con éxito', '<p>&nbsp;</p>
+<div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">
+  Aviso de eliminación: su sitio web, correos del dominio y presencia en Google asociados a {{dominio}} serán dados de baja por no pago.
+</div>
+
+<table style="background:#f6f7f9; padding:28px 16px;" role="presentation" width="100%" cellspacing="0" cellpadding="0">
+  <tbody>
+    <tr>
+      <td align="center">
+        <table style="max-width:640px;" role="presentation" width="640" cellspacing="0" cellpadding="0">
+          <tbody>
+
+            <tr>
+              <td style="color:#6b7280; font-size:13px; letter-spacing:.08em; text-transform:uppercase; padding-bottom:12px;">
+                Go Creative · Información
+              </td>
+            </tr>
+
+            <tr>
+              <td style="background:#ffffff; border:1px solid #e5e7eb; border-radius:16px; padding:22px;">
+
+                <h1 style="margin:0 0 12px 0; font-size:20px; color:#166534;">
+                  Registro del servicio con éxito – {{dominio}}
+                </h1>
+
+                <p style="margin:0 0 16px 0; font-size:14px; line-height:1.6; color:#374151;">
+                  Estimado/a {{cliente_nombre}},<br /><br />
+                  Hemos registrado tu servicio correctamente. Te mantendremos informado sobre los próximos vencimientos.
+                </p>
+
+                <div style="background:#dcfce7; border:1px solid #bbf7d0; border-radius:12px; padding:14px; margin-bottom:18px;">
+                  <p style="margin:0; font-size:14px; line-height:1.6; color:#166534;">
+                    <strong>Gracias por confiar en nosotros.</strong> Si necesitas actualizar datos o realizar cambios, contáctanos.
+                  </p>
+                </div>
+
+                <h2 style="font-size:14px; margin:0 0 8px 0; color:#111827;">
+                  Detalle de servicios
+                </h2>
+
+                <table style="border-collapse:collapse; margin-bottom:16px;" width="100%" cellspacing="0" cellpadding="0">
+                  <tbody>
+                    <tr>
+                      <td style="padding:10px; border:1px solid #e5e7eb; background:#f9fafb;">{{servicio_nombre}}</td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right;">$ {{monto_total}}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:10px; border:1px solid #e5e7eb; background:#f3f4f6; font-weight:bold;">
+                        Total
+                      </td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right; font-weight:bold;">
+                        $ {{monto_total}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <p style="font-size:14px; margin:0 0 16px 0; color:#111827;">
+                  <strong>Fecha de vencimiento:</strong> {{fecha_vencimiento}}
+                </p>
+
+                <p style="margin:0 0 6px 0; font-size:12px; line-height:1.6; color:#6b7280;">
+                  Cualquier duda puedes escribirnos a cobranza@gocreative.cl.
+                </p>
+
+                <hr style="border:none; border-top:1px solid #e5e7eb; margin:18px 0;" />
+
+                <p style="font-size:12px; color:#6b7280; line-height:1.6; margin:0;">
+                  Saludos cordiales,<br />
+                  <strong>Equipo Go Creative</strong><br />
+                  Área de Información ·
+                  <a href="mailto:info@gocreative.cl" style="color:#6b7280; text-decoration:underline;">
+                    info@gocreative.cl
+                  </a>
+                </p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td style="height:14px;">&nbsp;</td>
+            </tr>
+
+            <tr>
+              <td style="font-size:11px; color:#9ca3af; line-height:1.6; padding:0 6px;">
+                Nota: la eliminación del servicio puede implicar pérdida de información alojada y la interrupción total de los correos del dominio.
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>', 'informativo', 1, NOW(), NOW()),
+('Cobranza 15 días', 'Primer aviso: vence en 15 días', '<p>&nbsp;</p>
+<div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">
+  Aviso de eliminación: su sitio web, correos del dominio y presencia en Google asociados a {{dominio}} serán dados de baja por no pago.
+</div>
+
+<table style="background:#f6f7f9; padding:28px 16px;" role="presentation" width="100%" cellspacing="0" cellpadding="0">
+  <tbody>
+    <tr>
+      <td align="center">
+        <table style="max-width:640px;" role="presentation" width="640" cellspacing="0" cellpadding="0">
+          <tbody>
+
+            <tr>
+              <td style="color:#6b7280; font-size:13px; letter-spacing:.08em; text-transform:uppercase; padding-bottom:12px;">
+                Go Creative · Cobranza
+              </td>
+            </tr>
+
+            <tr>
+              <td style="background:#ffffff; border:1px solid #e5e7eb; border-radius:16px; padding:22px;">
+
+                <h1 style="margin:0 0 12px 0; font-size:20px; color:#9a3412;">
+                  Primer aviso de cobranza – {{dominio}}
+                </h1>
+
+                <p style="margin:0 0 16px 0; font-size:14px; line-height:1.6; color:#374151;">
+                  Estimado/a {{cliente_nombre}},<br /><br />
+                  Le informamos que su servicio está próximo a vencer el <strong>{{fecha_vencimiento}}</strong>.
+                  Evite la suspensión realizando el pago antes de la fecha indicada.
+                </p>
+
+                <div style="background:#ffedd5; border:1px solid #fed7aa; border-radius:12px; padding:14px; margin-bottom:18px;">
+                  <p style="margin:0; font-size:14px; line-height:1.6; color:#9a3412;">
+                    <strong>Recordatorio:</strong> Aún estás a tiempo de regularizar el pago y evitar interrupciones.
+                  </p>
+                </div>
+
+                <h2 style="font-size:14px; margin:0 0 8px 0; color:#111827;">
+                  Detalle de servicios
+                </h2>
+
+                <table style="border-collapse:collapse; margin-bottom:16px;" width="100%" cellspacing="0" cellpadding="0">
+                  <tbody>
+                    <tr>
+                      <td style="padding:10px; border:1px solid #e5e7eb; background:#f9fafb;">{{servicio_nombre}}</td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right;">$ {{monto_total}}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:10px; border:1px solid #e5e7eb; background:#f3f4f6; font-weight:bold;">
+                        Total adeudado
+                      </td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right; font-weight:bold;">
+                        $ {{monto_total}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <p style="font-size:14px; margin:0 0 16px 0; color:#111827;">
+                  <strong>Fecha de vencimiento:</strong> {{fecha_vencimiento}}
+                </p>
+
+                <p style="margin:0 0 6px 0; font-size:12px; line-height:1.6; color:#6b7280;">
+                  Una vez realizado el pago, envíe el comprobante para confirmar y evitar la eliminación definitiva.
+                </p>
+
+                <hr style="border:none; border-top:1px solid #e5e7eb; margin:18px 0;" />
+
+                <p style="font-size:12px; color:#6b7280; line-height:1.6; margin:0;">
+                  Saludos cordiales,<br />
+                  <strong>Equipo Go Creative</strong><br />
+                  Área de Cobranza ·
+                  <a href="mailto:cobranza@gocreative.cl" style="color:#6b7280; text-decoration:underline;">
+                    cobranza@gocreative.cl
+                  </a>
+                </p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td style="height:14px;">&nbsp;</td>
+            </tr>
+
+            <tr>
+              <td style="font-size:11px; color:#9ca3af; line-height:1.6; padding:0 6px;">
+                Nota: la eliminación del servicio puede implicar pérdida de información alojada y la interrupción total de los correos del dominio.
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>', 'cobranza', 1, NOW(), NOW()),
+('Cobranza 10 días', 'Segundo aviso: vence en 10 días', '<p>&nbsp;</p>
+<div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">
+  Aviso de eliminación: su sitio web, correos del dominio y presencia en Google asociados a {{dominio}} serán dados de baja por no pago.
+</div>
+
+<table style="background:#f6f7f9; padding:28px 16px;" role="presentation" width="100%" cellspacing="0" cellpadding="0">
+  <tbody>
+    <tr>
+      <td align="center">
+        <table style="max-width:640px;" role="presentation" width="640" cellspacing="0" cellpadding="0">
+          <tbody>
+
+            <tr>
+              <td style="color:#6b7280; font-size:13px; letter-spacing:.08em; text-transform:uppercase; padding-bottom:12px;">
+                Go Creative · Cobranza
+              </td>
+            </tr>
+
+            <tr>
+              <td style="background:#ffffff; border:1px solid #e5e7eb; border-radius:16px; padding:22px;">
+
+                <h1 style="margin:0 0 12px 0; font-size:20px; color:#9a3412;">
+                  Segundo aviso de cobranza – {{dominio}}
+                </h1>
+
+                <p style="margin:0 0 16px 0; font-size:14px; line-height:1.6; color:#374151;">
+                  Estimado/a {{cliente_nombre}},<br /><br />
+                  Su servicio vence el <strong>{{fecha_vencimiento}}</strong>. Evite la suspensión realizando el pago.
+                </p>
+
+                <div style="background:#ffedd5; border:1px solid #fed7aa; border-radius:12px; padding:14px; margin-bottom:18px;">
+                  <p style="margin:0; font-size:14px; line-height:1.6; color:#9a3412;">
+                    <strong>Recordatorio:</strong> Quedan pocos días para regularizar el pago.
+                  </p>
+                </div>
+
+                <h2 style="font-size:14px; margin:0 0 8px 0; color:#111827;">
+                  Detalle de servicios
+                </h2>
+
+                <table style="border-collapse:collapse; margin-bottom:16px;" width="100%" cellspacing="0" cellpadding="0">
+                  <tbody>
+                    <tr>
+                      <td style="padding:10px; border:1px solid #e5e7eb; background:#f9fafb;">{{servicio_nombre}}</td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right;">$ {{monto_total}}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:10px; border:1px solid #e5e7eb; background:#f3f4f6; font-weight:bold;">
+                        Total adeudado
+                      </td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right; font-weight:bold;">
+                        $ {{monto_total}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <p style="font-size:14px; margin:0 0 16px 0; color:#111827;">
+                  <strong>Fecha de vencimiento:</strong> {{fecha_vencimiento}}
+                </p>
+
+                <p style="margin:0 0 6px 0; font-size:12px; line-height:1.6; color:#6b7280;">
+                  Una vez realizado el pago, envíe el comprobante para confirmar y evitar la eliminación definitiva.
+                </p>
+
+                <hr style="border:none; border-top:1px solid #e5e7eb; margin:18px 0;" />
+
+                <p style="font-size:12px; color:#6b7280; line-height:1.6; margin:0;">
+                  Saludos cordiales,<br />
+                  <strong>Equipo Go Creative</strong><br />
+                  Área de Cobranza ·
+                  <a href="mailto:cobranza@gocreative.cl" style="color:#6b7280; text-decoration:underline;">
+                    cobranza@gocreative.cl
+                  </a>
+                </p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td style="height:14px;">&nbsp;</td>
+            </tr>
+
+            <tr>
+              <td style="font-size:11px; color:#9ca3af; line-height:1.6; padding:0 6px;">
+                Nota: la eliminación del servicio puede implicar pérdida de información alojada y la interrupción total de los correos del dominio.
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>', 'cobranza', 1, NOW(), NOW()),
+('Cobranza 5 días', 'Tercer aviso: vence en 5 días', '<p>&nbsp;</p>
+<div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">
+  Aviso de eliminación: su sitio web, correos del dominio y presencia en Google asociados a {{dominio}} serán dados de baja por no pago.
+</div>
+
+<table style="background:#f6f7f9; padding:28px 16px;" role="presentation" width="100%" cellspacing="0" cellpadding="0">
+  <tbody>
+    <tr>
+      <td align="center">
+        <table style="max-width:640px;" role="presentation" width="640" cellspacing="0" cellpadding="0">
+          <tbody>
+
+            <tr>
+              <td style="color:#6b7280; font-size:13px; letter-spacing:.08em; text-transform:uppercase; padding-bottom:12px;">
+                Go Creative · Cobranza
+              </td>
+            </tr>
+
+            <tr>
+              <td style="background:#ffffff; border:1px solid #e5e7eb; border-radius:16px; padding:22px;">
+
+                <h1 style="margin:0 0 12px 0; font-size:20px; color:#9a3412;">
+                  Tercer aviso de cobranza – {{dominio}}
+                </h1>
+
+                <p style="margin:0 0 16px 0; font-size:14px; line-height:1.6; color:#374151;">
+                  Estimado/a {{cliente_nombre}},<br /><br />
+                  Su servicio vence el <strong>{{fecha_vencimiento}}</strong>. Evite la suspensión realizando el pago.
+                </p>
+
+                <div style="background:#ffedd5; border:1px solid #fed7aa; border-radius:12px; padding:14px; margin-bottom:18px;">
+                  <p style="margin:0; font-size:14px; line-height:1.6; color:#9a3412;">
+                    <strong>Último recordatorio:</strong> Estamos a 5 días del vencimiento.
+                  </p>
+                </div>
+
+                <h2 style="font-size:14px; margin:0 0 8px 0; color:#111827;">
+                  Detalle de servicios
+                </h2>
+
+                <table style="border-collapse:collapse; margin-bottom:16px;" width="100%" cellspacing="0" cellpadding="0">
+                  <tbody>
+                    <tr>
+                      <td style="padding:10px; border:1px solid #e5e7eb; background:#f9fafb;">{{servicio_nombre}}</td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right;">$ {{monto_total}}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:10px; border:1px solid #e5e7eb; background:#f3f4f6; font-weight:bold;">
+                        Total adeudado
+                      </td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right; font-weight:bold;">
+                        $ {{monto_total}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <p style="font-size:14px; margin:0 0 16px 0; color:#111827;">
+                  <strong>Fecha de vencimiento:</strong> {{fecha_vencimiento}}
+                </p>
+
+                <p style="margin:0 0 6px 0; font-size:12px; line-height:1.6; color:#6b7280;">
+                  Una vez realizado el pago, envíe el comprobante para confirmar y evitar la eliminación definitiva.
+                </p>
+
+                <hr style="border:none; border-top:1px solid #e5e7eb; margin:18px 0;" />
+
+                <p style="font-size:12px; color:#6b7280; line-height:1.6; margin:0;">
+                  Saludos cordiales,<br />
+                  <strong>Equipo Go Creative</strong><br />
+                  Área de Cobranza ·
+                  <a href="mailto:cobranza@gocreative.cl" style="color:#6b7280; text-decoration:underline;">
+                    cobranza@gocreative.cl
+                  </a>
+                </p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td style="height:14px;">&nbsp;</td>
+            </tr>
+
+            <tr>
+              <td style="font-size:11px; color:#9ca3af; line-height:1.6; padding:0 6px;">
+                Nota: la eliminación del servicio puede implicar pérdida de información alojada y la interrupción total de los correos del dominio.
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>', 'cobranza', 1, NOW(), NOW()),
+('Servicio suspendido', 'Servicio suspendido por vencimiento', '<p>&nbsp;</p>
+<div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">
+  Aviso de eliminación: su sitio web, correos del dominio y presencia en Google asociados a {{dominio}} serán dados de baja por no pago.
+</div>
+
+<table style="background:#f6f7f9; padding:28px 16px;" role="presentation" width="100%" cellspacing="0" cellpadding="0">
+  <tbody>
+    <tr>
+      <td align="center">
+        <table style="max-width:640px;" role="presentation" width="640" cellspacing="0" cellpadding="0">
+          <tbody>
+
+            <tr>
+              <td style="color:#6b7280; font-size:13px; letter-spacing:.08em; text-transform:uppercase; padding-bottom:12px;">
+                Go Creative · Cobranza
+              </td>
+            </tr>
+
+            <tr>
+              <td style="background:#ffffff; border:1px solid #e5e7eb; border-radius:16px; padding:22px;">
+
+                <h1 style="margin:0 0 12px 0; font-size:20px; color:#7f1d1d;">
+                  Servicio suspendido por vencimiento – {{dominio}}
+                </h1>
+
+                <p style="margin:0 0 16px 0; font-size:14px; line-height:1.6; color:#374151;">
+                  Estimado/a {{cliente_nombre}},<br /><br />
+                  Le informamos que, debido al <strong>no pago</strong> de los servicios contratados, el dominio
+                  <strong>{{dominio}}</strong> se encuentra en proceso de <strong>eliminación</strong>.
+                  En caso de no regularizar el pago, se procederá a la baja definitiva de los servicios asociados.
+                </p>
+
+                <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:14px; margin-bottom:18px;">
+                  <p style="margin:0; font-size:14px; line-height:1.6; color:#7f1d1d;">
+                    <strong>Consecuencias de la eliminación:</strong><br />
+                    &bull; <strong>Baja definitiva del sitio web</strong> (la página dejará de estar disponible).<br />
+                    &bull; <strong>Desactivación de los correos asociados al dominio</strong> (ej.: contacto@{{dominio}}).<br />
+                    &bull; Pérdida de continuidad en la <strong>presencia en Google y en la web</strong>, afectando la visibilidad
+                    del negocio y provocando que <strong>potenciales clientes no puedan encontrar ni contactar a su empresa</strong>.
+                  </p>
+                </div>
+
+                <h2 style="font-size:14px; margin:0 0 8px 0; color:#111827;">
+                  Detalle de servicios
+                </h2>
+
+                <table style="border-collapse:collapse; margin-bottom:16px;" width="100%" cellspacing="0" cellpadding="0">
+                  <tbody>
+                    <tr>
+                      <td style="padding:10px; border:1px solid #e5e7eb; background:#f9fafb;">{{servicio_nombre}}</td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right;">$ {{monto_total}}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:10px; border:1px solid #e5e7eb; background:#f3f4f6; font-weight:bold;">
+                        Total adeudado
+                      </td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right; font-weight:bold;">
+                        $ {{monto_total}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <p style="font-size:14px; margin:0 0 16px 0; color:#111827;">
+                  <strong>Fecha de eliminación definitiva:</strong> {{fecha_eliminacion}}
+                </p>
+
+                <h2 style="font-size:14px; margin:0 0 8px 0; color:#111827;">
+                  Datos para realizar el pago
+                </h2>
+
+                <table style="border-collapse:separate; border-spacing:0; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; margin-bottom:16px;" width="100%" cellspacing="0" cellpadding="0">
+                  <tbody>
+                    <tr>
+                      <td style="padding:12px; font-size:14px; line-height:1.7; color:#111827;">
+                        <strong>Beneficiario:</strong> Go Creative<br />
+                        <strong>RUT:</strong> 15.626.773-2<br />
+                        <strong>Banco:</strong> Banco Estado<br />
+                        <strong>Tipo de cuenta:</strong> Ahorro<br />
+                        <strong>Número de cuenta:</strong> 55164309630<br />
+                        <strong>Email de confirmación:</strong>
+                        <a href="mailto:cobranza@gocreative.cl" style="color:#0ea5e9; text-decoration:none;">
+                          cobranza@gocreative.cl
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div style="text-align:center; margin-bottom:10px;">
+                  <a href="mailto:cobranza@gocreative.cl?subject=Comprobante%20de%20pago%20-%20{{dominio}}"
+                     style="background:#7f1d1d; color:#ffffff; padding:12px 18px; border-radius:10px;
+                            text-decoration:none; font-size:14px; font-weight:bold; display:inline-block;">
+                    Enviar comprobante de pago
+                  </a>
+                </div>
+
+                <p style="margin:0 0 6px 0; font-size:12px; line-height:1.6; color:#6b7280;">
+                  Una vez realizado el pago, envíe el comprobante para confirmar y evitar la eliminación definitiva.
+                </p>
+
+                <hr style="border:none; border-top:1px solid #e5e7eb; margin:18px 0;" />
+
+                <p style="font-size:12px; color:#6b7280; line-height:1.6; margin:0;">
+                  Saludos cordiales,<br />
+                  <strong>Equipo Go Creative</strong><br />
+                  Área de Cobranza ·
+                  <a href="mailto:cobranza@gocreative.cl" style="color:#6b7280; text-decoration:underline;">
+                    cobranza@gocreative.cl
+                  </a>
+                </p>
+
+              </td>
+            </tr>
+
+            <tr>
+              <td style="height:14px;">&nbsp;</td>
+            </tr>
+
+            <tr>
+              <td style="font-size:11px; color:#9ca3af; line-height:1.6; padding:0 6px;">
+                Nota: la eliminación del servicio puede implicar pérdida de información alojada y la interrupción total de los correos del dominio.
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>', 'cobranza', 1, NOW(), NOW());

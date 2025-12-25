@@ -1,6 +1,56 @@
 <?php if (!empty($error)): ?>
     <div class="alert alert-danger"><?php echo e($error); ?></div>
 <?php else: ?>
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted">Facturas pendientes</div>
+                            <div class="fs-4 fw-semibold"><?php echo count($pendingInvoices ?? []); ?></div>
+                            <div class="text-muted fs-sm">Total: $<?php echo number_format($pendingTotal ?? 0, 0, ',', '.'); ?></div>
+                        </div>
+                        <div class="avatar-md bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center">
+                            <i class="ti ti-file-invoice fs-20"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted">Pagos registrados</div>
+                            <div class="fs-4 fw-semibold"><?php echo count($payments ?? []); ?></div>
+                            <div class="text-muted fs-sm">Total: $<?php echo number_format($paidTotal ?? 0, 0, ',', '.'); ?></div>
+                        </div>
+                        <div class="avatar-md bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center">
+                            <i class="ti ti-credit-card fs-20"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted">Actividades recientes</div>
+                            <div class="fs-4 fw-semibold"><?php echo count($activities ?? []); ?></div>
+                            <div class="text-muted fs-sm">Últimas tareas registradas</div>
+                        </div>
+                        <div class="avatar-md bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
+                            <i class="ti ti-activity fs-20"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row g-4 mb-4">
         <div class="col-xl-4">
             <div class="card shadow-sm">

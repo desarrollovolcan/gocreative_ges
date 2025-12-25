@@ -41,6 +41,7 @@ class ClientsController extends Controller
             $this->redirect('index.php?route=clients/create');
         }
 
+        $portalToken = bin2hex(random_bytes(16));
         $data = [
             'name' => $name,
             'rut' => trim($_POST['rut'] ?? ''),
@@ -53,6 +54,7 @@ class ClientsController extends Controller
             'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
             'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
             'mandante_email' => trim($_POST['mandante_email'] ?? ''),
+            'portal_token' => $portalToken,
             'notes' => trim($_POST['notes'] ?? ''),
             'status' => $_POST['status'] ?? 'activo',
             'created_at' => date('Y-m-d H:i:s'),
@@ -75,6 +77,7 @@ class ClientsController extends Controller
             'title' => 'Editar Cliente',
             'pageTitle' => 'Editar Cliente',
             'client' => $client,
+            'portalUrl' => $this->buildPortalUrl($client),
         ]);
     }
 
@@ -90,6 +93,10 @@ class ClientsController extends Controller
             $this->redirect('index.php?route=clients/edit&id=' . $id);
         }
 
+        $portalToken = trim($_POST['portal_token'] ?? '');
+        if (!empty($_POST['regenerate_portal_token']) || $portalToken === '') {
+            $portalToken = bin2hex(random_bytes(16));
+        }
         $data = [
             'name' => $name,
             'rut' => trim($_POST['rut'] ?? ''),
@@ -102,6 +109,7 @@ class ClientsController extends Controller
             'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
             'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
             'mandante_email' => trim($_POST['mandante_email'] ?? ''),
+            'portal_token' => $portalToken,
             'notes' => trim($_POST['notes'] ?? ''),
             'status' => $_POST['status'] ?? 'activo',
             'updated_at' => date('Y-m-d H:i:s'),
@@ -134,7 +142,72 @@ class ClientsController extends Controller
             'invoices' => $invoices,
             'emails' => $emails,
             'payments' => $payments,
+            'portalUrl' => $this->buildPortalUrl($client),
         ]);
+    }
+
+    public function portal(): void
+    {
+        $token = trim($_GET['token'] ?? '');
+        if ($token === '') {
+            $this->renderPublic('clients/portal', [
+                'title' => 'Portal Cliente',
+                'pageTitle' => 'Portal Cliente',
+                'error' => 'Token inválido.',
+            ]);
+            return;
+        }
+
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client) {
+            $this->renderPublic('clients/portal', [
+                'title' => 'Portal Cliente',
+                'pageTitle' => 'Portal Cliente',
+                'error' => 'No encontramos un cliente asociado a este token.',
+            ]);
+            return;
+        }
+
+        $activities = $this->db->fetchAll(
+            'SELECT project_tasks.*, projects.name as project_name
+             FROM project_tasks
+             JOIN projects ON project_tasks.project_id = projects.id
+             WHERE projects.client_id = :id AND projects.deleted_at IS NULL
+             ORDER BY project_tasks.created_at DESC',
+            ['id' => $client['id']]
+        );
+        $payments = $this->db->fetchAll(
+            'SELECT payments.*, invoices.numero as invoice_number, invoices.estado as invoice_status, invoices.total as invoice_total
+             FROM payments
+             JOIN invoices ON payments.invoice_id = invoices.id
+             WHERE invoices.client_id = :id
+             ORDER BY payments.fecha_pago DESC',
+            ['id' => $client['id']]
+        );
+        $pendingInvoices = $this->db->fetchAll(
+            'SELECT * FROM invoices WHERE client_id = :id AND estado != "pagado" AND deleted_at IS NULL ORDER BY fecha_vencimiento ASC',
+            ['id' => $client['id']]
+        );
+
+        $this->renderPublic('clients/portal', [
+            'title' => 'Portal Cliente',
+            'pageTitle' => 'Portal Cliente',
+            'client' => $client,
+            'activities' => $activities,
+            'payments' => $payments,
+            'pendingInvoices' => $pendingInvoices,
+        ]);
+    }
+
+    private function buildPortalUrl(array $client): string
+    {
+        $baseUrl = rtrim($this->config['app']['base_url'] ?? '', '/');
+        $token = $client['portal_token'] ?? '';
+        if ($token === '') {
+            return '';
+        }
+        $path = 'index.php?route=clients/portal&token=' . urlencode($token);
+        return $baseUrl !== '' ? $baseUrl . '/' . $path : $path;
     }
 
     public function delete(): void

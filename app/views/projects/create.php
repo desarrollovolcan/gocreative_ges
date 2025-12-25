@@ -4,7 +4,7 @@
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <div class="row">
                 <div class="col-12">
-                    <h5 class="mt-0">Datos del proyecto</h5>
+                    <h5 class="form-section-title mt-0">Datos del proyecto</h5>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Cliente</label>
@@ -30,7 +30,7 @@
                     <textarea name="description" class="form-control" rows="3"></textarea>
                 </div>
                 <div class="col-12">
-                    <h5 class="mt-3">Estado y planificación</h5>
+                    <h5 class="form-section-title">Estado y planificación</h5>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Estado</label>
@@ -53,8 +53,12 @@
                     <label class="form-label">Valor</label>
                     <input type="number" step="0.01" name="value" class="form-control">
                 </div>
-                <div class="col-12">
-                    <h5 class="mt-3">Datos del mandante</h5>
+                <div class="col-12 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <h5 class="form-section-title mb-0">Datos del mandante</h5>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-soft-primary btn-sm" data-mandante-fill>Actualizar desde cliente</button>
+                        <button type="button" class="btn btn-light btn-sm" data-mandante-clear>Limpiar</button>
+                    </div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Mandante - Nombre</label>
@@ -73,7 +77,7 @@
                     <input type="email" name="mandante_email" class="form-control" data-mandante-field="email">
                 </div>
                 <div class="col-12">
-                    <h5 class="mt-3">Notas</h5>
+                    <h5 class="form-section-title">Notas</h5>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Notas</label>
@@ -96,24 +100,41 @@
         phone: document.querySelector('[data-mandante-field="phone"]'),
         email: document.querySelector('[data-mandante-field="email"]'),
     };
+    const mandanteFillButton = document.querySelector('[data-mandante-fill]');
+    const mandanteClearButton = document.querySelector('[data-mandante-clear]');
 
-    const fillMandanteFromClient = () => {
+    const getMandanteValues = () => {
         const option = clientSelect?.selectedOptions?.[0];
         if (!option) {
-            return;
+            return null;
         }
-        const values = {
+        return {
             name: option.dataset.mandanteName || '',
             rut: option.dataset.mandanteRut || '',
             phone: option.dataset.mandantePhone || '',
             email: option.dataset.mandanteEmail || '',
         };
+    };
+
+    const fillMandanteFromClient = (override = false) => {
+        const values = getMandanteValues();
+        if (!values) {
+            return;
+        }
         Object.entries(mandanteFields).forEach(([key, field]) => {
-            if (field && field.value.trim() === '') {
+            if (field && (override || field.value.trim() === '')) {
                 field.value = values[key];
             }
         });
     };
 
     clientSelect?.addEventListener('change', fillMandanteFromClient);
+    mandanteFillButton?.addEventListener('click', () => fillMandanteFromClient(true));
+    mandanteClearButton?.addEventListener('click', () => {
+        Object.values(mandanteFields).forEach((field) => {
+            if (field) {
+                field.value = '';
+            }
+        });
+    });
 </script>

@@ -26,6 +26,13 @@ class Controller
         include __DIR__ . '/../views/layouts/main.php';
     }
 
+    protected function renderPublic(string $view, array $data = []): void
+    {
+        extract($data);
+        $config = $this->config;
+        include __DIR__ . '/../views/layouts/portal.php';
+    }
+
     protected function redirect(string $path): void
     {
         header('Location: ' . $path);

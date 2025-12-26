@@ -10,6 +10,7 @@ return [
     'clients/show' => ['ClientsController', 'show'],
     'clients/login' => ['ClientsController', 'portalLogin'],
     'clients/portal' => ['ClientsController', 'portal'],
+    'clients/portal/update' => ['ClientsController', 'portalUpdate'],
     'clients/delete' => ['ClientsController', 'delete'],
     'projects' => ['ProjectsController', 'index'],
     'projects/create' => ['ProjectsController', 'create'],

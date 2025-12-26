@@ -247,7 +247,9 @@ class ClientsController extends Controller
             'pendingInvoices' => $pendingInvoices,
             'pendingTotal' => $pendingTotal,
             'paidTotal' => $paidTotal,
+            'success' => $_SESSION['success'] ?? null,
         ]);
+        unset($_SESSION['success']);
     }
 
     private function buildPortalUrl(array $client): string
@@ -259,6 +261,41 @@ class ClientsController extends Controller
         }
         $path = 'index.php?route=clients/login';
         return $baseUrl !== '' ? $baseUrl . '/' . $path : $path;
+    }
+
+    public function portalUpdate(): void
+    {
+        verify_csrf();
+        $token = trim($_POST['token'] ?? '');
+        if ($token === '') {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $address = trim($_POST['address'] ?? '');
+        $contact = trim($_POST['contact'] ?? '');
+
+        if (!Validator::email($email)) {
+            $_SESSION['error'] = 'Ingresa un correo válido.';
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token));
+        }
+
+        $this->clients->update((int)$client['id'], [
+            'email' => $email,
+            'phone' => $phone,
+            'address' => $address,
+            'contact' => $contact,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $_SESSION['success'] = 'Perfil actualizado correctamente.';
+        $this->redirect('index.php?route=clients/portal&token=' . urlencode($token));
     }
 
     public function delete(): void

@@ -114,12 +114,6 @@
                                 </div>
                             </div>
 
-                            <h4 class="card-title mb-3 mt-4">Acciones rápidas</h4>
-                            <div class="d-flex flex-column gap-2">
-                                <a class="btn btn-outline-primary btn-sm" href="#portal-invoices" data-portal-tab="#portal-invoices">Ver facturas pendientes</a>
-                                <a class="btn btn-outline-secondary btn-sm" href="#portal-payments" data-portal-tab="#portal-payments">Ver pagos registrados</a>
-                                <a class="btn btn-outline-success btn-sm" href="#portal-profile" data-portal-tab="#portal-profile">Actualizar datos</a>
-                            </div>
                         </div>
                     </div>
                 </div>

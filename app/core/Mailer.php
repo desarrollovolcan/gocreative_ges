@@ -19,10 +19,15 @@ class Mailer
         if (!is_array($config)) {
             $config = [];
         }
+        if (empty($config['host']) || empty($config['username']) || empty($config['password'])) {
+            log_message('error', 'Mailer config incomplete for smtp_info.');
+            return false;
+        }
         $mail = new PHPMailer(true);
 
         try {
             $mail->isSMTP();
+            $mail->CharSet = 'UTF-8';
             $mail->Host = $config['host'] ?? '';
             $mail->Port = (int)($config['port'] ?? 587);
             $mail->SMTPAuth = !empty($config['username']);

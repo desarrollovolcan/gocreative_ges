@@ -11,6 +11,7 @@
                         <th>Cliente</th>
                         <th>Asunto</th>
                         <th>Tipo</th>
+                        <th>Destinatarios</th>
                         <th>Estado</th>
                         <th>Días faltantes</th>
                         <th>Programado</th>
@@ -37,9 +38,29 @@
                             <td><?php echo e($email['subject']); ?></td>
                             <td><?php echo e($email['type']); ?></td>
                             <td>
+                                <?php
+                                $recipients = array_filter([
+                                    $email['billing_email'] ?? null,
+                                    $email['email'] ?? null,
+                                ]);
+                                ?>
+                                <?php if (!empty($recipients)): ?>
+                                    <div class="text-muted fs-xs">
+                                        <?php echo e(implode(', ', $recipients)); ?>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted fs-xs">Sin destinatarios</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
                                 <span class="badge bg-<?php echo $email['status'] === 'sent' ? 'success' : ($email['status'] === 'failed' ? 'danger' : 'warning'); ?>-subtle text-<?php echo $email['status'] === 'sent' ? 'success' : ($email['status'] === 'failed' ? 'danger' : 'warning'); ?>">
                                     <?php echo e($email['status']); ?>
                                 </span>
+                                <?php if ($email['status'] === 'failed' && !empty($email['last_error'])): ?>
+                                    <div class="text-muted fs-xs mt-1">
+                                        <?php echo e($email['last_error']); ?>
+                                    </div>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <span class="badge bg-<?php echo $daysBadge; ?>-subtle text-<?php echo $daysBadge; ?>">

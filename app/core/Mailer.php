@@ -55,9 +55,13 @@ class Mailer
             $mail->Password = $config['password'] ?? '';
             $security = strtolower(trim($config['security'] ?? 'tls'));
             if ($security === 'ssl') {
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                $mail->SMTPSecure = defined('PHPMailer\\PHPMailer\\PHPMailer::ENCRYPTION_SMTPS')
+                    ? PHPMailer::ENCRYPTION_SMTPS
+                    : 'ssl';
             } elseif ($security === 'tls') {
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->SMTPSecure = defined('PHPMailer\\PHPMailer\\PHPMailer::ENCRYPTION_STARTTLS')
+                    ? PHPMailer::ENCRYPTION_STARTTLS
+                    : 'tls';
             } else {
                 $mail->SMTPSecure = false;
                 $mail->SMTPAutoTLS = false;

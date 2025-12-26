@@ -63,8 +63,9 @@ class Mailer
             $mail->AltBody = strip_tags($html);
             $mail->send();
             return true;
-        } catch (Exception $e) {
-            log_message('error', 'Mailer error: ' . $mail->ErrorInfo);
+        } catch (Throwable $e) {
+            $detail = $mail->ErrorInfo ?: $e->getMessage();
+            log_message('error', 'Mailer error: ' . $detail);
             return false;
         }
     }

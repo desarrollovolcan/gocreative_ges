@@ -40,6 +40,11 @@
                                 <span class="badge bg-<?php echo $email['status'] === 'sent' ? 'success' : ($email['status'] === 'failed' ? 'danger' : 'warning'); ?>-subtle text-<?php echo $email['status'] === 'sent' ? 'success' : ($email['status'] === 'failed' ? 'danger' : 'warning'); ?>">
                                     <?php echo e($email['status']); ?>
                                 </span>
+                                <?php if ($email['status'] === 'failed' && !empty($email['last_error'])): ?>
+                                    <div class="text-muted fs-xs mt-1">
+                                        <?php echo e($email['last_error']); ?>
+                                    </div>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <span class="badge bg-<?php echo $daysBadge; ?>-subtle text-<?php echo $daysBadge; ?>">

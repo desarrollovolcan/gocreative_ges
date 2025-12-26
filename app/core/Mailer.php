@@ -7,6 +7,7 @@ use PHPMailer\PHPMailer\Exception;
 class Mailer
 {
     private SettingsModel $settings;
+    private string $lastError = '';
 
     public function __construct(Database $db)
     {
@@ -15,6 +16,7 @@ class Mailer
 
     public function send(string $type, $to, string $subject, string $html, array $attachments = []): bool
     {
+        $this->lastError = '';
         $defaultConfig = [
             'host' => 'mail.gocreative.cl',
             'port' => 465,
@@ -37,6 +39,7 @@ class Mailer
         }
         $config = $mergedConfig;
         if (empty($config['host']) || empty($config['username']) || empty($config['password'])) {
+            $this->lastError = 'Configuración SMTP incompleta.';
             log_message('error', 'Mailer config incomplete for smtp_info.');
             return false;
         }
@@ -85,6 +88,7 @@ class Mailer
                 }
             }
             if (empty($validRecipients)) {
+                $this->lastError = 'Sin destinatarios válidos.';
                 log_message('error', 'Mailer error: no valid recipients.');
                 return false;
             }
@@ -99,8 +103,14 @@ class Mailer
             return true;
         } catch (Throwable $e) {
             $detail = $mail->ErrorInfo ?: $e->getMessage();
+            $this->lastError = $detail;
             log_message('error', 'Mailer error: ' . $detail);
             return false;
         }
+    }
+
+    public function getLastError(): string
+    {
+        return $this->lastError;
     }
 }

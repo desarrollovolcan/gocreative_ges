@@ -104,7 +104,11 @@ class EmailQueueController extends Controller
                 $this->storeEmailLog($email, 'sent');
                 $this->createNotification('Correo enviado', 'El correo se envió correctamente.', 'success');
             } else {
-                $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = "Error envío" WHERE id = :id', ['id' => $email['id']]);
+                $errorDetail = $mailer->getLastError() ?: 'Error envío';
+                $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = :error WHERE id = :id', [
+                    'error' => $errorDetail,
+                    'id' => $email['id'],
+                ]);
                 $this->createNotification('Correo fallido', 'No se pudo enviar el correo.', 'danger');
             }
         } catch (Throwable $e) {

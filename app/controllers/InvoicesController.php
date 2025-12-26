@@ -48,18 +48,25 @@ class InvoicesController extends Controller
     {
         $this->requireLogin();
         verify_csrf();
+        $serviceId = trim($_POST['service_id'] ?? '');
+        $projectId = trim($_POST['project_id'] ?? '');
+        $issueDate = trim($_POST['fecha_emision'] ?? '');
+        $dueDate = trim($_POST['fecha_vencimiento'] ?? '');
+        $subtotal = trim($_POST['subtotal'] ?? '');
+        $impuestos = trim($_POST['impuestos'] ?? '');
+        $total = trim($_POST['total'] ?? '');
 
         $invoiceId = $this->invoices->create([
             'client_id' => (int)($_POST['client_id'] ?? 0),
-            'service_id' => $_POST['service_id'] ?: null,
-            'project_id' => $_POST['project_id'] ?: null,
+            'service_id' => $serviceId !== '' ? $serviceId : null,
+            'project_id' => $projectId !== '' ? $projectId : null,
             'numero' => trim($_POST['numero'] ?? ''),
-            'fecha_emision' => $_POST['fecha_emision'] ?? date('Y-m-d'),
-            'fecha_vencimiento' => $_POST['fecha_vencimiento'] ?? date('Y-m-d'),
+            'fecha_emision' => $issueDate !== '' ? $issueDate : date('Y-m-d'),
+            'fecha_vencimiento' => $dueDate !== '' ? $dueDate : date('Y-m-d'),
             'estado' => $_POST['estado'] ?? 'pendiente',
-            'subtotal' => $_POST['subtotal'] ?? 0,
-            'impuestos' => $_POST['impuestos'] ?? 0,
-            'total' => $_POST['total'] ?? 0,
+            'subtotal' => $subtotal !== '' ? $subtotal : 0,
+            'impuestos' => $impuestos !== '' ? $impuestos : 0,
+            'total' => $total !== '' ? $total : 0,
             'notas' => trim($_POST['notas'] ?? ''),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -114,11 +121,13 @@ class InvoicesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $invoiceId = (int)($_POST['invoice_id'] ?? 0);
+        $paymentDate = trim($_POST['fecha_pago'] ?? '');
+        $amount = trim($_POST['monto'] ?? '');
         $paymentsModel = new PaymentsModel($this->db);
         $paymentsModel->create([
             'invoice_id' => $invoiceId,
-            'monto' => $_POST['monto'] ?? 0,
-            'fecha_pago' => $_POST['fecha_pago'] ?? date('Y-m-d'),
+            'monto' => $amount !== '' ? $amount : 0,
+            'fecha_pago' => $paymentDate !== '' ? $paymentDate : date('Y-m-d'),
             'metodo' => $_POST['metodo'] ?? 'transferencia',
             'referencia' => trim($_POST['referencia'] ?? ''),
             'comprobante' => null,

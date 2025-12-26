@@ -18,9 +18,27 @@
                     </div>
                 </div>
                 <?php if (!empty($client)): ?>
-                    <div class="text-md-end">
-                        <div class="text-muted fs-sm">Cliente</div>
-                        <div class="fw-semibold"><?php echo e($client['name'] ?? ''); ?></div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="text-md-end d-none d-md-block">
+                            <div class="text-muted fs-sm">Cliente</div>
+                            <div class="fw-semibold"><?php echo e($client['name'] ?? ''); ?></div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-light border-0 d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="avatar-sm rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-semibold">
+                                    <?php echo e(substr($client['name'] ?? 'C', 0, 1)); ?>
+                                </span>
+                                <span class="d-none d-sm-inline">Mi cuenta</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                <li class="dropdown-header text-muted">Acciones rápidas</li>
+                                <li><a class="dropdown-item" href="#portal-profile" data-portal-tab="#portal-profile"><i class="ti ti-user me-2"></i>Editar perfil</a></li>
+                                <li><a class="dropdown-item" href="#portal-invoices" data-portal-tab="#portal-invoices"><i class="ti ti-receipt me-2"></i>Ver facturas</a></li>
+                                <li><a class="dropdown-item" href="#portal-projects" data-portal-tab="#portal-projects"><i class="ti ti-briefcase me-2"></i>Mis proyectos</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="index.php?route=clients/portal/logout"><i class="ti ti-logout me-2"></i>Cerrar sesión</a></li>
+                            </ul>
+                        </div>
                     </div>
                 <?php endif; ?>
             </div>

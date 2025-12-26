@@ -11,6 +11,7 @@ return [
     'clients/login' => ['ClientsController', 'portalLogin'],
     'clients/portal' => ['ClientsController', 'portal'],
     'clients/portal/update' => ['ClientsController', 'portalUpdate'],
+    'clients/portal/logout' => ['ClientsController', 'portalLogout'],
     'clients/delete' => ['ClientsController', 'delete'],
     'projects' => ['ProjectsController', 'index'],
     'projects/create' => ['ProjectsController', 'create'],

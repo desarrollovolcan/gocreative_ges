@@ -69,14 +69,17 @@ class ProjectsController extends Controller
     {
         $this->requireLogin();
         verify_csrf();
+        $startDate = trim($_POST['start_date'] ?? '');
+        $deliveryDate = trim($_POST['delivery_date'] ?? '');
+        $value = trim($_POST['value'] ?? '');
         $data = [
             'client_id' => (int)($_POST['client_id'] ?? 0),
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
             'status' => $_POST['status'] ?? 'cotizado',
-            'start_date' => $_POST['start_date'] ?? null,
-            'delivery_date' => $_POST['delivery_date'] ?? null,
-            'value' => $_POST['value'] ?? null,
+            'start_date' => $startDate !== '' ? $startDate : null,
+            'delivery_date' => $deliveryDate !== '' ? $deliveryDate : null,
+            'value' => $value !== '' ? $value : null,
             'mandante_name' => trim($_POST['mandante_name'] ?? ''),
             'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
             'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
@@ -112,14 +115,17 @@ class ProjectsController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $startDate = trim($_POST['start_date'] ?? '');
+        $deliveryDate = trim($_POST['delivery_date'] ?? '');
+        $value = trim($_POST['value'] ?? '');
         $data = [
             'client_id' => (int)($_POST['client_id'] ?? 0),
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
             'status' => $_POST['status'] ?? 'cotizado',
-            'start_date' => $_POST['start_date'] ?? null,
-            'delivery_date' => $_POST['delivery_date'] ?? null,
-            'value' => $_POST['value'] ?? null,
+            'start_date' => $startDate !== '' ? $startDate : null,
+            'delivery_date' => $deliveryDate !== '' ? $deliveryDate : null,
+            'value' => $value !== '' ? $value : null,
             'mandante_name' => trim($_POST['mandante_name'] ?? ''),
             'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
             'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),

@@ -16,6 +16,9 @@ class Mailer
     public function send(string $type, string $to, string $subject, string $html, array $attachments = []): bool
     {
         $config = $this->settings->get('smtp_' . $type, []);
+        if (!is_array($config)) {
+            $config = [];
+        }
         $mail = new PHPMailer(true);
 
         try {

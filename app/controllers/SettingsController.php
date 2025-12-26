@@ -15,15 +15,11 @@ class SettingsController extends Controller
         $this->requireLogin();
         $company = $this->settings->get('company', []);
         $billing = $this->settings->get('billing_defaults', []);
-        $smtpCobranza = $this->settings->get('smtp_cobranza', []);
-        $smtpInfo = $this->settings->get('smtp_info', []);
         $this->render('settings/index', [
             'title' => 'Configuración',
             'pageTitle' => 'Configuración',
             'company' => $company,
             'billing' => $billing,
-            'smtpCobranza' => $smtpCobranza,
-            'smtpInfo' => $smtpInfo,
         ]);
     }
 
@@ -56,29 +52,6 @@ class SettingsController extends Controller
             $this->settings->set('invoice_prefix', trim($_POST['invoice_prefix'] ?? 'FAC-'));
         }
 
-        if ($section === 'smtp') {
-            $this->settings->set('smtp_cobranza', [
-                'host' => trim($_POST['smtp_cobranza_host'] ?? ''),
-                'port' => (int)($_POST['smtp_cobranza_port'] ?? 587),
-                'security' => $_POST['smtp_cobranza_security'] ?? 'tls',
-                'username' => trim($_POST['smtp_cobranza_username'] ?? ''),
-                'password' => trim($_POST['smtp_cobranza_password'] ?? ''),
-                'from_name' => trim($_POST['smtp_cobranza_from_name'] ?? ''),
-                'from_email' => trim($_POST['smtp_cobranza_from_email'] ?? ''),
-                'reply_to' => trim($_POST['smtp_cobranza_reply_to'] ?? ''),
-            ]);
-            $this->settings->set('smtp_info', [
-                'host' => trim($_POST['smtp_info_host'] ?? ''),
-                'port' => (int)($_POST['smtp_info_port'] ?? 587),
-                'security' => $_POST['smtp_info_security'] ?? 'tls',
-                'username' => trim($_POST['smtp_info_username'] ?? ''),
-                'password' => trim($_POST['smtp_info_password'] ?? ''),
-                'from_name' => trim($_POST['smtp_info_from_name'] ?? ''),
-                'from_email' => trim($_POST['smtp_info_from_email'] ?? ''),
-                'reply_to' => trim($_POST['smtp_info_reply_to'] ?? ''),
-            ]);
-        }
-
         audit($this->db, Auth::user()['id'], 'update', 'settings');
         $this->redirect('index.php?route=settings');
     }
@@ -88,7 +61,6 @@ class SettingsController extends Controller
         $this->requireLogin();
         $this->requireRole('admin');
         verify_csrf();
-        $type = $_POST['smtp_type'] ?? 'cobranza';
         $to = Auth::user()['email'] ?? '';
         if ($to === '') {
             $company = $this->settings->get('company', []);
@@ -104,7 +76,7 @@ class SettingsController extends Controller
         }
 
         $mailer = new Mailer($this->db);
-        $sent = $mailer->send($type, $to, 'Prueba SMTP', '<p>Correo de prueba exitoso.</p>');
+        $sent = $mailer->send('info', $to, 'Prueba SMTP', '<p>Correo de prueba exitoso.</p>');
 
         $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
             'title' => 'Prueba SMTP',

@@ -42,6 +42,11 @@ class ClientsController extends Controller
         }
 
         $portalToken = bin2hex(random_bytes(16));
+        $portalPassword = trim($_POST['portal_password'] ?? '');
+        if ($portalPassword === '') {
+            $_SESSION['error'] = 'Define una contraseña para el acceso del cliente.';
+            $this->redirect('index.php?route=clients/create');
+        }
         $data = [
             'name' => $name,
             'rut' => trim($_POST['rut'] ?? ''),
@@ -55,6 +60,7 @@ class ClientsController extends Controller
             'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
             'mandante_email' => trim($_POST['mandante_email'] ?? ''),
             'portal_token' => $portalToken,
+            'portal_password' => password_hash($portalPassword, PASSWORD_DEFAULT),
             'notes' => trim($_POST['notes'] ?? ''),
             'status' => $_POST['status'] ?? 'activo',
             'created_at' => date('Y-m-d H:i:s'),
@@ -97,6 +103,7 @@ class ClientsController extends Controller
         if (!empty($_POST['regenerate_portal_token']) || $portalToken === '') {
             $portalToken = bin2hex(random_bytes(16));
         }
+        $portalPassword = trim($_POST['portal_password'] ?? '');
         $data = [
             'name' => $name,
             'rut' => trim($_POST['rut'] ?? ''),
@@ -114,6 +121,9 @@ class ClientsController extends Controller
             'status' => $_POST['status'] ?? 'activo',
             'updated_at' => date('Y-m-d H:i:s'),
         ];
+        if ($portalPassword !== '') {
+            $data['portal_password'] = password_hash($portalPassword, PASSWORD_DEFAULT);
+        }
         $this->clients->update($id, $data);
         audit($this->db, Auth::user()['id'], 'update', 'clients', $id);
         $this->redirect('index.php?route=clients');
@@ -143,6 +153,43 @@ class ClientsController extends Controller
             'emails' => $emails,
             'payments' => $payments,
             'portalUrl' => $this->buildPortalUrl($client),
+        ]);
+    }
+
+    public function portalLogin(): void
+    {
+        $error = null;
+        $email = '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            verify_csrf();
+            $email = trim($_POST['email'] ?? '');
+            $accessCode = trim($_POST['access_code'] ?? '');
+            $password = trim($_POST['password'] ?? '');
+            if (!Validator::email($email) || $accessCode === '' || $password === '') {
+                $error = 'Completa los datos solicitados.';
+            } else {
+                $client = $this->db->fetch(
+                    'SELECT * FROM clients WHERE email = :email AND portal_token = :token AND deleted_at IS NULL',
+                    [
+                        'email' => $email,
+                        'token' => $accessCode,
+                    ]
+                );
+                if (!$client || empty($client['portal_password']) || !password_verify($password, $client['portal_password'])) {
+                    $error = 'Las credenciales no son válidas.';
+                } else {
+                    $this->redirect('index.php?route=clients/portal&token=' . urlencode($client['portal_token']));
+                }
+            }
+        }
+
+        $this->renderPublic('clients/login', [
+            'title' => 'Acceso Intranet Cliente',
+            'pageTitle' => 'Acceso Portal Cliente',
+            'error' => $error,
+            'email' => $email,
+            'showAdminAccess' => true,
+            'hidePortalHeader' => true,
         ]);
     }
 
@@ -188,6 +235,8 @@ class ClientsController extends Controller
             'SELECT * FROM invoices WHERE client_id = :id AND estado != "pagado" AND deleted_at IS NULL ORDER BY fecha_vencimiento ASC',
             ['id' => $client['id']]
         );
+        $pendingTotal = array_sum(array_map(static fn(array $invoice) => (float)$invoice['total'], $pendingInvoices));
+        $paidTotal = array_sum(array_map(static fn(array $payment) => (float)$payment['monto'], $payments));
 
         $this->renderPublic('clients/portal', [
             'title' => 'Portal Cliente',
@@ -196,7 +245,11 @@ class ClientsController extends Controller
             'activities' => $activities,
             'payments' => $payments,
             'pendingInvoices' => $pendingInvoices,
+            'pendingTotal' => $pendingTotal,
+            'paidTotal' => $paidTotal,
+            'success' => $_SESSION['success'] ?? null,
         ]);
+        unset($_SESSION['success']);
     }
 
     private function buildPortalUrl(array $client): string
@@ -206,8 +259,43 @@ class ClientsController extends Controller
         if ($token === '') {
             return '';
         }
-        $path = 'index.php?route=clients/portal&token=' . urlencode($token);
+        $path = 'index.php?route=clients/login';
         return $baseUrl !== '' ? $baseUrl . '/' . $path : $path;
+    }
+
+    public function portalUpdate(): void
+    {
+        verify_csrf();
+        $token = trim($_POST['token'] ?? '');
+        if ($token === '') {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $address = trim($_POST['address'] ?? '');
+        $contact = trim($_POST['contact'] ?? '');
+
+        if (!Validator::email($email)) {
+            $_SESSION['error'] = 'Ingresa un correo válido.';
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token));
+        }
+
+        $this->clients->update((int)$client['id'], [
+            'email' => $email,
+            'phone' => $phone,
+            'address' => $address,
+            'contact' => $contact,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $_SESSION['success'] = 'Perfil actualizado correctamente.';
+        $this->redirect('index.php?route=clients/portal&token=' . urlencode($token));
     }
 
     public function delete(): void

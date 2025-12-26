@@ -4,7 +4,11 @@ class AuthController extends Controller
 {
     public function showLogin(): void
     {
-        $this->render('auth/login');
+        $this->renderPublic('auth/login', [
+            'title' => 'Acceso Administrador',
+            'pageTitle' => 'Acceso Administrador',
+            'hidePortalHeader' => true,
+        ]);
     }
 
     public function login(): void

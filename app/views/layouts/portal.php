@@ -6,22 +6,25 @@
 </head>
 
 <body class="bg-body-tertiary">
-    <div class="container-fluid py-4">
-        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
-            <div class="d-flex align-items-center gap-3">
-                <img src="assets/images/logo.png" alt="logo" style="height: 36px;">
-                <div>
-                    <h4 class="mb-0"><?php echo e($pageTitle ?? 'Portal Cliente'); ?></h4>
-                    <p class="text-muted mb-0">Información de actividades y pagos</p>
+    <?php $containerClass = !empty($hidePortalHeader) ? 'container-fluid p-0' : 'container-fluid py-4'; ?>
+    <div class="<?php echo e($containerClass); ?>">
+        <?php if (empty($hidePortalHeader)): ?>
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="assets/images/logo.png" alt="logo" style="height: 36px;">
+                    <div>
+                        <h4 class="mb-0"><?php echo e($pageTitle ?? 'Portal Cliente'); ?></h4>
+                        <p class="text-muted mb-0">Información de actividades y pagos</p>
+                    </div>
                 </div>
+                <?php if (!empty($client)): ?>
+                    <div class="text-md-end">
+                        <div class="text-muted fs-sm">Cliente</div>
+                        <div class="fw-semibold"><?php echo e($client['name'] ?? ''); ?></div>
+                    </div>
+                <?php endif; ?>
             </div>
-            <?php if (!empty($client)): ?>
-                <div class="text-md-end">
-                    <div class="text-muted fs-sm">Cliente</div>
-                    <div class="fw-semibold"><?php echo e($client['name'] ?? ''); ?></div>
-                </div>
-            <?php endif; ?>
-        </div>
+        <?php endif; ?>
 
         <?php
         $viewPath = __DIR__ . '/../' . $view . '.php';

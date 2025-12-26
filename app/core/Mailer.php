@@ -29,7 +29,13 @@ class Mailer
         if (!is_array($config)) {
             $config = [];
         }
-        $config = array_merge($defaultConfig, $config);
+        $mergedConfig = $defaultConfig;
+        foreach ($config as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $mergedConfig[$key] = $value;
+            }
+        }
+        $config = $mergedConfig;
         if (empty($config['host']) || empty($config['username']) || empty($config['password'])) {
             log_message('error', 'Mailer config incomplete for smtp_info.');
             return false;
@@ -70,10 +76,17 @@ class Mailer
                 $mail->addReplyTo($config['reply_to']);
             }
             $recipients = is_array($to) ? $to : [$to];
+            $validRecipients = [];
             foreach ($recipients as $recipient) {
-                if (!empty($recipient)) {
+                $recipient = trim((string)$recipient);
+                if ($recipient !== '' && filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
                     $mail->addAddress($recipient);
+                    $validRecipients[] = $recipient;
                 }
+            }
+            if (empty($validRecipients)) {
+                log_message('error', 'Mailer error: no valid recipients.');
+                return false;
             }
             foreach ($attachments as $attachment) {
                 $mail->addAttachment($attachment);

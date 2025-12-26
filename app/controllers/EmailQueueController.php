@@ -88,7 +88,7 @@ class EmailQueueController extends Controller
         $recipients = array_filter([
             $client['email'] ?? null,
             $client['billing_email'] ?? null,
-        ]);
+        ], fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL));
         if (empty($recipients)) {
             $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = "Sin email" WHERE id = :id', ['id' => $email['id']]);
             $this->createNotification('Correo fallido', 'No hay email asociado al cliente para enviar.', 'danger');

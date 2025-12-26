@@ -178,6 +178,7 @@ class ClientsController extends Controller
                 if (!$client || empty($client['portal_password']) || !password_verify($password, $client['portal_password'])) {
                     $error = 'Las credenciales no son válidas.';
                 } else {
+                    $_SESSION['client_portal_token'] = $client['portal_token'];
                     $this->redirect('index.php?route=clients/portal&token=' . urlencode($client['portal_token']));
                 }
             }
@@ -195,24 +196,17 @@ class ClientsController extends Controller
 
     public function portal(): void
     {
-        $token = trim($_GET['token'] ?? '');
-        if ($token === '') {
-            $this->renderPublic('clients/portal', [
-                'title' => 'Portal Cliente',
-                'pageTitle' => 'Portal Cliente',
-                'error' => 'Token inválido.',
-            ]);
-            return;
+        $sessionToken = $_SESSION['client_portal_token'] ?? '';
+        $token = trim($_GET['token'] ?? $sessionToken);
+        if ($token === '' || ($sessionToken !== '' && $token !== $sessionToken)) {
+            $_SESSION['error'] = 'Debes iniciar sesión para acceder al portal.';
+            $this->redirect('index.php?route=clients/login');
         }
 
         $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
         if (!$client) {
-            $this->renderPublic('clients/portal', [
-                'title' => 'Portal Cliente',
-                'pageTitle' => 'Portal Cliente',
-                'error' => 'No encontramos un cliente asociado a este token.',
-            ]);
-            return;
+            $_SESSION['error'] = 'No encontramos un cliente asociado a este acceso.';
+            $this->redirect('index.php?route=clients/login');
         }
 
         $activities = $this->db->fetchAll(
@@ -267,7 +261,7 @@ class ClientsController extends Controller
     {
         verify_csrf();
         $token = trim($_POST['token'] ?? '');
-        if ($token === '') {
+        if ($token === '' || empty($_SESSION['client_portal_token']) || $token !== $_SESSION['client_portal_token']) {
             $this->redirect('index.php?route=clients/login');
         }
 

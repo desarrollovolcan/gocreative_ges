@@ -76,11 +76,13 @@ class Mailer
 
             $fromEmail = $config['username'] ?? '';
             $mail->setFrom($fromEmail, $config['from_name'] ?? '');
+            $mail->Sender = $fromEmail;
             if (!empty($config['from_email']) && $config['from_email'] !== $fromEmail) {
                 $mail->addReplyTo($config['from_email']);
             } elseif (!empty($config['reply_to'])) {
                 $mail->addReplyTo($config['reply_to']);
             }
+            $mail->addCustomHeader('X-Mailer', 'GoCreative GES');
             $recipients = is_array($to) ? $to : [$to];
             $validRecipients = [];
             foreach ($recipients as $recipient) {

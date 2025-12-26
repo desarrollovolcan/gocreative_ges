@@ -11,23 +11,24 @@
         <div class="row">
             <div class="col-12">
                 <article class="card overflow-hidden mb-0 border-0 shadow-sm">
-                    <div class="position-relative card-side-img overflow-hidden" style="min-height: 220px; background-image: url(assets/images/profile-bg.jpg);">
-                        <div class="p-4 card-img-overlay rounded-start-0 auth-overlay d-flex align-items-center justify-content-between flex-column flex-md-row text-center text-md-start">
+                    <div class="position-relative overflow-hidden" style="min-height: 220px; background-image: linear-gradient(120deg, rgba(13,110,253,0.9), rgba(79,70,229,0.8)), url(assets/images/profile-bg.jpg); background-size: cover; background-position: center;">
+                        <div class="p-4 d-flex align-items-center justify-content-between flex-column flex-md-row text-center text-md-start text-white">
                             <div>
-                                <h3 class="text-white mb-1 fw-bold"><?php echo e($client['name'] ?? 'Portal Cliente'); ?></h3>
-                                <p class="text-white mb-0">Tu información y estado de cuenta en un solo lugar</p>
+                                <span class="badge bg-white text-primary mb-2">Portal cliente</span>
+                                <h3 class="mb-1 fw-bold"><?php echo e($client['name'] ?? 'Portal Cliente'); ?></h3>
+                                <p class="mb-0 text-white-50">Tu información y estado de cuenta en un solo lugar</p>
                             </div>
-                            <div class="d-flex gap-2 mt-3 mt-md-0">
+                            <div class="d-flex gap-4 mt-3 mt-md-0">
                                 <div class="text-center">
-                                    <div class="text-white fw-semibold fs-4"><?php echo count($pendingInvoices ?? []); ?></div>
+                                    <div class="fw-semibold fs-4"><?php echo count($pendingInvoices ?? []); ?></div>
                                     <div class="text-white-50 fs-xs">Pendientes</div>
                                 </div>
                                 <div class="text-center">
-                                    <div class="text-white fw-semibold fs-4"><?php echo count($payments ?? []); ?></div>
+                                    <div class="fw-semibold fs-4"><?php echo count($payments ?? []); ?></div>
                                     <div class="text-white-50 fs-xs">Pagos</div>
                                 </div>
                                 <div class="text-center">
-                                    <div class="text-white fw-semibold fs-4"><?php echo count($activities ?? []); ?></div>
+                                    <div class="fw-semibold fs-4"><?php echo count($activities ?? []); ?></div>
                                     <div class="text-white-50 fs-xs">Actividades</div>
                                 </div>
                             </div>
@@ -114,6 +115,12 @@
                                 </div>
                             </div>
 
+                            <h4 class="card-title mb-3 mt-4">Acciones rápidas</h4>
+                            <div class="d-grid gap-2">
+                                <a href="#portal-profile" data-portal-tab="#portal-profile" class="btn btn-outline-primary btn-sm">Actualizar perfil</a>
+                                <a href="#portal-projects" data-portal-tab="#portal-projects" class="btn btn-outline-secondary btn-sm">Ver proyectos</a>
+                                <a href="#portal-invoices" data-portal-tab="#portal-invoices" class="btn btn-outline-secondary btn-sm">Revisar facturas</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -126,7 +133,17 @@
                             </div>
                             <ul class="nav nav-tabs card-header-tabs nav-bordered">
                                 <li class="nav-item">
-                                    <a href="#portal-activities" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
+                                    <a href="#portal-wall" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
+                                        <span class="fw-bold">Muro</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#portal-projects" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                        <span class="fw-bold">Proyectos</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#portal-activities" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
                                         <span class="fw-bold">Actividades</span>
                                     </a>
                                 </li>
@@ -150,7 +167,135 @@
 
                         <div class="card-body">
                             <div class="tab-content">
-                                <div class="tab-pane active" id="portal-activities">
+                                <div class="tab-pane active" id="portal-wall">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div>
+                                                    <h5 class="mb-1">Estado de proyectos</h5>
+                                                    <p class="text-muted mb-0">Un vistazo rápido a lo que está en curso.</p>
+                                                </div>
+                                                <a href="#portal-projects" data-portal-tab="#portal-projects" class="btn btn-outline-primary btn-sm">Ver todos</a>
+                                            </div>
+                                        </div>
+                                        <?php if (!empty($projectsOverview)): ?>
+                                            <?php foreach ($projectsOverview as $project): ?>
+                                                <?php
+                                                $tasksTotal = (int)($project['tasks_total'] ?? 0);
+                                                $tasksCompleted = (int)($project['tasks_completed'] ?? 0);
+                                                $progress = $tasksTotal > 0 ? (int)round(($tasksCompleted / $tasksTotal) * 100) : 0;
+                                                ?>
+                                                <div class="col-md-6">
+                                                    <div class="border rounded-3 p-3 h-100">
+                                                        <div class="d-flex align-items-start justify-content-between mb-2">
+                                                            <div>
+                                                                <h6 class="mb-1"><?php echo e($project['name'] ?? 'Proyecto'); ?></h6>
+                                                                <div class="text-muted fs-xs">Estado: <?php echo e($project['status'] ?? ''); ?></div>
+                                                            </div>
+                                                            <span class="badge bg-primary-subtle text-primary"><?php echo e($project['status'] ?? ''); ?></span>
+                                                        </div>
+                                                        <p class="text-muted fs-sm mb-2"><?php echo e($project['description'] ?? 'Sin descripción registrada.'); ?></p>
+                                                        <div class="mb-2">
+                                                            <div class="d-flex justify-content-between fs-xs text-muted">
+                                                                <span>Progreso</span>
+                                                                <span><?php echo $progress; ?>%</span>
+                                                            </div>
+                                                            <div class="progress progress-sm">
+                                                                <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $progress; ?>%"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between fs-xs text-muted">
+                                                            <span>Tareas: <?php echo $tasksCompleted; ?>/<?php echo $tasksTotal; ?></span>
+                                                            <span>Inicio: <?php echo e($project['start_date'] ?? 'Por definir'); ?></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <div class="col-12">
+                                                <div class="text-muted">No hay proyectos registrados.</div>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <h5 class="mb-3">Actividad reciente</h5>
+                                        <?php if (!empty($activities)): ?>
+                                            <div class="list-group list-group-flush">
+                                                <?php foreach (array_slice($activities, 0, 5) as $activity): ?>
+                                                    <div class="list-group-item px-0 d-flex align-items-center gap-3">
+                                                        <span class="avatar-sm rounded-circle bg-light d-flex align-items-center justify-content-center">
+                                                            <i class="ti ti-checklist text-primary"></i>
+                                                        </span>
+                                                        <div class="flex-grow-1">
+                                                            <div class="fw-semibold"><?php echo e($activity['title'] ?? '-'); ?></div>
+                                                            <div class="text-muted fs-xs"><?php echo e($activity['project_name'] ?? '-'); ?> · <?php echo e($activity['created_at'] ?? '-'); ?></div>
+                                                        </div>
+                                                        <?php if (!empty($activity['completed'])): ?>
+                                                            <span class="badge bg-success-subtle text-success">Completada</span>
+                                                        <?php else: ?>
+                                                            <span class="badge bg-secondary-subtle text-secondary">En progreso</span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="text-muted">No hay actividades registradas.</div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane" id="portal-projects">
+                                    <?php if (!empty($projectsOverview)): ?>
+                                        <div class="row g-3">
+                                            <?php foreach ($projectsOverview as $project): ?>
+                                                <?php
+                                                $tasksTotal = (int)($project['tasks_total'] ?? 0);
+                                                $tasksCompleted = (int)($project['tasks_completed'] ?? 0);
+                                                $progress = $tasksTotal > 0 ? (int)round(($tasksCompleted / $tasksTotal) * 100) : 0;
+                                                ?>
+                                                <div class="col-md-6">
+                                                    <div class="card border-0 shadow-sm h-100">
+                                                        <div class="card-body">
+                                                            <div class="d-flex align-items-start justify-content-between mb-2">
+                                                                <div>
+                                                                    <h6 class="mb-1"><?php echo e($project['name'] ?? 'Proyecto'); ?></h6>
+                                                                    <div class="text-muted fs-xs"><?php echo e($project['mandante_name'] ?? 'Mandante no definido'); ?></div>
+                                                                </div>
+                                                                <span class="badge bg-primary-subtle text-primary"><?php echo e($project['status'] ?? ''); ?></span>
+                                                            </div>
+                                                            <p class="text-muted fs-sm mb-3"><?php echo e($project['description'] ?? 'Sin descripción registrada.'); ?></p>
+                                                            <div class="row text-muted fs-xs">
+                                                                <div class="col-6">
+                                                                    <div>Inicio</div>
+                                                                    <div class="fw-semibold text-dark"><?php echo e($project['start_date'] ?? 'Por definir'); ?></div>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <div>Entrega</div>
+                                                                    <div class="fw-semibold text-dark"><?php echo e($project['delivery_date'] ?? 'Por definir'); ?></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mt-3">
+                                                                <div class="d-flex justify-content-between fs-xs text-muted">
+                                                                    <span>Avance</span>
+                                                                    <span><?php echo $progress; ?>%</span>
+                                                                </div>
+                                                                <div class="progress progress-sm">
+                                                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $progress; ?>%"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mt-2 fs-xs text-muted">Tareas completadas: <?php echo $tasksCompleted; ?> de <?php echo $tasksTotal; ?></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-muted">No hay proyectos registrados.</div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="tab-pane" id="portal-activities">
                                     <?php if (!empty($activities)): ?>
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle">
@@ -289,19 +434,20 @@
         </div>
     </div>
     <script>
-        document.querySelectorAll('[data-portal-tab]').forEach((link) => {
-            link.addEventListener('click', (event) => {
-                event.preventDefault();
-                const target = link.getAttribute('data-portal-tab');
-                if (!target) {
-                    return;
-                }
-                const tabTrigger = document.querySelector(`a[href="${target}"]`);
-                if (!tabTrigger || typeof bootstrap === 'undefined') {
-                    return;
-                }
-                const tab = new bootstrap.Tab(tabTrigger);
-                tab.show();
+        window.addEventListener('load', () => {
+            document.querySelectorAll('[data-portal-tab]').forEach((link) => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const target = link.getAttribute('data-portal-tab');
+                    if (!target) {
+                        return;
+                    }
+                    const tabTrigger = document.querySelector(`a[href="${target}"]`);
+                    if (!tabTrigger) {
+                        return;
+                    }
+                    tabTrigger.click();
+                });
             });
         });
     </script>

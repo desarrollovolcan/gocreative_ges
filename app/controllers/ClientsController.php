@@ -229,6 +229,18 @@ class ClientsController extends Controller
         );
         $pendingTotal = array_sum(array_map(static fn(array $invoice) => (float)$invoice['total'], $pendingInvoices));
         $paidTotal = array_sum(array_map(static fn(array $payment) => (float)$payment['monto'], $payments));
+        $projectsOverview = $this->db->fetchAll(
+            'SELECT projects.*,
+                COUNT(project_tasks.id) as tasks_total,
+                COALESCE(SUM(CASE WHEN project_tasks.completed = 1 THEN 1 ELSE 0 END), 0) as tasks_completed,
+                MAX(project_tasks.created_at) as last_activity
+             FROM projects
+             LEFT JOIN project_tasks ON project_tasks.project_id = projects.id
+             WHERE projects.client_id = :id AND projects.deleted_at IS NULL
+             GROUP BY projects.id
+             ORDER BY projects.created_at DESC',
+            ['id' => $client['id']]
+        );
 
         $this->renderPublic('clients/portal', [
             'title' => 'Portal Cliente',
@@ -239,9 +251,16 @@ class ClientsController extends Controller
             'pendingInvoices' => $pendingInvoices,
             'pendingTotal' => $pendingTotal,
             'paidTotal' => $paidTotal,
+            'projectsOverview' => $projectsOverview,
             'success' => $_SESSION['success'] ?? null,
         ]);
         unset($_SESSION['success']);
+    }
+
+    public function portalLogout(): void
+    {
+        unset($_SESSION['client_portal_token']);
+        $this->redirect('index.php?route=clients/login');
     }
 
     private function buildPortalUrl(array $client): string

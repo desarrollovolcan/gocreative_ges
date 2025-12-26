@@ -25,7 +25,7 @@ foreach ($pending as $email) {
         continue;
     }
 
-    $sent = $mailer->send($email['type'], $to, $email['subject'], $email['body_html']);
+    $sent = $mailer->send('info', $to, $email['subject'], $email['body_html']);
 
     if ($sent) {
         $db->execute('UPDATE email_queue SET status = "sent", updated_at = NOW() WHERE id = :id', ['id' => $email['id']]);

@@ -85,8 +85,11 @@ class EmailQueueController extends Controller
         }
 
         $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $email['client_id']]);
-        $to = $client['billing_email'] ?? $client['email'] ?? null;
-        if (!$to) {
+        $recipients = array_filter([
+            $client['email'] ?? null,
+            $client['billing_email'] ?? null,
+        ]);
+        if (empty($recipients)) {
             $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = "Sin email" WHERE id = :id', ['id' => $email['id']]);
             $this->createNotification('Correo fallido', 'No hay email asociado al cliente para enviar.', 'danger');
             $this->redirect('index.php?route=email-queue');
@@ -94,7 +97,7 @@ class EmailQueueController extends Controller
 
         try {
             $mailer = new Mailer($this->db);
-            $sent = $mailer->send('info', $to, $email['subject'], $email['body_html']);
+            $sent = $mailer->send('info', $recipients, $email['subject'], $email['body_html']);
 
             if ($sent) {
                 $this->db->execute('UPDATE email_queue SET status = "sent", updated_at = NOW() WHERE id = :id', ['id' => $email['id']]);

@@ -13,7 +13,7 @@ class Mailer
         $this->settings = new SettingsModel($db);
     }
 
-    public function send(string $type, string $to, string $subject, string $html, array $attachments = []): bool
+    public function send(string $type, $to, string $subject, string $html, array $attachments = []): bool
     {
         $defaultConfig = [
             'host' => 'mail.gocreative.cl',
@@ -69,7 +69,12 @@ class Mailer
             if (!empty($config['reply_to'])) {
                 $mail->addReplyTo($config['reply_to']);
             }
-            $mail->addAddress($to);
+            $recipients = is_array($to) ? $to : [$to];
+            foreach ($recipients as $recipient) {
+                if (!empty($recipient)) {
+                    $mail->addAddress($recipient);
+                }
+            }
             foreach ($attachments as $attachment) {
                 $mail->addAttachment($attachment);
             }

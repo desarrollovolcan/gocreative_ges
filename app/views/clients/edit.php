@@ -85,14 +85,6 @@
                     <?php endif; ?>
                     <input type="hidden" name="portal_token" value="<?php echo e($client['portal_token'] ?? ''); ?>">
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Código de acceso</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="<?php echo e($client['portal_token'] ?? ''); ?>" readonly>
-                        <button class="btn btn-soft-primary" type="button" data-copy-input <?php echo empty($client['portal_token'] ?? '') ? 'disabled' : ''; ?>>Copiar</button>
-                    </div>
-                    <small class="text-muted">Comparte este código con el cliente.</small>
-                </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Contraseña portal</label>
                     <input type="password" name="portal_password" class="form-control" placeholder="Nueva contraseña">

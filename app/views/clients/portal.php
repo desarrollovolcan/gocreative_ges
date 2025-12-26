@@ -10,11 +10,27 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <article class="card overflow-hidden mb-0">
-                    <div class="position-relative card-side-img overflow-hidden" style="min-height: 240px; background-image: url(assets/images/profile-bg.jpg);">
-                        <div class="p-4 card-img-overlay rounded-start-0 auth-overlay d-flex align-items-center flex-column justify-content-center text-center">
-                            <h3 class="text-white mb-1 fst-italic">"<?php echo e($client['name'] ?? 'Portal Cliente'); ?>"</h3>
-                            <p class="text-white mb-0">Tu información y estado de cuenta en un solo lugar</p>
+                <article class="card overflow-hidden mb-0 border-0 shadow-sm">
+                    <div class="position-relative card-side-img overflow-hidden" style="min-height: 220px; background-image: url(assets/images/profile-bg.jpg);">
+                        <div class="p-4 card-img-overlay rounded-start-0 auth-overlay d-flex align-items-center justify-content-between flex-column flex-md-row text-center text-md-start">
+                            <div>
+                                <h3 class="text-white mb-1 fw-bold"><?php echo e($client['name'] ?? 'Portal Cliente'); ?></h3>
+                                <p class="text-white mb-0">Tu información y estado de cuenta en un solo lugar</p>
+                            </div>
+                            <div class="d-flex gap-2 mt-3 mt-md-0">
+                                <div class="text-center">
+                                    <div class="text-white fw-semibold fs-4"><?php echo count($pendingInvoices ?? []); ?></div>
+                                    <div class="text-white-50 fs-xs">Pendientes</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-white fw-semibold fs-4"><?php echo count($payments ?? []); ?></div>
+                                    <div class="text-white-50 fs-xs">Pagos</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-white fw-semibold fs-4"><?php echo count($activities ?? []); ?></div>
+                                    <div class="text-white-50 fs-xs">Actividades</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </article>
@@ -24,7 +40,7 @@
         <div class="px-3 mt-n4">
             <div class="row">
                 <div class="col-xl-4">
-                    <div class="card card-top-sticky">
+                    <div class="card card-top-sticky shadow-sm border-0">
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-4">
                                 <div class="me-3 position-relative">
@@ -41,37 +57,61 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
-                                    <i class="ti ti-mail fs-xl"></i>
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item px-0 d-flex align-items-center gap-2">
+                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                        <i class="ti ti-mail fs-xl"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted fs-xs">Correo</div>
+                                        <div class="fw-semibold"><?php echo e($client['email'] ?? '-'); ?></div>
+                                    </div>
                                 </div>
-                                <p class="mb-0 fs-sm">Email <span class="text-dark fw-semibold"><?php echo e($client['email'] ?? '-'); ?></span></p>
-                            </div>
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
-                                    <i class="ti ti-phone fs-xl"></i>
+                                <div class="list-group-item px-0 d-flex align-items-center gap-2">
+                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                        <i class="ti ti-phone fs-xl"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted fs-xs">Teléfono</div>
+                                        <div class="fw-semibold"><?php echo e($client['phone'] ?? '-'); ?></div>
+                                    </div>
                                 </div>
-                                <p class="mb-0 fs-sm">Teléfono <span class="text-dark fw-semibold"><?php echo e($client['phone'] ?? '-'); ?></span></p>
-                            </div>
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
-                                    <i class="ti ti-user fs-xl"></i>
+                                <div class="list-group-item px-0 d-flex align-items-center gap-2">
+                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                        <i class="ti ti-user fs-xl"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted fs-xs">Contacto</div>
+                                        <div class="fw-semibold"><?php echo e($client['contact'] ?? '-'); ?></div>
+                                    </div>
                                 </div>
-                                <p class="mb-0 fs-sm">Contacto <span class="text-dark fw-semibold"><?php echo e($client['contact'] ?? '-'); ?></span></p>
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
-                                    <i class="ti ti-map-pin fs-xl"></i>
+                                <div class="list-group-item px-0 d-flex align-items-center gap-2">
+                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                        <i class="ti ti-map-pin fs-xl"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted fs-xs">Dirección</div>
+                                        <div class="fw-semibold"><?php echo e($client['address'] ?? '-'); ?></div>
+                                    </div>
                                 </div>
-                                <p class="mb-0 fs-sm">Dirección <span class="text-dark fw-semibold"><?php echo e($client['address'] ?? '-'); ?></span></p>
                             </div>
 
-                            <h4 class="card-title mb-3 mt-4">Resumen</h4>
-                            <div class="d-flex flex-wrap gap-2">
-                                <div class="btn btn-light btn-sm">Facturas pendientes: <?php echo count($pendingInvoices ?? []); ?></div>
-                                <div class="btn btn-light btn-sm">Total pendiente: $<?php echo number_format($pendingTotal ?? 0, 0, ',', '.'); ?></div>
-                                <div class="btn btn-light btn-sm">Pagos registrados: <?php echo count($payments ?? []); ?></div>
-                                <div class="btn btn-light btn-sm">Total pagado: $<?php echo number_format($paidTotal ?? 0, 0, ',', '.'); ?></div>
+                            <h4 class="card-title mb-3 mt-4">Resumen financiero</h4>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="p-2 rounded bg-light">
+                                        <div class="text-muted fs-xs">Pendientes</div>
+                                        <div class="fw-semibold"><?php echo count($pendingInvoices ?? []); ?></div>
+                                        <div class="text-muted fs-xs">$<?php echo number_format($pendingTotal ?? 0, 0, ',', '.'); ?></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-2 rounded bg-light">
+                                        <div class="text-muted fs-xs">Pagos</div>
+                                        <div class="fw-semibold"><?php echo count($payments ?? []); ?></div>
+                                        <div class="text-muted fs-xs">$<?php echo number_format($paidTotal ?? 0, 0, ',', '.'); ?></div>
+                                    </div>
+                                </div>
                             </div>
 
                             <h4 class="card-title mb-3 mt-4">Acciones rápidas</h4>
@@ -85,7 +125,7 @@
                 </div>
 
                 <div class="col-xl-8">
-                    <div class="card">
+                    <div class="card shadow-sm border-0">
                         <div class="card-header card-tabs d-flex align-items-center">
                             <div class="flex-grow-1">
                                 <h4 class="card-title">Portal Cliente</h4>
@@ -211,8 +251,13 @@
                                     <?php endif; ?>
                                 </div>
                                 <div class="tab-pane" id="portal-profile">
-                                    <h5 class="mb-3">Editar datos básicos</h5>
-                                    <form method="post" action="index.php?route=clients/portal/update">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div>
+                                            <h5 class="mb-1">Editar datos básicos</h5>
+                                            <p class="text-muted mb-0">Mantén tu información actualizada para recibir notificaciones.</p>
+                                        </div>
+                                    </div>
+                                    <form method="post" action="index.php?route=clients/portal/update" class="bg-light rounded p-3">
                                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                         <input type="hidden" name="token" value="<?php echo e($client['portal_token'] ?? ''); ?>">
                                         <div class="row">
@@ -237,6 +282,10 @@
                                             <button type="submit" class="btn btn-primary">Guardar cambios</button>
                                         </div>
                                     </form>
+                                    <div class="mt-4">
+                                        <h6 class="fw-semibold">Soporte rápido</h6>
+                                        <p class="text-muted mb-0">Si necesitas asistencia inmediata, contáctanos y te ayudaremos a resolverlo.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

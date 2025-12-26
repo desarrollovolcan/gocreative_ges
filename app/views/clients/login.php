@@ -41,7 +41,7 @@
                     <div class="mt-auto">
                         <div class="p-2 text-center">
                             <h3 class="fw-bold my-2">Acceso a Intranet Cliente</h3>
-                            <p class="text-muted mb-0">Ingresa con tu correo, código y contraseña de acceso.</p>
+                            <p class="text-muted mb-0">Ingresa con tu correo y contraseña de acceso.</p>
 
                             <?php if (!empty($error)): ?>
                                 <div class="alert alert-danger text-start mt-3"><?php echo e($error); ?></div>
@@ -52,10 +52,6 @@
                                 <div class="app-search w-100 input-group rounded-pill mb-3">
                                     <input type="email" name="email" class="form-control py-2" value="<?php echo e($email ?? ''); ?>" placeholder="Correo del cliente" required>
                                     <i data-lucide="circle-user" class="app-search-icon text-muted"></i>
-                                </div>
-                                <div class="app-search w-100 input-group rounded-pill mb-2">
-                                    <input type="text" name="access_code" class="form-control py-2" placeholder="Código de acceso" required>
-                                    <i data-lucide="key-round" class="app-search-icon text-muted"></i>
                                 </div>
                                 <div class="app-search w-100 input-group rounded-pill mb-2">
                                     <input type="password" name="password" class="form-control py-2" placeholder="Contraseña de acceso" required>

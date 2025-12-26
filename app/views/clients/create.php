@@ -76,7 +76,7 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Contraseña portal</label>
                     <input type="password" name="portal_password" class="form-control" required>
-                    <small class="text-muted">Comparte esta contraseña junto al código de acceso.</small>
+                    <small class="text-muted">Comparte esta contraseña con el cliente.</small>
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2">

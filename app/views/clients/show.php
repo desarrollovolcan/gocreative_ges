@@ -19,11 +19,7 @@
                         <input type="text" class="form-control" value="<?php echo e($portalUrl); ?>" readonly>
                         <button class="btn btn-soft-primary" type="button" data-copy-input>Copiar</button>
                     </div>
-                    <div class="input-group mt-2">
-                        <input type="text" class="form-control" value="<?php echo e($client['portal_token'] ?? ''); ?>" readonly>
-                        <button class="btn btn-soft-primary" type="button" data-copy-input>Copiar</button>
-                    </div>
-                    <small class="text-muted">Comparte el código de acceso con el cliente.</small>
+                    <small class="text-muted">Comparte este link con el cliente.</small>
                 <?php else: ?>
                     <div class="text-muted">Genera el link desde la edición del cliente.</div>
                 <?php endif; ?>

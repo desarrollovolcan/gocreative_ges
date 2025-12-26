@@ -163,16 +163,14 @@ class ClientsController extends Controller
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             verify_csrf();
             $email = trim($_POST['email'] ?? '');
-            $accessCode = trim($_POST['access_code'] ?? '');
             $password = trim($_POST['password'] ?? '');
-            if (!Validator::email($email) || $accessCode === '' || $password === '') {
+            if (!Validator::email($email) || $password === '') {
                 $error = 'Completa los datos solicitados.';
             } else {
                 $client = $this->db->fetch(
-                    'SELECT * FROM clients WHERE email = :email AND portal_token = :token AND deleted_at IS NULL',
+                    'SELECT * FROM clients WHERE email = :email AND deleted_at IS NULL',
                     [
                         'email' => $email,
-                        'token' => $accessCode,
                     ]
                 );
                 if (!$client || empty($client['portal_password']) || !password_verify($password, $client['portal_password'])) {

@@ -434,19 +434,21 @@
         </div>
     </div>
     <script>
-        document.querySelectorAll('[data-portal-tab]').forEach((link) => {
-            link.addEventListener('click', (event) => {
-                event.preventDefault();
-                const target = link.getAttribute('data-portal-tab');
-                if (!target) {
-                    return;
-                }
-                const tabTrigger = document.querySelector(`a[href="${target}"]`);
-                if (!tabTrigger || typeof bootstrap === 'undefined') {
-                    return;
-                }
-                const tab = new bootstrap.Tab(tabTrigger);
-                tab.show();
+        window.addEventListener('load', () => {
+            document.querySelectorAll('[data-portal-tab]').forEach((link) => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const target = link.getAttribute('data-portal-tab');
+                    if (!target) {
+                        return;
+                    }
+                    const tabTrigger = document.querySelector(`a[href="${target}"]`);
+                    if (!tabTrigger || typeof bootstrap === 'undefined') {
+                        return;
+                    }
+                    const tab = new bootstrap.Tab(tabTrigger);
+                    tab.show();
+                });
             });
         });
     </script>

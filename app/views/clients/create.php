@@ -70,6 +70,14 @@
                     <label class="form-label">Notas</label>
                     <textarea name="notes" class="form-control" rows="3"></textarea>
                 </div>
+                <div class="col-12">
+                    <h5 class="form-section-title">Acceso cliente</h5>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Contraseña portal</label>
+                    <input type="password" name="portal_password" class="form-control" required>
+                    <small class="text-muted">Comparte esta contraseña con el cliente.</small>
+                </div>
             </div>
             <div class="d-flex justify-content-end gap-2">
                 <a href="index.php?route=clients" class="btn btn-light">Cancelar</a>

@@ -17,8 +17,9 @@
                 <?php if (!empty($portalUrl)): ?>
                     <div class="input-group">
                         <input type="text" class="form-control" value="<?php echo e($portalUrl); ?>" readonly>
-                        <button class="btn btn-soft-primary" type="button" data-copy-portal>Copiar</button>
+                        <button class="btn btn-soft-primary" type="button" data-copy-input>Copiar</button>
                     </div>
+                    <small class="text-muted">Comparte este link con el cliente.</small>
                 <?php else: ?>
                     <div class="text-muted">Genera el link desde la edición del cliente.</div>
                 <?php endif; ?>
@@ -60,22 +61,23 @@
 </div>
 
 <script>
-    const copyPortalButton = document.querySelector('[data-copy-portal]');
-    copyPortalButton?.addEventListener('click', async () => {
-        const input = copyPortalButton.closest('.input-group')?.querySelector('input');
-        if (!input) {
-            return;
-        }
-        try {
-            await navigator.clipboard.writeText(input.value);
-            copyPortalButton.textContent = 'Copiado';
-            setTimeout(() => {
-                copyPortalButton.textContent = 'Copiar';
-            }, 2000);
-        } catch (error) {
-            input.select();
-            document.execCommand('copy');
-        }
+    document.querySelectorAll('[data-copy-input]').forEach((button) => {
+        button.addEventListener('click', async () => {
+            const input = button.closest('.input-group')?.querySelector('input');
+            if (!input) {
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(input.value);
+                button.textContent = 'Copiado';
+                setTimeout(() => {
+                    button.textContent = 'Copiar';
+                }, 2000);
+            } catch (error) {
+                input.select();
+                document.execCommand('copy');
+            }
+        });
     });
 </script>
 

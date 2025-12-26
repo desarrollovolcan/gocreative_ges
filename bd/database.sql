@@ -35,6 +35,7 @@ CREATE TABLE clients (
     mandante_phone VARCHAR(50) NULL,
     mandante_email VARCHAR(150) NULL,
     portal_token VARCHAR(64) NULL,
+    portal_password VARCHAR(255) NULL,
     notes TEXT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'activo',
     created_at DATETIME NOT NULL,

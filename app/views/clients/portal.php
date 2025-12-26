@@ -76,9 +76,9 @@
 
                             <h4 class="card-title mb-3 mt-4">Acciones rápidas</h4>
                             <div class="d-flex flex-column gap-2">
-                                <a class="btn btn-outline-primary btn-sm" href="#portal-invoices" data-bs-toggle="tab">Ver facturas pendientes</a>
-                                <a class="btn btn-outline-secondary btn-sm" href="#portal-payments" data-bs-toggle="tab">Ver pagos registrados</a>
-                                <a class="btn btn-outline-success btn-sm" href="#portal-profile" data-bs-toggle="tab">Actualizar datos</a>
+                                <a class="btn btn-outline-primary btn-sm" href="#portal-invoices" data-portal-tab="#portal-invoices">Ver facturas pendientes</a>
+                                <a class="btn btn-outline-secondary btn-sm" href="#portal-payments" data-portal-tab="#portal-payments">Ver pagos registrados</a>
+                                <a class="btn btn-outline-success btn-sm" href="#portal-profile" data-portal-tab="#portal-profile">Actualizar datos</a>
                             </div>
                         </div>
                     </div>
@@ -245,4 +245,21 @@
             </div>
         </div>
     </div>
+    <script>
+        document.querySelectorAll('[data-portal-tab]').forEach((link) => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                const target = link.getAttribute('data-portal-tab');
+                if (!target) {
+                    return;
+                }
+                const tabTrigger = document.querySelector(`a[href="${target}"]`);
+                if (!tabTrigger || typeof bootstrap === 'undefined') {
+                    return;
+                }
+                const tab = new bootstrap.Tab(tabTrigger);
+                tab.show();
+            });
+        });
+    </script>
 <?php endif; ?>

@@ -443,11 +443,10 @@
                         return;
                     }
                     const tabTrigger = document.querySelector(`a[href="${target}"]`);
-                    if (!tabTrigger || typeof bootstrap === 'undefined') {
+                    if (!tabTrigger) {
                         return;
                     }
-                    const tab = new bootstrap.Tab(tabTrigger);
-                    tab.show();
+                    tabTrigger.click();
                 });
             });
         });

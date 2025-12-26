@@ -15,10 +15,21 @@ class Mailer
 
     public function send(string $type, string $to, string $subject, string $html, array $attachments = []): bool
     {
+        $defaultConfig = [
+            'host' => 'mail.gocreative.cl',
+            'port' => 465,
+            'security' => 'ssl',
+            'username' => 'informevolcan@gocreative.cl',
+            'password' => '#(3-QiWGI;l}oJW_',
+            'from_name' => 'Información',
+            'from_email' => 'informevolcan@gocreative.cl',
+            'reply_to' => 'informevolcan@gocreative.cl',
+        ];
         $config = $this->settings->get('smtp_info', []);
         if (!is_array($config)) {
             $config = [];
         }
+        $config = array_merge($defaultConfig, $config);
         if (empty($config['host']) || empty($config['username']) || empty($config['password'])) {
             log_message('error', 'Mailer config incomplete for smtp_info.');
             return false;

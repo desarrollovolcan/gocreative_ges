@@ -15,7 +15,7 @@ class EmailQueueController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $emails = $this->db->fetchAll('SELECT email_queue.*, clients.name as client_name FROM email_queue LEFT JOIN clients ON email_queue.client_id = clients.id ORDER BY email_queue.id DESC');
+        $emails = $this->db->fetchAll('SELECT email_queue.*, clients.name as client_name, clients.email, clients.billing_email FROM email_queue LEFT JOIN clients ON email_queue.client_id = clients.id ORDER BY email_queue.id DESC');
         $this->render('email_queue/index', [
             'title' => 'Cola de Correos',
             'pageTitle' => 'Cola de Correos',

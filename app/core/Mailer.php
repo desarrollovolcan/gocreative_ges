@@ -41,7 +41,7 @@ class Mailer
             $mail->CharSet = 'UTF-8';
             $mail->Host = $config['host'] ?? '';
             $mail->Port = (int)($config['port'] ?? 587);
-            $mail->SMTPAuth = true;
+            $mail->SMTPAuth = !empty($config['username']);
             $mail->Username = $config['username'] ?? '';
             $mail->Password = $config['password'] ?? '';
             $security = strtolower(trim($config['security'] ?? 'tls'));

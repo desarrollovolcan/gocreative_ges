@@ -229,7 +229,7 @@ INSERT INTO settings (`key`, value, created_at, updated_at) VALUES
 ('billing_defaults', '{"notice_days_1":15,"notice_days_2":5,"send_time":"09:00","timezone":"America/Santiago","invoice_prefix":"FAC-"}', NOW(), NOW()),
 ('invoice_prefix', 'FAC-', NOW(), NOW()),
 ('smtp_cobranza', '{"host":"mail.gocreative.cl","port":465,"security":"ssl","username":"cobranza@gocreative.cl","password":"O38LP_3c?GefV6z&","from_name":"Cobranza","from_email":"cobranza@gocreative.cl","reply_to":"cobranza@gocreative.cl"}', NOW(), NOW()),
-('smtp_info', '{"host":"mail.gocreative.cl","port":465,"security":"ssl","username":"info@gocreative.cl","password":"ln&}+6F{~351tYNK","from_name":"Información","from_email":"info@gocreative.cl","reply_to":"info@gocreative.cl"}', NOW(), NOW());
+('smtp_info', '{"host":"mail.gocreative.cl","port":465,"security":"ssl","username":"informevolcan@gocreative.cl","password":"#(3-QiWGI;l}oJW_","from_name":"Información","from_email":"informevolcan@gocreative.cl","reply_to":"informevolcan@gocreative.cl"}', NOW(), NOW());
 
 INSERT INTO email_templates (name, subject, body_html, type, created_by, created_at, updated_at) VALUES
 ('Registro de servicio', 'Registro del servicio con éxito', '<p>&nbsp;</p>

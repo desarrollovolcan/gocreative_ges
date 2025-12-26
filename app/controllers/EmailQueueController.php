@@ -92,17 +92,8 @@ class EmailQueueController extends Controller
             $this->redirect('index.php?route=email-queue');
         }
 
-        $type = strtolower(trim($email['type'] ?? 'cobranza'));
-        $typeMap = [
-            'cobranza' => 'cobranza',
-            'info' => 'info',
-            'informacion' => 'info',
-            'información' => 'info',
-        ];
-        $normalizedType = $typeMap[$type] ?? 'cobranza';
-
         $mailer = new Mailer($this->db);
-        $sent = $mailer->send($normalizedType, $to, $email['subject'], $email['body_html']);
+        $sent = $mailer->send('info', $to, $email['subject'], $email['body_html']);
 
         if ($sent) {
             $this->db->execute('UPDATE email_queue SET status = "sent", updated_at = NOW() WHERE id = :id', ['id' => $email['id']]);

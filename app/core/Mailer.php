@@ -74,12 +74,11 @@ class Mailer
                 ],
             ];
 
-            $fromEmail = $config['from_email'] ?? $config['username'] ?? '';
-            if ($fromEmail === '' && !empty($config['reply_to'])) {
-                $fromEmail = $config['reply_to'];
-            }
+            $fromEmail = $config['username'] ?? '';
             $mail->setFrom($fromEmail, $config['from_name'] ?? '');
-            if (!empty($config['reply_to'])) {
+            if (!empty($config['from_email']) && $config['from_email'] !== $fromEmail) {
+                $mail->addReplyTo($config['from_email']);
+            } elseif (!empty($config['reply_to'])) {
                 $mail->addReplyTo($config['reply_to']);
             }
             $recipients = is_array($to) ? $to : [$to];

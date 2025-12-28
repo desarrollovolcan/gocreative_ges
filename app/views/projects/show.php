@@ -26,7 +26,7 @@ $completedTasks = count(array_filter($checklist ?? [], static fn(array $task) =>
 $remainingProgress = max(0, 100 - $overallProgress);
 ?>
 
-<div class="card">
+<div class="card" id="tareas">
     <div class="card-header"><h4 class="card-title mb-0">Control de avances</h4></div>
     <div class="card-body">
         <div class="row g-3 mb-4">

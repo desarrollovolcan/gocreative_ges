@@ -155,6 +155,72 @@ class ProjectsController extends Controller
         ]);
     }
 
+    public function storeTask(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $projectId = (int)($_POST['project_id'] ?? 0);
+        $title = trim($_POST['title'] ?? '');
+        $progressPercent = (int)($_POST['progress_percent'] ?? 0);
+        $progressPercent = max(0, min(100, $progressPercent));
+        if ($projectId <= 0 || $title === '') {
+            $this->redirect('index.php?route=projects/show&id=' . $projectId);
+        }
+        $this->db->execute(
+            'INSERT INTO project_tasks (project_id, title, progress_percent, completed, created_at, updated_at) VALUES (:project_id, :title, :progress_percent, :completed, :created_at, :updated_at)',
+            [
+                'project_id' => $projectId,
+                'title' => $title,
+                'progress_percent' => $progressPercent,
+                'completed' => $progressPercent >= 100 ? 1 : 0,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]
+        );
+        $this->redirect('index.php?route=projects/show&id=' . $projectId);
+    }
+
+    public function updateTask(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $taskId = (int)($_POST['task_id'] ?? 0);
+        $projectId = (int)($_POST['project_id'] ?? 0);
+        $title = trim($_POST['title'] ?? '');
+        $progressPercent = (int)($_POST['progress_percent'] ?? 0);
+        $progressPercent = max(0, min(100, $progressPercent));
+        if ($taskId <= 0 || $projectId <= 0 || $title === '') {
+            $this->redirect('index.php?route=projects/show&id=' . $projectId);
+        }
+        $this->db->execute(
+            'UPDATE project_tasks SET title = :title, progress_percent = :progress_percent, completed = :completed, updated_at = :updated_at WHERE id = :id AND project_id = :project_id',
+            [
+                'id' => $taskId,
+                'project_id' => $projectId,
+                'title' => $title,
+                'progress_percent' => $progressPercent,
+                'completed' => $progressPercent >= 100 ? 1 : 0,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]
+        );
+        $this->redirect('index.php?route=projects/show&id=' . $projectId);
+    }
+
+    public function deleteTask(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $taskId = (int)($_POST['task_id'] ?? 0);
+        $projectId = (int)($_POST['project_id'] ?? 0);
+        if ($taskId > 0 && $projectId > 0) {
+            $this->db->execute('DELETE FROM project_tasks WHERE id = :id AND project_id = :project_id', [
+                'id' => $taskId,
+                'project_id' => $projectId,
+            ]);
+        }
+        $this->redirect('index.php?route=projects/show&id=' . $projectId);
+    }
+
     public function delete(): void
     {
         $this->requireLogin();

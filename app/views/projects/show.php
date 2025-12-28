@@ -56,11 +56,19 @@ $remainingProgress = max(0, 100 - $overallProgress);
                         <label class="form-label">Nueva tarea</label>
                         <input type="text" name="title" class="form-control" placeholder="Ej: Diseño de interfaz" required>
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-4">
+                        <label class="form-label">Inicio</label>
+                        <input type="date" name="start_date" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Entrega</label>
+                        <input type="date" name="end_date" class="form-control">
+                    </div>
+                    <div class="col-md-4">
                         <label class="form-label">Avance (%)</label>
                         <input type="number" name="progress_percent" class="form-control" min="0" max="100" step="1" value="0" required>
                     </div>
-                    <div class="col-6 d-grid">
+                    <div class="col-12 d-grid">
                         <button type="submit" class="btn btn-primary">Agregar tarea</button>
                     </div>
                     <div class="col-12">
@@ -74,7 +82,11 @@ $remainingProgress = max(0, 100 - $overallProgress);
         <?php if (!empty($checklist)): ?>
             <ul class="list-group">
                 <?php foreach ($checklist as $task): ?>
-                    <?php $taskProgress = (int)($task['progress_percent'] ?? 0); ?>
+                    <?php
+                    $taskProgress = (int)($task['progress_percent'] ?? 0);
+                    $taskStartDate = $task['start_date'] ?? '';
+                    $taskEndDate = $task['end_date'] ?? '';
+                    ?>
                     <li class="list-group-item">
                         <div class="d-flex flex-column flex-lg-row gap-3 align-items-lg-center">
                             <div class="flex-grow-1">
@@ -82,13 +94,19 @@ $remainingProgress = max(0, 100 - $overallProgress);
                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                     <input type="hidden" name="project_id" value="<?php echo (int)$project['id']; ?>">
                                     <input type="hidden" name="task_id" value="<?php echo (int)$task['id']; ?>">
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-4">
                                         <input type="text" name="title" class="form-control" value="<?php echo e($task['title']); ?>" required>
                                     </div>
                                     <div class="col-lg-3">
+                                        <input type="date" name="start_date" class="form-control" value="<?php echo e($taskStartDate); ?>">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <input type="date" name="end_date" class="form-control" value="<?php echo e($taskEndDate); ?>">
+                                    </div>
+                                    <div class="col-lg-2">
                                         <input type="number" name="progress_percent" class="form-control" min="0" max="100" step="1" value="<?php echo $taskProgress; ?>" required>
                                     </div>
-                                    <div class="col-lg-3 d-grid">
+                                    <div class="col-lg-12 d-grid">
                                         <button type="submit" class="btn btn-soft-primary btn-sm">Guardar</button>
                                     </div>
                                 </form>
@@ -99,6 +117,10 @@ $remainingProgress = max(0, 100 - $overallProgress);
                                     </div>
                                     <div class="progress progress-sm">
                                         <div class="progress-bar <?php echo $taskProgress >= 100 ? 'bg-success' : 'bg-warning'; ?>" role="progressbar" style="width: <?php echo min(100, $taskProgress); ?>%"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between fs-xs text-muted mt-2">
+                                        <span>Inicio: <?php echo e($taskStartDate !== '' ? $taskStartDate : 'Por definir'); ?></span>
+                                        <span>Entrega: <?php echo e($taskEndDate !== '' ? $taskEndDate : 'Por definir'); ?></span>
                                     </div>
                                 </div>
                             </div>

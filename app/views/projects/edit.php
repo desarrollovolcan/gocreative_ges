@@ -93,6 +93,42 @@
     </div>
 </div>
 
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Agregar tarea al proyecto</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" action="index.php?route=projects/tasks/store" class="row g-3">
+            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+            <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+            <div class="col-md-6">
+                <label class="form-label">Título de la tarea</label>
+                <input type="text" name="title" class="form-control" placeholder="Ej: Brief creativo" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Inicio</label>
+                <input type="date" name="start_date" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Entrega</label>
+                <input type="date" name="end_date" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Avance (%)</label>
+                <input type="number" name="progress_percent" class="form-control" min="0" max="100" step="1" value="0" required>
+            </div>
+            <div class="col-md-9 d-flex align-items-end">
+                <div class="text-muted fs-sm">
+                    El avance total del proyecto se calcula sumando el porcentaje de cada tarea (máximo 100%).
+                </div>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Agregar tarea</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     const clientSelect = document.querySelector('[data-mandante-source]');
     const mandanteFields = {

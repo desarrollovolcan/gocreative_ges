@@ -8,6 +8,15 @@
         <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
     <?php endif; ?>
     <div class="container">
+        <?php
+        $tasksByProject = [];
+        foreach (($projectTasks ?? []) as $task) {
+            $tasksByProject[$task['project_id']][] = $task;
+        }
+        $upcomingTasks = array_filter($projectTasks ?? [], static function (array $task): bool {
+            return empty($task['completed']);
+        });
+        ?>
         <div class="row">
             <div class="col-12">
                 <article class="card overflow-hidden mb-0 border-0 shadow-sm">
@@ -30,6 +39,10 @@
                                 <div class="text-center">
                                     <div class="fw-semibold fs-4"><?php echo count($activities ?? []); ?></div>
                                     <div class="text-white-50 fs-xs">Actividades</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fw-semibold fs-4"><?php echo count($upcomingTasks); ?></div>
+                                    <div class="text-white-50 fs-xs">Tareas activas</div>
                                 </div>
                             </div>
                         </div>
@@ -120,6 +133,7 @@
                                 <a href="#portal-profile" data-portal-tab="#portal-profile" class="btn btn-outline-primary btn-sm">Actualizar perfil</a>
                                 <a href="#portal-projects" data-portal-tab="#portal-projects" class="btn btn-outline-secondary btn-sm">Ver proyectos</a>
                                 <a href="#portal-invoices" data-portal-tab="#portal-invoices" class="btn btn-outline-secondary btn-sm">Revisar facturas</a>
+                                <a href="#portal-activities" data-portal-tab="#portal-activities" class="btn btn-outline-secondary btn-sm">Seguimiento de tareas</a>
                             </div>
                         </div>
                     </div>
@@ -169,21 +183,22 @@
                             <div class="tab-content">
                                 <div class="tab-pane active" id="portal-wall">
                                     <div class="row g-3">
-                                        <div class="col-12">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div>
-                                                    <h5 class="mb-1">Estado de proyectos</h5>
-                                                    <p class="text-muted mb-0">Un vistazo rápido a lo que está en curso.</p>
+                                            <div class="col-12">
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div>
+                                                        <h5 class="mb-1">Estado de proyectos</h5>
+                                                        <p class="text-muted mb-0">Un vistazo rápido a lo que está en curso.</p>
+                                                    </div>
+                                                    <a href="#portal-projects" data-portal-tab="#portal-projects" class="btn btn-outline-primary btn-sm">Ver todos</a>
                                                 </div>
-                                                <a href="#portal-projects" data-portal-tab="#portal-projects" class="btn btn-outline-primary btn-sm">Ver todos</a>
                                             </div>
-                                        </div>
                                         <?php if (!empty($projectsOverview)): ?>
                                             <?php foreach ($projectsOverview as $project): ?>
                                                 <?php
                                                 $tasksTotal = (int)($project['tasks_total'] ?? 0);
                                                 $tasksCompleted = (int)($project['tasks_completed'] ?? 0);
-                                                $progress = $tasksTotal > 0 ? (int)round(($tasksCompleted / $tasksTotal) * 100) : 0;
+                                                $tasksProgress = (float)($project['tasks_progress'] ?? 0);
+                                                $progress = (int)min(100, round($tasksProgress));
                                                 ?>
                                                 <div class="col-md-6">
                                                     <div class="border rounded-3 p-3 h-100">
@@ -215,6 +230,41 @@
                                             <div class="col-12">
                                                 <div class="text-muted">No hay proyectos registrados.</div>
                                             </div>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div>
+                                                <h5 class="mb-1">Próximas tareas</h5>
+                                                <p class="text-muted mb-0">Planificación tipo Gantt basada en fechas de inicio y entrega.</p>
+                                            </div>
+                                            <a href="#portal-projects" data-portal-tab="#portal-projects" class="btn btn-outline-secondary btn-sm">Ver planificación</a>
+                                        </div>
+                                        <?php if (!empty($upcomingTasks)): ?>
+                                            <div class="list-group list-group-flush">
+                                                <?php foreach (array_slice($upcomingTasks, 0, 5) as $task): ?>
+                                                    <?php
+                                                    $taskStart = $task['start_date'] ?? '';
+                                                    $taskEnd = $task['end_date'] ?? '';
+                                                    $taskProgress = (int)($task['progress_percent'] ?? 0);
+                                                    ?>
+                                                    <div class="list-group-item px-0">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <div class="fw-semibold"><?php echo e($task['title'] ?? '-'); ?></div>
+                                                                <div class="text-muted fs-xs"><?php echo e($task['project_name'] ?? '-'); ?> · <?php echo e($taskStart !== '' ? $taskStart : 'Sin inicio'); ?> → <?php echo e($taskEnd !== '' ? $taskEnd : 'Sin entrega'); ?></div>
+                                                            </div>
+                                                            <span class="badge bg-primary-subtle text-primary"><?php echo $taskProgress; ?>%</span>
+                                                        </div>
+                                                        <div class="progress progress-sm mt-2">
+                                                            <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo min(100, $taskProgress); ?>%"></div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="text-muted">No hay tareas pendientes en este momento.</div>
                                         <?php endif; ?>
                                     </div>
 
@@ -252,42 +302,70 @@
                                                 <?php
                                                 $tasksTotal = (int)($project['tasks_total'] ?? 0);
                                                 $tasksCompleted = (int)($project['tasks_completed'] ?? 0);
-                                                $progress = $tasksTotal > 0 ? (int)round(($tasksCompleted / $tasksTotal) * 100) : 0;
+                                                $tasksProgress = (float)($project['tasks_progress'] ?? 0);
+                                                $progress = (int)min(100, round($tasksProgress));
                                                 ?>
                                                 <div class="col-md-6">
-                                                    <div class="card border-0 shadow-sm h-100">
-                                                        <div class="card-body">
-                                                            <div class="d-flex align-items-start justify-content-between mb-2">
-                                                                <div>
-                                                                    <h6 class="mb-1"><?php echo e($project['name'] ?? 'Proyecto'); ?></h6>
-                                                                    <div class="text-muted fs-xs"><?php echo e($project['mandante_name'] ?? 'Mandante no definido'); ?></div>
+                                                        <div class="card border-0 shadow-sm h-100">
+                                                            <div class="card-body">
+                                                                <div class="d-flex align-items-start justify-content-between mb-2">
+                                                                    <div>
+                                                                        <h6 class="mb-1"><?php echo e($project['name'] ?? 'Proyecto'); ?></h6>
+                                                                        <div class="text-muted fs-xs"><?php echo e($project['mandante_name'] ?? 'Mandante no definido'); ?></div>
+                                                                    </div>
+                                                                    <span class="badge bg-primary-subtle text-primary"><?php echo e($project['status'] ?? ''); ?></span>
                                                                 </div>
-                                                                <span class="badge bg-primary-subtle text-primary"><?php echo e($project['status'] ?? ''); ?></span>
+                                                                <p class="text-muted fs-sm mb-3"><?php echo e($project['description'] ?? 'Sin descripción registrada.'); ?></p>
+                                                                <div class="row text-muted fs-xs">
+                                                                    <div class="col-6">
+                                                                        <div>Inicio</div>
+                                                                        <div class="fw-semibold text-dark"><?php echo e($project['start_date'] ?? 'Por definir'); ?></div>
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <div>Entrega</div>
+                                                                        <div class="fw-semibold text-dark"><?php echo e($project['delivery_date'] ?? 'Por definir'); ?></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-3">
+                                                                    <div class="d-flex justify-content-between fs-xs text-muted">
+                                                                        <span>Avance</span>
+                                                                        <span><?php echo $progress; ?>%</span>
+                                                                    </div>
+                                                                    <div class="progress progress-sm">
+                                                                        <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $progress; ?>%"></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-2 fs-xs text-muted">Tareas completadas: <?php echo $tasksCompleted; ?> de <?php echo $tasksTotal; ?></div>
+                                                                <?php $projectTaskList = $tasksByProject[$project['id']] ?? []; ?>
+                                                                <div class="mt-3 p-2 rounded bg-light">
+                                                                    <div class="fw-semibold fs-xs text-uppercase text-muted">Planificación (Gantt)</div>
+                                                                    <?php if (!empty($projectTaskList)): ?>
+                                                                        <div class="mt-2">
+                                                                            <?php foreach (array_slice($projectTaskList, 0, 3) as $task): ?>
+                                                                                <?php
+                                                                                $taskStart = $task['start_date'] ?? '';
+                                                                                $taskEnd = $task['end_date'] ?? '';
+                                                                                $taskProgress = (int)($task['progress_percent'] ?? 0);
+                                                                                ?>
+                                                                                <div class="mb-2">
+                                                                                    <div class="d-flex justify-content-between fs-xs text-muted">
+                                                                                        <span><?php echo e($task['title'] ?? 'Tarea'); ?></span>
+                                                                                        <span><?php echo $taskProgress; ?>%</span>
+                                                                                    </div>
+                                                                                    <div class="progress progress-sm">
+                                                                                        <div class="progress-bar <?php echo $taskProgress >= 100 ? 'bg-success' : 'bg-primary'; ?>" role="progressbar" style="width: <?php echo min(100, $taskProgress); ?>%"></div>
+                                                                                    </div>
+                                                                                    <div class="fs-xs text-muted mt-1"><?php echo e($taskStart !== '' ? $taskStart : 'Sin inicio'); ?> → <?php echo e($taskEnd !== '' ? $taskEnd : 'Sin entrega'); ?></div>
+                                                                                </div>
+                                                                            <?php endforeach; ?>
+                                                                        </div>
+                                                                    <?php else: ?>
+                                                                        <div class="text-muted fs-xs">No hay tareas registradas para este proyecto.</div>
+                                                                    <?php endif; ?>
+                                                                </div>
                                                             </div>
-                                                            <p class="text-muted fs-sm mb-3"><?php echo e($project['description'] ?? 'Sin descripción registrada.'); ?></p>
-                                                            <div class="row text-muted fs-xs">
-                                                                <div class="col-6">
-                                                                    <div>Inicio</div>
-                                                                    <div class="fw-semibold text-dark"><?php echo e($project['start_date'] ?? 'Por definir'); ?></div>
-                                                                </div>
-                                                                <div class="col-6">
-                                                                    <div>Entrega</div>
-                                                                    <div class="fw-semibold text-dark"><?php echo e($project['delivery_date'] ?? 'Por definir'); ?></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="mt-3">
-                                                                <div class="d-flex justify-content-between fs-xs text-muted">
-                                                                    <span>Avance</span>
-                                                                    <span><?php echo $progress; ?>%</span>
-                                                                </div>
-                                                                <div class="progress progress-sm">
-                                                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $progress; ?>%"></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="mt-2 fs-xs text-muted">Tareas completadas: <?php echo $tasksCompleted; ?> de <?php echo $tasksTotal; ?></div>
                                                         </div>
                                                     </div>
-                                                </div>
                                             <?php endforeach; ?>
                                         </div>
                                     <?php else: ?>
@@ -434,21 +512,28 @@
         </div>
     </div>
     <script>
+        const activatePortalTab = (target) => {
+            if (!target) {
+                return;
+            }
+            const tabTrigger = document.querySelector(`a[href="${target}"]`);
+            if (!tabTrigger) {
+                return;
+            }
+            tabTrigger.click();
+        };
+
         window.addEventListener('load', () => {
             document.querySelectorAll('[data-portal-tab]').forEach((link) => {
                 link.addEventListener('click', (event) => {
                     event.preventDefault();
                     const target = link.getAttribute('data-portal-tab');
-                    if (!target) {
-                        return;
-                    }
-                    const tabTrigger = document.querySelector(`a[href="${target}"]`);
-                    if (!tabTrigger) {
-                        return;
-                    }
-                    tabTrigger.click();
+                    activatePortalTab(target);
                 });
             });
+            if (window.location.hash) {
+                activatePortalTab(window.location.hash);
+            }
         });
     </script>
 <?php endif; ?>

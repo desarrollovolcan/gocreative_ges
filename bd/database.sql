@@ -67,6 +67,9 @@ CREATE TABLE project_tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
     title VARCHAR(150) NOT NULL,
+    start_date DATE NULL,
+    end_date DATE NULL,
+    progress_percent TINYINT UNSIGNED NOT NULL DEFAULT 0,
     completed TINYINT(1) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
@@ -764,21 +767,22 @@ INSERT INTO users (name, email, password, role_id, signature, created_at, update
 ('Usuario 15', 'usuario15@gocreative.cl', '$2y$12$Aa7Lucu.iaa3mUMBZjxAyO96KI0d6yNaKuOD/Rdru1FsOhn9Kmtga', 2, 'Firma 15', NOW(), NOW());
 
 INSERT INTO clients (name, rut, email, billing_email, phone, address, contact, mandante_name, mandante_rut, mandante_phone, mandante_email, portal_token, portal_password, notes, status, created_at, updated_at) VALUES
-('Cliente 01', '76.000.001-1', 'cliente01@example.com', 'cobranza01@example.com', '+56 9 1111 0001', 'Av. Demo 101', 'Contacto 01', 'Mandante 01', '77.000.001-1', '+56 9 2111 0001', 'mandante01@example.com', 'token01', 'pass01', 'Notas cliente 01', 'activo', NOW(), NOW()),
-('Cliente 02', '76.000.002-2', 'cliente02@example.com', 'cobranza02@example.com', '+56 9 1111 0002', 'Av. Demo 102', 'Contacto 02', 'Mandante 02', '77.000.002-2', '+56 9 2111 0002', 'mandante02@example.com', 'token02', 'pass02', 'Notas cliente 02', 'activo', NOW(), NOW()),
-('Cliente 03', '76.000.003-3', 'cliente03@example.com', 'cobranza03@example.com', '+56 9 1111 0003', 'Av. Demo 103', 'Contacto 03', 'Mandante 03', '77.000.003-3', '+56 9 2111 0003', 'mandante03@example.com', 'token03', 'pass03', 'Notas cliente 03', 'activo', NOW(), NOW()),
-('Cliente 04', '76.000.004-4', 'cliente04@example.com', 'cobranza04@example.com', '+56 9 1111 0004', 'Av. Demo 104', 'Contacto 04', 'Mandante 04', '77.000.004-4', '+56 9 2111 0004', 'mandante04@example.com', 'token04', 'pass04', 'Notas cliente 04', 'activo', NOW(), NOW()),
-('Cliente 05', '76.000.005-5', 'cliente05@example.com', 'cobranza05@example.com', '+56 9 1111 0005', 'Av. Demo 105', 'Contacto 05', 'Mandante 05', '77.000.005-5', '+56 9 2111 0005', 'mandante05@example.com', 'token05', 'pass05', 'Notas cliente 05', 'activo', NOW(), NOW()),
-('Cliente 06', '76.000.006-6', 'cliente06@example.com', 'cobranza06@example.com', '+56 9 1111 0006', 'Av. Demo 106', 'Contacto 06', 'Mandante 06', '77.000.006-6', '+56 9 2111 0006', 'mandante06@example.com', 'token06', 'pass06', 'Notas cliente 06', 'activo', NOW(), NOW()),
-('Cliente 07', '76.000.007-7', 'cliente07@example.com', 'cobranza07@example.com', '+56 9 1111 0007', 'Av. Demo 107', 'Contacto 07', 'Mandante 07', '77.000.007-7', '+56 9 2111 0007', 'mandante07@example.com', 'token07', 'pass07', 'Notas cliente 07', 'activo', NOW(), NOW()),
-('Cliente 08', '76.000.008-8', 'cliente08@example.com', 'cobranza08@example.com', '+56 9 1111 0008', 'Av. Demo 108', 'Contacto 08', 'Mandante 08', '77.000.008-8', '+56 9 2111 0008', 'mandante08@example.com', 'token08', 'pass08', 'Notas cliente 08', 'activo', NOW(), NOW()),
-('Cliente 09', '76.000.009-9', 'cliente09@example.com', 'cobranza09@example.com', '+56 9 1111 0009', 'Av. Demo 109', 'Contacto 09', 'Mandante 09', '77.000.009-9', '+56 9 2111 0009', 'mandante09@example.com', 'token09', 'pass09', 'Notas cliente 09', 'activo', NOW(), NOW()),
-('Cliente 10', '76.000.010-0', 'cliente10@example.com', 'cobranza10@example.com', '+56 9 1111 0010', 'Av. Demo 110', 'Contacto 10', 'Mandante 10', '77.000.010-0', '+56 9 2111 0010', 'mandante10@example.com', 'token10', 'pass10', 'Notas cliente 10', 'activo', NOW(), NOW()),
-('Cliente 11', '76.000.011-1', 'cliente11@example.com', 'cobranza11@example.com', '+56 9 1111 0011', 'Av. Demo 111', 'Contacto 11', 'Mandante 11', '77.000.011-1', '+56 9 2111 0011', 'mandante11@example.com', 'token11', 'pass11', 'Notas cliente 11', 'activo', NOW(), NOW()),
-('Cliente 12', '76.000.012-2', 'cliente12@example.com', 'cobranza12@example.com', '+56 9 1111 0012', 'Av. Demo 112', 'Contacto 12', 'Mandante 12', '77.000.012-2', '+56 9 2111 0012', 'mandante12@example.com', 'token12', 'pass12', 'Notas cliente 12', 'activo', NOW(), NOW()),
-('Cliente 13', '76.000.013-3', 'cliente13@example.com', 'cobranza13@example.com', '+56 9 1111 0013', 'Av. Demo 113', 'Contacto 13', 'Mandante 13', '77.000.013-3', '+56 9 2111 0013', 'mandante13@example.com', 'token13', 'pass13', 'Notas cliente 13', 'activo', NOW(), NOW()),
-('Cliente 14', '76.000.014-4', 'cliente14@example.com', 'cobranza14@example.com', '+56 9 1111 0014', 'Av. Demo 114', 'Contacto 14', 'Mandante 14', '77.000.014-4', '+56 9 2111 0014', 'mandante14@example.com', 'token14', 'pass14', 'Notas cliente 14', 'activo', NOW(), NOW()),
-('Cliente 15', '76.000.015-5', 'cliente15@example.com', 'cobranza15@example.com', '+56 9 1111 0015', 'Av. Demo 115', 'Contacto 15', 'Mandante 15', '77.000.015-5', '+56 9 2111 0015', 'mandante15@example.com', 'token15', 'pass15', 'Notas cliente 15', 'activo', NOW(), NOW());
+('Cliente Portal', '76.000.016-6', 'cliente@cliente.cl', 'cobranza@cliente.cl', '+56 9 2222 0000', 'Av. Cliente 100', 'Contacto Cliente', 'Mandante Cliente', '77.000.016-6', '+56 9 2222 0001', 'mandante@cliente.cl', 'tokencliente', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Perfil de cliente para portal', 'activo', NOW(), NOW()),
+('Cliente 01', '76.000.001-1', 'cliente01@example.com', 'cobranza01@example.com', '+56 9 1111 0001', 'Av. Demo 101', 'Contacto 01', 'Mandante 01', '77.000.001-1', '+56 9 2111 0001', 'mandante01@example.com', 'token01', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 01', 'activo', NOW(), NOW()),
+('Cliente 02', '76.000.002-2', 'cliente02@example.com', 'cobranza02@example.com', '+56 9 1111 0002', 'Av. Demo 102', 'Contacto 02', 'Mandante 02', '77.000.002-2', '+56 9 2111 0002', 'mandante02@example.com', 'token02', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 02', 'activo', NOW(), NOW()),
+('Cliente 03', '76.000.003-3', 'cliente03@example.com', 'cobranza03@example.com', '+56 9 1111 0003', 'Av. Demo 103', 'Contacto 03', 'Mandante 03', '77.000.003-3', '+56 9 2111 0003', 'mandante03@example.com', 'token03', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 03', 'activo', NOW(), NOW()),
+('Cliente 04', '76.000.004-4', 'cliente04@example.com', 'cobranza04@example.com', '+56 9 1111 0004', 'Av. Demo 104', 'Contacto 04', 'Mandante 04', '77.000.004-4', '+56 9 2111 0004', 'mandante04@example.com', 'token04', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 04', 'activo', NOW(), NOW()),
+('Cliente 05', '76.000.005-5', 'cliente05@example.com', 'cobranza05@example.com', '+56 9 1111 0005', 'Av. Demo 105', 'Contacto 05', 'Mandante 05', '77.000.005-5', '+56 9 2111 0005', 'mandante05@example.com', 'token05', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 05', 'activo', NOW(), NOW()),
+('Cliente 06', '76.000.006-6', 'cliente06@example.com', 'cobranza06@example.com', '+56 9 1111 0006', 'Av. Demo 106', 'Contacto 06', 'Mandante 06', '77.000.006-6', '+56 9 2111 0006', 'mandante06@example.com', 'token06', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 06', 'activo', NOW(), NOW()),
+('Cliente 07', '76.000.007-7', 'cliente07@example.com', 'cobranza07@example.com', '+56 9 1111 0007', 'Av. Demo 107', 'Contacto 07', 'Mandante 07', '77.000.007-7', '+56 9 2111 0007', 'mandante07@example.com', 'token07', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 07', 'activo', NOW(), NOW()),
+('Cliente 08', '76.000.008-8', 'cliente08@example.com', 'cobranza08@example.com', '+56 9 1111 0008', 'Av. Demo 108', 'Contacto 08', 'Mandante 08', '77.000.008-8', '+56 9 2111 0008', 'mandante08@example.com', 'token08', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 08', 'activo', NOW(), NOW()),
+('Cliente 09', '76.000.009-9', 'cliente09@example.com', 'cobranza09@example.com', '+56 9 1111 0009', 'Av. Demo 109', 'Contacto 09', 'Mandante 09', '77.000.009-9', '+56 9 2111 0009', 'mandante09@example.com', 'token09', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 09', 'activo', NOW(), NOW()),
+('Cliente 10', '76.000.010-0', 'cliente10@example.com', 'cobranza10@example.com', '+56 9 1111 0010', 'Av. Demo 110', 'Contacto 10', 'Mandante 10', '77.000.010-0', '+56 9 2111 0010', 'mandante10@example.com', 'token10', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 10', 'activo', NOW(), NOW()),
+('Cliente 11', '76.000.011-1', 'cliente11@example.com', 'cobranza11@example.com', '+56 9 1111 0011', 'Av. Demo 111', 'Contacto 11', 'Mandante 11', '77.000.011-1', '+56 9 2111 0011', 'mandante11@example.com', 'token11', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 11', 'activo', NOW(), NOW()),
+('Cliente 12', '76.000.012-2', 'cliente12@example.com', 'cobranza12@example.com', '+56 9 1111 0012', 'Av. Demo 112', 'Contacto 12', 'Mandante 12', '77.000.012-2', '+56 9 2111 0012', 'mandante12@example.com', 'token12', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 12', 'activo', NOW(), NOW()),
+('Cliente 13', '76.000.013-3', 'cliente13@example.com', 'cobranza13@example.com', '+56 9 1111 0013', 'Av. Demo 113', 'Contacto 13', 'Mandante 13', '77.000.013-3', '+56 9 2111 0013', 'mandante13@example.com', 'token13', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 13', 'activo', NOW(), NOW()),
+('Cliente 14', '76.000.014-4', 'cliente14@example.com', 'cobranza14@example.com', '+56 9 1111 0014', 'Av. Demo 114', 'Contacto 14', 'Mandante 14', '77.000.014-4', '+56 9 2111 0014', 'mandante14@example.com', 'token14', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 14', 'activo', NOW(), NOW()),
+('Cliente 15', '76.000.015-5', 'cliente15@example.com', 'cobranza15@example.com', '+56 9 1111 0015', 'Av. Demo 115', 'Contacto 15', 'Mandante 15', '77.000.015-5', '+56 9 2111 0015', 'mandante15@example.com', 'token15', '$2y$12$nUf/9qZQktkbS6ZRrWmWSOZKICU21yL0COcoaZiPmFwgegTGomdQW', 'Notas cliente 15', 'activo', NOW(), NOW());
 
 INSERT INTO projects (client_id, name, description, status, start_date, delivery_date, value, mandante_name, mandante_rut, mandante_phone, mandante_email, notes, created_at, updated_at) VALUES
 (1, 'Proyecto 01', 'Descripción proyecto 01', 'activo', '2024-01-05', '2024-03-05', 1200000.00, 'Mandante 01', '77.000.001-1', '+56 9 2111 0001', 'mandante01@example.com', 'Notas proyecto 01', NOW(), NOW()),
@@ -797,22 +801,22 @@ INSERT INTO projects (client_id, name, description, status, start_date, delivery
 (14, 'Proyecto 14', 'Descripción proyecto 14', 'activo', '2024-01-18', '2024-03-18', 2500000.00, 'Mandante 14', '77.000.014-4', '+56 9 2111 0014', 'mandante14@example.com', 'Notas proyecto 14', NOW(), NOW()),
 (15, 'Proyecto 15', 'Descripción proyecto 15', 'activo', '2024-01-19', '2024-03-19', 2600000.00, 'Mandante 15', '77.000.015-5', '+56 9 2111 0015', 'mandante15@example.com', 'Notas proyecto 15', NOW(), NOW());
 
-INSERT INTO project_tasks (project_id, title, completed, created_at, updated_at) VALUES
-(1, 'Tarea 01', 0, NOW(), NOW()),
-(2, 'Tarea 02', 1, NOW(), NOW()),
-(3, 'Tarea 03', 0, NOW(), NOW()),
-(4, 'Tarea 04', 1, NOW(), NOW()),
-(5, 'Tarea 05', 0, NOW(), NOW()),
-(6, 'Tarea 06', 1, NOW(), NOW()),
-(7, 'Tarea 07', 0, NOW(), NOW()),
-(8, 'Tarea 08', 1, NOW(), NOW()),
-(9, 'Tarea 09', 0, NOW(), NOW()),
-(10, 'Tarea 10', 1, NOW(), NOW()),
-(11, 'Tarea 11', 0, NOW(), NOW()),
-(12, 'Tarea 12', 1, NOW(), NOW()),
-(13, 'Tarea 13', 0, NOW(), NOW()),
-(14, 'Tarea 14', 1, NOW(), NOW()),
-(15, 'Tarea 15', 0, NOW(), NOW());
+INSERT INTO project_tasks (project_id, title, start_date, end_date, progress_percent, completed, created_at, updated_at) VALUES
+(1, 'Tarea 01', '2024-01-05', '2024-01-12', 25, 0, NOW(), NOW()),
+(2, 'Tarea 02', '2024-01-06', '2024-01-20', 100, 1, NOW(), NOW()),
+(3, 'Tarea 03', '2024-01-07', '2024-01-18', 50, 0, NOW(), NOW()),
+(4, 'Tarea 04', '2024-01-08', '2024-01-22', 100, 1, NOW(), NOW()),
+(5, 'Tarea 05', '2024-01-09', '2024-01-16', 15, 0, NOW(), NOW()),
+(6, 'Tarea 06', '2024-01-10', '2024-01-24', 100, 1, NOW(), NOW()),
+(7, 'Tarea 07', '2024-01-11', '2024-01-19', 40, 0, NOW(), NOW()),
+(8, 'Tarea 08', '2024-01-12', '2024-01-26', 100, 1, NOW(), NOW()),
+(9, 'Tarea 09', '2024-01-13', '2024-01-21', 60, 0, NOW(), NOW()),
+(10, 'Tarea 10', '2024-01-14', '2024-01-28', 100, 1, NOW(), NOW()),
+(11, 'Tarea 11', '2024-01-15', '2024-01-23', 35, 0, NOW(), NOW()),
+(12, 'Tarea 12', '2024-01-16', '2024-01-30', 100, 1, NOW(), NOW()),
+(13, 'Tarea 13', '2024-01-17', '2024-01-25', 10, 0, NOW(), NOW()),
+(14, 'Tarea 14', '2024-01-18', '2024-02-01', 100, 1, NOW(), NOW()),
+(15, 'Tarea 15', '2024-01-19', '2024-01-27', 20, 0, NOW(), NOW());
 
 INSERT INTO services (client_id, service_type, name, cost, currency, billing_cycle, start_date, due_date, delete_date, notice_days_1, notice_days_2, status, auto_invoice, auto_email, created_at, updated_at) VALUES
 (1, 'hosting', 'Servicio 01', 12000.00, 'CLP', 'mensual', '2024-02-01', '2024-03-01', NULL, 15, 5, 'activo', 1, 1, NOW(), NOW()),

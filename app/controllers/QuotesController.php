@@ -4,14 +4,14 @@ class QuotesController extends Controller
 {
     private QuotesModel $quotes;
     private ClientsModel $clients;
-    private ServicesModel $services;
+    private SystemServicesModel $services;
 
     public function __construct(array $config, Database $db)
     {
         parent::__construct($config, $db);
         $this->quotes = new QuotesModel($db);
         $this->clients = new ClientsModel($db);
-        $this->services = new ServicesModel($db);
+        $this->services = new SystemServicesModel($db);
     }
 
     public function index(): void
@@ -29,7 +29,7 @@ class QuotesController extends Controller
     {
         $this->requireLogin();
         $clients = $this->clients->active();
-        $services = $this->services->active();
+        $services = $this->services->popularHostingAndDomain(10);
         $projects = $this->db->fetchAll('SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL ORDER BY projects.id DESC');
         $number = $this->quotes->nextNumber('COT-');
         $this->render('quotes/create', [
@@ -46,7 +46,7 @@ class QuotesController extends Controller
     {
         $this->requireLogin();
         verify_csrf();
-        $serviceId = trim($_POST['service_id'] ?? '');
+        $serviceId = trim($_POST['system_service_id'] ?? '');
         $projectId = trim($_POST['project_id'] ?? '');
         $issueDate = trim($_POST['fecha_emision'] ?? '');
         $subtotal = trim($_POST['subtotal'] ?? '');
@@ -55,7 +55,7 @@ class QuotesController extends Controller
 
         $quoteId = $this->quotes->create([
             'client_id' => (int)($_POST['client_id'] ?? 0),
-            'service_id' => $serviceId !== '' ? $serviceId : null,
+            'system_service_id' => $serviceId !== '' ? $serviceId : null,
             'project_id' => $projectId !== '' ? $projectId : null,
             'numero' => trim($_POST['numero'] ?? ''),
             'fecha_emision' => $issueDate !== '' ? $issueDate : date('Y-m-d'),
@@ -106,5 +106,24 @@ class QuotesController extends Controller
             'client' => $client,
             'items' => $items,
         ]);
+    }
+
+    public function print(): void
+    {
+        $this->requireLogin();
+        $id = (int)($_GET['id'] ?? 0);
+        $quote = $this->quotes->find($id);
+        if (!$quote) {
+            $this->redirect('index.php?route=quotes');
+        }
+        $items = (new QuoteItemsModel($this->db))->byQuote($id);
+        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $quote['client_id']]);
+        $company = (new SettingsModel($this->db))->get('company', []);
+        $viewPath = __DIR__ . '/../views/quotes/print.php';
+        if (file_exists($viewPath)) {
+            include $viewPath;
+            return;
+        }
+        echo 'Vista no encontrada.';
     }
 }

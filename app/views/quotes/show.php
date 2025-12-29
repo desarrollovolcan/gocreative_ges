@@ -1,7 +1,10 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4 class="card-title mb-0">Cotización <?php echo e($quote['numero']); ?></h4>
-        <a href="index.php?route=quotes" class="btn btn-light btn-sm">Volver</a>
+        <div class="d-flex gap-2">
+            <a href="index.php?route=quotes/print&id=<?php echo $quote['id']; ?>" class="btn btn-outline-primary btn-sm" target="_blank">Imprimir</a>
+            <a href="index.php?route=quotes" class="btn btn-light btn-sm">Volver</a>
+        </div>
     </div>
     <div class="card-body">
         <div class="row">

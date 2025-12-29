@@ -39,14 +39,13 @@ $defaultIssueDate = date('Y-m-d');
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Servicio</label>
-                    <select name="service_id" class="form-select" data-service-select>
+                    <select name="system_service_id" class="form-select" data-service-select>
                         <option value="">Selecciona servicio</option>
                         <?php foreach ($services as $service): ?>
                             <option value="<?php echo $service['id']; ?>"
-                                    data-client-id="<?php echo $service['client_id']; ?>"
                                     data-name="<?php echo e($service['name']); ?>"
                                     data-price="<?php echo e($service['cost']); ?>">
-                                <?php echo e($service['name']); ?> (<?php echo e($service['client_name']); ?>)
+                                <?php echo e($service['name']); ?> (<?php echo e($service['type_name']); ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -128,7 +127,6 @@ $defaultIssueDate = date('Y-m-d');
 <script>
     const serviceSelect = document.querySelector('[data-service-select]');
     const projectSelect = document.querySelector('[data-project-select]');
-    const clientSelect = document.querySelector('[data-client-select]');
     const descriptionInput = document.querySelector('[data-item-description]');
     const qtyInput = document.querySelector('[data-item-qty]');
     const priceInput = document.querySelector('[data-item-price]');
@@ -159,15 +157,11 @@ $defaultIssueDate = date('Y-m-d');
         }
         const name = option.dataset.name || '';
         const price = option.dataset.price || 0;
-        const clientId = option.dataset.clientId || '';
         if (descriptionInput) {
             descriptionInput.value = name;
         }
         if (priceInput) {
             priceInput.value = Number(price).toFixed(2);
-        }
-        if (clientSelect && clientId) {
-            clientSelect.value = clientId;
         }
         updateTotals();
     };

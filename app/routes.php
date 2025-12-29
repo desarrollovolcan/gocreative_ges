@@ -37,6 +37,7 @@ return [
     'quotes/create' => ['QuotesController', 'create'],
     'quotes/store' => ['QuotesController', 'store'],
     'quotes/show' => ['QuotesController', 'show'],
+    'quotes/print' => ['QuotesController', 'print'],
     'invoices' => ['InvoicesController', 'index'],
     'invoices/create' => ['InvoicesController', 'create'],
     'invoices/store' => ['InvoicesController', 'store'],

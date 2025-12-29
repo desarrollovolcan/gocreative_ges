@@ -131,7 +131,7 @@
                     <?php foreach ($payments as $payment): ?>
                         <tr>
                             <td>#<?php echo e($payment['invoice_id']); ?></td>
-                            <td><?php echo e($payment['monto']); ?></td>
+                            <td><?php echo e(format_currency((float)($payment['monto'] ?? 0))); ?></td>
                             <td><?php echo e($payment['fecha_pago']); ?></td>
                             <td><?php echo e($payment['metodo']); ?></td>
                         </tr>

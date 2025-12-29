@@ -16,4 +16,10 @@ return [
     'security' => [
         'csrf_key' => 'csrf_token',
     ],
+    'currency_format' => [
+        'thousands_separator' => '.',
+        'decimal_separator' => ',',
+        'decimals' => 0,
+        'symbol' => '$',
+    ],
 ];

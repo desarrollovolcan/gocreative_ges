@@ -183,7 +183,8 @@
                                                 <?php
                                                 $tasksTotal = (int)($project['tasks_total'] ?? 0);
                                                 $tasksCompleted = (int)($project['tasks_completed'] ?? 0);
-                                                $progress = $tasksTotal > 0 ? (int)round(($tasksCompleted / $tasksTotal) * 100) : 0;
+                                                $tasksProgress = (float)($project['tasks_progress'] ?? 0);
+                                                $progress = (int)min(100, round($tasksProgress));
                                                 ?>
                                                 <div class="col-md-6">
                                                     <div class="border rounded-3 p-3 h-100">
@@ -252,7 +253,8 @@
                                                 <?php
                                                 $tasksTotal = (int)($project['tasks_total'] ?? 0);
                                                 $tasksCompleted = (int)($project['tasks_completed'] ?? 0);
-                                                $progress = $tasksTotal > 0 ? (int)round(($tasksCompleted / $tasksTotal) * 100) : 0;
+                                                $tasksProgress = (float)($project['tasks_progress'] ?? 0);
+                                                $progress = (int)min(100, round($tasksProgress));
                                                 ?>
                                                 <div class="col-md-6">
                                                     <div class="card border-0 shadow-sm h-100">

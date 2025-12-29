@@ -9,6 +9,7 @@
     const chatNotificationButton = document.getElementById('chatNotificationButton');
     if (chatNotificationBadge) {
         const storageKey = 'adminChatLastSeen';
+        let chatClickBound = false;
         const updateChatNotification = async () => {
             const response = await fetch('index.php?route=chat/notifications');
             if (!response.ok) {
@@ -20,6 +21,22 @@
             chatNotificationBadge.dataset.latestId = String(latestId);
             if (latestId > lastSeen) {
                 chatNotificationBadge.classList.remove('d-none');
+                if (chatNotificationButton && !chatClickBound) {
+                    chatNotificationButton.addEventListener('click', (event) => {
+                        if (chatNotificationBadge.classList.contains('d-none')) {
+                            return;
+                        }
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const latest = Number(chatNotificationBadge.dataset.latestId || 0);
+                        if (latest) {
+                            localStorage.setItem(storageKey, String(latest));
+                        }
+                        chatNotificationBadge.classList.add('d-none');
+                        window.location.href = 'chat.php';
+                    });
+                    chatClickBound = true;
+                }
             }
         };
 

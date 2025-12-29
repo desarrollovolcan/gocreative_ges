@@ -841,6 +841,18 @@
                 });
             }
 
+            document.querySelectorAll('#portal-chat a[href*="#portal-chat"]').forEach((link) => {
+                link.addEventListener('click', () => {
+                    localStorage.setItem('portalActiveTab', '#portal-chat');
+                });
+            });
+
+            document.querySelectorAll('#portal-chat form').forEach((form) => {
+                form.addEventListener('submit', () => {
+                    localStorage.setItem('portalActiveTab', '#portal-chat');
+                });
+            });
+
             fetchChatNotifications();
             setInterval(fetchChatNotifications, 8000);
         });

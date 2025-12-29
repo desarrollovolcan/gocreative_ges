@@ -121,6 +121,11 @@
                     <div id="editCollapseAccess" class="accordion-collapse collapse" aria-labelledby="editHeadingAccess" data-bs-parent="#clientEditAccordion">
                         <div class="accordion-body">
                             <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Correo portal (email principal)</label>
+                                    <input type="email" class="form-control" name="portal_email_display" value="<?php echo e($client['email'] ?? ''); ?>" readonly>
+                                    <small class="text-muted">Se usa el email principal como usuario de acceso.</small>
+                                </div>
                                 <div class="col-md-8">
                                     <label class="form-label">Link intranet</label>
                                     <div class="input-group">
@@ -135,7 +140,8 @@
                                 <div class="col-md-6">
                                     <label class="form-label">Contraseña portal</label>
                                     <div class="input-group">
-                                        <input type="password" name="portal_password" class="form-control" placeholder="Nueva contraseña">
+                                        <input type="password" name="portal_password" class="form-control" placeholder="Nueva contraseña" data-password-field>
+                                        <button class="btn btn-outline-secondary" type="button" data-toggle-password>Mostrar</button>
                                         <button class="btn btn-outline-secondary" type="button" data-generate-password>Generar</button>
                                     </div>
                                     <small class="text-muted">Deja en blanco para mantener la contraseña actual.</small>
@@ -210,6 +216,16 @@
         }
     });
 
+    const portalEmailDisplay = getEditInput('portal_email_display');
+    const emailInput = getEditInput('email');
+    const syncPortalEmail = () => {
+        if (portalEmailDisplay && emailInput) {
+            portalEmailDisplay.value = emailInput.value;
+        }
+    };
+    emailInput?.addEventListener('input', syncPortalEmail);
+    syncPortalEmail();
+
     document.querySelector('[data-generate-password]')?.addEventListener('click', () => {
         const passwordInput = getEditInput('portal_password');
         if (!passwordInput) {
@@ -221,5 +237,16 @@
             password += charset.charAt(Math.floor(Math.random() * charset.length));
         }
         passwordInput.value = password;
+    });
+
+    document.querySelector('[data-toggle-password]')?.addEventListener('click', (event) => {
+        const button = event.currentTarget;
+        const passwordInput = editForm?.querySelector('[data-password-field]');
+        if (!passwordInput || !button) {
+            return;
+        }
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        button.textContent = isPassword ? 'Ocultar' : 'Mostrar';
     });
 </script>

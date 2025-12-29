@@ -129,9 +129,15 @@
                         <div class="accordion-body">
                             <div class="row g-2">
                                 <div class="col-md-6">
+                                    <label class="form-label">Correo portal (email principal)</label>
+                                    <input type="email" class="form-control" name="portal_email_display" readonly>
+                                    <small class="text-muted">Se usa el email principal como usuario de acceso.</small>
+                                </div>
+                                <div class="col-md-6">
                                     <label class="form-label">Contraseña portal</label>
                                     <div class="input-group">
-                                        <input type="password" name="portal_password" class="form-control" required>
+                                        <input type="password" name="portal_password" class="form-control" required data-password-field>
+                                        <button class="btn btn-outline-secondary" type="button" data-toggle-password>Mostrar</button>
                                         <button class="btn btn-outline-secondary" type="button" data-generate-password>Generar</button>
                                     </div>
                                     <small class="text-muted">Comparte esta contraseña con el cliente.</small>
@@ -235,6 +241,16 @@
         input.addEventListener('blur', () => lookupClient(input.value.trim()));
     });
 
+    const portalEmailDisplay = getInput('portal_email_display');
+    const emailInput = getInput('email');
+    const syncPortalEmail = () => {
+        if (portalEmailDisplay && emailInput) {
+            portalEmailDisplay.value = emailInput.value;
+        }
+    };
+    emailInput?.addEventListener('input', syncPortalEmail);
+    syncPortalEmail();
+
     clientMatchFill?.addEventListener('click', () => fillClientData(matchedClient));
 
     document.querySelector('[data-copy-billing]')?.addEventListener('click', () => {
@@ -276,5 +292,16 @@
             password += charset.charAt(Math.floor(Math.random() * charset.length));
         }
         passwordInput.value = password;
+    });
+
+    document.querySelector('[data-toggle-password]')?.addEventListener('click', (event) => {
+        const button = event.currentTarget;
+        const passwordInput = clientForm?.querySelector('[data-password-field]');
+        if (!passwordInput || !button) {
+            return;
+        }
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        button.textContent = isPassword ? 'Ocultar' : 'Mostrar';
     });
 </script>

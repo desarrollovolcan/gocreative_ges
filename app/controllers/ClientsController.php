@@ -66,9 +66,10 @@ class ClientsController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
-        $this->clients->create($data);
+        $clientId = $this->clients->create($data);
         audit($this->db, Auth::user()['id'], 'create', 'clients');
-        $this->redirect('index.php?route=clients');
+        $_SESSION['success'] = 'Cliente creado correctamente.';
+        $this->redirect('index.php?route=clients/edit&id=' . $clientId);
     }
 
     public function edit(): void
@@ -126,7 +127,8 @@ class ClientsController extends Controller
         }
         $this->clients->update($id, $data);
         audit($this->db, Auth::user()['id'], 'update', 'clients', $id);
-        $this->redirect('index.php?route=clients');
+        $_SESSION['success'] = 'Datos actualizados correctamente.';
+        $this->redirect('index.php?route=clients/edit&id=' . $id);
     }
 
     public function show(): void
@@ -173,11 +175,24 @@ class ClientsController extends Controller
                         'email' => $email,
                     ]
                 );
-                if (!$client || empty($client['portal_password']) || !password_verify($password, $client['portal_password'])) {
+                if (!$client || empty($client['portal_password'])) {
                     $error = 'Las credenciales no son válidas.';
                 } else {
-                    $_SESSION['client_portal_token'] = $client['portal_token'];
-                    $this->redirect('index.php?route=clients/portal&token=' . urlencode($client['portal_token']));
+                    $storedPassword = (string)$client['portal_password'];
+                    $passwordMatches = password_verify($password, $storedPassword);
+                    if (!$passwordMatches && hash_equals($storedPassword, $password)) {
+                        $passwordMatches = true;
+                        $this->clients->update((int)$client['id'], [
+                            'portal_password' => password_hash($password, PASSWORD_DEFAULT),
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                    if (!$passwordMatches) {
+                        $error = 'Las credenciales no son válidas.';
+                    } else {
+                        $_SESSION['client_portal_token'] = $client['portal_token'];
+                        $this->redirect('index.php?route=clients/portal&token=' . urlencode($client['portal_token']));
+                    }
                 }
             }
         }
@@ -232,7 +247,8 @@ class ClientsController extends Controller
         $projectsOverview = $this->db->fetchAll(
             'SELECT projects.*,
                 COUNT(project_tasks.id) as tasks_total,
-                COALESCE(SUM(CASE WHEN project_tasks.completed = 1 THEN 1 ELSE 0 END), 0) as tasks_completed,
+                COALESCE(SUM(CASE WHEN project_tasks.progress_percent >= 100 THEN 1 ELSE 0 END), 0) as tasks_completed,
+                COALESCE(SUM(project_tasks.progress_percent), 0) as tasks_progress,
                 MAX(project_tasks.created_at) as last_activity
              FROM projects
              LEFT JOIN project_tasks ON project_tasks.project_id = projects.id

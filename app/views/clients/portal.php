@@ -181,6 +181,11 @@
                                         <span class="fw-bold">Perfil</span>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="#portal-chat" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                        <span class="fw-bold">Mensajes</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
 
@@ -511,6 +516,29 @@
                                     <div class="mt-4">
                                         <h6 class="fw-semibold">Soporte rápido</h6>
                                         <p class="text-muted mb-0">Si necesitas asistencia inmediata, contáctanos y te ayudaremos a resolverlo.</p>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="portal-chat">
+                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                        <div>
+                                            <h5 class="mb-1">Centro de mensajes</h5>
+                                            <p class="text-muted mb-0">Conversa con tu ejecutivo y el equipo de proyecto sin salir del portal.</p>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a class="btn btn-outline-primary btn-sm" href="chat.php" target="_blank" rel="noopener">
+                                                <i class="ti ti-external-link me-1"></i>Abrir en nueva pestaña
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body p-0">
+                                            <iframe
+                                                title="Chat del portal"
+                                                src="chat.php"
+                                                class="w-100 border-0"
+                                                style="min-height: 720px;"
+                                            ></iframe>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

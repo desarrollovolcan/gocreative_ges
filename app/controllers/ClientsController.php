@@ -66,9 +66,10 @@ class ClientsController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
-        $this->clients->create($data);
+        $clientId = $this->clients->create($data);
         audit($this->db, Auth::user()['id'], 'create', 'clients');
-        $this->redirect('index.php?route=clients');
+        $_SESSION['success'] = 'Cliente creado correctamente.';
+        $this->redirect('index.php?route=clients/edit&id=' . $clientId);
     }
 
     public function edit(): void

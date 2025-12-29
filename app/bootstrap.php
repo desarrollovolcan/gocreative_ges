@@ -37,6 +37,12 @@ try {
     exit;
 }
 
+$settings = new SettingsModel($db);
+$currencyFormat = $settings->get('currency_format', []);
+if (is_array($currencyFormat)) {
+    $config['currency_format'] = array_merge($config['currency_format'] ?? [], $currencyFormat);
+}
+
 if (!isset($_SESSION['timezone_set'])) {
     date_default_timezone_set($config['app']['timezone']);
     $_SESSION['timezone_set'] = true;

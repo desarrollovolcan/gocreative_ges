@@ -20,6 +20,8 @@ class Mailer
         $defaultConfig = [
             'host' => 'mail.gocreative.cl',
             'port' => 465,
+            'port_ssl' => 465,
+            'port_tls' => 587,
             'security' => 'ssl',
             'username' => 'informevolcan@gocreative.cl',
             'password' => '#(3-QiWGI;l}oJW_',
@@ -49,11 +51,17 @@ class Mailer
             $mail->isSMTP();
             $mail->CharSet = 'UTF-8';
             $mail->Host = $config['host'] ?? '';
-            $mail->Port = (int)($config['port'] ?? 587);
+            $security = strtolower(trim($config['security'] ?? 'tls'));
+            if ($security === 'ssl') {
+                $mail->Port = (int)($config['port_ssl'] ?? $config['port'] ?? 465);
+            } elseif ($security === 'tls') {
+                $mail->Port = (int)($config['port_tls'] ?? $config['port'] ?? 587);
+            } else {
+                $mail->Port = (int)($config['port'] ?? 587);
+            }
             $mail->SMTPAuth = !empty($config['username']);
             $mail->Username = $config['username'] ?? '';
             $mail->Password = $config['password'] ?? '';
-            $security = strtolower(trim($config['security'] ?? 'tls'));
             if ($security === 'ssl') {
                 $mail->SMTPSecure = defined('PHPMailer\\PHPMailer\\PHPMailer::ENCRYPTION_SMTPS')
                     ? PHPMailer::ENCRYPTION_SMTPS

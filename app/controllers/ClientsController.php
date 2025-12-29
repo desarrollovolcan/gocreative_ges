@@ -257,6 +257,14 @@ class ClientsController extends Controller
              ORDER BY projects.created_at DESC',
             ['id' => $client['id']]
         );
+        $projectTasks = $this->db->fetchAll(
+            'SELECT project_tasks.*, projects.name as project_name
+             FROM project_tasks
+             JOIN projects ON project_tasks.project_id = projects.id
+             WHERE projects.client_id = :id AND projects.deleted_at IS NULL
+             ORDER BY COALESCE(project_tasks.start_date, project_tasks.created_at) ASC',
+            ['id' => $client['id']]
+        );
 
         $this->renderPublic('clients/portal', [
             'title' => 'Portal Cliente',
@@ -268,6 +276,7 @@ class ClientsController extends Controller
             'pendingTotal' => $pendingTotal,
             'paidTotal' => $paidTotal,
             'projectsOverview' => $projectsOverview,
+            'projectTasks' => $projectTasks,
             'success' => $_SESSION['success'] ?? null,
         ]);
         unset($_SESSION['success']);

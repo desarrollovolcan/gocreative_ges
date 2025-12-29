@@ -1,5 +1,10 @@
 <div class="card">
     <div class="card-body">
+        <?php if (!empty($selectedProjectId) && ($projectInvoiceCount ?? 0) > 0): ?>
+            <div class="alert alert-warning">
+                Este proyecto ya tiene <?php echo (int)$projectInvoiceCount; ?> factura(s) asociada(s). Revisa antes de crear una nueva.
+            </div>
+        <?php endif; ?>
         <form method="post" action="index.php?route=invoices/store">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <div class="row">
@@ -233,8 +238,8 @@
     subtotalInput?.addEventListener('input', updateTotals);
     taxRateInput?.addEventListener('input', updateTotals);
 
-    projectSelect?.addEventListener('change', () => {
-        const selected = projectSelect.selectedOptions?.[0];
+    const fillFromProject = () => {
+        const selected = projectSelect?.selectedOptions?.[0];
         if (!selected) {
             return;
         }
@@ -246,7 +251,7 @@
             const priceInput = firstRow.querySelector('[data-item-price]');
             const qtyInput = firstRow.querySelector('[data-item-qty]');
             const taxRateInputRow = firstRow.querySelector('[data-item-tax-rate]');
-            if (descriptionInput && descriptionInput.value.trim() === '') {
+            if (descriptionInput) {
                 descriptionInput.value = projectName;
             }
             if (priceInput) {
@@ -261,7 +266,9 @@
             }
             updateFromItems();
         }
-    });
+    };
+
+    projectSelect?.addEventListener('change', fillFromProject);
 
     taxRateInput?.addEventListener('input', () => {
         document.querySelectorAll('[data-item-tax-rate]').forEach((input) => {
@@ -273,6 +280,10 @@
     applyTaxCheckbox?.addEventListener('change', () => {
         updateFromItems();
     });
+
+    <?php if (!empty($selectedProjectId)): ?>
+    fillFromProject();
+    <?php endif; ?>
 
     updateFromItems();
 </script>

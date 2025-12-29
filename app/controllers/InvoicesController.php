@@ -37,6 +37,14 @@ class InvoicesController extends Controller
         $invoiceDefaults = $settings->get('invoice_defaults', []);
         $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $selectedProjectId = (int)($_GET['project_id'] ?? 0);
+        $projectInvoiceCount = 0;
+        if ($selectedProjectId > 0) {
+            $countRow = $this->db->fetch(
+                'SELECT COUNT(*) as total FROM invoices WHERE project_id = :project_id AND deleted_at IS NULL',
+                ['project_id' => $selectedProjectId]
+            );
+            $projectInvoiceCount = (int)($countRow['total'] ?? 0);
+        }
         $this->render('invoices/create', [
             'title' => 'Nueva Factura',
             'pageTitle' => 'Nueva Factura',
@@ -47,6 +55,7 @@ class InvoicesController extends Controller
             'invoiceDefaults' => $invoiceDefaults,
             'selectedClientId' => $selectedClientId,
             'selectedProjectId' => $selectedProjectId,
+            'projectInvoiceCount' => $projectInvoiceCount,
         ]);
     }
 

@@ -46,11 +46,18 @@ class UsersController extends Controller
             $_SESSION['error'] = 'Completa los campos obligatorios.';
             $this->redirect('index.php?route=users/create');
         }
+        $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'user');
+        if (!empty($avatarResult['error'])) {
+            $_SESSION['error'] = $avatarResult['error'];
+            $this->redirect('index.php?route=users/create');
+        }
+
         $this->users->create([
             'name' => $name,
             'email' => $email,
             'password' => password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT),
             'role_id' => (int)($_POST['role_id'] ?? 2),
+            'avatar_path' => $avatarResult['path'],
             'signature' => trim($_POST['signature'] ?? ''),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -93,6 +100,14 @@ class UsersController extends Controller
             'signature' => trim($_POST['signature'] ?? ''),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
+        $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'user');
+        if (!empty($avatarResult['error'])) {
+            $_SESSION['error'] = $avatarResult['error'];
+            $this->redirect('index.php?route=users/edit&id=' . $id);
+        }
+        if (!empty($avatarResult['path'])) {
+            $data['avatar_path'] = $avatarResult['path'];
+        }
         if (!empty($_POST['password'])) {
             $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
         }

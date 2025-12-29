@@ -59,9 +59,13 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-4">
                                 <div class="me-3 position-relative">
-                                    <div class="avatar-lg bg-dark-subtle text-dark rounded-3 d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-building fs-28"></i>
-                                    </div>
+                                    <?php if (!empty($client['avatar_path'])): ?>
+                                        <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-3" style="width: 72px; height: 72px; object-fit: cover;">
+                                    <?php else: ?>
+                                        <div class="avatar-lg bg-dark-subtle text-dark rounded-3 d-flex align-items-center justify-content-center">
+                                            <i class="ti ti-building fs-28"></i>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                                 <div>
                                     <h5 class="mb-0 d-flex align-items-center">
@@ -146,39 +150,44 @@
 
                 <div class="col-xl-8">
                     <div class="card shadow-sm border-0">
-                        <div class="card-header card-tabs d-flex align-items-center">
+                        <div class="card-header card-tabs d-flex align-items-center flex-wrap gap-2">
                             <div class="flex-grow-1">
                                 <h4 class="card-title">Portal Cliente</h4>
                             </div>
-                            <ul class="nav nav-tabs card-header-tabs nav-bordered">
+                            <ul class="nav nav-tabs card-header-tabs nav-bordered flex-wrap gap-1">
                                 <li class="nav-item">
-                                    <a href="#portal-wall" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
-                                        <span class="fw-bold">Muro</span>
+                                    <a href="#portal-wall" data-bs-toggle="tab" aria-expanded="true" class="nav-link active py-1 px-2">
+                                        <i class="ti ti-layout-dashboard me-1"></i><span class="fw-semibold">Muro</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-projects" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Proyectos</span>
+                                    <a href="#portal-projects" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-briefcase me-1"></i><span class="fw-semibold">Proyectos</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-activities" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Actividades</span>
+                                    <a href="#portal-activities" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-activity me-1"></i><span class="fw-semibold">Actividades</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-payments" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Pagos</span>
+                                    <a href="#portal-payments" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-credit-card me-1"></i><span class="fw-semibold">Pagos</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-invoices" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Facturas</span>
+                                    <a href="#portal-invoices" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-receipt me-1"></i><span class="fw-semibold">Facturas</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-profile" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Perfil</span>
+                                    <a href="#portal-profile" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-user me-1"></i><span class="fw-semibold">Perfil</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#portal-chat" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-messages me-1"></i><span class="fw-semibold">Mensajes</span>
                                     </a>
                                 </li>
                             </ul>
@@ -483,10 +492,20 @@
                                             <p class="text-muted mb-0">Mantén tu información actualizada para recibir notificaciones.</p>
                                         </div>
                                     </div>
-                                    <form method="post" action="index.php?route=clients/portal/update" class="bg-light rounded p-3">
+                                    <form method="post" action="index.php?route=clients/portal/update" class="bg-light rounded p-3" enctype="multipart/form-data">
                                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                         <input type="hidden" name="token" value="<?php echo e($client['portal_token'] ?? ''); ?>">
                                         <div class="row">
+                                            <div class="col-12 mb-3">
+                                                <label class="form-label">Foto de perfil</label>
+                                                <input type="file" name="avatar" class="form-control" accept="image/png,image/jpeg,image/webp">
+                                                <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>
+                                                <?php if (!empty($client['avatar_path'])): ?>
+                                                    <div class="mt-2">
+                                                        <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-3" style="width: 72px; height: 72px; object-fit: cover;">
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Correo</label>
                                                 <input type="email" name="email" class="form-control" value="<?php echo e($client['email'] ?? ''); ?>" required>
@@ -513,6 +532,149 @@
                                         <p class="text-muted mb-0">Si necesitas asistencia inmediata, contáctanos y te ayudaremos a resolverlo.</p>
                                     </div>
                                 </div>
+                                <div class="tab-pane" id="portal-chat">
+                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                        <div>
+                                            <h5 class="mb-1">Centro de mensajes</h5>
+                                            <p class="text-muted mb-0">Conversa con tu ejecutivo y el equipo de proyecto sin salir del portal.</p>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#portalNewChat" aria-expanded="false">
+                                                <i class="ti ti-plus me-1"></i>Nueva conversación
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <?php if (!empty($chatError)): ?>
+                                        <div class="alert alert-danger"><?php echo e($chatError); ?></div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($chatSuccess)): ?>
+                                        <div class="alert alert-success"><?php echo e($chatSuccess); ?></div>
+                                    <?php endif; ?>
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-body">
+                                                    <div class="collapse mb-3" id="portalNewChat">
+                                                        <div class="card card-body border">
+                                                            <form method="post" action="index.php?route=clients/portal/chat/create&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>#portal-chat">
+                                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Asunto</label>
+                                                                    <input type="text" name="subject" class="form-control" placeholder="Ej. Seguimiento de entregas" required>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Mensaje inicial</label>
+                                                                    <textarea name="message" class="form-control" rows="3" placeholder="Describe tu solicitud..." required></textarea>
+                                                                </div>
+                                                                <button type="submit" class="btn btn-primary w-100">Crear conversación</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                    <h6 class="fw-semibold mb-3">Conversaciones</h6>
+                                                    <?php if (!empty($chatThreads)): ?>
+                                                        <div class="list-group list-group-flush">
+                                                            <?php foreach ($chatThreads as $thread): ?>
+                                                                <?php $isActive = (int)$thread['id'] === (int)($activeChatThreadId ?? 0); ?>
+                                                                <a
+                                                                    href="index.php?route=clients/portal&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>&thread=<?php echo (int)$thread['id']; ?>#portal-chat"
+                                                                    class="list-group-item list-group-item-action <?php echo $isActive ? 'active' : ''; ?>"
+                                                                >
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <?php if (!empty($client['avatar_path'])): ?>
+                                                                            <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                                                                        <?php else: ?>
+                                                                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                                                                <?php echo e(strtoupper(substr($client['name'] ?? 'C', 0, 1))); ?>
+                                                                            </div>
+                                                                        <?php endif; ?>
+                                                                        <div>
+                                                                            <div class="fw-semibold"><?php echo e($thread['subject'] ?? 'Conversación'); ?></div>
+                                                                            <div class="text-muted fs-xs <?php echo $isActive ? 'text-white-50' : ''; ?>">
+                                                                                <?php echo e($thread['last_message'] ?? 'Sin mensajes aún.'); ?>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </a>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="text-muted fs-sm">Aún no hay conversaciones. Crea la primera para comenzar.</div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-body d-flex flex-column">
+                                                    <?php if (!empty($activeChatThread)): ?>
+                                                        <div class="d-flex align-items-start justify-content-between border-bottom pb-3 mb-3">
+                                                            <div>
+                                                                <h6 class="fw-semibold mb-1"><?php echo e($activeChatThread['subject'] ?? 'Conversación'); ?></h6>
+                                                                <div class="text-muted fs-xs">Estado: <?php echo e(ucfirst($activeChatThread['status'] ?? 'abierto')); ?></div>
+                                                            </div>
+                                                            <?php if (!empty($activeChatThread['updated_at'])): ?>
+                                                                <div class="text-muted fs-xs">Último mensaje: <?php echo e($activeChatThread['updated_at']); ?></div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 420px;" id="portalChatMessages" data-last-id="<?php echo !empty($chatMessages) ? (int)end($chatMessages)['id'] : 0; ?>">
+                                                            <?php if (!empty($chatMessages)): ?>
+                                                                <?php foreach ($chatMessages as $message): ?>
+                                                                    <?php
+                                                                    $isClient = ($message['sender_type'] ?? '') === 'client';
+                                                                    $bubbleClasses = $isClient ? 'bg-primary text-white ms-auto' : 'bg-light';
+                                                                    ?>
+                                                                    <div class="d-flex mb-3 <?php echo $isClient ? 'justify-content-end' : 'justify-content-start'; ?>">
+                                                                        <?php if (!$isClient): ?>
+                                                                            <?php if (!empty($message['sender_avatar'])): ?>
+                                                                                <img src="<?php echo e($message['sender_avatar']); ?>" alt="Avatar" class="rounded-circle me-2" style="width: 36px; height: 36px; object-fit: cover;">
+                                                                            <?php else: ?>
+                                                                                <div class="rounded-circle bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                                                                                    <?php echo e(strtoupper(substr($message['sender_name'] ?? 'E', 0, 1))); ?>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                        <?php endif; ?>
+                                                                        <div class="p-3 rounded-3 <?php echo $bubbleClasses; ?>" style="max-width: 75%;">
+                                                                            <div class="fw-semibold mb-1"><?php echo e($message['sender_name'] ?? ($isClient ? 'Tú' : 'Equipo')); ?></div>
+                                                                            <div><?php echo nl2br(e($message['message'] ?? '')); ?></div>
+                                                                            <?php if (!empty($message['created_at'])): ?>
+                                                                                <div class="fs-xxs mt-2 <?php echo $isClient ? 'text-white-50' : 'text-muted'; ?>">
+                                                                                    <?php echo e($message['created_at']); ?>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                        </div>
+                                                                        <?php if ($isClient): ?>
+                                                                            <?php if (!empty($message['sender_avatar'])): ?>
+                                                                                <img src="<?php echo e($message['sender_avatar']); ?>" alt="Avatar" class="rounded-circle ms-2" style="width: 36px; height: 36px; object-fit: cover;">
+                                                                            <?php else: ?>
+                                                                                <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center ms-2" style="width: 36px; height: 36px;">
+                                                                                    <?php echo e(strtoupper(substr($message['sender_name'] ?? 'T', 0, 1))); ?>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                <?php endforeach; ?>
+                                                            <?php else: ?>
+                                                                <div class="text-muted">Aún no hay mensajes en esta conversación.</div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <form method="post" action="index.php?route=clients/portal/chat/send&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>#portal-chat">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                            <input type="hidden" name="thread_id" value="<?php echo (int)($activeChatThreadId ?? 0); ?>">
+                                                            <div class="mb-2">
+                                                                <textarea name="message" class="form-control" rows="3" placeholder="Escribe tu mensaje..." required></textarea>
+                                                            </div>
+                                                            <div class="d-flex justify-content-end">
+                                                                <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+                                                            </div>
+                                                        </form>
+                                                    <?php else: ?>
+                                                        <div class="text-muted">Selecciona una conversación para ver los mensajes.</div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -537,12 +699,150 @@
                 link.addEventListener('click', (event) => {
                     event.preventDefault();
                     const target = link.getAttribute('data-portal-tab');
+                    if (target) {
+                        localStorage.setItem('portalActiveTab', target);
+                        history.replaceState(null, '', target);
+                    }
                     activatePortalTab(target);
                 });
             });
-            if (window.location.hash) {
-                activatePortalTab(window.location.hash);
+            document.querySelectorAll('a[data-bs-toggle="tab"]').forEach((link) => {
+                link.addEventListener('shown.bs.tab', () => {
+                    const target = link.getAttribute('href');
+                    if (target) {
+                        localStorage.setItem('portalActiveTab', target);
+                        history.replaceState(null, '', target);
+                    }
+                });
+            });
+            const storedTab = localStorage.getItem('portalActiveTab');
+            const initialTab = window.location.hash || storedTab;
+            if (initialTab) {
+                activatePortalTab(initialTab);
             }
+
+            const portalChatMessages = document.getElementById('portalChatMessages');
+            const portalThreadId = <?php echo (int)($activeChatThreadId ?? 0); ?>;
+            const portalToken = '<?php echo e($client['portal_token'] ?? ''); ?>';
+            const portalChatBell = document.getElementById('portalChatBell');
+            const chatBellStorageKey = 'portalChatLastSeen';
+
+            const initializePortalBell = () => {
+                if (!portalChatMessages) {
+                    return;
+                }
+                const currentId = Number(portalChatMessages.dataset.lastId || 0);
+                if (!localStorage.getItem(chatBellStorageKey)) {
+                    localStorage.setItem(chatBellStorageKey, String(currentId));
+                }
+            };
+
+            const fetchPortalMessages = async () => {
+                if (!portalChatMessages || !portalThreadId) {
+                    return;
+                }
+                const lastId = Number(portalChatMessages.dataset.lastId || 0);
+                const response = await fetch(`index.php?route=clients/portal/chat/messages&token=${encodeURIComponent(portalToken)}&thread=${portalThreadId}&since=${lastId}`);
+                if (!response.ok) {
+                    return;
+                }
+                const payload = await response.json();
+                if (!payload.messages || payload.messages.length === 0) {
+                    return;
+                }
+                payload.messages.forEach((message) => {
+                    const isClient = message.sender_type === 'client';
+                    const wrapper = document.createElement('div');
+                    wrapper.className = `d-flex mb-3 ${isClient ? 'justify-content-end' : 'justify-content-start'}`;
+
+                    const bubble = document.createElement('div');
+                    bubble.className = `p-3 rounded-3 ${isClient ? 'bg-primary text-white ms-auto' : 'bg-light'}`;
+                    bubble.style.maxWidth = '75%';
+
+                    const name = document.createElement('div');
+                    name.className = 'fw-semibold mb-1';
+                    name.textContent = message.sender_name || (isClient ? 'Tú' : 'Equipo');
+
+                    const text = document.createElement('div');
+                    text.textContent = message.message || '';
+
+                    const time = document.createElement('div');
+                    time.className = `fs-xxs mt-2 ${isClient ? 'text-white-50' : 'text-muted'}`;
+                    time.textContent = message.created_at || '';
+
+                    bubble.appendChild(name);
+                    bubble.appendChild(text);
+                    bubble.appendChild(time);
+
+                    const avatar = document.createElement('div');
+                    avatar.className = `rounded-circle ${isClient ? 'bg-primary-subtle text-primary ms-2' : 'bg-secondary-subtle text-secondary me-2'} d-flex align-items-center justify-content-center`;
+                    avatar.style.width = '36px';
+                    avatar.style.height = '36px';
+
+                    if (message.sender_avatar) {
+                        const img = document.createElement('img');
+                        img.src = message.sender_avatar;
+                        img.alt = 'Avatar';
+                        img.className = `rounded-circle ${isClient ? 'ms-2' : 'me-2'}`;
+                        img.style.width = '36px';
+                        img.style.height = '36px';
+                        img.style.objectFit = 'cover';
+                        if (isClient) {
+                            wrapper.appendChild(bubble);
+                            wrapper.appendChild(img);
+                        } else {
+                            wrapper.appendChild(img);
+                            wrapper.appendChild(bubble);
+                        }
+                    } else {
+                        avatar.textContent = (message.sender_name || (isClient ? 'T' : 'E')).charAt(0).toUpperCase();
+                        if (isClient) {
+                            wrapper.appendChild(bubble);
+                            wrapper.appendChild(avatar);
+                        } else {
+                            wrapper.appendChild(avatar);
+                            wrapper.appendChild(bubble);
+                        }
+                    }
+
+                    portalChatMessages.appendChild(wrapper);
+                    portalChatMessages.dataset.lastId = message.id;
+                });
+                portalChatMessages.scrollTop = portalChatMessages.scrollHeight;
+            };
+
+            initializePortalBell();
+            setInterval(fetchPortalMessages, 5000);
+
+            const fetchChatNotifications = async () => {
+                if (!portalChatBell) {
+                    return;
+                }
+                const response = await fetch(`index.php?route=clients/portal/chat/notifications&token=${encodeURIComponent(portalToken)}`);
+                if (!response.ok) {
+                    return;
+                }
+                const payload = await response.json();
+                const latestId = Number(payload.latest_id || 0);
+                portalChatBell.dataset.latestId = String(latestId);
+                const lastSeen = Number(localStorage.getItem(chatBellStorageKey) || 0);
+                if (latestId > lastSeen) {
+                    portalChatBell.classList.remove('d-none');
+                }
+            };
+
+            if (portalChatBell) {
+                portalChatBell.closest('a')?.addEventListener('click', () => {
+                    const latest = Number(portalChatBell.dataset.latestId || portalChatMessages?.dataset.lastId || 0);
+                    if (latest) {
+                        localStorage.setItem(chatBellStorageKey, String(latest));
+                    }
+                    portalChatBell.classList.add('d-none');
+                });
+            }
+
+            fetchChatNotifications();
+            setInterval(fetchChatNotifications, 8000);
         });
     </script>
 <?php endif; ?>

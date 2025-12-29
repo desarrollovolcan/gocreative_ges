@@ -14,12 +14,6 @@ $clientAddress = $client['address'] ?? '';
 $clientPhone = $client['phone'] ?? '';
 $clientEmail = $client['email'] ?? '';
 $badgeClass = $invoiceStatus === 'pagada' ? 'success' : ($invoiceStatus === 'vencida' ? 'danger' : 'warning');
-$invoiceData = [
-    'invoice' => $invoice,
-    'client' => $client,
-    'company' => $company,
-    'items' => $items,
-];
 ?>
 
 <div class="row justify-content-center">
@@ -79,9 +73,7 @@ $invoiceData = [
                                 </div>
                             </div>
 
-                            <div class="col-4 text-end">
-                                <img src="assets/images/qr.png" alt="QR" class="img-fluid" style="max-height: 80px;">
-                            </div>
+                            <div class="col-4 text-end"></div>
                         </div>
 
                         <div class="table-responsive mt-4">
@@ -103,8 +95,8 @@ $invoiceData = [
                                                 <strong><?php echo e($item['descripcion'] ?? ''); ?></strong>
                                             </td>
                                             <td><?php echo e($item['cantidad'] ?? ''); ?></td>
-                                            <td>$<?php echo number_format((float)($item['precio_unitario'] ?? 0), 2, ',', '.'); ?></td>
-                                            <td class="text-end">$<?php echo number_format((float)($item['total'] ?? 0), 2, ',', '.'); ?></td>
+                                            <td><?php echo e(format_currency((float)($item['precio_unitario'] ?? 0))); ?></td>
+                                            <td class="text-end"><?php echo e(format_currency((float)($item['total'] ?? 0))); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -116,15 +108,15 @@ $invoiceData = [
                                 <tbody>
                                     <tr>
                                         <td class="fw-medium">Subtotal</td>
-                                        <td>$<?php echo number_format((float)$subtotal, 2, ',', '.'); ?></td>
+                                        <td><?php echo e(format_currency((float)$subtotal)); ?></td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Impuestos</td>
-                                        <td>$<?php echo number_format((float)$taxes, 2, ',', '.'); ?></td>
+                                        <td><?php echo e(format_currency((float)$taxes)); ?></td>
                                     </tr>
                                     <tr class="border-top pt-2 fs-5 fw-bold">
                                         <td>Total</td>
-                                        <td>$<?php echo number_format((float)$total, 2, ',', '.'); ?></td>
+                                        <td><?php echo e(format_currency((float)$total)); ?></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -147,12 +139,6 @@ $invoiceData = [
                             <a href="index.php?route=invoices/show&id=<?php echo (int)$invoice['id']; ?>" class="btn btn-light">
                                 <i class="ti ti-arrow-left me-1"></i> Volver
                             </a>
-                            <button type="button" class="btn btn-primary" onclick="window.print()">
-                                <i class="ti ti-printer me-1"></i> Imprimir
-                            </button>
-                            <button type="button" class="btn btn-info" id="downloadPdf">
-                                <i class="ti ti-download me-1"></i> Descargar PDF
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -160,89 +146,3 @@ $invoiceData = [
         </div>
     </div>
 </div>
-
-<script src="assets/plugins/datatables/pdfmake.min.js"></script>
-<script src="assets/plugins/datatables/vfs_fonts.js"></script>
-<script>
-    const invoiceData = <?php echo json_encode($invoiceData); ?>;
-
-    const buildPdfDefinition = (data) => {
-        const items = (data.items || []).map((item, index) => ([
-            { text: String(index + 1), alignment: 'center' },
-            { text: item.descripcion || '', alignment: 'left' },
-            { text: String(item.cantidad || ''), alignment: 'center' },
-            { text: `$${Number(item.precio_unitario || 0).toFixed(2)}`, alignment: 'right' },
-            { text: `$${Number(item.total || 0).toFixed(2)}`, alignment: 'right' },
-        ]));
-
-        const body = [
-            [
-                { text: '#', style: 'tableHeader' },
-                { text: 'Detalle', style: 'tableHeader' },
-                { text: 'Qty', style: 'tableHeader' },
-                { text: 'Precio unitario', style: 'tableHeader' },
-                { text: 'Total', style: 'tableHeader' },
-            ],
-            ...items,
-        ];
-
-        return {
-            content: [
-                { text: `Factura #${data.invoice.numero || ''}`, style: 'header' },
-                {
-                    columns: [
-                        [
-                            { text: data.company.name || 'Empresa', bold: true },
-                            data.company.rut ? `RUT: ${data.company.rut}` : '',
-                            data.company.email ? `Email: ${data.company.email}` : '',
-                        ].filter(Boolean),
-                        [
-                            { text: 'Cliente', bold: true },
-                            data.client.name || '',
-                            data.client.address || '',
-                            data.client.email || '',
-                        ].filter(Boolean),
-                    ],
-                    columnGap: 20,
-                },
-                { text: `Emisión: ${data.invoice.fecha_emision || ''}`, margin: [0, 8, 0, 0] },
-                { text: `Vencimiento: ${data.invoice.fecha_vencimiento || ''}` },
-                {
-                    table: {
-                        headerRows: 1,
-                        widths: [20, '*', 40, 70, 70],
-                        body,
-                    },
-                    layout: 'lightHorizontalLines',
-                    margin: [0, 16, 0, 0],
-                },
-                {
-                    columns: [
-                        { text: '' },
-                        {
-                            table: {
-                                body: [
-                                    ['Subtotal', `$${Number(data.invoice.subtotal || 0).toFixed(2)}`],
-                                    ['Impuestos', `$${Number(data.invoice.impuestos || 0).toFixed(2)}`],
-                                    ['Total', `$${Number(data.invoice.total || 0).toFixed(2)}`],
-                                ],
-                            },
-                            layout: 'noBorders',
-                            alignment: 'right',
-                        },
-                    ],
-                    margin: [0, 12, 0, 0],
-                },
-            ],
-            styles: {
-                header: { fontSize: 18, bold: true, margin: [0, 0, 0, 8] },
-                tableHeader: { bold: true, fillColor: '#f3f4f6' },
-            },
-        };
-    };
-
-    document.getElementById('downloadPdf')?.addEventListener('click', () => {
-        const docDefinition = buildPdfDefinition(invoiceData);
-        pdfMake.createPdf(docDefinition).download(`Factura-${invoiceData.invoice.numero || invoiceData.invoice.id}.pdf`);
-    });
-</script>

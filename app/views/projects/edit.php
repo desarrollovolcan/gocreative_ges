@@ -29,11 +29,8 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Nombre</label>
-                                    <div class="input-group">
-                                        <input type="text" name="name" class="form-control" value="<?php echo e($project['name'] ?? ''); ?>" required>
-                                        <button class="btn btn-outline-secondary" type="button" data-project-copy-client>Usar cliente</button>
-                                    </div>
+                                    <label class="form-label">Nombre del proyecto</label>
+                                    <input type="text" name="name" class="form-control" value="<?php echo e($project['name'] ?? ''); ?>" required>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label">Descripción</label>
@@ -221,11 +218,4 @@
         });
     });
 
-    document.querySelector('[data-project-copy-client]')?.addEventListener('click', () => {
-        const clientOption = projectEditClientSelect?.selectedOptions?.[0];
-        const nameInput = document.querySelector('[name="name"]');
-        if (clientOption && nameInput) {
-            nameInput.value = clientOption.textContent.trim();
-        }
-    });
 </script>

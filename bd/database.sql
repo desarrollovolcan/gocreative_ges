@@ -106,6 +106,25 @@ CREATE TABLE services (
     FOREIGN KEY (client_id) REFERENCES clients(id)
 );
 
+CREATE TABLE service_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL
+);
+
+CREATE TABLE system_services (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    service_type_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description TEXT NULL,
+    cost DECIMAL(12,2) NOT NULL,
+    currency VARCHAR(10) NOT NULL DEFAULT 'CLP',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (service_type_id) REFERENCES service_types(id)
+);
+
 CREATE TABLE invoices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     client_id INT NOT NULL,
@@ -126,6 +145,55 @@ CREATE TABLE invoices (
     FOREIGN KEY (service_id) REFERENCES services(id),
     FOREIGN KEY (project_id) REFERENCES projects(id)
 );
+
+CREATE TABLE quotes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    service_id INT NULL,
+    system_service_id INT NULL,
+    project_id INT NULL,
+    numero VARCHAR(50) NOT NULL,
+    fecha_emision DATE NOT NULL,
+    estado VARCHAR(20) NOT NULL,
+    subtotal DECIMAL(12,2) NOT NULL,
+    impuestos DECIMAL(12,2) NOT NULL,
+    total DECIMAL(12,2) NOT NULL,
+    notas TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (client_id) REFERENCES clients(id),
+    FOREIGN KEY (service_id) REFERENCES services(id),
+    FOREIGN KEY (system_service_id) REFERENCES system_services(id),
+    FOREIGN KEY (project_id) REFERENCES projects(id)
+);
+
+CREATE TABLE quote_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    quote_id INT NOT NULL,
+    descripcion VARCHAR(255) NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(12,2) NOT NULL,
+    total DECIMAL(12,2) NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (quote_id) REFERENCES quotes(id)
+);
+
+INSERT INTO service_types (name, created_at, updated_at) VALUES
+('hosting', NOW(), NOW()),
+('dominio', NOW(), NOW());
+
+INSERT INTO system_services (service_type_id, name, description, cost, currency, created_at, updated_at) VALUES
+((SELECT id FROM service_types WHERE name = 'hosting'), 'Hosting Básico', 'Plan básico de hosting compartido', 15000, 'CLP', NOW(), NOW()),
+((SELECT id FROM service_types WHERE name = 'hosting'), 'Hosting Profesional', 'Plan profesional con mayor almacenamiento', 25000, 'CLP', NOW(), NOW()),
+((SELECT id FROM service_types WHERE name = 'hosting'), 'Hosting Premium', 'Plan premium con soporte prioritario', 35000, 'CLP', NOW(), NOW()),
+((SELECT id FROM service_types WHERE name = 'hosting'), 'Hosting Corporativo', 'Plan corporativo con alta disponibilidad', 45000, 'CLP', NOW(), NOW()),
+((SELECT id FROM service_types WHERE name = 'hosting'), 'Hosting Ecommerce', 'Plan optimizado para tiendas online', 55000, 'CLP', NOW(), NOW()),
+((SELECT id FROM service_types WHERE name = 'dominio'), 'Dominio .cl', 'Registro anual de dominio .cl', 12000, 'CLP', NOW(), NOW()),
+((SELECT id FROM service_types WHERE name = 'dominio'), 'Dominio .com', 'Registro anual de dominio .com', 14000, 'CLP', NOW(), NOW()),
+((SELECT id FROM service_types WHERE name = 'dominio'), 'Dominio .net', 'Registro anual de dominio .net', 16000, 'CLP', NOW(), NOW()),
+((SELECT id FROM service_types WHERE name = 'dominio'), 'Dominio .org', 'Registro anual de dominio .org', 15000, 'CLP', NOW(), NOW()),
+((SELECT id FROM service_types WHERE name = 'dominio'), 'Dominio .io', 'Registro anual de dominio .io', 42000, 'CLP', NOW(), NOW());
 
 CREATE TABLE invoice_items (
     id INT AUTO_INCREMENT PRIMARY KEY,

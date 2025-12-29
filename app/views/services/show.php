@@ -8,7 +8,7 @@
     <div class="card-body">
         <p><strong>Cliente:</strong> <?php echo e($client['name'] ?? ''); ?></p>
         <p><strong>Tipo:</strong> <?php echo e($service['service_type']); ?></p>
-        <p><strong>Costo:</strong> <?php echo e($service['currency']); ?> <?php echo e($service['cost']); ?></p>
+        <p><strong>Costo:</strong> <?php echo e(format_currency((float)($service['cost'] ?? 0))); ?></p>
         <p><strong>Vencimiento:</strong> <?php echo e($service['due_date']); ?></p>
         <p><strong>Auto facturar:</strong> <?php echo $service['auto_invoice'] ? 'Sí' : 'No'; ?></p>
         <p><strong>Auto correo:</strong> <?php echo $service['auto_email'] ? 'Sí' : 'No'; ?></p>

@@ -115,6 +115,18 @@
                         <label class="form-check-label" for="apply_tax">Aplicar impuesto por defecto</label>
                     </div>
                 </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Símbolo moneda</label>
+                    <input type="text" name="currency_symbol" class="form-control" value="<?php echo e($currencyFormat['symbol'] ?? '$'); ?>">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Decimales</label>
+                    <input type="number" min="0" name="currency_decimals" class="form-control" value="<?php echo e($currencyFormat['decimals'] ?? 0); ?>">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Separador de miles</label>
+                    <input type="text" name="currency_thousands_separator" class="form-control" value="<?php echo e($currencyFormat['thousands_separator'] ?? '.'); ?>">
+                </div>
             </div>
             <div class="text-end">
                 <button type="submit" class="btn btn-primary">Guardar</button>

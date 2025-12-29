@@ -25,9 +25,13 @@
                         </div>
                         <div class="dropdown">
                             <button class="btn btn-light border-0 d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="avatar-sm rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-semibold">
-                                    <?php echo e(substr($client['name'] ?? 'C', 0, 1)); ?>
-                                </span>
+                                <?php if (!empty($client['avatar_path'])): ?>
+                                    <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                                <?php else: ?>
+                                    <span class="avatar-sm rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-semibold">
+                                        <?php echo e(substr($client['name'] ?? 'C', 0, 1)); ?>
+                                    </span>
+                                <?php endif; ?>
                                 <span class="d-none d-sm-inline">Mi cuenta</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm">
@@ -35,6 +39,7 @@
                                 <li><a class="dropdown-item" href="#portal-profile" data-portal-tab="#portal-profile"><i class="ti ti-user me-2"></i>Editar perfil</a></li>
                                 <li><a class="dropdown-item" href="#portal-invoices" data-portal-tab="#portal-invoices"><i class="ti ti-receipt me-2"></i>Ver facturas</a></li>
                                 <li><a class="dropdown-item" href="#portal-projects" data-portal-tab="#portal-projects"><i class="ti ti-briefcase me-2"></i>Mis proyectos</a></li>
+                                <li><a class="dropdown-item" href="#portal-chat" data-portal-tab="#portal-chat"><i class="ti ti-message-circle me-2"></i>Mensajes</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="index.php?route=clients/portal/logout"><i class="ti ti-logout me-2"></i>Cerrar sesión</a></li>
                             </ul>

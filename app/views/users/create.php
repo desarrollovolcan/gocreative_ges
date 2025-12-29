@@ -3,7 +3,7 @@
         <?php if (!empty($_SESSION['error'])): ?>
             <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
         <?php endif; ?>
-        <form method="post" action="index.php?route=users/store">
+        <form method="post" action="index.php?route=users/store" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -29,6 +29,11 @@
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Firma</label>
                     <textarea name="signature" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Foto de perfil</label>
+                    <input type="file" name="avatar" class="form-control" accept="image/png,image/jpeg,image/webp">
+                    <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2">

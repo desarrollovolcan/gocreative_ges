@@ -20,27 +20,28 @@
         <div class="row">
             <div class="col-12">
                 <article class="card overflow-hidden mb-0 border-0 shadow-sm">
-                    <div class="position-relative overflow-hidden" style="min-height: 220px; background-image: linear-gradient(120deg, rgba(13,110,253,0.9), rgba(79,70,229,0.8)), url(assets/images/profile-bg.jpg); background-size: cover; background-position: center;">
-                        <div class="p-4 d-flex align-items-center justify-content-between flex-column flex-md-row text-center text-md-start text-white">
+                    <div class="position-relative overflow-hidden" style="min-height: 220px; background-image: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,41,59,0.88)), url(assets/images/profile-bg.jpg); background-size: cover; background-position: center;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100" style="backdrop-filter: blur(6px);"></div>
+                        <div class="position-relative p-4 p-md-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4 text-white">
                             <div>
-                                <span class="badge bg-white text-primary mb-2">Portal cliente</span>
-                                <h3 class="mb-1 fw-bold"><?php echo e($client['name'] ?? 'Portal Cliente'); ?></h3>
-                                <p class="mb-0 text-white-50">Tu información y estado de cuenta en un solo lugar</p>
+                                <span class="badge bg-white text-dark mb-3">Portal cliente</span>
+                                <h2 class="mb-2 fw-semibold"><?php echo e($client['name'] ?? 'Portal Cliente'); ?></h2>
+                                <p class="mb-0 text-white-50">Seguimiento de proyectos, tareas y pagos en un solo espacio.</p>
                             </div>
-                            <div class="d-flex gap-4 mt-3 mt-md-0">
-                                <div class="text-center">
+                            <div class="d-flex flex-wrap gap-3">
+                                <div class="rounded-3 p-3 text-center" style="min-width: 120px; background: rgba(255,255,255,0.08);">
                                     <div class="fw-semibold fs-4"><?php echo count($pendingInvoices ?? []); ?></div>
                                     <div class="text-white-50 fs-xs">Pendientes</div>
                                 </div>
-                                <div class="text-center">
+                                <div class="rounded-3 p-3 text-center" style="min-width: 120px; background: rgba(255,255,255,0.08);">
                                     <div class="fw-semibold fs-4"><?php echo count($payments ?? []); ?></div>
                                     <div class="text-white-50 fs-xs">Pagos</div>
                                 </div>
-                                <div class="text-center">
+                                <div class="rounded-3 p-3 text-center" style="min-width: 120px; background: rgba(255,255,255,0.08);">
                                     <div class="fw-semibold fs-4"><?php echo count($activities ?? []); ?></div>
                                     <div class="text-white-50 fs-xs">Actividades</div>
                                 </div>
-                                <div class="text-center">
+                                <div class="rounded-3 p-3 text-center" style="min-width: 120px; background: rgba(255,255,255,0.08);">
                                     <div class="fw-semibold fs-4"><?php echo count($upcomingTasks); ?></div>
                                     <div class="text-white-50 fs-xs">Tareas activas</div>
                                 </div>
@@ -58,7 +59,7 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-4">
                                 <div class="me-3 position-relative">
-                                    <div class="avatar-lg bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
+                                    <div class="avatar-lg bg-dark-subtle text-dark rounded-3 d-flex align-items-center justify-content-center">
                                         <i class="ti ti-building fs-28"></i>
                                     </div>
                                 </div>
@@ -73,7 +74,7 @@
 
                             <div class="list-group list-group-flush">
                                 <div class="list-group-item px-0 d-flex align-items-center gap-2">
-                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-3">
                                         <i class="ti ti-mail fs-xl"></i>
                                     </div>
                                     <div>
@@ -82,7 +83,7 @@
                                     </div>
                                 </div>
                                 <div class="list-group-item px-0 d-flex align-items-center gap-2">
-                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-3">
                                         <i class="ti ti-phone fs-xl"></i>
                                     </div>
                                     <div>
@@ -91,7 +92,7 @@
                                     </div>
                                 </div>
                                 <div class="list-group-item px-0 d-flex align-items-center gap-2">
-                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-3">
                                         <i class="ti ti-user fs-xl"></i>
                                     </div>
                                     <div>
@@ -100,7 +101,7 @@
                                     </div>
                                 </div>
                                 <div class="list-group-item px-0 d-flex align-items-center gap-2">
-                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-circle">
+                                    <div class="avatar-sm text-bg-light bg-opacity-75 d-flex align-items-center justify-content-center rounded-3">
                                         <i class="ti ti-map-pin fs-xl"></i>
                                     </div>
                                     <div>
@@ -113,14 +114,14 @@
                             <h4 class="card-title mb-3 mt-4">Resumen financiero</h4>
                             <div class="row g-2">
                                 <div class="col-6">
-                                    <div class="p-2 rounded bg-light">
+                                    <div class="p-3 rounded-3 border bg-white">
                                         <div class="text-muted fs-xs">Pendientes</div>
                                         <div class="fw-semibold"><?php echo count($pendingInvoices ?? []); ?></div>
                                         <div class="text-muted fs-xs">$<?php echo number_format($pendingTotal ?? 0, 0, ',', '.'); ?></div>
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <div class="p-2 rounded bg-light">
+                                    <div class="p-3 rounded-3 border bg-white">
                                         <div class="text-muted fs-xs">Pagos</div>
                                         <div class="fw-semibold"><?php echo count($payments ?? []); ?></div>
                                         <div class="text-muted fs-xs">$<?php echo number_format($paidTotal ?? 0, 0, ',', '.'); ?></div>
@@ -128,12 +129,16 @@
                                 </div>
                             </div>
 
-                            <h4 class="card-title mb-3 mt-4">Acciones rápidas</h4>
-                            <div class="d-grid gap-2">
-                                <a href="#portal-profile" data-portal-tab="#portal-profile" class="btn btn-outline-primary btn-sm">Actualizar perfil</a>
-                                <a href="#portal-projects" data-portal-tab="#portal-projects" class="btn btn-outline-secondary btn-sm">Ver proyectos</a>
-                                <a href="#portal-invoices" data-portal-tab="#portal-invoices" class="btn btn-outline-secondary btn-sm">Revisar facturas</a>
-                                <a href="#portal-activities" data-portal-tab="#portal-activities" class="btn btn-outline-secondary btn-sm">Seguimiento de tareas</a>
+                            <div class="mt-4 p-3 rounded-3 border bg-light">
+                                <h6 class="fw-semibold mb-2">Resumen de planificación</h6>
+                                <div class="d-flex justify-content-between text-muted fs-xs">
+                                    <span>Tareas activas</span>
+                                    <span><?php echo count($upcomingTasks); ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted fs-xs mt-1">
+                                    <span>Última actividad</span>
+                                    <span><?php echo !empty($activities[0]['created_at']) ? e($activities[0]['created_at']) : 'Sin registros'; ?></span>
+                                </div>
                             </div>
                         </div>
                     </div>

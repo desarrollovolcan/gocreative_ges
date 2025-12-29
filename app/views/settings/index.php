@@ -87,3 +87,38 @@
         </form>
     </div>
 </div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h4 class="card-title mb-0">Facturación</h4>
+    </div>
+    <div class="card-body">
+        <form method="post" action="index.php?route=settings/update">
+            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+            <input type="hidden" name="section" value="invoice">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Moneda por defecto</label>
+                    <select name="currency" class="form-select">
+                        <option value="CLP" <?php echo ($invoiceDefaults['currency'] ?? 'CLP') === 'CLP' ? 'selected' : ''; ?>>CLP</option>
+                        <option value="USD" <?php echo ($invoiceDefaults['currency'] ?? '') === 'USD' ? 'selected' : ''; ?>>USD</option>
+                        <option value="EUR" <?php echo ($invoiceDefaults['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>>EUR</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Impuesto (%)</label>
+                    <input type="number" step="0.01" name="tax_rate" class="form-control" value="<?php echo e($invoiceDefaults['tax_rate'] ?? 0); ?>">
+                </div>
+                <div class="col-md-4 mb-3 d-flex align-items-center">
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" name="apply_tax" id="apply_tax" <?php echo !empty($invoiceDefaults['apply_tax']) ? 'checked' : ''; ?>>
+                        <label class="form-check-label" for="apply_tax">Aplicar impuesto por defecto</label>
+                    </div>
+                </div>
+            </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>

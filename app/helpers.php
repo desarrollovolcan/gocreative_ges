@@ -22,6 +22,54 @@ function e(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
+function app_config(?string $key = null, mixed $default = null): mixed
+{
+    static $config = null;
+
+    if ($config === null) {
+        if (isset($GLOBALS['config']) && is_array($GLOBALS['config'])) {
+            $config = $GLOBALS['config'];
+        } else {
+            $config = require __DIR__ . '/config/config.php';
+        }
+    }
+
+    if ($key === null) {
+        return $config;
+    }
+
+    $value = $config;
+    foreach (explode('.', $key) as $segment) {
+        if (!is_array($value) || !array_key_exists($segment, $value)) {
+            return $default;
+        }
+        $value = $value[$segment];
+    }
+
+    return $value;
+}
+
+function currency_format_settings(): array
+{
+    return app_config('currency_format', [
+        'thousands_separator' => '.',
+        'decimal_separator' => ',',
+        'decimals' => 0,
+        'symbol' => '$',
+    ]);
+}
+
+function format_currency(float $amount, ?int $decimals = null): string
+{
+    $settings = currency_format_settings();
+    $precision = $decimals ?? (int)($settings['decimals'] ?? 0);
+    $decimalSeparator = (string)($settings['decimal_separator'] ?? ',');
+    $thousandsSeparator = (string)($settings['thousands_separator'] ?? '.');
+    $symbol = (string)($settings['symbol'] ?? '$');
+
+    return $symbol . number_format($amount, $precision, $decimalSeparator, $thousandsSeparator);
+}
+
 function log_message(string $level, string $message): void
 {
     $logFile = __DIR__ . '/../storage/logs/app.log';

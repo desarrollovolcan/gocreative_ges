@@ -9,7 +9,7 @@
                         </span>
                     </div>
                     <div class="text-end">
-                        <h3 class="mb-2 fw-normal">$<?php echo number_format($monthBilling, 0, ',', '.'); ?></h3>
+                        <h3 class="mb-2 fw-normal"><?php echo e(format_currency((float)$monthBilling)); ?></h3>
                         <p class="mb-0 text-muted">Facturación mes</p>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                         </span>
                     </div>
                     <div class="text-end">
-                        <h3 class="mb-2 fw-normal">$<?php echo number_format($pending, 0, ',', '.'); ?></h3>
+                        <h3 class="mb-2 fw-normal"><?php echo e(format_currency((float)$pending)); ?></h3>
                         <p class="mb-0 text-muted">Pendiente</p>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                         </span>
                     </div>
                     <div class="text-end">
-                        <h3 class="mb-2 fw-normal">$<?php echo number_format($overdue, 0, ',', '.'); ?></h3>
+                        <h3 class="mb-2 fw-normal"><?php echo e(format_currency((float)$overdue)); ?></h3>
                         <p class="mb-0 text-muted">Vencido</p>
                     </div>
                 </div>
@@ -131,7 +131,7 @@
                         </span>
                     </div>
                     <div class="text-end">
-                        <h3 class="mb-2 fw-normal">$<?php echo number_format($paymentsMonth, 0, ',', '.'); ?></h3>
+                        <h3 class="mb-2 fw-normal"><?php echo e(format_currency((float)$paymentsMonth)); ?></h3>
                         <p class="mb-0 text-muted">Pagos del mes</p>
                     </div>
                 </div>
@@ -208,7 +208,7 @@
                                         </td>
                                         <td><?php echo e($invoice['client_name'] ?? ''); ?></td>
                                         <td><?php echo e($invoice['fecha_emision'] ?? ''); ?></td>
-                                        <td class="text-end">$<?php echo number_format((float)($invoice['total'] ?? 0), 0, ',', '.'); ?></td>
+                                        <td class="text-end"><?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></td>
                                         <td>
                                             <span class="badge bg-<?php echo ($invoice['estado'] ?? '') === 'pagada' ? 'success' : (($invoice['estado'] ?? '') === 'vencida' ? 'danger' : 'warning'); ?>-subtle text-<?php echo ($invoice['estado'] ?? '') === 'pagada' ? 'success' : (($invoice['estado'] ?? '') === 'vencida' ? 'danger' : 'warning'); ?>">
                                                 <?php echo e($invoice['estado'] ?? 'pendiente'); ?>
@@ -253,7 +253,7 @@
                                         </td>
                                         <td><?php echo e($invoice['client_name'] ?? ''); ?></td>
                                         <td><?php echo e($invoice['fecha_vencimiento'] ?? ''); ?></td>
-                                        <td class="text-end">$<?php echo number_format((float)($invoice['total'] ?? 0), 0, ',', '.'); ?></td>
+                                        <td class="text-end"><?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -322,7 +322,7 @@
                                 <?php foreach ($topClients as $client): ?>
                                     <tr>
                                         <td><?php echo e($client['client_name'] ?? ''); ?></td>
-                                        <td class="text-end">$<?php echo number_format((float)($client['total'] ?? 0), 0, ',', '.'); ?></td>
+                                        <td class="text-end"><?php echo e(format_currency((float)($client['total'] ?? 0))); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -363,7 +363,7 @@
                                         <td><?php echo e($payment['invoice_number'] ?? ''); ?></td>
                                         <td><?php echo e($payment['fecha_pago'] ?? ''); ?></td>
                                         <td><?php echo e($payment['metodo'] ?? ''); ?></td>
-                                        <td class="text-end">$<?php echo number_format((float)($payment['monto'] ?? 0), 0, ',', '.'); ?></td>
+                                        <td class="text-end"><?php echo e(format_currency((float)($payment['monto'] ?? 0))); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

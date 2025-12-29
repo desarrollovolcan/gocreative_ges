@@ -117,14 +117,14 @@
                                     <div class="p-3 rounded-3 border bg-white">
                                         <div class="text-muted fs-xs">Pendientes</div>
                                         <div class="fw-semibold"><?php echo count($pendingInvoices ?? []); ?></div>
-                                        <div class="text-muted fs-xs">$<?php echo number_format($pendingTotal ?? 0, 0, ',', '.'); ?></div>
+                                        <div class="text-muted fs-xs"><?php echo e(format_currency((float)($pendingTotal ?? 0))); ?></div>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="p-3 rounded-3 border bg-white">
                                         <div class="text-muted fs-xs">Pagos</div>
                                         <div class="fw-semibold"><?php echo count($payments ?? []); ?></div>
-                                        <div class="text-muted fs-xs">$<?php echo number_format($paidTotal ?? 0, 0, ',', '.'); ?></div>
+                                        <div class="text-muted fs-xs"><?php echo e(format_currency((float)($paidTotal ?? 0))); ?></div>
                                     </div>
                                 </div>
                             </div>
@@ -429,7 +429,7 @@
                                                     <?php foreach ($payments as $payment): ?>
                                                         <tr>
                                                             <td>#<?php echo e($payment['invoice_number'] ?? $payment['invoice_id']); ?></td>
-                                                            <td>$<?php echo e($payment['monto'] ?? ''); ?></td>
+                                                            <td><?php echo e(format_currency((float)($payment['monto'] ?? 0))); ?></td>
                                                             <td><?php echo e($payment['fecha_pago'] ?? '-'); ?></td>
                                                             <td><?php echo e($payment['metodo'] ?? '-'); ?></td>
                                                             <td>
@@ -462,7 +462,7 @@
                                                         <tr>
                                                             <td>#<?php echo e($invoice['numero']); ?></td>
                                                             <td><?php echo e($invoice['fecha_vencimiento']); ?></td>
-                                                            <td>$<?php echo e($invoice['total']); ?></td>
+                                                            <td><?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></td>
                                                             <td><span class="badge bg-warning-subtle text-warning"><?php echo e($invoice['estado']); ?></span></td>
                                                             <td class="text-end">
                                                                 <a href="index.php?route=clients/portal/invoice&id=<?php echo $invoice['id']; ?>&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>" class="btn btn-outline-primary btn-sm">Ver factura</a>

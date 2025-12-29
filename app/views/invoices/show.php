@@ -3,7 +3,6 @@
         <h4 class="card-title mb-0">Factura <?php echo e($invoice['numero']); ?></h4>
         <div class="d-flex gap-2 align-items-center">
             <a href="index.php?route=invoices/details&id=<?php echo $invoice['id']; ?>" class="btn btn-outline-primary btn-sm">Ver factura</a>
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">Imprimir</button>
             <span class="badge bg-<?php echo $invoice['estado'] === 'pagada' ? 'success' : ($invoice['estado'] === 'vencida' ? 'danger' : 'warning'); ?>-subtle text-<?php echo $invoice['estado'] === 'pagada' ? 'success' : ($invoice['estado'] === 'vencida' ? 'danger' : 'warning'); ?>">
                 <?php echo e($invoice['estado']); ?>
             </span>
@@ -17,11 +16,11 @@
                 <p><strong>Vencimiento:</strong> <?php echo e($invoice['fecha_vencimiento']); ?></p>
             </div>
             <div class="col-md-6">
-                <p><strong>Subtotal:</strong> <?php echo e($invoice['subtotal']); ?></p>
-                <p><strong>Impuestos:</strong> <?php echo e($invoice['impuestos']); ?></p>
-                <p><strong>Total:</strong> <?php echo e($invoice['total']); ?></p>
-                <p><strong>Total pagado:</strong> <?php echo e($paidTotal ?? 0); ?></p>
-                <p><strong>Saldo pendiente:</strong> <?php echo e($pendingTotal ?? 0); ?></p>
+                <p><strong>Subtotal:</strong> <?php echo e(format_currency((float)($invoice['subtotal'] ?? 0))); ?></p>
+                <p><strong>Impuestos:</strong> <?php echo e(format_currency((float)($invoice['impuestos'] ?? 0))); ?></p>
+                <p><strong>Total:</strong> <?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></p>
+                <p><strong>Total pagado:</strong> <?php echo e(format_currency((float)($paidTotal ?? 0))); ?></p>
+                <p><strong>Saldo pendiente:</strong> <?php echo e(format_currency((float)($pendingTotal ?? 0))); ?></p>
             </div>
         </div>
         <p><strong>Notas:</strong> <?php echo e($invoice['notas']); ?></p>
@@ -46,8 +45,8 @@
                         <tr>
                             <td><?php echo e($item['descripcion']); ?></td>
                             <td><?php echo e($item['cantidad']); ?></td>
-                            <td><?php echo e($item['precio_unitario']); ?></td>
-                            <td><?php echo e($item['total']); ?></td>
+                            <td><?php echo e(format_currency((float)($item['precio_unitario'] ?? 0))); ?></td>
+                            <td><?php echo e(format_currency((float)($item['total'] ?? 0))); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -108,7 +107,7 @@
                 <tbody>
                     <?php foreach ($payments as $payment): ?>
                         <tr>
-                            <td><?php echo e($payment['monto']); ?></td>
+                            <td><?php echo e(format_currency((float)($payment['monto'] ?? 0))); ?></td>
                             <td><?php echo e($payment['fecha_pago']); ?></td>
                             <td><?php echo e($payment['metodo']); ?></td>
                             <td><?php echo e($payment['referencia']); ?></td>

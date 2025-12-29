@@ -209,7 +209,7 @@ class ServicesController extends Controller
             'servicio_nombre' => $service['name'] ?? '',
             'dominio' => ($service['service_type'] ?? '') === 'dominio' ? ($service['name'] ?? '') : '',
             'hosting' => ($service['service_type'] ?? '') === 'hosting' ? ($service['name'] ?? '') : '',
-            'monto_total' => number_format((float)($service['cost'] ?? 0), 0, ',', '.'),
+            'monto_total' => format_currency((float)($service['cost'] ?? 0)),
             'fecha_vencimiento' => $service['due_date'] ?? '',
             'fecha_eliminacion' => $service['delete_date'] ?? '',
             'link_pago' => '',

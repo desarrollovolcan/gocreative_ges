@@ -10,6 +10,7 @@
                 'success' => 'Conexión exitosa. El correo de prueba fue enviado.',
                 'failed' => 'No se pudo enviar el correo de prueba. Revisa la configuración.',
                 'missing' => 'No se encontró un correo destino para la prueba.',
+                'missing-config' => 'Completa la configuración SMTP antes de probar la conexión.',
                 default => 'Resultado de prueba no disponible.',
             };
             $testClass = $testStatus === 'success' ? 'success' : 'danger';

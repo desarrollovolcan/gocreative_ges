@@ -62,6 +62,14 @@ class EmailConfigController extends Controller
         $this->requireLogin();
         $this->requireRole('admin');
         verify_csrf();
+        $smtpConfig = $this->settings->get('smtp_info', []);
+        if (!is_array($smtpConfig)) {
+            $smtpConfig = [];
+        }
+        $hasRequiredConfig = !empty($smtpConfig['host']) && !empty($smtpConfig['username']) && !empty($smtpConfig['password']);
+        if (!$hasRequiredConfig) {
+            $this->redirect('index.php?route=maintainers/email-config&test=missing-config');
+        }
         $to = Auth::user()['email'] ?? '';
         if ($to === '') {
             $company = $this->settings->get('company', []);

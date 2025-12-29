@@ -1,5 +1,8 @@
 <div class="card">
     <div class="card-body">
+        <?php if (!empty($_SESSION['success'])): ?>
+            <div class="alert alert-success"><?php echo e($_SESSION['success']); unset($_SESSION['success']); ?></div>
+        <?php endif; ?>
         <?php if (!empty($_SESSION['error'])): ?>
             <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
         <?php endif; ?>

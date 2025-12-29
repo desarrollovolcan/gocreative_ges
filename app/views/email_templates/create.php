@@ -12,6 +12,7 @@
                     <select name="type" class="form-select">
                         <option value="cobranza">Cobranza</option>
                         <option value="info">Información</option>
+                        <option value="pago">Pago</option>
                     </select>
                 </div>
                 <div class="col-md-12 mb-3">

@@ -33,6 +33,7 @@
                             </td>
                             <td class="text-end">
                                 <a href="index.php?route=invoices/show&id=<?php echo $invoice['id']; ?>" class="btn btn-light btn-sm">Ver</a>
+                                <a href="index.php?route=invoices/details&id=<?php echo $invoice['id']; ?>" class="btn btn-outline-primary btn-sm">Ver factura</a>
                                 <form method="post" action="index.php?route=invoices/delete" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                     <input type="hidden" name="id" value="<?php echo $invoice['id']; ?>">

@@ -15,11 +15,13 @@ class SettingsController extends Controller
         $this->requireLogin();
         $company = $this->settings->get('company', []);
         $billing = $this->settings->get('billing_defaults', []);
+        $invoiceDefaults = $this->settings->get('invoice_defaults', []);
         $this->render('settings/index', [
             'title' => 'Configuración',
             'pageTitle' => 'Configuración',
             'company' => $company,
             'billing' => $billing,
+            'invoiceDefaults' => $invoiceDefaults,
         ]);
     }
 
@@ -50,6 +52,14 @@ class SettingsController extends Controller
                 'invoice_prefix' => trim($_POST['invoice_prefix'] ?? 'FAC-'),
             ]);
             $this->settings->set('invoice_prefix', trim($_POST['invoice_prefix'] ?? 'FAC-'));
+        }
+
+        if ($section === 'invoice') {
+            $this->settings->set('invoice_defaults', [
+                'currency' => trim($_POST['currency'] ?? 'CLP'),
+                'tax_rate' => (float)($_POST['tax_rate'] ?? 0),
+                'apply_tax' => !empty($_POST['apply_tax']),
+            ]);
         }
 
         audit($this->db, Auth::user()['id'], 'update', 'settings');

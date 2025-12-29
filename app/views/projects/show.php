@@ -21,7 +21,7 @@
 <?php
 $tasksTotal = count($checklist ?? []);
 $tasksProgress = array_sum(array_map(static fn(array $task) => (int)($task['progress_percent'] ?? 0), $checklist ?? []));
-$overallProgress = (int)min(100, round($tasksProgress));
+$overallProgress = $tasksTotal > 0 ? (int)round($tasksProgress / $tasksTotal) : 0;
 $completedTasks = count(array_filter($checklist ?? [], static fn(array $task) => (int)($task['progress_percent'] ?? 0) >= 100));
 $remainingProgress = max(0, 100 - $overallProgress);
 ?>

@@ -8,6 +8,14 @@ CREATE TABLE roles (
     updated_at DATETIME NOT NULL
 );
 
+CREATE TABLE role_permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role_id INT NOT NULL,
+    permission_key VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (role_id) REFERENCES roles(id)
+);
+
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,

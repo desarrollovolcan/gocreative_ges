@@ -16,6 +16,17 @@ class Controller
         extract($data);
         $config = $this->config;
         $currentUser = Auth::user();
+        $permissions = [];
+        if ($currentUser && ($currentUser['role'] ?? '') !== 'admin') {
+            $roleId = (int)($currentUser['role_id'] ?? 0);
+            if ($roleId === 0 && !empty($currentUser['role'])) {
+                $roleRow = $this->db->fetch('SELECT id FROM roles WHERE name = :name', ['name' => $currentUser['role']]);
+                $roleId = (int)($roleRow['id'] ?? 0);
+            }
+            if ($roleId) {
+                $permissions = role_permissions($this->db, $roleId);
+            }
+        }
         try {
             $notifications = $this->db->fetchAll("SELECT * FROM notifications WHERE read_at IS NULL ORDER BY created_at DESC LIMIT 5");
         } catch (PDOException $e) {

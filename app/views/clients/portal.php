@@ -454,6 +454,7 @@
                                                         <th>Vence</th>
                                                         <th>Total</th>
                                                         <th>Estado</th>
+                                                        <th class="text-end">Acción</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -463,6 +464,9 @@
                                                             <td><?php echo e($invoice['fecha_vencimiento']); ?></td>
                                                             <td>$<?php echo e($invoice['total']); ?></td>
                                                             <td><span class="badge bg-warning-subtle text-warning"><?php echo e($invoice['estado']); ?></span></td>
+                                                            <td class="text-end">
+                                                                <a href="index.php?route=clients/portal/invoice&id=<?php echo $invoice['id']; ?>&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>" class="btn btn-outline-primary btn-sm">Ver factura</a>
+                                                            </td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 </tbody>

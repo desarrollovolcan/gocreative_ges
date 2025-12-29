@@ -40,6 +40,18 @@ class ClientsController extends Controller
             $_SESSION['error'] = 'Completa los campos obligatorios.';
             $this->redirect('index.php?route=clients/create');
         }
+        $rut = trim($_POST['rut'] ?? '');
+        $existingQuery = 'SELECT id FROM clients WHERE deleted_at IS NULL AND email = :email';
+        $existingParams = ['email' => $email];
+        if ($rut !== '') {
+            $existingQuery .= ' OR rut = :rut';
+            $existingParams['rut'] = $rut;
+        }
+        $existingClient = $this->db->fetch($existingQuery . ' LIMIT 1', $existingParams);
+        if ($existingClient) {
+            $_SESSION['error'] = 'Ya existe un cliente con este email o RUT. Revisa los datos antes de duplicar.';
+            $this->redirect('index.php?route=clients/edit&id=' . $existingClient['id']);
+        }
 
         $portalToken = bin2hex(random_bytes(16));
         $portalPassword = trim($_POST['portal_password'] ?? '');
@@ -49,7 +61,7 @@ class ClientsController extends Controller
         }
         $data = [
             'name' => $name,
-            'rut' => trim($_POST['rut'] ?? ''),
+            'rut' => $rut,
             'email' => $email,
             'billing_email' => trim($_POST['billing_email'] ?? ''),
             'phone' => trim($_POST['phone'] ?? ''),
@@ -156,6 +168,45 @@ class ClientsController extends Controller
             'payments' => $payments,
             'portalUrl' => $this->buildPortalUrl($client),
         ]);
+    }
+
+    public function lookup(): void
+    {
+        $this->requireLogin();
+        $term = trim($_GET['term'] ?? '');
+        header('Content-Type: application/json; charset=utf-8');
+        if ($term === '') {
+            echo json_encode(['found' => false], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE deleted_at IS NULL AND (email = :term OR rut = :term) ORDER BY id DESC LIMIT 1',
+            ['term' => $term]
+        );
+        if (!$client) {
+            echo json_encode(['found' => false], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        echo json_encode([
+            'found' => true,
+            'client' => [
+                'id' => $client['id'] ?? null,
+                'name' => $client['name'] ?? '',
+                'rut' => $client['rut'] ?? '',
+                'email' => $client['email'] ?? '',
+                'billing_email' => $client['billing_email'] ?? '',
+                'phone' => $client['phone'] ?? '',
+                'contact' => $client['contact'] ?? '',
+                'mandante_name' => $client['mandante_name'] ?? '',
+                'mandante_rut' => $client['mandante_rut'] ?? '',
+                'mandante_phone' => $client['mandante_phone'] ?? '',
+                'mandante_email' => $client['mandante_email'] ?? '',
+                'address' => $client['address'] ?? '',
+                'status' => $client['status'] ?? 'activo',
+                'notes' => $client['notes'] ?? '',
+            ],
+        ], JSON_UNESCAPED_UNICODE);
     }
 
     public function portalLogin(): void
@@ -286,6 +337,40 @@ class ClientsController extends Controller
     {
         unset($_SESSION['client_portal_token']);
         $this->redirect('index.php?route=clients/login');
+    }
+
+    public function portalInvoice(): void
+    {
+        $sessionToken = $_SESSION['client_portal_token'] ?? '';
+        $token = trim($_GET['token'] ?? $sessionToken);
+        if ($token === '' || ($sessionToken !== '' && $token !== $sessionToken)) {
+            $_SESSION['error'] = 'Debes iniciar sesión para acceder al portal.';
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $invoiceId = (int)($_GET['id'] ?? 0);
+        $invoice = $this->db->fetch('SELECT * FROM invoices WHERE id = :id AND deleted_at IS NULL', ['id' => $invoiceId]);
+        if (!$invoice) {
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token));
+        }
+
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client || (int)$invoice['client_id'] !== (int)$client['id']) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $items = $this->db->fetchAll('SELECT * FROM invoice_items WHERE invoice_id = :invoice_id', ['invoice_id' => $invoiceId]);
+        $settings = new SettingsModel($this->db);
+        $company = $settings->get('company', []);
+
+        $this->renderPublic('clients/invoice', [
+            'title' => 'Detalle Factura',
+            'pageTitle' => 'Detalle Factura',
+            'invoice' => $invoice,
+            'client' => $client,
+            'items' => $items,
+            'company' => $company,
+        ]);
     }
 
     private function buildPortalUrl(array $client): string

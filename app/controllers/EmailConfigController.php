@@ -54,4 +54,35 @@ class EmailConfigController extends Controller
         audit($this->db, Auth::user()['id'], 'update', 'smtp_info');
         $this->redirect('index.php?route=maintainers/email-config');
     }
+
+    public function test(): void
+    {
+        $this->requireLogin();
+        $this->requireRole('admin');
+        verify_csrf();
+        $to = Auth::user()['email'] ?? '';
+        if ($to === '') {
+            $company = $this->settings->get('company', []);
+            $to = $company['email'] ?? '';
+        }
+        if ($to === '') {
+            $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+                'title' => 'Prueba SMTP',
+                'message' => 'No se encontró correo para enviar la prueba.',
+                'type' => 'danger',
+            ]);
+            $this->redirect('index.php?route=maintainers/email-config');
+        }
+
+        $mailer = new Mailer($this->db);
+        $sent = $mailer->send('info', $to, 'Prueba SMTP', '<p>Correo de prueba exitoso.</p>');
+
+        $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+            'title' => 'Prueba SMTP',
+            'message' => $sent ? 'Correo enviado correctamente.' : 'Fallo el envío.',
+            'type' => $sent ? 'success' : 'danger',
+        ]);
+
+        $this->redirect('index.php?route=maintainers/email-config');
+    }
 }

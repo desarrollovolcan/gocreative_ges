@@ -47,5 +47,9 @@
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
         </form>
+        <form method="post" action="index.php?route=maintainers/email-config/test" class="mt-3 d-flex justify-content-end">
+            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+            <button type="submit" class="btn btn-outline-primary">Probar conexión</button>
+        </form>
     </div>
 </div>

@@ -81,6 +81,7 @@ return [
     'maintainers/services/delete' => ['SystemServicesController', 'delete'],
     'maintainers/email-config' => ['EmailConfigController', 'index'],
     'maintainers/email-config/update' => ['EmailConfigController', 'update'],
+    'maintainers/email-config/test' => ['EmailConfigController', 'test'],
     'users' => ['UsersController', 'index'],
     'users/create' => ['UsersController', 'create'],
     'users/store' => ['UsersController', 'store'],

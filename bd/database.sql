@@ -179,6 +179,26 @@ CREATE TABLE quote_items (
     FOREIGN KEY (quote_id) REFERENCES quotes(id)
 );
 
+CREATE TABLE chat_threads (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    subject VARCHAR(150) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'abierto',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (client_id) REFERENCES clients(id)
+);
+
+CREATE TABLE chat_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    thread_id INT NOT NULL,
+    sender_type VARCHAR(20) NOT NULL,
+    sender_id INT NOT NULL,
+    message TEXT NOT NULL,
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (thread_id) REFERENCES chat_threads(id)
+);
+
 INSERT INTO service_types (name, created_at, updated_at) VALUES
 ('hosting', NOW(), NOW()),
 ('dominio', NOW(), NOW());

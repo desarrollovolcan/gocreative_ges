@@ -525,19 +525,110 @@
                                             <p class="text-muted mb-0">Conversa con tu ejecutivo y el equipo de proyecto sin salir del portal.</p>
                                         </div>
                                         <div class="d-flex gap-2">
-                                            <a class="btn btn-outline-primary btn-sm" href="chat.php" target="_blank" rel="noopener">
-                                                <i class="ti ti-external-link me-1"></i>Abrir en nueva pestaña
-                                            </a>
+                                            <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#portalNewChat" aria-expanded="false">
+                                                <i class="ti ti-plus me-1"></i>Nueva conversación
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="card border-0 shadow-sm">
-                                        <div class="card-body p-0">
-                                            <iframe
-                                                title="Chat del portal"
-                                                src="chat.php"
-                                                class="w-100 border-0"
-                                                style="min-height: 720px;"
-                                            ></iframe>
+                                    <?php if (!empty($chatError)): ?>
+                                        <div class="alert alert-danger"><?php echo e($chatError); ?></div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($chatSuccess)): ?>
+                                        <div class="alert alert-success"><?php echo e($chatSuccess); ?></div>
+                                    <?php endif; ?>
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-body">
+                                                    <div class="collapse mb-3" id="portalNewChat">
+                                                        <div class="card card-body border">
+                                                            <form method="post" action="index.php?route=clients/portal/chat/create&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>#portal-chat">
+                                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Asunto</label>
+                                                                    <input type="text" name="subject" class="form-control" placeholder="Ej. Seguimiento de entregas" required>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Mensaje inicial</label>
+                                                                    <textarea name="message" class="form-control" rows="3" placeholder="Describe tu solicitud..." required></textarea>
+                                                                </div>
+                                                                <button type="submit" class="btn btn-primary w-100">Crear conversación</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                    <h6 class="fw-semibold mb-3">Conversaciones</h6>
+                                                    <?php if (!empty($chatThreads)): ?>
+                                                        <div class="list-group list-group-flush">
+                                                            <?php foreach ($chatThreads as $thread): ?>
+                                                                <?php $isActive = (int)$thread['id'] === (int)($activeChatThreadId ?? 0); ?>
+                                                                <a
+                                                                    href="index.php?route=clients/portal&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>&thread=<?php echo (int)$thread['id']; ?>#portal-chat"
+                                                                    class="list-group-item list-group-item-action <?php echo $isActive ? 'active' : ''; ?>"
+                                                                >
+                                                                    <div class="fw-semibold"><?php echo e($thread['subject'] ?? 'Conversación'); ?></div>
+                                                                    <div class="text-muted fs-xs <?php echo $isActive ? 'text-white-50' : ''; ?>">
+                                                                        <?php echo e($thread['last_message'] ?? 'Sin mensajes aún.'); ?>
+                                                                    </div>
+                                                                </a>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="text-muted fs-sm">Aún no hay conversaciones. Crea la primera para comenzar.</div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-body d-flex flex-column">
+                                                    <?php if (!empty($activeChatThread)): ?>
+                                                        <div class="d-flex align-items-start justify-content-between border-bottom pb-3 mb-3">
+                                                            <div>
+                                                                <h6 class="fw-semibold mb-1"><?php echo e($activeChatThread['subject'] ?? 'Conversación'); ?></h6>
+                                                                <div class="text-muted fs-xs">Estado: <?php echo e(ucfirst($activeChatThread['status'] ?? 'abierto')); ?></div>
+                                                            </div>
+                                                            <?php if (!empty($activeChatThread['updated_at'])): ?>
+                                                                <div class="text-muted fs-xs">Último mensaje: <?php echo e($activeChatThread['updated_at']); ?></div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 420px;">
+                                                            <?php if (!empty($chatMessages)): ?>
+                                                                <?php foreach ($chatMessages as $message): ?>
+                                                                    <?php
+                                                                    $isClient = ($message['sender_type'] ?? '') === 'client';
+                                                                    $bubbleClasses = $isClient ? 'bg-primary text-white ms-auto' : 'bg-light';
+                                                                    ?>
+                                                                    <div class="d-flex mb-3 <?php echo $isClient ? 'justify-content-end' : 'justify-content-start'; ?>">
+                                                                        <div class="p-3 rounded-3 <?php echo $bubbleClasses; ?>" style="max-width: 75%;">
+                                                                            <div class="fw-semibold mb-1"><?php echo e($message['sender_name'] ?? ($isClient ? 'Tú' : 'Equipo')); ?></div>
+                                                                            <div><?php echo nl2br(e($message['message'] ?? '')); ?></div>
+                                                                            <?php if (!empty($message['created_at'])): ?>
+                                                                                <div class="fs-xxs mt-2 <?php echo $isClient ? 'text-white-50' : 'text-muted'; ?>">
+                                                                                    <?php echo e($message['created_at']); ?>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                        </div>
+                                                                    </div>
+                                                                <?php endforeach; ?>
+                                                            <?php else: ?>
+                                                                <div class="text-muted">Aún no hay mensajes en esta conversación.</div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <form method="post" action="index.php?route=clients/portal/chat/send&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>#portal-chat">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                            <input type="hidden" name="thread_id" value="<?php echo (int)($activeChatThreadId ?? 0); ?>">
+                                                            <div class="mb-2">
+                                                                <textarea name="message" class="form-control" rows="3" placeholder="Escribe tu mensaje..." required></textarea>
+                                                            </div>
+                                                            <div class="d-flex justify-content-end">
+                                                                <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+                                                            </div>
+                                                        </form>
+                                                    <?php else: ?>
+                                                        <div class="text-muted">Selecciona una conversación para ver los mensajes.</div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

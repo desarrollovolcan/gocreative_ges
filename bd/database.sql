@@ -67,6 +67,9 @@ CREATE TABLE project_tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
     title VARCHAR(150) NOT NULL,
+    start_date DATE NULL,
+    end_date DATE NULL,
+    progress_percent TINYINT UNSIGNED NOT NULL DEFAULT 0,
     completed TINYINT(1) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
@@ -764,6 +767,7 @@ INSERT INTO users (name, email, password, role_id, signature, created_at, update
 ('Usuario 15', 'usuario15@gocreative.cl', '$2y$12$Aa7Lucu.iaa3mUMBZjxAyO96KI0d6yNaKuOD/Rdru1FsOhn9Kmtga', 2, 'Firma 15', NOW(), NOW());
 
 INSERT INTO clients (name, rut, email, billing_email, phone, address, contact, mandante_name, mandante_rut, mandante_phone, mandante_email, portal_token, portal_password, notes, status, created_at, updated_at) VALUES
+('Cliente Portal', '76.000.016-6', 'cliente@cliente.cl', 'cobranza@cliente.cl', '+56 9 2222 0000', 'Av. Cliente 100', 'Contacto Cliente', 'Mandante Cliente', '77.000.016-6', '+56 9 2222 0001', 'mandante@cliente.cl', 'tokencliente', '$2y$12$FR1y3S4pa.rpxkPvqINvIOcsdMOcEMGQ2PN07P83KyGGz.lma2QyS', 'Perfil de cliente para portal', 'activo', NOW(), NOW()),
 ('Cliente 01', '76.000.001-1', 'cliente01@example.com', 'cobranza01@example.com', '+56 9 1111 0001', 'Av. Demo 101', 'Contacto 01', 'Mandante 01', '77.000.001-1', '+56 9 2111 0001', 'mandante01@example.com', 'token01', 'pass01', 'Notas cliente 01', 'activo', NOW(), NOW()),
 ('Cliente 02', '76.000.002-2', 'cliente02@example.com', 'cobranza02@example.com', '+56 9 1111 0002', 'Av. Demo 102', 'Contacto 02', 'Mandante 02', '77.000.002-2', '+56 9 2111 0002', 'mandante02@example.com', 'token02', 'pass02', 'Notas cliente 02', 'activo', NOW(), NOW()),
 ('Cliente 03', '76.000.003-3', 'cliente03@example.com', 'cobranza03@example.com', '+56 9 1111 0003', 'Av. Demo 103', 'Contacto 03', 'Mandante 03', '77.000.003-3', '+56 9 2111 0003', 'mandante03@example.com', 'token03', 'pass03', 'Notas cliente 03', 'activo', NOW(), NOW()),
@@ -797,22 +801,22 @@ INSERT INTO projects (client_id, name, description, status, start_date, delivery
 (14, 'Proyecto 14', 'Descripción proyecto 14', 'activo', '2024-01-18', '2024-03-18', 2500000.00, 'Mandante 14', '77.000.014-4', '+56 9 2111 0014', 'mandante14@example.com', 'Notas proyecto 14', NOW(), NOW()),
 (15, 'Proyecto 15', 'Descripción proyecto 15', 'activo', '2024-01-19', '2024-03-19', 2600000.00, 'Mandante 15', '77.000.015-5', '+56 9 2111 0015', 'mandante15@example.com', 'Notas proyecto 15', NOW(), NOW());
 
-INSERT INTO project_tasks (project_id, title, completed, created_at, updated_at) VALUES
-(1, 'Tarea 01', 0, NOW(), NOW()),
-(2, 'Tarea 02', 1, NOW(), NOW()),
-(3, 'Tarea 03', 0, NOW(), NOW()),
-(4, 'Tarea 04', 1, NOW(), NOW()),
-(5, 'Tarea 05', 0, NOW(), NOW()),
-(6, 'Tarea 06', 1, NOW(), NOW()),
-(7, 'Tarea 07', 0, NOW(), NOW()),
-(8, 'Tarea 08', 1, NOW(), NOW()),
-(9, 'Tarea 09', 0, NOW(), NOW()),
-(10, 'Tarea 10', 1, NOW(), NOW()),
-(11, 'Tarea 11', 0, NOW(), NOW()),
-(12, 'Tarea 12', 1, NOW(), NOW()),
-(13, 'Tarea 13', 0, NOW(), NOW()),
-(14, 'Tarea 14', 1, NOW(), NOW()),
-(15, 'Tarea 15', 0, NOW(), NOW());
+INSERT INTO project_tasks (project_id, title, start_date, end_date, progress_percent, completed, created_at, updated_at) VALUES
+(1, 'Tarea 01', '2024-01-05', '2024-01-12', 25, 0, NOW(), NOW()),
+(2, 'Tarea 02', '2024-01-06', '2024-01-20', 100, 1, NOW(), NOW()),
+(3, 'Tarea 03', '2024-01-07', '2024-01-18', 50, 0, NOW(), NOW()),
+(4, 'Tarea 04', '2024-01-08', '2024-01-22', 100, 1, NOW(), NOW()),
+(5, 'Tarea 05', '2024-01-09', '2024-01-16', 15, 0, NOW(), NOW()),
+(6, 'Tarea 06', '2024-01-10', '2024-01-24', 100, 1, NOW(), NOW()),
+(7, 'Tarea 07', '2024-01-11', '2024-01-19', 40, 0, NOW(), NOW()),
+(8, 'Tarea 08', '2024-01-12', '2024-01-26', 100, 1, NOW(), NOW()),
+(9, 'Tarea 09', '2024-01-13', '2024-01-21', 60, 0, NOW(), NOW()),
+(10, 'Tarea 10', '2024-01-14', '2024-01-28', 100, 1, NOW(), NOW()),
+(11, 'Tarea 11', '2024-01-15', '2024-01-23', 35, 0, NOW(), NOW()),
+(12, 'Tarea 12', '2024-01-16', '2024-01-30', 100, 1, NOW(), NOW()),
+(13, 'Tarea 13', '2024-01-17', '2024-01-25', 10, 0, NOW(), NOW()),
+(14, 'Tarea 14', '2024-01-18', '2024-02-01', 100, 1, NOW(), NOW()),
+(15, 'Tarea 15', '2024-01-19', '2024-01-27', 20, 0, NOW(), NOW());
 
 INSERT INTO services (client_id, service_type, name, cost, currency, billing_cycle, start_date, due_date, delete_date, notice_days_1, notice_days_2, status, auto_invoice, auto_email, created_at, updated_at) VALUES
 (1, 'hosting', 'Servicio 01', 12000.00, 'CLP', 'mensual', '2024-02-01', '2024-03-01', NULL, 15, 5, 'activo', 1, 1, NOW(), NOW()),

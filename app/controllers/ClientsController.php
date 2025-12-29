@@ -126,7 +126,8 @@ class ClientsController extends Controller
         }
         $this->clients->update($id, $data);
         audit($this->db, Auth::user()['id'], 'update', 'clients', $id);
-        $this->redirect('index.php?route=clients');
+        $_SESSION['success'] = 'Datos actualizados correctamente.';
+        $this->redirect('index.php?route=clients/edit&id=' . $id);
     }
 
     public function show(): void
@@ -232,7 +233,8 @@ class ClientsController extends Controller
         $projectsOverview = $this->db->fetchAll(
             'SELECT projects.*,
                 COUNT(project_tasks.id) as tasks_total,
-                COALESCE(SUM(CASE WHEN project_tasks.completed = 1 THEN 1 ELSE 0 END), 0) as tasks_completed,
+                COALESCE(SUM(CASE WHEN project_tasks.progress_percent >= 100 THEN 1 ELSE 0 END), 0) as tasks_completed,
+                COALESCE(SUM(project_tasks.progress_percent), 0) as tasks_progress,
                 MAX(project_tasks.created_at) as last_activity
              FROM projects
              LEFT JOIN project_tasks ON project_tasks.project_id = projects.id

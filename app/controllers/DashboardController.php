@@ -16,9 +16,9 @@ class DashboardController extends Controller
             $paidCount = $this->db->fetch('SELECT COUNT(*) as total FROM invoices WHERE estado = "pagada" AND deleted_at IS NULL');
             $paymentsMonth = $this->db->fetch('SELECT COALESCE(SUM(monto),0) as total FROM payments WHERE MONTH(fecha_pago) = MONTH(CURRENT_DATE()) AND YEAR(fecha_pago) = YEAR(CURRENT_DATE())');
 
-            $upcoming7 = $this->db->fetch('SELECT COUNT(*) as total FROM services WHERE status = "activo" AND fecha_vencimiento BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)');
-            $upcoming15 = $this->db->fetch('SELECT COUNT(*) as total FROM services WHERE status = "activo" AND fecha_vencimiento BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY)');
-            $upcoming30 = $this->db->fetch('SELECT COUNT(*) as total FROM services WHERE status = "activo" AND fecha_vencimiento BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)');
+            $upcoming7 = $this->db->fetch('SELECT COUNT(*) as total FROM services WHERE status = "activo" AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)');
+            $upcoming15 = $this->db->fetch('SELECT COUNT(*) as total FROM services WHERE status = "activo" AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY)');
+            $upcoming30 = $this->db->fetch('SELECT COUNT(*) as total FROM services WHERE status = "activo" AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)');
 
             $recentInvoices = $this->db->fetchAll(
                 'SELECT invoices.*, clients.name as client_name
@@ -40,8 +40,8 @@ class DashboardController extends Controller
                 'SELECT services.*, clients.name as client_name
                  FROM services
                  JOIN clients ON services.client_id = clients.id
-                 WHERE services.status = "activo" AND services.fecha_vencimiento >= CURDATE()
-                 ORDER BY services.fecha_vencimiento ASC
+                 WHERE services.status = "activo" AND services.due_date >= CURDATE()
+                 ORDER BY services.due_date ASC
                  LIMIT 5'
             );
             $topClients = $this->db->fetchAll(

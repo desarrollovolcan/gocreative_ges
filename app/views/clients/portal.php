@@ -190,6 +190,11 @@
                                         <i class="ti ti-messages me-1"></i><span class="fw-bold">Mensajes</span>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="#portal-chat" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                        <span class="fw-bold">Mensajes</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
 

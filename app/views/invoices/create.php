@@ -34,6 +34,15 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Moneda</label>
+                    <select name="currency_display" class="form-select" data-currency-display>
+                        <option value="CLP" <?php echo ($invoiceDefaults['currency'] ?? 'CLP') === 'CLP' ? 'selected' : ''; ?>>CLP</option>
+                        <option value="USD" <?php echo ($invoiceDefaults['currency'] ?? '') === 'USD' ? 'selected' : ''; ?>>USD</option>
+                        <option value="EUR" <?php echo ($invoiceDefaults['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>>EUR</option>
+                    </select>
+                    <small class="text-muted">Referencia visual, no afecta el cálculo.</small>
+                </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Número</label>
                     <input type="text" name="numero" class="form-control" value="<?php echo e($number); ?>" required>
@@ -57,15 +66,25 @@
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Subtotal</label>
-                    <input type="number" step="0.01" name="subtotal" class="form-control" value="0">
+                    <input type="number" step="0.01" name="subtotal" class="form-control" value="0" data-subtotal>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Impuestos</label>
-                    <input type="number" step="0.01" name="impuestos" class="form-control" value="0">
+                    <input type="number" step="0.01" name="impuestos" class="form-control" value="0" data-impuestos readonly>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Total</label>
-                    <input type="number" step="0.01" name="total" class="form-control" value="0">
+                    <input type="number" step="0.01" name="total" class="form-control" value="0" data-total readonly>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Impuesto (%)</label>
+                    <input type="number" step="0.01" name="tax_rate" class="form-control" value="<?php echo e($invoiceDefaults['tax_rate'] ?? 0); ?>" data-tax-rate>
+                </div>
+                <div class="col-md-3 mb-3 d-flex align-items-center">
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" name="apply_tax_display" id="apply_tax_display" <?php echo !empty($invoiceDefaults['apply_tax']) ? 'checked' : ''; ?> data-apply-tax>
+                        <label class="form-check-label" for="apply_tax_display">Aplicar impuesto</label>
+                    </div>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Notas</label>
@@ -82,13 +101,13 @@
                             <input type="text" name="items[0][descripcion]" class="form-control" placeholder="Descripción">
                         </div>
                         <div class="col-md-2">
-                            <input type="number" name="items[0][cantidad]" class="form-control" value="1">
+                            <input type="number" name="items[0][cantidad]" class="form-control" value="1" data-item-qty>
                         </div>
                         <div class="col-md-2">
-                            <input type="number" name="items[0][precio_unitario]" class="form-control" value="0">
+                            <input type="number" name="items[0][precio_unitario]" class="form-control" value="0" data-item-price>
                         </div>
                         <div class="col-md-3">
-                            <input type="number" name="items[0][total]" class="form-control" value="0">
+                            <input type="number" name="items[0][total]" class="form-control" value="0" data-item-total readonly>
                         </div>
                     </div>
                 </div>
@@ -100,3 +119,53 @@
         </form>
     </div>
 </div>
+
+<script>
+    const subtotalInput = document.querySelector('[data-subtotal]');
+    const impuestosInput = document.querySelector('[data-impuestos]');
+    const totalInput = document.querySelector('[data-total]');
+    const taxRateInput = document.querySelector('[data-tax-rate]');
+    const applyTaxCheckbox = document.querySelector('[data-apply-tax]');
+    const itemQtyInput = document.querySelector('[data-item-qty]');
+    const itemPriceInput = document.querySelector('[data-item-price]');
+    const itemTotalInput = document.querySelector('[data-item-total]');
+
+    const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+
+    const updateItemTotal = () => {
+        const qty = Number(itemQtyInput?.value || 0);
+        const price = Number(itemPriceInput?.value || 0);
+        if (itemTotalInput) {
+            itemTotalInput.value = formatNumber(qty * price).toFixed(2);
+        }
+    };
+
+    const updateTotals = () => {
+        const subtotal = Number(subtotalInput?.value || 0);
+        const rate = Number(taxRateInput?.value || 0);
+        const applyTax = !!applyTaxCheckbox?.checked;
+        const impuestos = applyTax ? formatNumber(subtotal * (rate / 100)) : 0;
+        if (impuestosInput) {
+            impuestosInput.value = impuestos.toFixed(2);
+        }
+        if (totalInput) {
+            totalInput.value = formatNumber(subtotal + impuestos).toFixed(2);
+        }
+    };
+
+    const updateFromItems = () => {
+        updateItemTotal();
+        if (subtotalInput && itemTotalInput) {
+            subtotalInput.value = itemTotalInput.value;
+        }
+        updateTotals();
+    };
+
+    itemQtyInput?.addEventListener('input', updateFromItems);
+    itemPriceInput?.addEventListener('input', updateFromItems);
+    subtotalInput?.addEventListener('input', updateTotals);
+    taxRateInput?.addEventListener('input', updateTotals);
+    applyTaxCheckbox?.addEventListener('change', updateTotals);
+
+    updateFromItems();
+</script>

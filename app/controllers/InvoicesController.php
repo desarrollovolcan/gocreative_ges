@@ -34,6 +34,7 @@ class InvoicesController extends Controller
         $settings = new SettingsModel($this->db);
         $prefix = $settings->get('invoice_prefix', 'FAC-');
         $number = $this->invoices->nextNumber($prefix);
+        $invoiceDefaults = $settings->get('invoice_defaults', []);
         $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $selectedProjectId = (int)($_GET['project_id'] ?? 0);
         $this->render('invoices/create', [
@@ -43,6 +44,7 @@ class InvoicesController extends Controller
             'services' => $services,
             'projects' => $projects,
             'number' => $number,
+            'invoiceDefaults' => $invoiceDefaults,
             'selectedClientId' => $selectedClientId,
             'selectedProjectId' => $selectedProjectId,
         ]);

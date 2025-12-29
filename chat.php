@@ -267,6 +267,17 @@ unset($_SESSION['chat_success'], $_SESSION['chat_error']);
         <script>
             const chatThreadId = <?php echo (int)$activeThreadId; ?>;
             const chatMessagesContainer = document.getElementById('chatMessages');
+            const chatBellStorageKey = 'adminChatLastSeen';
+            const initializeChatBell = () => {
+                if (!chatMessagesContainer) {
+                    return;
+                }
+                const currentId = Number(chatMessagesContainer.dataset.lastId || 0);
+                if (!localStorage.getItem(chatBellStorageKey)) {
+                    localStorage.setItem(chatBellStorageKey, String(currentId));
+                }
+            };
+
             const fetchChatMessages = async () => {
                 if (!chatMessagesContainer) {
                     return;
@@ -340,7 +351,16 @@ unset($_SESSION['chat_success'], $_SESSION['chat_error']);
                 chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
             };
 
+            initializeChatBell();
             setInterval(fetchChatMessages, 5000);
+
+            const chatBellButton = document.getElementById('chatNotificationButton');
+            if (chatBellButton) {
+                chatBellButton.addEventListener('click', () => {
+                    const latest = Number(chatMessagesContainer?.dataset.lastId || 0);
+                    localStorage.setItem(chatBellStorageKey, String(latest));
+                });
+            }
         </script>
     <?php endif; ?>
 </body>

@@ -160,4 +160,22 @@ class ChatModel
             ['updated_at' => $now, 'id' => $threadId]
         );
     }
+
+    public function getLatestMessageIdForAdmin(): int
+    {
+        $row = $this->db->fetch('SELECT COALESCE(MAX(id), 0) AS latest_id FROM chat_messages');
+        return (int)($row['latest_id'] ?? 0);
+    }
+
+    public function getLatestMessageIdForClient(int $clientId): int
+    {
+        $row = $this->db->fetch(
+            'SELECT COALESCE(MAX(chat_messages.id), 0) AS latest_id
+             FROM chat_messages
+             JOIN chat_threads ON chat_messages.thread_id = chat_threads.id
+             WHERE chat_threads.client_id = :client_id',
+            ['client_id' => $clientId]
+        );
+        return (int)($row['latest_id'] ?? 0);
+    }
 }

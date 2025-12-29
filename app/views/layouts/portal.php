@@ -19,6 +19,10 @@
                 </div>
                 <?php if (!empty($client)): ?>
                     <div class="d-flex align-items-center gap-3">
+                        <a href="#portal-chat" data-portal-tab="#portal-chat" class="btn btn-light position-relative">
+                            <i class="ti ti-bell"></i>
+                            <span id="portalChatBell" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">!</span>
+                        </a>
                         <div class="text-md-end d-none d-md-block">
                             <div class="text-muted fs-sm">Cliente</div>
                             <div class="fw-semibold"><?php echo e($client['name'] ?? ''); ?></div>

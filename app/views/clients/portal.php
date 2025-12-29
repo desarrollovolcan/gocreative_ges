@@ -150,39 +150,44 @@
 
                 <div class="col-xl-8">
                     <div class="card shadow-sm border-0">
-                        <div class="card-header card-tabs d-flex align-items-center">
+                        <div class="card-header card-tabs d-flex flex-column flex-lg-row align-items-lg-center gap-3">
                             <div class="flex-grow-1">
                                 <h4 class="card-title">Portal Cliente</h4>
                             </div>
-                            <ul class="nav nav-tabs card-header-tabs nav-bordered">
+                            <ul class="nav nav-pills bg-light rounded-3 p-1 gap-1 flex-wrap justify-content-start">
                                 <li class="nav-item">
                                     <a href="#portal-wall" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
-                                        <span class="fw-bold">Muro</span>
+                                        <i class="ti ti-layout-dashboard me-1"></i><span class="fw-bold">Muro</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#portal-projects" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Proyectos</span>
+                                        <i class="ti ti-briefcase me-1"></i><span class="fw-bold">Proyectos</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#portal-activities" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Actividades</span>
+                                        <i class="ti ti-activity me-1"></i><span class="fw-bold">Actividades</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#portal-payments" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Pagos</span>
+                                        <i class="ti ti-credit-card me-1"></i><span class="fw-bold">Pagos</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#portal-invoices" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Facturas</span>
+                                        <i class="ti ti-receipt me-1"></i><span class="fw-bold">Facturas</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#portal-profile" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Perfil</span>
+                                        <i class="ti ti-user me-1"></i><span class="fw-bold">Perfil</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#portal-chat" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                        <i class="ti ti-messages me-1"></i><span class="fw-bold">Mensajes</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -699,16 +704,43 @@
                 link.addEventListener('click', (event) => {
                     event.preventDefault();
                     const target = link.getAttribute('data-portal-tab');
+                    if (target) {
+                        localStorage.setItem('portalActiveTab', target);
+                        history.replaceState(null, '', target);
+                    }
                     activatePortalTab(target);
                 });
             });
-            if (window.location.hash) {
-                activatePortalTab(window.location.hash);
+            document.querySelectorAll('a[data-bs-toggle="tab"]').forEach((link) => {
+                link.addEventListener('shown.bs.tab', () => {
+                    const target = link.getAttribute('href');
+                    if (target) {
+                        localStorage.setItem('portalActiveTab', target);
+                        history.replaceState(null, '', target);
+                    }
+                });
+            });
+            const storedTab = localStorage.getItem('portalActiveTab');
+            const initialTab = window.location.hash || storedTab;
+            if (initialTab) {
+                activatePortalTab(initialTab);
             }
 
             const portalChatMessages = document.getElementById('portalChatMessages');
             const portalThreadId = <?php echo (int)($activeChatThreadId ?? 0); ?>;
             const portalToken = '<?php echo e($client['portal_token'] ?? ''); ?>';
+            const portalChatBell = document.getElementById('portalChatBell');
+            const chatBellStorageKey = 'portalChatLastSeen';
+
+            const initializePortalBell = () => {
+                if (!portalChatMessages) {
+                    return;
+                }
+                const currentId = Number(portalChatMessages.dataset.lastId || 0);
+                if (!localStorage.getItem(chatBellStorageKey)) {
+                    localStorage.setItem(chatBellStorageKey, String(currentId));
+                }
+            };
 
             const fetchPortalMessages = async () => {
                 if (!portalChatMessages || !portalThreadId) {
@@ -784,7 +816,38 @@
                 portalChatMessages.scrollTop = portalChatMessages.scrollHeight;
             };
 
+            initializePortalBell();
             setInterval(fetchPortalMessages, 5000);
+
+            const fetchChatNotifications = async () => {
+                if (!portalChatBell) {
+                    return;
+                }
+                const response = await fetch(`index.php?route=clients/portal/chat/notifications&token=${encodeURIComponent(portalToken)}`);
+                if (!response.ok) {
+                    return;
+                }
+                const payload = await response.json();
+                const latestId = Number(payload.latest_id || 0);
+                portalChatBell.dataset.latestId = String(latestId);
+                const lastSeen = Number(localStorage.getItem(chatBellStorageKey) || 0);
+                if (latestId > lastSeen) {
+                    portalChatBell.classList.remove('d-none');
+                }
+            };
+
+            if (portalChatBell) {
+                portalChatBell.closest('a')?.addEventListener('click', () => {
+                    const latest = Number(portalChatBell.dataset.latestId || portalChatMessages?.dataset.lastId || 0);
+                    if (latest) {
+                        localStorage.setItem(chatBellStorageKey, String(latest));
+                    }
+                    portalChatBell.classList.add('d-none');
+                });
+            }
+
+            fetchChatNotifications();
+            setInterval(fetchChatNotifications, 8000);
         });
     </script>
 <?php endif; ?>

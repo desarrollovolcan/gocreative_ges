@@ -21,4 +21,14 @@ class ChatController extends Controller
 
         echo json_encode(['messages' => $messages], JSON_UNESCAPED_UNICODE);
     }
+
+    public function notifications(): void
+    {
+        $this->requireLogin();
+        header('Content-Type: application/json; charset=utf-8');
+
+        $chatModel = new ChatModel($this->db);
+        $latestId = $chatModel->getLatestMessageIdForAdmin();
+        echo json_encode(['latest_id' => $latestId], JSON_UNESCAPED_UNICODE);
+    }
 }

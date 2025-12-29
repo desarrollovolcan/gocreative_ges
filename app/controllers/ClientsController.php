@@ -503,6 +503,28 @@ class ClientsController extends Controller
         echo json_encode(['messages' => $messages], JSON_UNESCAPED_UNICODE);
     }
 
+    public function portalChatNotifications(): void
+    {
+        $sessionToken = $_SESSION['client_portal_token'] ?? '';
+        $token = trim($_GET['token'] ?? $sessionToken);
+        if ($token === '' || ($sessionToken !== '' && $token !== $sessionToken)) {
+            http_response_code(403);
+            echo json_encode(['latest_id' => 0], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client) {
+            echo json_encode(['latest_id' => 0], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $chatModel = new ChatModel($this->db);
+        $latestId = $chatModel->getLatestMessageIdForClient((int)$client['id']);
+        echo json_encode(['latest_id' => $latestId], JSON_UNESCAPED_UNICODE);
+    }
+
     public function portalChatCreate(): void
     {
         verify_csrf();

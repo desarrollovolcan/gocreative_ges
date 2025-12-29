@@ -62,6 +62,8 @@ return [
     'users/edit' => ['UsersController', 'edit'],
     'users/update' => ['UsersController', 'update'],
     'users/delete' => ['UsersController', 'delete'],
+    'users/permissions' => ['PermissionsController', 'index'],
+    'users/permissions/update' => ['PermissionsController', 'update'],
     'notifications' => ['NotificationsController', 'index'],
     'search' => ['SearchController', 'index'],
     'logout' => ['AuthController', 'logout'],

@@ -24,62 +24,94 @@
                 </div>
             </div>
         </div>
+        <?php
+        $isAdmin = ($currentUser['role'] ?? '') === 'admin';
+        $canAccess = static function (string $key) use ($permissions, $isAdmin): bool {
+            return $isAdmin || in_array($key, $permissions ?? [], true);
+        };
+        ?>
         <ul class="side-nav">
             <li class="side-nav-title mt-2">Menú</li>
-            <li class="side-nav-item">
-                <a href="index.php?route=dashboard" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="circle-gauge"></i></span>
-                    <span class="menu-text">Dashboard</span>
-                </a>
-            </li>
-            <li class="side-nav-item">
-                <a href="index.php?route=clients" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="users"></i></span>
-                    <span class="menu-text">Clientes</span>
-                </a>
-            </li>
-            <li class="side-nav-item">
-                <a href="index.php?route=projects" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="folder"></i></span>
-                    <span class="menu-text">Proyectos</span>
-                </a>
-            </li>
-            <li class="side-nav-item">
-                <a href="index.php?route=services" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="server"></i></span>
-                    <span class="menu-text">Servicios</span>
-                </a>
-            </li>
-            <li class="side-nav-item">
-                <a href="index.php?route=invoices" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="file-text"></i></span>
-                    <span class="menu-text">Facturas</span>
-                </a>
-            </li>
-            <li class="side-nav-item">
-                <a href="index.php?route=email-templates" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="mail"></i></span>
-                    <span class="menu-text">Plantillas Email</span>
-                </a>
-            </li>
-            <li class="side-nav-item">
-                <a href="index.php?route=email-queue" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="send"></i></span>
-                    <span class="menu-text">Cola de Correos</span>
-                </a>
-            </li>
-            <li class="side-nav-item">
-                <a href="index.php?route=settings" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="settings"></i></span>
-                    <span class="menu-text">Configuración</span>
-                </a>
-            </li>
-            <li class="side-nav-item">
-                <a href="index.php?route=users" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="user"></i></span>
-                    <span class="menu-text">Usuarios</span>
-                </a>
-            </li>
+            <?php if ($canAccess('dashboard')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=dashboard" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="circle-gauge"></i></span>
+                        <span class="menu-text">Dashboard</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($canAccess('clients')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=clients" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="users"></i></span>
+                        <span class="menu-text">Clientes</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($canAccess('projects')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=projects" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="folder"></i></span>
+                        <span class="menu-text">Proyectos</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($canAccess('services')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=services" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="server"></i></span>
+                        <span class="menu-text">Servicios</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($canAccess('invoices')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=invoices" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="file-text"></i></span>
+                        <span class="menu-text">Facturas</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($canAccess('email_templates')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=email-templates" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="mail"></i></span>
+                        <span class="menu-text">Plantillas Email</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($canAccess('email_queue')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=email-queue" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="send"></i></span>
+                        <span class="menu-text">Cola de Correos</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($canAccess('settings')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=settings" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="settings"></i></span>
+                        <span class="menu-text">Configuración</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($canAccess('users')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=users" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="user"></i></span>
+                        <span class="menu-text">Usuarios</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($canAccess('users_permissions')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=users/permissions" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="shield-check"></i></span>
+                        <span class="menu-text">Permisos usuarios</span>
+                    </a>
+                </li>
+            <?php endif; ?>
         </ul>
     </div>
 </div>

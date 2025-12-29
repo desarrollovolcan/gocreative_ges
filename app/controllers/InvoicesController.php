@@ -34,6 +34,9 @@ class InvoicesController extends Controller
         $settings = new SettingsModel($this->db);
         $prefix = $settings->get('invoice_prefix', 'FAC-');
         $number = $this->invoices->nextNumber($prefix);
+        $invoiceDefaults = $settings->get('invoice_defaults', []);
+        $selectedClientId = (int)($_GET['client_id'] ?? 0);
+        $selectedProjectId = (int)($_GET['project_id'] ?? 0);
         $this->render('invoices/create', [
             'title' => 'Nueva Factura',
             'pageTitle' => 'Nueva Factura',
@@ -41,6 +44,9 @@ class InvoicesController extends Controller
             'services' => $services,
             'projects' => $projects,
             'number' => $number,
+            'invoiceDefaults' => $invoiceDefaults,
+            'selectedClientId' => $selectedClientId,
+            'selectedProjectId' => $selectedProjectId,
         ]);
     }
 
@@ -106,6 +112,8 @@ class InvoicesController extends Controller
         $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $invoice['client_id']]);
         $items = $itemsModel->byInvoice($id);
         $payments = $paymentsModel->byInvoice($id);
+        $paidTotal = array_sum(array_map(static fn(array $payment) => (float)$payment['monto'], $payments));
+        $pendingTotal = max(0, (float)$invoice['total'] - $paidTotal);
         $this->render('invoices/show', [
             'title' => 'Detalle Factura',
             'pageTitle' => 'Detalle Factura',
@@ -113,6 +121,8 @@ class InvoicesController extends Controller
             'client' => $client,
             'items' => $items,
             'payments' => $payments,
+            'paidTotal' => $paidTotal,
+            'pendingTotal' => $pendingTotal,
         ]);
     }
 
@@ -124,7 +134,7 @@ class InvoicesController extends Controller
         $paymentDate = trim($_POST['fecha_pago'] ?? '');
         $amount = trim($_POST['monto'] ?? '');
         $paymentsModel = new PaymentsModel($this->db);
-        $paymentsModel->create([
+        $paymentId = $paymentsModel->create([
             'invoice_id' => $invoiceId,
             'monto' => $amount !== '' ? $amount : 0,
             'fecha_pago' => $paymentDate !== '' ? $paymentDate : date('Y-m-d'),
@@ -134,17 +144,201 @@ class InvoicesController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
-        $this->invoices->update($invoiceId, [
-            'estado' => 'pagada',
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        $this->syncInvoiceBalance($invoiceId);
         $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
             'title' => 'Pago registrado',
             'message' => 'Se registró un pago para la factura #' . $invoiceId,
             'type' => 'success',
         ]);
+        $this->sendPaymentReceiptEmail($paymentId, true);
         audit($this->db, Auth::user()['id'], 'pay', 'invoices', $invoiceId);
         $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
+    }
+
+    public function updatePayment(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $paymentId = (int)($_POST['payment_id'] ?? 0);
+        $invoiceId = (int)($_POST['invoice_id'] ?? 0);
+        $payment = (new PaymentsModel($this->db))->find($paymentId);
+        if (!$payment) {
+            $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
+        }
+        (new PaymentsModel($this->db))->update($paymentId, [
+            'monto' => trim($_POST['monto'] ?? $payment['monto']),
+            'fecha_pago' => trim($_POST['fecha_pago'] ?? $payment['fecha_pago']),
+            'metodo' => $_POST['metodo'] ?? $payment['metodo'],
+            'referencia' => trim($_POST['referencia'] ?? $payment['referencia']),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        $this->syncInvoiceBalance($invoiceId);
+        audit($this->db, Auth::user()['id'], 'update', 'payments', $paymentId);
+        $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
+    }
+
+    public function deletePayment(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $paymentId = (int)($_POST['payment_id'] ?? 0);
+        $invoiceId = (int)($_POST['invoice_id'] ?? 0);
+        $payment = (new PaymentsModel($this->db))->find($paymentId);
+        if ($payment) {
+            $this->db->execute('DELETE FROM payments WHERE id = :id', ['id' => $paymentId]);
+            $this->syncInvoiceBalance($invoiceId);
+            audit($this->db, Auth::user()['id'], 'delete', 'payments', $paymentId);
+        }
+        $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
+    }
+
+    public function sendPaymentReceipt(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $paymentId = (int)($_POST['payment_id'] ?? 0);
+        $invoiceId = (int)($_POST['invoice_id'] ?? 0);
+        $sent = $this->sendPaymentReceiptEmail($paymentId, false);
+        if ($sent) {
+            $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+                'title' => 'Comprobante enviado',
+                'message' => 'El comprobante de pago fue enviado correctamente.',
+                'type' => 'success',
+            ]);
+        }
+        $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
+    }
+
+    private function syncInvoiceBalance(int $invoiceId): void
+    {
+        $paymentsModel = new PaymentsModel($this->db);
+        $payments = $paymentsModel->byInvoice($invoiceId);
+        $paidTotal = array_sum(array_map(static fn(array $payment) => (float)$payment['monto'], $payments));
+        $invoice = $this->invoices->find($invoiceId);
+        if (!$invoice) {
+            return;
+        }
+        $total = (float)$invoice['total'];
+        $status = $paidTotal >= $total && $total > 0 ? 'pagada' : 'pendiente';
+        $this->invoices->update($invoiceId, [
+            'estado' => $status,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    private function sendPaymentReceiptEmail(int $paymentId, bool $silent): bool
+    {
+        $payment = $this->db->fetch('SELECT * FROM payments WHERE id = :id', ['id' => $paymentId]);
+        if (!$payment) {
+            return false;
+        }
+        $invoice = $this->invoices->find((int)$payment['invoice_id']);
+        if (!$invoice) {
+            return false;
+        }
+        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $invoice['client_id']]);
+        if (!$client) {
+            return false;
+        }
+
+        $recipients = array_filter([
+            $client['email'] ?? null,
+            $client['billing_email'] ?? null,
+        ], fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL));
+        if (empty($recipients)) {
+            if (!$silent) {
+                $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+                    'title' => 'Correo no enviado',
+                    'message' => 'No hay email asociado al cliente para enviar el comprobante.',
+                    'type' => 'danger',
+                ]);
+            }
+            return false;
+        }
+
+        $paymentsModel = new PaymentsModel($this->db);
+        $payments = $paymentsModel->byInvoice((int)$payment['invoice_id']);
+        $paidTotal = array_sum(array_map(static fn(array $paymentRow) => (float)$paymentRow['monto'], $payments));
+        $pendingTotal = max(0, (float)$invoice['total'] - $paidTotal);
+
+        $context = [
+            'cliente_nombre' => $client['name'] ?? '',
+            'rut' => $client['rut'] ?? '',
+            'monto_total' => $invoice['total'] ?? '',
+            'numero_factura' => $invoice['numero'] ?? '',
+            'monto_pagado' => $payment['monto'] ?? '',
+            'saldo_pendiente' => $pendingTotal,
+            'fecha_pago' => $payment['fecha_pago'] ?? '',
+            'metodo_pago' => $payment['metodo'] ?? '',
+            'referencia_pago' => $payment['referencia'] ?? '',
+        ];
+
+        $template = $this->db->fetch('SELECT * FROM email_templates WHERE type = :type AND deleted_at IS NULL ORDER BY id DESC LIMIT 1', [
+            'type' => 'pago',
+        ]);
+        $subject = 'Comprobante de pago factura ' . ($invoice['numero'] ?? '');
+        $bodyHtml = $this->buildPaymentReceiptFallback($context);
+        if ($template) {
+            $subjectTemplate = trim($template['subject'] ?? '');
+            $subject = $subjectTemplate !== '' ? render_template_vars($subjectTemplate, $context) : $subject;
+            $bodyHtml = render_template_vars($template['body_html'] ?? '', $context);
+        }
+
+        try {
+            $mailer = new Mailer($this->db);
+            $sent = $mailer->send('info', $recipients, $subject, $bodyHtml);
+            if ($sent) {
+                $this->db->execute('INSERT INTO email_logs (client_id, type, subject, body_html, status, created_at, updated_at) VALUES (:client_id, :type, :subject, :body_html, :status, NOW(), NOW())', [
+                    'client_id' => $client['id'],
+                    'type' => 'pago',
+                    'subject' => $subject,
+                    'body_html' => $bodyHtml,
+                    'status' => 'sent',
+                ]);
+            } elseif (!$silent) {
+                $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+                    'title' => 'Correo fallido',
+                    'message' => 'No se pudo enviar el comprobante.',
+                    'type' => 'danger',
+                ]);
+            }
+            return $sent;
+        } catch (Throwable $e) {
+            log_message('error', 'Payment receipt email failed: ' . $e->getMessage());
+            if (!$silent) {
+                $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+                    'title' => 'Correo fallido',
+                    'message' => 'No se pudo enviar el comprobante.',
+                    'type' => 'danger',
+                ]);
+            }
+            return false;
+        }
+    }
+
+    private function buildPaymentReceiptFallback(array $context): string
+    {
+        $clientName = e((string)($context['cliente_nombre'] ?? ''));
+        $invoiceNumber = e((string)($context['numero_factura'] ?? ''));
+        $amount = e((string)($context['monto_pagado'] ?? ''));
+        $pending = e((string)($context['saldo_pendiente'] ?? ''));
+        $date = e((string)($context['fecha_pago'] ?? ''));
+        $method = e((string)($context['metodo_pago'] ?? ''));
+        $reference = e((string)($context['referencia_pago'] ?? ''));
+
+        return '<div style="font-family:Arial, sans-serif; color:#111827; line-height:1.6;">
+            <h2 style="font-size:18px; margin-bottom:12px;">Comprobante de pago</h2>
+            <p>Hola ' . $clientName . ',</p>
+            <p>Hemos registrado el pago de la factura <strong>' . $invoiceNumber . '</strong> con el siguiente detalle:</p>
+            <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+                <tr><td style="padding:6px 0;"><strong>Monto pagado:</strong></td><td style="padding:6px 0;">' . $amount . '</td></tr>
+                <tr><td style="padding:6px 0;"><strong>Fecha de pago:</strong></td><td style="padding:6px 0;">' . $date . '</td></tr>
+                <tr><td style="padding:6px 0;"><strong>Método:</strong></td><td style="padding:6px 0;">' . $method . '</td></tr>
+                <tr><td style="padding:6px 0;"><strong>Referencia:</strong></td><td style="padding:6px 0;">' . $reference . '</td></tr>
+                <tr><td style="padding:6px 0;"><strong>Saldo pendiente:</strong></td><td style="padding:6px 0;">' . $pending . '</td></tr>
+            </table>
+            <p>Gracias por tu pago.</p>
+        </div>';
     }
 
     public function delete(): void

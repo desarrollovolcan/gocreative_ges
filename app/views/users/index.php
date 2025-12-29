@@ -1,7 +1,10 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4 class="card-title mb-0">Usuarios</h4>
-        <a href="index.php?route=users/create" class="btn btn-primary">Nuevo usuario</a>
+        <div class="d-flex gap-2">
+            <a href="index.php?route=users/permissions" class="btn btn-outline-secondary">Permisos</a>
+            <a href="index.php?route=users/create" class="btn btn-primary">Nuevo usuario</a>
+        </div>
     </div>
     <div class="card-body">
         <div class="table-responsive">

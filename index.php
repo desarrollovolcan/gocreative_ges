@@ -10,6 +10,12 @@ if (!isset($routes[$route])) {
     exit;
 }
 
+if (Auth::check() && !can_access_route($db, $route, Auth::user())) {
+    $_SESSION['error'] = 'No tienes permisos para acceder a esta sección.';
+    header('Location: index.php?route=dashboard');
+    exit;
+}
+
 [$controllerName, $method] = $routes[$route];
 try {
     $controller = new $controllerName($config, $db);

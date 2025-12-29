@@ -16,12 +16,14 @@ class SettingsController extends Controller
         $company = $this->settings->get('company', []);
         $billing = $this->settings->get('billing_defaults', []);
         $invoiceDefaults = $this->settings->get('invoice_defaults', []);
+        $currencyFormat = $this->settings->get('currency_format', $this->config['currency_format'] ?? []);
         $this->render('settings/index', [
             'title' => 'Configuración',
             'pageTitle' => 'Configuración',
             'company' => $company,
             'billing' => $billing,
             'invoiceDefaults' => $invoiceDefaults,
+            'currencyFormat' => $currencyFormat,
         ]);
     }
 
@@ -59,6 +61,12 @@ class SettingsController extends Controller
                 'currency' => trim($_POST['currency'] ?? 'CLP'),
                 'tax_rate' => (float)($_POST['tax_rate'] ?? 0),
                 'apply_tax' => !empty($_POST['apply_tax']),
+            ]);
+            $this->settings->set('currency_format', [
+                'symbol' => trim($_POST['currency_symbol'] ?? ($this->config['currency_format']['symbol'] ?? '$')),
+                'decimals' => (int)($_POST['currency_decimals'] ?? ($this->config['currency_format']['decimals'] ?? 0)),
+                'thousands_separator' => trim($_POST['currency_thousands_separator'] ?? ($this->config['currency_format']['thousands_separator'] ?? '.')),
+                'decimal_separator' => $this->config['currency_format']['decimal_separator'] ?? ',',
             ]);
         }
 

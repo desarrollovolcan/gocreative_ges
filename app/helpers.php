@@ -27,7 +27,11 @@ function app_config(?string $key = null, mixed $default = null): mixed
     static $config = null;
 
     if ($config === null) {
-        $config = require __DIR__ . '/config/config.php';
+        if (isset($GLOBALS['config']) && is_array($GLOBALS['config'])) {
+            $config = $GLOBALS['config'];
+        } else {
+            $config = require __DIR__ . '/config/config.php';
+        }
     }
 
     if ($key === null) {

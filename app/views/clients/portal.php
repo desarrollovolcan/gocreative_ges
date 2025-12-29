@@ -186,6 +186,11 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a href="#portal-support" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-help-circle me-1"></i><span class="fw-semibold">Soporte</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a href="#portal-chat" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
                                         <i class="ti ti-messages me-1"></i><span class="fw-semibold">Mensajes</span>
                                     </a>
@@ -532,6 +537,139 @@
                                         <p class="text-muted mb-0">Si necesitas asistencia inmediata, contáctanos y te ayudaremos a resolverlo.</p>
                                     </div>
                                 </div>
+                                <div class="tab-pane" id="portal-support">
+                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                        <div>
+                                            <h5 class="mb-1">Soporte y tickets</h5>
+                                            <p class="text-muted mb-0">Registra solicitudes y da seguimiento a cada caso.</p>
+                                        </div>
+                                        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#portalNewTicket">
+                                            <i class="ti ti-plus me-1"></i>Nuevo ticket
+                                        </button>
+                                    </div>
+                                    <?php if (!empty($supportError)): ?>
+                                        <div class="alert alert-danger"><?php echo e($supportError); ?></div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($supportSuccess)): ?>
+                                        <div class="alert alert-success"><?php echo e($supportSuccess); ?></div>
+                                    <?php endif; ?>
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-body">
+                                                    <div class="collapse mb-3" id="portalNewTicket">
+                                                        <div class="card card-body border">
+                                                            <form method="post" action="index.php?route=clients/portal/tickets/create&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>#portal-support">
+                                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Asunto</label>
+                                                                    <input type="text" name="subject" class="form-control" required>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Prioridad</label>
+                                                                    <select name="priority" class="form-select">
+                                                                        <option value="baja">Baja</option>
+                                                                        <option value="media" selected>Media</option>
+                                                                        <option value="alta">Alta</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Detalle</label>
+                                                                    <textarea name="message" class="form-control" rows="3" required></textarea>
+                                                                </div>
+                                                                <button type="submit" class="btn btn-primary w-100">Crear ticket</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                    <h6 class="fw-semibold mb-3">Mis tickets</h6>
+                                                    <?php if (!empty($supportTickets)): ?>
+                                                        <div class="list-group list-group-flush">
+                                                            <?php foreach ($supportTickets as $ticket): ?>
+                                                                <?php $isActiveTicket = (int)$ticket['id'] === (int)($activeSupportTicketId ?? 0); ?>
+                                                                <a href="index.php?route=clients/portal&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>&ticket=<?php echo (int)$ticket['id']; ?>#portal-support" class="list-group-item list-group-item-action <?php echo $isActiveTicket ? 'active' : ''; ?>">
+                                                                    <div class="fw-semibold">#<?php echo (int)$ticket['id']; ?> · <?php echo e($ticket['subject'] ?? 'Ticket'); ?></div>
+                                                                    <div class="text-muted fs-xs <?php echo $isActiveTicket ? 'text-white-50' : ''; ?>">
+                                                                        Estado: <?php echo e(str_replace('_', ' ', $ticket['status'] ?? 'abierto')); ?>
+                                                                    </div>
+                                                                </a>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="text-muted fs-sm">Aún no has generado tickets de soporte.</div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="card border-0 shadow-sm h-100">
+                                                <div class="card-body d-flex flex-column">
+                                                    <?php if (!empty($activeSupportTicket)): ?>
+                                                        <div class="d-flex align-items-start justify-content-between border-bottom pb-3 mb-3">
+                                                            <div>
+                                                                <h6 class="fw-semibold mb-1">Ticket #<?php echo (int)$activeSupportTicket['id']; ?> · <?php echo e($activeSupportTicket['subject'] ?? ''); ?></h6>
+                                                                <div class="text-muted fs-xs">Estado: <?php echo e(str_replace('_', ' ', $activeSupportTicket['status'] ?? 'abierto')); ?></div>
+                                                            </div>
+                                                            <span class="badge bg-info-subtle text-info text-uppercase"><?php echo e($activeSupportTicket['priority'] ?? 'media'); ?></span>
+                                                        </div>
+                                                        <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 420px;">
+                                                            <?php if (!empty($supportMessages)): ?>
+                                                                <?php foreach ($supportMessages as $message): ?>
+                                                                    <?php
+                                                                    $isClient = ($message['sender_type'] ?? '') === 'client';
+                                                                    $bubbleClasses = $isClient ? 'bg-primary text-white ms-auto' : 'bg-light';
+                                                                    ?>
+                                                                    <div class="d-flex mb-3 <?php echo $isClient ? 'justify-content-end' : 'justify-content-start'; ?>">
+                                                                        <?php if (!$isClient): ?>
+                                                                            <?php if (!empty($message['sender_avatar'])): ?>
+                                                                                <img src="<?php echo e($message['sender_avatar']); ?>" alt="Avatar" class="rounded-circle me-2" style="width: 36px; height: 36px; object-fit: cover;">
+                                                                            <?php else: ?>
+                                                                                <div class="rounded-circle bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                                                                                    <?php echo e(strtoupper(substr($message['sender_name'] ?? 'E', 0, 1))); ?>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                        <?php endif; ?>
+                                                                        <div class="p-3 rounded-3 <?php echo $bubbleClasses; ?>" style="max-width: 75%;">
+                                                                            <div class="fw-semibold mb-1"><?php echo e($message['sender_name'] ?? ($isClient ? 'Tú' : 'Soporte')); ?></div>
+                                                                            <div><?php echo nl2br(e($message['message'] ?? '')); ?></div>
+                                                                            <?php if (!empty($message['created_at'])): ?>
+                                                                                <div class="fs-xxs mt-2 <?php echo $isClient ? 'text-white-50' : 'text-muted'; ?>">
+                                                                                    <?php echo e($message['created_at']); ?>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                        </div>
+                                                                        <?php if ($isClient): ?>
+                                                                            <?php if (!empty($message['sender_avatar'])): ?>
+                                                                                <img src="<?php echo e($message['sender_avatar']); ?>" alt="Avatar" class="rounded-circle ms-2" style="width: 36px; height: 36px; object-fit: cover;">
+                                                                            <?php else: ?>
+                                                                                <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center ms-2" style="width: 36px; height: 36px;">
+                                                                                    <?php echo e(strtoupper(substr($message['sender_name'] ?? 'T', 0, 1))); ?>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                <?php endforeach; ?>
+                                                            <?php else: ?>
+                                                                <div class="text-muted">Sin mensajes aún.</div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <form method="post" action="index.php?route=clients/portal/tickets/message&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>#portal-support">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                            <input type="hidden" name="ticket_id" value="<?php echo (int)($activeSupportTicketId ?? 0); ?>">
+                                                            <div class="mb-2">
+                                                                <textarea name="message" class="form-control" rows="3" placeholder="Escribe tu mensaje..." required></textarea>
+                                                            </div>
+                                                            <div class="d-flex justify-content-end">
+                                                                <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+                                                            </div>
+                                                        </form>
+                                                    <?php else: ?>
+                                                        <div class="text-muted">Selecciona un ticket para ver el detalle.</div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="tab-pane" id="portal-chat">
                                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                                         <div>
@@ -850,6 +988,18 @@
             document.querySelectorAll('#portal-chat form').forEach((form) => {
                 form.addEventListener('submit', () => {
                     localStorage.setItem('portalActiveTab', '#portal-chat');
+                });
+            });
+
+            document.querySelectorAll('#portal-support a[href*="#portal-support"]').forEach((link) => {
+                link.addEventListener('click', () => {
+                    localStorage.setItem('portalActiveTab', '#portal-support');
+                });
+            });
+
+            document.querySelectorAll('#portal-support form').forEach((form) => {
+                form.addEventListener('submit', () => {
+                    localStorage.setItem('portalActiveTab', '#portal-support');
                 });
             });
 

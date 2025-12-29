@@ -346,6 +346,25 @@ class ClientsController extends Controller
             }
         }
 
+        $ticketModel = new SupportTicketsModel($this->db);
+        $ticketMessageModel = new SupportTicketMessagesModel($this->db);
+        $supportTickets = $ticketModel->forClient((int)$client['id']);
+        $activeSupportTicketId = (int)($_GET['ticket'] ?? 0);
+        if ($activeSupportTicketId === 0 && !empty($supportTickets)) {
+            $activeSupportTicketId = (int)$supportTickets[0]['id'];
+        }
+        $activeSupportTicket = null;
+        $supportMessages = [];
+        if ($activeSupportTicketId !== 0) {
+            $activeSupportTicket = $this->db->fetch(
+                'SELECT * FROM support_tickets WHERE id = :id AND client_id = :client_id',
+                ['id' => $activeSupportTicketId, 'client_id' => $client['id']]
+            );
+            if ($activeSupportTicket) {
+                $supportMessages = $ticketMessageModel->forTicket($activeSupportTicketId);
+            }
+        }
+
         $this->renderPublic('clients/portal', [
             'title' => 'Portal Cliente',
             'pageTitle' => 'Portal Cliente',
@@ -363,10 +382,17 @@ class ClientsController extends Controller
             'chatMessages' => $chatMessages,
             'chatSuccess' => $_SESSION['chat_success'] ?? null,
             'chatError' => $_SESSION['chat_error'] ?? null,
+            'supportTickets' => $supportTickets,
+            'activeSupportTicket' => $activeSupportTicket,
+            'activeSupportTicketId' => $activeSupportTicketId,
+            'supportMessages' => $supportMessages,
+            'supportSuccess' => $_SESSION['support_success'] ?? null,
+            'supportError' => $_SESSION['support_error'] ?? null,
             'success' => $_SESSION['success'] ?? null,
         ]);
         unset($_SESSION['success']);
         unset($_SESSION['chat_success'], $_SESSION['chat_error']);
+        unset($_SESSION['support_success'], $_SESSION['support_error']);
     }
 
     public function portalLogout(): void
@@ -582,6 +608,97 @@ class ClientsController extends Controller
         $chatModel->addMessage($threadId, 'client', (int)$client['id'], $message);
         $_SESSION['chat_success'] = 'Mensaje enviado correctamente.';
         $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '&thread=' . $threadId . '#portal-chat');
+    }
+
+    public function portalTicketCreate(): void
+    {
+        verify_csrf();
+        $token = trim($_GET['token'] ?? ($_POST['token'] ?? ''));
+        if ($token === '' || empty($_SESSION['client_portal_token']) || $token !== $_SESSION['client_portal_token']) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $subject = trim($_POST['subject'] ?? '');
+        $message = trim($_POST['message'] ?? '');
+        $priority = $_POST['priority'] ?? 'media';
+        if ($subject === '' || $message === '') {
+            $_SESSION['support_error'] = 'Completa el asunto y el mensaje.';
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '#portal-support');
+        }
+
+        $ticketModel = new SupportTicketsModel($this->db);
+        $messageModel = new SupportTicketMessagesModel($this->db);
+        $now = date('Y-m-d H:i:s');
+        $ticketId = $ticketModel->create([
+            'client_id' => (int)$client['id'],
+            'subject' => $subject,
+            'description' => $message,
+            'status' => 'abierto',
+            'priority' => $priority,
+            'assigned_user_id' => null,
+            'created_by_type' => 'client',
+            'created_by_id' => (int)$client['id'],
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        $messageModel->create([
+            'ticket_id' => $ticketId,
+            'sender_type' => 'client',
+            'sender_id' => (int)$client['id'],
+            'message' => $message,
+            'created_at' => $now,
+        ]);
+        $_SESSION['support_success'] = 'Ticket creado correctamente.';
+        $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '&ticket=' . $ticketId . '#portal-support');
+    }
+
+    public function portalTicketMessage(): void
+    {
+        verify_csrf();
+        $token = trim($_GET['token'] ?? ($_POST['token'] ?? ''));
+        if ($token === '' || empty($_SESSION['client_portal_token']) || $token !== $_SESSION['client_portal_token']) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $ticketId = (int)($_POST['ticket_id'] ?? 0);
+        $message = trim($_POST['message'] ?? '');
+        if ($ticketId === 0 || $message === '') {
+            $_SESSION['support_error'] = 'Escribe un mensaje antes de enviar.';
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '#portal-support');
+        }
+
+        $ticket = $this->db->fetch(
+            'SELECT * FROM support_tickets WHERE id = :id AND client_id = :client_id',
+            ['id' => $ticketId, 'client_id' => $client['id']]
+        );
+        if (!$ticket) {
+            $_SESSION['support_error'] = 'No encontramos el ticket seleccionado.';
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '#portal-support');
+        }
+
+        $messageModel = new SupportTicketMessagesModel($this->db);
+        $now = date('Y-m-d H:i:s');
+        $messageModel->create([
+            'ticket_id' => $ticketId,
+            'sender_type' => 'client',
+            'sender_id' => (int)$client['id'],
+            'message' => $message,
+            'created_at' => $now,
+        ]);
+        $ticketModel = new SupportTicketsModel($this->db);
+        $ticketModel->update($ticketId, ['updated_at' => $now]);
+        $_SESSION['support_success'] = 'Respuesta enviada.';
+        $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '&ticket=' . $ticketId . '#portal-support');
     }
 
     public function delete(): void

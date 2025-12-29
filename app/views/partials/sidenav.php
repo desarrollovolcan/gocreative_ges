@@ -59,6 +59,13 @@
                                     <span class="menu-text">Chat</span>
                                 </a>
                             </li>
+                            <?php if ($canAccess('tickets')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=tickets" class="side-nav-link">
+                                        <span class="menu-text">Tickets</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </li>

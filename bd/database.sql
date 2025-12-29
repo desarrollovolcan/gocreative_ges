@@ -201,6 +201,33 @@ CREATE TABLE chat_messages (
     FOREIGN KEY (thread_id) REFERENCES chat_threads(id)
 );
 
+CREATE TABLE support_tickets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    subject VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'abierto',
+    priority VARCHAR(20) NOT NULL DEFAULT 'media',
+    assigned_user_id INT NULL,
+    created_by_type VARCHAR(20) NOT NULL DEFAULT 'client',
+    created_by_id INT NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    closed_at DATETIME NULL,
+    FOREIGN KEY (client_id) REFERENCES clients(id),
+    FOREIGN KEY (assigned_user_id) REFERENCES users(id)
+);
+
+CREATE TABLE support_ticket_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT NOT NULL,
+    sender_type VARCHAR(20) NOT NULL,
+    sender_id INT NOT NULL,
+    message TEXT NOT NULL,
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (ticket_id) REFERENCES support_tickets(id)
+);
+
 INSERT INTO service_types (name, created_at, updated_at) VALUES
 ('hosting', NOW(), NOW()),
 ('dominio', NOW(), NOW());

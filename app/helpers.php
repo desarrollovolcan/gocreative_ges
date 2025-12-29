@@ -212,6 +212,10 @@ function permission_catalog(): array
             'label' => 'Permisos de usuarios',
             'routes' => ['users/permissions'],
         ],
+        'tickets' => [
+            'label' => 'Tickets de soporte',
+            'routes' => ['tickets'],
+        ],
     ];
 }
 

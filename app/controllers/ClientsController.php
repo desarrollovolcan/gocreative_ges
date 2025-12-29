@@ -317,6 +317,21 @@ class ClientsController extends Controller
             ['id' => $client['id']]
         );
 
+        $chatModel = new ChatModel($this->db);
+        $chatThreads = $chatModel->getThreadsForClient((int)$client['id']);
+        $activeThreadId = (int)($_GET['thread'] ?? 0);
+        if ($activeThreadId === 0 && !empty($chatThreads)) {
+            $activeThreadId = (int)$chatThreads[0]['id'];
+        }
+        $activeChatThread = null;
+        $chatMessages = [];
+        if ($activeThreadId !== 0) {
+            $activeChatThread = $chatModel->getThreadForClient($activeThreadId, (int)$client['id']);
+            if ($activeChatThread) {
+                $chatMessages = $chatModel->getMessages($activeThreadId);
+            }
+        }
+
         $this->renderPublic('clients/portal', [
             'title' => 'Portal Cliente',
             'pageTitle' => 'Portal Cliente',
@@ -328,9 +343,16 @@ class ClientsController extends Controller
             'paidTotal' => $paidTotal,
             'projectsOverview' => $projectsOverview,
             'projectTasks' => $projectTasks,
+            'chatThreads' => $chatThreads,
+            'activeChatThread' => $activeChatThread,
+            'activeChatThreadId' => $activeThreadId,
+            'chatMessages' => $chatMessages,
+            'chatSuccess' => $_SESSION['chat_success'] ?? null,
+            'chatError' => $_SESSION['chat_error'] ?? null,
             'success' => $_SESSION['success'] ?? null,
         ]);
         unset($_SESSION['success']);
+        unset($_SESSION['chat_success'], $_SESSION['chat_error']);
     }
 
     public function portalLogout(): void
@@ -417,6 +439,65 @@ class ClientsController extends Controller
 
         $_SESSION['success'] = 'Perfil actualizado correctamente.';
         $this->redirect('index.php?route=clients/portal&token=' . urlencode($token));
+    }
+
+    public function portalChatCreate(): void
+    {
+        verify_csrf();
+        $token = trim($_GET['token'] ?? ($_POST['token'] ?? ''));
+        if ($token === '' || empty($_SESSION['client_portal_token']) || $token !== $_SESSION['client_portal_token']) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $subject = trim($_POST['subject'] ?? '');
+        $message = trim($_POST['message'] ?? '');
+        if ($subject === '' || $message === '') {
+            $_SESSION['chat_error'] = 'Completa el asunto y el mensaje para iniciar la conversación.';
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '#portal-chat');
+        }
+
+        $chatModel = new ChatModel($this->db);
+        $threadId = $chatModel->createThread((int)$client['id'], $subject);
+        $chatModel->addMessage($threadId, 'client', (int)$client['id'], $message);
+        $_SESSION['chat_success'] = 'Conversación creada correctamente.';
+        $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '&thread=' . $threadId . '#portal-chat');
+    }
+
+    public function portalChatSend(): void
+    {
+        verify_csrf();
+        $token = trim($_GET['token'] ?? ($_POST['token'] ?? ''));
+        if ($token === '' || empty($_SESSION['client_portal_token']) || $token !== $_SESSION['client_portal_token']) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $threadId = (int)($_POST['thread_id'] ?? 0);
+        $message = trim($_POST['message'] ?? '');
+        if ($threadId === 0 || $message === '') {
+            $_SESSION['chat_error'] = 'Escribe un mensaje antes de enviar.';
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '#portal-chat');
+        }
+
+        $chatModel = new ChatModel($this->db);
+        $thread = $chatModel->getThreadForClient($threadId, (int)$client['id']);
+        if (!$thread) {
+            $_SESSION['chat_error'] = 'No encontramos la conversación seleccionada.';
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '#portal-chat');
+        }
+
+        $chatModel->addMessage($threadId, 'client', (int)$client['id'], $message);
+        $_SESSION['chat_success'] = 'Mensaje enviado correctamente.';
+        $this->redirect('index.php?route=clients/portal&token=' . urlencode($token) . '&thread=' . $threadId . '#portal-chat');
     }
 
     public function delete(): void

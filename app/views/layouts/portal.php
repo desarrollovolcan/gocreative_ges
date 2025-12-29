@@ -35,6 +35,7 @@
                                 <li><a class="dropdown-item" href="#portal-profile" data-portal-tab="#portal-profile"><i class="ti ti-user me-2"></i>Editar perfil</a></li>
                                 <li><a class="dropdown-item" href="#portal-invoices" data-portal-tab="#portal-invoices"><i class="ti ti-receipt me-2"></i>Ver facturas</a></li>
                                 <li><a class="dropdown-item" href="#portal-projects" data-portal-tab="#portal-projects"><i class="ti ti-briefcase me-2"></i>Mis proyectos</a></li>
+                                <li><a class="dropdown-item" href="#portal-chat" data-portal-tab="#portal-chat"><i class="ti ti-message-circle me-2"></i>Mensajes</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="index.php?route=clients/portal/logout"><i class="ti ti-logout me-2"></i>Cerrar sesión</a></li>
                             </ul>

@@ -28,7 +28,10 @@
                     <select name="project_id" class="form-select">
                         <option value="">Sin proyecto</option>
                         <?php foreach ($projects as $project): ?>
-                            <option value="<?php echo $project['id']; ?>" <?php echo (int)($selectedProjectId ?? 0) === (int)$project['id'] ? 'selected' : ''; ?>>
+                            <option value="<?php echo $project['id']; ?>"
+                                data-project-name="<?php echo e($project['name'] ?? ''); ?>"
+                                data-project-value="<?php echo e($project['value'] ?? 0); ?>"
+                                <?php echo (int)($selectedProjectId ?? 0) === (int)$project['id'] ? 'selected' : ''; ?>>
                                 <?php echo e($project['name']); ?> (<?php echo e($project['client_name']); ?>)
                             </option>
                         <?php endforeach; ?>
@@ -93,12 +96,21 @@
             </div>
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Items de factura</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Items de factura</h5>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-add-item>Agregar item</button>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="row g-2 mb-2">
+                    <div class="row g-2 mb-2 fw-semibold text-muted small">
+                        <div class="col-md-5">Descripción</div>
+                        <div class="col-md-2">Cantidad</div>
+                        <div class="col-md-2">Precio unitario</div>
+                        <div class="col-md-3">Total</div>
+                    </div>
+                    <div class="row g-2 mb-2" data-item-row>
                         <div class="col-md-5">
-                            <input type="text" name="items[0][descripcion]" class="form-control" placeholder="Descripción">
+                            <input type="text" name="items[0][descripcion]" class="form-control" placeholder="Descripción" data-item-description>
                         </div>
                         <div class="col-md-2">
                             <input type="number" name="items[0][cantidad]" class="form-control" value="1" data-item-qty>
@@ -126,17 +138,17 @@
     const totalInput = document.querySelector('[data-total]');
     const taxRateInput = document.querySelector('[data-tax-rate]');
     const applyTaxCheckbox = document.querySelector('[data-apply-tax]');
-    const itemQtyInput = document.querySelector('[data-item-qty]');
-    const itemPriceInput = document.querySelector('[data-item-price]');
-    const itemTotalInput = document.querySelector('[data-item-total]');
+    const addItemButton = document.querySelector('[data-add-item]');
+    const projectSelect = document.querySelector('select[name="project_id"]');
 
     const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
-    const updateItemTotal = () => {
-        const qty = Number(itemQtyInput?.value || 0);
-        const price = Number(itemPriceInput?.value || 0);
-        if (itemTotalInput) {
-            itemTotalInput.value = formatNumber(qty * price).toFixed(2);
+    const updateItemTotal = (row) => {
+        const qty = Number(row.querySelector('[data-item-qty]')?.value || 0);
+        const price = Number(row.querySelector('[data-item-price]')?.value || 0);
+        const totalField = row.querySelector('[data-item-total]');
+        if (totalField) {
+            totalField.value = formatNumber(qty * price).toFixed(2);
         }
     };
 
@@ -154,18 +166,70 @@
     };
 
     const updateFromItems = () => {
-        updateItemTotal();
-        if (subtotalInput && itemTotalInput) {
-            subtotalInput.value = itemTotalInput.value;
+        const rows = document.querySelectorAll('[data-item-row]');
+        let subtotal = 0;
+        rows.forEach((row) => {
+            updateItemTotal(row);
+            subtotal += Number(row.querySelector('[data-item-total]')?.value || 0);
+        });
+        if (subtotalInput) {
+            subtotalInput.value = formatNumber(subtotal).toFixed(2);
         }
         updateTotals();
     };
 
-    itemQtyInput?.addEventListener('input', updateFromItems);
-    itemPriceInput?.addEventListener('input', updateFromItems);
+    document.addEventListener('input', (event) => {
+        if (event.target?.matches('[data-item-qty], [data-item-price]')) {
+            updateFromItems();
+        }
+    });
+
+    addItemButton?.addEventListener('click', () => {
+        const rows = document.querySelectorAll('[data-item-row]');
+        const index = rows.length;
+        const row = document.createElement('div');
+        row.className = 'row g-2 mb-2';
+        row.setAttribute('data-item-row', 'true');
+        row.innerHTML = `
+            <div class="col-md-5">
+                <input type="text" name="items[${index}][descripcion]" class="form-control" placeholder="Descripción" data-item-description>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="items[${index}][cantidad]" class="form-control" value="1" data-item-qty>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="items[${index}][precio_unitario]" class="form-control" value="0" data-item-price>
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="items[${index}][total]" class="form-control" value="0" data-item-total readonly>
+            </div>
+        `;
+        rows[rows.length - 1]?.after(row);
+    });
     subtotalInput?.addEventListener('input', updateTotals);
     taxRateInput?.addEventListener('input', updateTotals);
     applyTaxCheckbox?.addEventListener('change', updateTotals);
+
+    projectSelect?.addEventListener('change', () => {
+        const selected = projectSelect.selectedOptions?.[0];
+        if (!selected) {
+            return;
+        }
+        const projectName = selected.dataset.projectName || '';
+        const projectValue = Number(selected.dataset.projectValue || 0);
+        const firstRow = document.querySelector('[data-item-row]');
+        if (firstRow) {
+            const descriptionInput = firstRow.querySelector('[data-item-description]');
+            const priceInput = firstRow.querySelector('[data-item-price]');
+            if (descriptionInput && descriptionInput.value.trim() === '') {
+                descriptionInput.value = projectName;
+            }
+            if (priceInput) {
+                priceInput.value = formatNumber(projectValue).toFixed(2);
+            }
+            updateFromItems();
+        }
+    });
 
     updateFromItems();
 </script>

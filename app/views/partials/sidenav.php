@@ -64,6 +64,14 @@
                     </a>
                 </li>
             <?php endif; ?>
+            <?php if ($canAccess('quotes')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=quotes" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="clipboard-list"></i></span>
+                        <span class="menu-text">Cotizaciones</span>
+                    </a>
+                </li>
+            <?php endif; ?>
             <?php if ($canAccess('invoices')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=invoices" class="side-nav-link">
@@ -94,6 +102,29 @@
                         <span class="menu-icon"><i data-lucide="settings"></i></span>
                         <span class="menu-text">Configuración</span>
                     </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($canAccess('maintainers')): ?>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarMaintainers" aria-expanded="false" aria-controls="sidebarMaintainers" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="database"></i></span>
+                        <span class="menu-text">Mantenedores</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarMaintainers">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="index.php?route=maintainers/services" class="side-nav-link">
+                                    <span class="menu-text">Servicios</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=maintainers/service-types" class="side-nav-link">
+                                    <span class="menu-text">Tipos de servicios</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
             <?php endif; ?>
             <?php if ($canAccess('users')): ?>

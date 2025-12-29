@@ -15,10 +15,33 @@ $clientPhone = $client['phone'] ?? '';
 $clientEmail = $client['email'] ?? '';
 $badgeClass = $invoiceStatus === 'pagada' ? 'success' : ($invoiceStatus === 'vencida' ? 'danger' : 'warning');
 $invoiceData = [
-    'invoice' => $invoice,
-    'client' => $client,
-    'company' => $company,
-    'items' => $items,
+    'invoice' => [
+        'numero' => $invoiceNumber,
+        'fecha_emision' => $issueDate,
+        'fecha_vencimiento' => $dueDate,
+        'subtotal_formatted' => format_currency((float)$subtotal),
+        'impuestos_formatted' => format_currency((float)$taxes),
+        'total_formatted' => format_currency((float)$total),
+    ],
+    'client' => [
+        'name' => $clientName,
+        'address' => $clientAddress,
+        'email' => $clientEmail,
+    ],
+    'company' => [
+        'name' => $companyName,
+        'rut' => $companyRut,
+        'email' => $companyEmail,
+    ],
+    'items' => array_map(
+        static fn(array $item): array => [
+            'descripcion' => $item['descripcion'] ?? '',
+            'cantidad' => $item['cantidad'] ?? '',
+            'precio_unitario_formatted' => format_currency((float)($item['precio_unitario'] ?? 0)),
+            'total_formatted' => format_currency((float)($item['total'] ?? 0)),
+        ],
+        $items
+    ),
 ];
 $portalToken = $client['portal_token'] ?? '';
 ?>
@@ -80,9 +103,7 @@ $portalToken = $client['portal_token'] ?? '';
                                 </div>
                             </div>
 
-                            <div class="col-4 text-end">
-                                <img src="assets/images/qr.png" alt="QR" class="img-fluid" style="max-height: 80px;">
-                            </div>
+                            <div class="col-4 text-end"></div>
                         </div>
 
                         <div class="table-responsive mt-4">
@@ -104,8 +125,8 @@ $portalToken = $client['portal_token'] ?? '';
                                                 <strong><?php echo e($item['descripcion'] ?? ''); ?></strong>
                                             </td>
                                             <td><?php echo e($item['cantidad'] ?? ''); ?></td>
-                                            <td>$<?php echo number_format((float)($item['precio_unitario'] ?? 0), 2, ',', '.'); ?></td>
-                                            <td class="text-end">$<?php echo number_format((float)($item['total'] ?? 0), 2, ',', '.'); ?></td>
+                                            <td><?php echo e(format_currency((float)($item['precio_unitario'] ?? 0))); ?></td>
+                                            <td class="text-end"><?php echo e(format_currency((float)($item['total'] ?? 0))); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -117,15 +138,15 @@ $portalToken = $client['portal_token'] ?? '';
                                 <tbody>
                                     <tr>
                                         <td class="fw-medium">Subtotal</td>
-                                        <td>$<?php echo number_format((float)$subtotal, 2, ',', '.'); ?></td>
+                                        <td><?php echo e(format_currency((float)$subtotal)); ?></td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Impuestos</td>
-                                        <td>$<?php echo number_format((float)$taxes, 2, ',', '.'); ?></td>
+                                        <td><?php echo e(format_currency((float)$taxes)); ?></td>
                                     </tr>
                                     <tr class="border-top pt-2 fs-5 fw-bold">
                                         <td>Total</td>
-                                        <td>$<?php echo number_format((float)$total, 2, ',', '.'); ?></td>
+                                        <td><?php echo e(format_currency((float)$total)); ?></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -148,9 +169,6 @@ $portalToken = $client['portal_token'] ?? '';
                             <a href="index.php?route=clients/portal&token=<?php echo urlencode($portalToken); ?>" class="btn btn-light">
                                 <i class="ti ti-arrow-left me-1"></i> Volver
                             </a>
-                            <button type="button" class="btn btn-primary" onclick="window.print()">
-                                <i class="ti ti-printer me-1"></i> Imprimir
-                            </button>
                             <button type="button" class="btn btn-info" id="downloadPdf">
                                 <i class="ti ti-download me-1"></i> Descargar PDF
                             </button>
@@ -172,8 +190,8 @@ $portalToken = $client['portal_token'] ?? '';
             { text: String(index + 1), alignment: 'center' },
             { text: item.descripcion || '', alignment: 'left' },
             { text: String(item.cantidad || ''), alignment: 'center' },
-            { text: `$${Number(item.precio_unitario || 0).toFixed(2)}`, alignment: 'right' },
-            { text: `$${Number(item.total || 0).toFixed(2)}`, alignment: 'right' },
+            { text: item.precio_unitario_formatted || '', alignment: 'right' },
+            { text: item.total_formatted || '', alignment: 'right' },
         ]));
 
         const body = [
@@ -211,7 +229,7 @@ $portalToken = $client['portal_token'] ?? '';
                 {
                     table: {
                         headerRows: 1,
-                        widths: [20, '*', 40, 70, 70],
+                        widths: [20, '*', 40, 80, 80],
                         body,
                     },
                     layout: 'lightHorizontalLines',
@@ -223,9 +241,9 @@ $portalToken = $client['portal_token'] ?? '';
                         {
                             table: {
                                 body: [
-                                    ['Subtotal', `$${Number(data.invoice.subtotal || 0).toFixed(2)}`],
-                                    ['Impuestos', `$${Number(data.invoice.impuestos || 0).toFixed(2)}`],
-                                    ['Total', `$${Number(data.invoice.total || 0).toFixed(2)}`],
+                                    ['Subtotal', data.invoice.subtotal_formatted || ''],
+                                    ['Impuestos', data.invoice.impuestos_formatted || ''],
+                                    ['Total', data.invoice.total_formatted || ''],
                                 ],
                             },
                             layout: 'noBorders',
@@ -244,6 +262,6 @@ $portalToken = $client['portal_token'] ?? '';
 
     document.getElementById('downloadPdf')?.addEventListener('click', () => {
         const docDefinition = buildPdfDefinition(invoiceData);
-        pdfMake.createPdf(docDefinition).download(`Factura-${invoiceData.invoice.numero || invoiceData.invoice.id}.pdf`);
+        pdfMake.createPdf(docDefinition).download(`Factura-${invoiceData.invoice.numero || 'sin-numero'}.pdf`);
     });
 </script>

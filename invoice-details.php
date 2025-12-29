@@ -71,9 +71,7 @@
                                             </div>
 
                                             <!-- Barcode -->
-                                            <div class="col-4 text-end">
-                                                <img src="assets/images/qr.png" alt="Barcode" class="img-fluid" style="max-height: 80px;">
-                                            </div>
+                                            <div class="col-4 text-end"></div>
                                         </div>
 
                                         <!-- Product Table -->
@@ -185,8 +183,6 @@
                                     <div class="card-body">
                                         <div class="justify-content-center d-flex flex-column gap-2">
                                             <a href="javascript: void(0);" class="btn btn-light"><i class="ti ti-pencil me-1"></i> Edit</a>
-                                            <a href="javascript:window.print()" class="btn btn-primary"><i class="ti ti-printer me-1"></i> Print</a>
-                                            <a href="javascript: void(0);" class="btn btn-info"><i class="ti ti-download me-1"></i> Download</a>
                                             <a href="javascript: void(0);" class="btn btn-danger btn-lg"><i class="ti ti-send me-1"></i> Send</a>
                                         </div>
                                     </div> <!-- end card-body-->

@@ -103,13 +103,15 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-2 mb-2 fw-semibold text-muted small">
-                        <div class="col-md-5">Descripción</div>
+                        <div class="col-md-3">Descripción</div>
                         <div class="col-md-2">Cantidad</div>
                         <div class="col-md-2">Precio unitario</div>
-                        <div class="col-md-3">Total</div>
+                        <div class="col-md-2">Impuesto %</div>
+                        <div class="col-md-2">Impuesto $</div>
+                        <div class="col-md-1">Total</div>
                     </div>
                     <div class="row g-2 mb-2" data-item-row>
-                        <div class="col-md-5">
+                        <div class="col-md-3">
                             <input type="text" name="items[0][descripcion]" class="form-control" placeholder="Descripción" data-item-description>
                         </div>
                         <div class="col-md-2">
@@ -118,7 +120,13 @@
                         <div class="col-md-2">
                             <input type="number" name="items[0][precio_unitario]" class="form-control" value="0" data-item-price>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <input type="number" name="items[0][impuesto_pct]" class="form-control" value="<?php echo e($invoiceDefaults['tax_rate'] ?? 0); ?>" data-item-tax-rate>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" name="items[0][impuesto_monto]" class="form-control" value="0" data-item-tax readonly>
+                        </div>
+                        <div class="col-md-1">
                             <input type="number" name="items[0][total]" class="form-control" value="0" data-item-total readonly>
                         </div>
                     </div>
@@ -147,19 +155,23 @@
         const qty = Number(row.querySelector('[data-item-qty]')?.value || 0);
         const price = Number(row.querySelector('[data-item-price]')?.value || 0);
         const totalField = row.querySelector('[data-item-total]');
+        const taxRateField = row.querySelector('[data-item-tax-rate]');
+        const taxField = row.querySelector('[data-item-tax]');
+        const taxRate = Number(taxRateField?.value || 0);
+        const applyTax = !!applyTaxCheckbox?.checked;
+        const rowSubtotal = formatNumber(qty * price);
         if (totalField) {
-            totalField.value = formatNumber(qty * price).toFixed(2);
+            totalField.value = rowSubtotal.toFixed(2);
+        }
+        if (taxField) {
+            const taxAmount = applyTax ? formatNumber(rowSubtotal * (taxRate / 100)) : 0;
+            taxField.value = taxAmount.toFixed(2);
         }
     };
 
     const updateTotals = () => {
         const subtotal = Number(subtotalInput?.value || 0);
-        const rate = Number(taxRateInput?.value || 0);
-        const applyTax = !!applyTaxCheckbox?.checked;
-        const impuestos = applyTax ? formatNumber(subtotal * (rate / 100)) : 0;
-        if (impuestosInput) {
-            impuestosInput.value = impuestos.toFixed(2);
-        }
+        const impuestos = Number(impuestosInput?.value || 0);
         if (totalInput) {
             totalInput.value = formatNumber(subtotal + impuestos).toFixed(2);
         }
@@ -168,12 +180,17 @@
     const updateFromItems = () => {
         const rows = document.querySelectorAll('[data-item-row]');
         let subtotal = 0;
+        let taxes = 0;
         rows.forEach((row) => {
             updateItemTotal(row);
             subtotal += Number(row.querySelector('[data-item-total]')?.value || 0);
+            taxes += Number(row.querySelector('[data-item-tax]')?.value || 0);
         });
         if (subtotalInput) {
             subtotalInput.value = formatNumber(subtotal).toFixed(2);
+        }
+        if (impuestosInput) {
+            impuestosInput.value = formatNumber(taxes).toFixed(2);
         }
         updateTotals();
     };
@@ -190,8 +207,9 @@
         const row = document.createElement('div');
         row.className = 'row g-2 mb-2';
         row.setAttribute('data-item-row', 'true');
+        const defaultTaxRate = Number(taxRateInput?.value || 0);
         row.innerHTML = `
-            <div class="col-md-5">
+            <div class="col-md-3">
                 <input type="text" name="items[${index}][descripcion]" class="form-control" placeholder="Descripción" data-item-description>
             </div>
             <div class="col-md-2">
@@ -200,7 +218,13 @@
             <div class="col-md-2">
                 <input type="number" name="items[${index}][precio_unitario]" class="form-control" value="0" data-item-price>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
+                <input type="number" name="items[${index}][impuesto_pct]" class="form-control" value="${defaultTaxRate}" data-item-tax-rate>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="items[${index}][impuesto_monto]" class="form-control" value="0" data-item-tax readonly>
+            </div>
+            <div class="col-md-1">
                 <input type="number" name="items[${index}][total]" class="form-control" value="0" data-item-total readonly>
             </div>
         `;
@@ -208,7 +232,6 @@
     });
     subtotalInput?.addEventListener('input', updateTotals);
     taxRateInput?.addEventListener('input', updateTotals);
-    applyTaxCheckbox?.addEventListener('change', updateTotals);
 
     projectSelect?.addEventListener('change', () => {
         const selected = projectSelect.selectedOptions?.[0];
@@ -221,14 +244,34 @@
         if (firstRow) {
             const descriptionInput = firstRow.querySelector('[data-item-description]');
             const priceInput = firstRow.querySelector('[data-item-price]');
+            const qtyInput = firstRow.querySelector('[data-item-qty]');
+            const taxRateInputRow = firstRow.querySelector('[data-item-tax-rate]');
             if (descriptionInput && descriptionInput.value.trim() === '') {
                 descriptionInput.value = projectName;
             }
             if (priceInput) {
                 priceInput.value = formatNumber(projectValue).toFixed(2);
             }
+            if (qtyInput) {
+                qtyInput.value = '1';
+                qtyInput.readOnly = true;
+            }
+            if (taxRateInputRow) {
+                taxRateInputRow.value = taxRateInput?.value || '0';
+            }
             updateFromItems();
         }
+    });
+
+    taxRateInput?.addEventListener('input', () => {
+        document.querySelectorAll('[data-item-tax-rate]').forEach((input) => {
+            input.value = taxRateInput.value;
+        });
+        updateFromItems();
+    });
+
+    applyTaxCheckbox?.addEventListener('change', () => {
+        updateFromItems();
     });
 
     updateFromItems();

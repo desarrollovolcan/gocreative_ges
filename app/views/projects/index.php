@@ -63,6 +63,7 @@
                             <td class="text-end">
                                 <a href="index.php?route=projects/show&id=<?php echo $project['id']; ?>" class="btn btn-light btn-sm">Ver</a>
                                 <a href="index.php?route=projects/show&id=<?php echo $project['id']; ?>#tareas" class="btn btn-outline-secondary btn-sm">Ver tareas</a>
+                                <a href="index.php?route=invoices/create&project_id=<?php echo $project['id']; ?>&client_id=<?php echo $project['client_id']; ?>" class="btn btn-outline-primary btn-sm">Crear factura</a>
                                 <a href="index.php?route=projects/edit&id=<?php echo $project['id']; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
                                 <form method="post" action="index.php?route=projects/delete" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">

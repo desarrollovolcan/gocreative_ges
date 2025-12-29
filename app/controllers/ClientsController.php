@@ -339,6 +339,40 @@ class ClientsController extends Controller
         $this->redirect('index.php?route=clients/login');
     }
 
+    public function portalInvoice(): void
+    {
+        $sessionToken = $_SESSION['client_portal_token'] ?? '';
+        $token = trim($_GET['token'] ?? $sessionToken);
+        if ($token === '' || ($sessionToken !== '' && $token !== $sessionToken)) {
+            $_SESSION['error'] = 'Debes iniciar sesión para acceder al portal.';
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $invoiceId = (int)($_GET['id'] ?? 0);
+        $invoice = $this->db->fetch('SELECT * FROM invoices WHERE id = :id AND deleted_at IS NULL', ['id' => $invoiceId]);
+        if (!$invoice) {
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token));
+        }
+
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client || (int)$invoice['client_id'] !== (int)$client['id']) {
+            $this->redirect('index.php?route=clients/login');
+        }
+
+        $items = $this->db->fetchAll('SELECT * FROM invoice_items WHERE invoice_id = :invoice_id', ['invoice_id' => $invoiceId]);
+        $settings = new SettingsModel($this->db);
+        $company = $settings->get('company', []);
+
+        $this->renderPublic('clients/invoice', [
+            'title' => 'Detalle Factura',
+            'pageTitle' => 'Detalle Factura',
+            'invoice' => $invoice,
+            'client' => $client,
+            'items' => $items,
+            'company' => $company,
+        ]);
+    }
+
     private function buildPortalUrl(array $client): string
     {
         $baseUrl = rtrim($this->config['app']['base_url'] ?? '', '/');

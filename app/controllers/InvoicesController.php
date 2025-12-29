@@ -135,6 +135,29 @@ class InvoicesController extends Controller
         ]);
     }
 
+    public function details(): void
+    {
+        $this->requireLogin();
+        $id = (int)($_GET['id'] ?? 0);
+        $invoice = $this->invoices->find($id);
+        if (!$invoice) {
+            $this->redirect('index.php?route=invoices');
+        }
+        $itemsModel = new InvoiceItemsModel($this->db);
+        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $invoice['client_id']]);
+        $items = $itemsModel->byInvoice($id);
+        $settings = new SettingsModel($this->db);
+        $company = $settings->get('company', []);
+        $this->render('invoices/details', [
+            'title' => 'Detalle Factura',
+            'pageTitle' => 'Detalle Factura',
+            'invoice' => $invoice,
+            'client' => $client,
+            'items' => $items,
+            'company' => $company,
+        ]);
+    }
+
     public function pay(): void
     {
         $this->requireLogin();

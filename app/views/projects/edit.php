@@ -129,6 +129,7 @@
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2 mt-3">
+                <a href="index.php?route=invoices/create&project_id=<?php echo $project['id']; ?>&client_id=<?php echo $project['client_id']; ?>" class="btn btn-outline-primary">Crear factura</a>
                 <a href="index.php?route=projects" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Actualizar</button>
             </div>

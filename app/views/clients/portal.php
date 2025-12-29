@@ -59,9 +59,13 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-4">
                                 <div class="me-3 position-relative">
-                                    <div class="avatar-lg bg-dark-subtle text-dark rounded-3 d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-building fs-28"></i>
-                                    </div>
+                                    <?php if (!empty($client['avatar_path'])): ?>
+                                        <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-3" style="width: 72px; height: 72px; object-fit: cover;">
+                                    <?php else: ?>
+                                        <div class="avatar-lg bg-dark-subtle text-dark rounded-3 d-flex align-items-center justify-content-center">
+                                            <i class="ti ti-building fs-28"></i>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                                 <div>
                                     <h5 class="mb-0 d-flex align-items-center">
@@ -488,10 +492,20 @@
                                             <p class="text-muted mb-0">Mantén tu información actualizada para recibir notificaciones.</p>
                                         </div>
                                     </div>
-                                    <form method="post" action="index.php?route=clients/portal/update" class="bg-light rounded p-3">
+                                    <form method="post" action="index.php?route=clients/portal/update" class="bg-light rounded p-3" enctype="multipart/form-data">
                                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                         <input type="hidden" name="token" value="<?php echo e($client['portal_token'] ?? ''); ?>">
                                         <div class="row">
+                                            <div class="col-12 mb-3">
+                                                <label class="form-label">Foto de perfil</label>
+                                                <input type="file" name="avatar" class="form-control" accept="image/png,image/jpeg,image/webp">
+                                                <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>
+                                                <?php if (!empty($client['avatar_path'])): ?>
+                                                    <div class="mt-2">
+                                                        <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-3" style="width: 72px; height: 72px; object-fit: cover;">
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Correo</label>
                                                 <input type="email" name="email" class="form-control" value="<?php echo e($client['email'] ?? ''); ?>" required>
@@ -565,9 +579,20 @@
                                                                     href="index.php?route=clients/portal&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>&thread=<?php echo (int)$thread['id']; ?>#portal-chat"
                                                                     class="list-group-item list-group-item-action <?php echo $isActive ? 'active' : ''; ?>"
                                                                 >
-                                                                    <div class="fw-semibold"><?php echo e($thread['subject'] ?? 'Conversación'); ?></div>
-                                                                    <div class="text-muted fs-xs <?php echo $isActive ? 'text-white-50' : ''; ?>">
-                                                                        <?php echo e($thread['last_message'] ?? 'Sin mensajes aún.'); ?>
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <?php if (!empty($client['avatar_path'])): ?>
+                                                                            <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                                                                        <?php else: ?>
+                                                                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                                                                <?php echo e(strtoupper(substr($client['name'] ?? 'C', 0, 1))); ?>
+                                                                            </div>
+                                                                        <?php endif; ?>
+                                                                        <div>
+                                                                            <div class="fw-semibold"><?php echo e($thread['subject'] ?? 'Conversación'); ?></div>
+                                                                            <div class="text-muted fs-xs <?php echo $isActive ? 'text-white-50' : ''; ?>">
+                                                                                <?php echo e($thread['last_message'] ?? 'Sin mensajes aún.'); ?>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </a>
                                                             <?php endforeach; ?>
@@ -591,7 +616,7 @@
                                                                 <div class="text-muted fs-xs">Último mensaje: <?php echo e($activeChatThread['updated_at']); ?></div>
                                                             <?php endif; ?>
                                                         </div>
-                                                        <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 420px;">
+                                                        <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 420px;" id="portalChatMessages" data-last-id="<?php echo !empty($chatMessages) ? (int)end($chatMessages)['id'] : 0; ?>">
                                                             <?php if (!empty($chatMessages)): ?>
                                                                 <?php foreach ($chatMessages as $message): ?>
                                                                     <?php
@@ -599,6 +624,15 @@
                                                                     $bubbleClasses = $isClient ? 'bg-primary text-white ms-auto' : 'bg-light';
                                                                     ?>
                                                                     <div class="d-flex mb-3 <?php echo $isClient ? 'justify-content-end' : 'justify-content-start'; ?>">
+                                                                        <?php if (!$isClient): ?>
+                                                                            <?php if (!empty($message['sender_avatar'])): ?>
+                                                                                <img src="<?php echo e($message['sender_avatar']); ?>" alt="Avatar" class="rounded-circle me-2" style="width: 36px; height: 36px; object-fit: cover;">
+                                                                            <?php else: ?>
+                                                                                <div class="rounded-circle bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                                                                                    <?php echo e(strtoupper(substr($message['sender_name'] ?? 'E', 0, 1))); ?>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                        <?php endif; ?>
                                                                         <div class="p-3 rounded-3 <?php echo $bubbleClasses; ?>" style="max-width: 75%;">
                                                                             <div class="fw-semibold mb-1"><?php echo e($message['sender_name'] ?? ($isClient ? 'Tú' : 'Equipo')); ?></div>
                                                                             <div><?php echo nl2br(e($message['message'] ?? '')); ?></div>
@@ -608,6 +642,15 @@
                                                                                 </div>
                                                                             <?php endif; ?>
                                                                         </div>
+                                                                        <?php if ($isClient): ?>
+                                                                            <?php if (!empty($message['sender_avatar'])): ?>
+                                                                                <img src="<?php echo e($message['sender_avatar']); ?>" alt="Avatar" class="rounded-circle ms-2" style="width: 36px; height: 36px; object-fit: cover;">
+                                                                            <?php else: ?>
+                                                                                <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center ms-2" style="width: 36px; height: 36px;">
+                                                                                    <?php echo e(strtoupper(substr($message['sender_name'] ?? 'T', 0, 1))); ?>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                        <?php endif; ?>
                                                                     </div>
                                                                 <?php endforeach; ?>
                                                             <?php else: ?>
@@ -662,6 +705,86 @@
             if (window.location.hash) {
                 activatePortalTab(window.location.hash);
             }
+
+            const portalChatMessages = document.getElementById('portalChatMessages');
+            const portalThreadId = <?php echo (int)($activeChatThreadId ?? 0); ?>;
+            const portalToken = '<?php echo e($client['portal_token'] ?? ''); ?>';
+
+            const fetchPortalMessages = async () => {
+                if (!portalChatMessages || !portalThreadId) {
+                    return;
+                }
+                const lastId = Number(portalChatMessages.dataset.lastId || 0);
+                const response = await fetch(`index.php?route=clients/portal/chat/messages&token=${encodeURIComponent(portalToken)}&thread=${portalThreadId}&since=${lastId}`);
+                if (!response.ok) {
+                    return;
+                }
+                const payload = await response.json();
+                if (!payload.messages || payload.messages.length === 0) {
+                    return;
+                }
+                payload.messages.forEach((message) => {
+                    const isClient = message.sender_type === 'client';
+                    const wrapper = document.createElement('div');
+                    wrapper.className = `d-flex mb-3 ${isClient ? 'justify-content-end' : 'justify-content-start'}`;
+
+                    const bubble = document.createElement('div');
+                    bubble.className = `p-3 rounded-3 ${isClient ? 'bg-primary text-white ms-auto' : 'bg-light'}`;
+                    bubble.style.maxWidth = '75%';
+
+                    const name = document.createElement('div');
+                    name.className = 'fw-semibold mb-1';
+                    name.textContent = message.sender_name || (isClient ? 'Tú' : 'Equipo');
+
+                    const text = document.createElement('div');
+                    text.textContent = message.message || '';
+
+                    const time = document.createElement('div');
+                    time.className = `fs-xxs mt-2 ${isClient ? 'text-white-50' : 'text-muted'}`;
+                    time.textContent = message.created_at || '';
+
+                    bubble.appendChild(name);
+                    bubble.appendChild(text);
+                    bubble.appendChild(time);
+
+                    const avatar = document.createElement('div');
+                    avatar.className = `rounded-circle ${isClient ? 'bg-primary-subtle text-primary ms-2' : 'bg-secondary-subtle text-secondary me-2'} d-flex align-items-center justify-content-center`;
+                    avatar.style.width = '36px';
+                    avatar.style.height = '36px';
+
+                    if (message.sender_avatar) {
+                        const img = document.createElement('img');
+                        img.src = message.sender_avatar;
+                        img.alt = 'Avatar';
+                        img.className = `rounded-circle ${isClient ? 'ms-2' : 'me-2'}`;
+                        img.style.width = '36px';
+                        img.style.height = '36px';
+                        img.style.objectFit = 'cover';
+                        if (isClient) {
+                            wrapper.appendChild(bubble);
+                            wrapper.appendChild(img);
+                        } else {
+                            wrapper.appendChild(img);
+                            wrapper.appendChild(bubble);
+                        }
+                    } else {
+                        avatar.textContent = (message.sender_name || (isClient ? 'T' : 'E')).charAt(0).toUpperCase();
+                        if (isClient) {
+                            wrapper.appendChild(bubble);
+                            wrapper.appendChild(avatar);
+                        } else {
+                            wrapper.appendChild(avatar);
+                            wrapper.appendChild(bubble);
+                        }
+                    }
+
+                    portalChatMessages.appendChild(wrapper);
+                    portalChatMessages.dataset.lastId = message.id;
+                });
+                portalChatMessages.scrollTop = portalChatMessages.scrollHeight;
+            };
+
+            setInterval(fetchPortalMessages, 5000);
         });
     </script>
 <?php endif; ?>

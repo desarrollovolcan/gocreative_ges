@@ -59,6 +59,11 @@ class ClientsController extends Controller
             $_SESSION['error'] = 'Define una contraseña para el acceso del cliente.';
             $this->redirect('index.php?route=clients/create');
         }
+        $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'client');
+        if (!empty($avatarResult['error'])) {
+            $_SESSION['error'] = $avatarResult['error'];
+            $this->redirect('index.php?route=clients/create');
+        }
         $data = [
             'name' => $name,
             'rut' => $rut,
@@ -71,6 +76,7 @@ class ClientsController extends Controller
             'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
             'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
             'mandante_email' => trim($_POST['mandante_email'] ?? ''),
+            'avatar_path' => $avatarResult['path'],
             'portal_token' => $portalToken,
             'portal_password' => password_hash($portalPassword, PASSWORD_DEFAULT),
             'notes' => trim($_POST['notes'] ?? ''),
@@ -134,6 +140,14 @@ class ClientsController extends Controller
             'status' => $_POST['status'] ?? 'activo',
             'updated_at' => date('Y-m-d H:i:s'),
         ];
+        $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'client');
+        if (!empty($avatarResult['error'])) {
+            $_SESSION['error'] = $avatarResult['error'];
+            $this->redirect('index.php?route=clients/edit&id=' . $id);
+        }
+        if (!empty($avatarResult['path'])) {
+            $data['avatar_path'] = $avatarResult['path'];
+        }
         if ($portalPassword !== '') {
             $data['portal_password'] = password_hash($portalPassword, PASSWORD_DEFAULT);
         }
@@ -429,16 +443,64 @@ class ClientsController extends Controller
             $this->redirect('index.php?route=clients/portal&token=' . urlencode($token));
         }
 
-        $this->clients->update((int)$client['id'], [
+        $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'client');
+        if (!empty($avatarResult['error'])) {
+            $_SESSION['error'] = $avatarResult['error'];
+            $this->redirect('index.php?route=clients/portal&token=' . urlencode($token));
+        }
+        $data = [
             'email' => $email,
             'phone' => $phone,
             'address' => $address,
             'contact' => $contact,
             'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        ];
+        if (!empty($avatarResult['path'])) {
+            $data['avatar_path'] = $avatarResult['path'];
+        }
+
+        $this->clients->update((int)$client['id'], $data);
 
         $_SESSION['success'] = 'Perfil actualizado correctamente.';
         $this->redirect('index.php?route=clients/portal&token=' . urlencode($token));
+    }
+
+    public function portalChatMessages(): void
+    {
+        $sessionToken = $_SESSION['client_portal_token'] ?? '';
+        $token = trim($_GET['token'] ?? $sessionToken);
+        if ($token === '' || ($sessionToken !== '' && $token !== $sessionToken)) {
+            http_response_code(403);
+            echo json_encode(['messages' => []], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        $client = $this->db->fetch('SELECT * FROM clients WHERE portal_token = :token AND deleted_at IS NULL', ['token' => $token]);
+        if (!$client) {
+            echo json_encode(['messages' => []], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $threadId = (int)($_GET['thread'] ?? 0);
+        if ($threadId === 0) {
+            echo json_encode(['messages' => []], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $chatModel = new ChatModel($this->db);
+        $thread = $chatModel->getThreadForClient($threadId, (int)$client['id']);
+        if (!$thread) {
+            echo json_encode(['messages' => []], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $sinceId = (int)($_GET['since'] ?? 0);
+        $messages = $sinceId > 0
+            ? $chatModel->getMessagesSince($threadId, $sinceId)
+            : $chatModel->getMessages($threadId);
+
+        echo json_encode(['messages' => $messages], JSON_UNESCAPED_UNICODE);
     }
 
     public function portalChatCreate(): void

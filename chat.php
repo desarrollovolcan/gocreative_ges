@@ -139,14 +139,23 @@ unset($_SESSION['chat_success'], $_SESSION['chat_error']);
                                         <?php foreach ($chatThreads as $thread): ?>
                                             <?php $isActive = (int)$thread['id'] === $activeThreadId; ?>
                                             <a href="chat.php?thread=<?php echo (int)$thread['id']; ?>" class="list-group-item list-group-item-action <?php echo $isActive ? 'active' : ''; ?>">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <div class="fw-semibold"><?php echo e($thread['client_name'] ?? 'Cliente'); ?></div>
-                                                        <div class="text-muted fs-xs <?php echo $isActive ? 'text-white-50' : ''; ?>">
-                                                            <?php echo e($thread['subject'] ?? 'Conversación'); ?>
-                                                        </div>
-                                                        <div class="text-muted fs-xxs <?php echo $isActive ? 'text-white-50' : ''; ?>">
-                                                            <?php echo e($thread['last_message'] ?? 'Sin mensajes aún.'); ?>
+                                                <div class="d-flex justify-content-between align-items-center gap-3">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <?php if (!empty($thread['client_avatar'])): ?>
+                                                            <img src="<?php echo e($thread['client_avatar']); ?>" alt="Avatar cliente" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                                                        <?php else: ?>
+                                                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                                                <?php echo e(strtoupper(substr($thread['client_name'] ?? 'C', 0, 1))); ?>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                        <div>
+                                                            <div class="fw-semibold"><?php echo e($thread['client_name'] ?? 'Cliente'); ?></div>
+                                                            <div class="text-muted fs-xs <?php echo $isActive ? 'text-white-50' : ''; ?>">
+                                                                <?php echo e($thread['subject'] ?? 'Conversación'); ?>
+                                                            </div>
+                                                            <div class="text-muted fs-xxs <?php echo $isActive ? 'text-white-50' : ''; ?>">
+                                                                <?php echo e($thread['last_message'] ?? 'Sin mensajes aún.'); ?>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <?php if (!empty($thread['last_message_at'])): ?>
@@ -183,7 +192,7 @@ unset($_SESSION['chat_success'], $_SESSION['chat_error']);
 
                             <div class="card-body d-flex flex-column" style="min-height: 520px;">
                                 <?php if (!empty($activeThread)): ?>
-                                    <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 420px;">
+                                    <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 420px;" id="chatMessages" data-last-id="<?php echo !empty($chatMessages) ? (int)end($chatMessages)['id'] : 0; ?>">
                                         <?php if (!empty($chatMessages)): ?>
                                             <?php foreach ($chatMessages as $message): ?>
                                                 <?php
@@ -191,6 +200,15 @@ unset($_SESSION['chat_success'], $_SESSION['chat_error']);
                                                 $bubbleClasses = $isUser ? 'bg-primary text-white ms-auto' : 'bg-light';
                                                 ?>
                                                 <div class="d-flex mb-3 <?php echo $isUser ? 'justify-content-end' : 'justify-content-start'; ?>">
+                                                    <?php if (!$isUser): ?>
+                                                        <?php if (!empty($message['sender_avatar'])): ?>
+                                                            <img src="<?php echo e($message['sender_avatar']); ?>" alt="Avatar" class="rounded-circle me-2" style="width: 36px; height: 36px; object-fit: cover;">
+                                                        <?php else: ?>
+                                                            <div class="rounded-circle bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                                                                <?php echo e(strtoupper(substr($message['sender_name'] ?? 'C', 0, 1))); ?>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                    <?php endif; ?>
                                                     <div class="p-3 rounded-3 <?php echo $bubbleClasses; ?>" style="max-width: 75%;">
                                                         <div class="fw-semibold mb-1"><?php echo e($message['sender_name'] ?? ($isUser ? 'Equipo' : 'Cliente')); ?></div>
                                                         <div><?php echo nl2br(e($message['message'] ?? '')); ?></div>
@@ -200,6 +218,15 @@ unset($_SESSION['chat_success'], $_SESSION['chat_error']);
                                                             </div>
                                                         <?php endif; ?>
                                                     </div>
+                                                    <?php if ($isUser): ?>
+                                                        <?php if (!empty($message['sender_avatar'])): ?>
+                                                            <img src="<?php echo e($message['sender_avatar']); ?>" alt="Avatar" class="rounded-circle ms-2" style="width: 36px; height: 36px; object-fit: cover;">
+                                                        <?php else: ?>
+                                                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center ms-2" style="width: 36px; height: 36px;">
+                                                                <?php echo e(strtoupper(substr($message['sender_name'] ?? 'E', 0, 1))); ?>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                    <?php endif; ?>
                                                 </div>
                                             <?php endforeach; ?>
                                         <?php else: ?>
@@ -235,6 +262,87 @@ unset($_SESSION['chat_success'], $_SESSION['chat_error']);
     <!-- END wrapper -->
 
     <?php include('partials/footer-scripts.php'); ?>
+
+    <?php if (!empty($activeThreadId)): ?>
+        <script>
+            const chatThreadId = <?php echo (int)$activeThreadId; ?>;
+            const chatMessagesContainer = document.getElementById('chatMessages');
+            const fetchChatMessages = async () => {
+                if (!chatMessagesContainer) {
+                    return;
+                }
+                const lastId = Number(chatMessagesContainer.dataset.lastId || 0);
+                const response = await fetch(`index.php?route=chat/messages&thread=${chatThreadId}&since=${lastId}`);
+                if (!response.ok) {
+                    return;
+                }
+                const payload = await response.json();
+                if (!payload.messages || payload.messages.length === 0) {
+                    return;
+                }
+                payload.messages.forEach((message) => {
+                    const isUser = message.sender_type === 'user';
+                    const wrapper = document.createElement('div');
+                    wrapper.className = `d-flex mb-3 ${isUser ? 'justify-content-end' : 'justify-content-start'}`;
+                    const bubble = document.createElement('div');
+                    bubble.className = `p-3 rounded-3 ${isUser ? 'bg-primary text-white ms-auto' : 'bg-light'}`;
+                    bubble.style.maxWidth = '75%';
+
+                    const name = document.createElement('div');
+                    name.className = 'fw-semibold mb-1';
+                    name.textContent = message.sender_name || (isUser ? 'Equipo' : 'Cliente');
+
+                    const text = document.createElement('div');
+                    text.textContent = message.message || '';
+
+                    const time = document.createElement('div');
+                    time.className = `fs-xxs mt-2 ${isUser ? 'text-white-50' : 'text-muted'}`;
+                    time.textContent = message.created_at || '';
+
+                    bubble.appendChild(name);
+                    bubble.appendChild(text);
+                    bubble.appendChild(time);
+
+                    const avatar = document.createElement('div');
+                    avatar.className = `rounded-circle ${isUser ? 'bg-primary-subtle text-primary ms-2' : 'bg-secondary-subtle text-secondary me-2'} d-flex align-items-center justify-content-center`;
+                    avatar.style.width = '36px';
+                    avatar.style.height = '36px';
+
+                    if (message.sender_avatar) {
+                        const img = document.createElement('img');
+                        img.src = message.sender_avatar;
+                        img.alt = 'Avatar';
+                        img.className = `rounded-circle ${isUser ? 'ms-2' : 'me-2'}`;
+                        img.style.width = '36px';
+                        img.style.height = '36px';
+                        img.style.objectFit = 'cover';
+                        if (isUser) {
+                            wrapper.appendChild(bubble);
+                            wrapper.appendChild(img);
+                        } else {
+                            wrapper.appendChild(img);
+                            wrapper.appendChild(bubble);
+                        }
+                    } else {
+                        avatar.textContent = (message.sender_name || (isUser ? 'E' : 'C')).charAt(0).toUpperCase();
+                        if (isUser) {
+                            wrapper.appendChild(bubble);
+                            wrapper.appendChild(avatar);
+                        } else {
+                            wrapper.appendChild(avatar);
+                            wrapper.appendChild(bubble);
+                        }
+                    }
+
+                    chatMessagesContainer.appendChild(wrapper);
+                    chatMessagesContainer.dataset.lastId = message.id;
+                });
+                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+            };
+
+            setInterval(fetchChatMessages, 5000);
+        </script>
+    <?php endif; ?>
 </body>
 
 </html>

@@ -15,6 +15,7 @@ class ChatModel
             'SELECT chat_threads.*,
                     clients.name AS client_name,
                     clients.email AS client_email,
+                    clients.avatar_path AS client_avatar,
                     latest.message AS last_message,
                     latest.created_at AS last_message_at
              FROM chat_threads
@@ -74,17 +75,52 @@ class ChatModel
     public function getMessages(int $threadId): array
     {
         return $this->db->fetchAll(
-            'SELECT chat_messages.*,
+            'SELECT chat_messages.id,
+                    chat_messages.thread_id,
+                    chat_messages.sender_type,
+                    chat_messages.sender_id,
+                    chat_messages.message,
+                    chat_messages.created_at,
                     CASE
                         WHEN chat_messages.sender_type = "user" THEN users.name
                         ELSE clients.name
-                    END AS sender_name
+                    END AS sender_name,
+                    CASE
+                        WHEN chat_messages.sender_type = "user" THEN users.avatar_path
+                        ELSE clients.avatar_path
+                    END AS sender_avatar
              FROM chat_messages
              LEFT JOIN users ON chat_messages.sender_type = "user" AND chat_messages.sender_id = users.id
              LEFT JOIN clients ON chat_messages.sender_type = "client" AND chat_messages.sender_id = clients.id
              WHERE chat_messages.thread_id = :thread_id
              ORDER BY chat_messages.created_at ASC',
             ['thread_id' => $threadId]
+        );
+    }
+
+    public function getMessagesSince(int $threadId, int $sinceId): array
+    {
+        return $this->db->fetchAll(
+            'SELECT chat_messages.id,
+                    chat_messages.thread_id,
+                    chat_messages.sender_type,
+                    chat_messages.sender_id,
+                    chat_messages.message,
+                    chat_messages.created_at,
+                    CASE
+                        WHEN chat_messages.sender_type = "user" THEN users.name
+                        ELSE clients.name
+                    END AS sender_name,
+                    CASE
+                        WHEN chat_messages.sender_type = "user" THEN users.avatar_path
+                        ELSE clients.avatar_path
+                    END AS sender_avatar
+             FROM chat_messages
+             LEFT JOIN users ON chat_messages.sender_type = "user" AND chat_messages.sender_id = users.id
+             LEFT JOIN clients ON chat_messages.sender_type = "client" AND chat_messages.sender_id = clients.id
+             WHERE chat_messages.thread_id = :thread_id AND chat_messages.id > :since_id
+             ORDER BY chat_messages.created_at ASC',
+            ['thread_id' => $threadId, 'since_id' => $sinceId]
         );
     }
 

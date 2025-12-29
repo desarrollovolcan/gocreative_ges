@@ -20,7 +20,6 @@ class EmailConfigController extends Controller
         }
         $defaults = [
             'host' => 'mail.gocreative.cl',
-            'port' => 465,
             'port_ssl' => 465,
             'port_tls' => 587,
             'security' => 'ssl',
@@ -45,7 +44,6 @@ class EmailConfigController extends Controller
         verify_csrf();
         $this->settings->set('smtp_info', [
             'host' => trim($_POST['host'] ?? ''),
-            'port' => (int)($_POST['port'] ?? 587),
             'port_ssl' => (int)($_POST['port_ssl'] ?? 465),
             'port_tls' => (int)($_POST['port_tls'] ?? 587),
             'security' => trim($_POST['security'] ?? 'tls'),

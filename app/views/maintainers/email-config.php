@@ -34,10 +34,6 @@
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Puerto</label>
-                    <input type="number" name="port" class="form-control" value="<?php echo e($smtpConfig['port'] ?? 587); ?>">
-                </div>
-                <div class="col-md-3 mb-3">
                     <label class="form-label">Puerto SSL</label>
                     <input type="number" name="port_ssl" class="form-control" value="<?php echo e($smtpConfig['port_ssl'] ?? 465); ?>">
                 </div>

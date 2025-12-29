@@ -19,7 +19,6 @@ class Mailer
         $this->lastError = '';
         $defaultConfig = [
             'host' => 'mail.gocreative.cl',
-            'port' => 465,
             'port_ssl' => 465,
             'port_tls' => 587,
             'security' => 'ssl',
@@ -53,11 +52,11 @@ class Mailer
             $mail->Host = $config['host'] ?? '';
             $security = strtolower(trim($config['security'] ?? 'tls'));
             if ($security === 'ssl') {
-                $mail->Port = (int)($config['port_ssl'] ?? $config['port'] ?? 465);
+                $mail->Port = (int)($config['port_ssl'] ?? 465);
             } elseif ($security === 'tls') {
-                $mail->Port = (int)($config['port_tls'] ?? $config['port'] ?? 587);
+                $mail->Port = (int)($config['port_tls'] ?? 587);
             } else {
-                $mail->Port = (int)($config['port'] ?? 587);
+                $mail->Port = (int)($config['port_tls'] ?? 587);
             }
             $mail->SMTPAuth = !empty($config['username']);
             $mail->Username = $config['username'] ?? '';

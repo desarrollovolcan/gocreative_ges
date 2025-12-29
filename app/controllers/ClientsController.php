@@ -126,7 +126,8 @@ class ClientsController extends Controller
         }
         $this->clients->update($id, $data);
         audit($this->db, Auth::user()['id'], 'update', 'clients', $id);
-        $this->redirect('index.php?route=clients');
+        $_SESSION['success'] = 'Datos actualizados correctamente.';
+        $this->redirect('index.php?route=clients/edit&id=' . $id);
     }
 
     public function show(): void

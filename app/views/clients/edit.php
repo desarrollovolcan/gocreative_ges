@@ -6,7 +6,7 @@
         <?php if (!empty($_SESSION['error'])): ?>
             <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
         <?php endif; ?>
-        <form method="post" action="index.php?route=clients/update" id="client-edit-form">
+        <form method="post" action="index.php?route=clients/update" id="client-edit-form" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="id" value="<?php echo $client['id']; ?>">
             <div class="accordion" id="clientEditAccordion">
@@ -19,6 +19,16 @@
                     <div id="editCollapseCompany" class="accordion-collapse collapse show" aria-labelledby="editHeadingCompany" data-bs-parent="#clientEditAccordion">
                         <div class="accordion-body">
                             <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Foto de perfil</label>
+                                    <input type="file" name="avatar" class="form-control" accept="image/png,image/jpeg,image/webp">
+                                    <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <?php if (!empty($client['avatar_path'])): ?>
+                                        <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-circle" style="width: 64px; height: 64px; object-fit: cover;">
+                                    <?php endif; ?>
+                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Razón social</label>
                                     <input type="text" name="name" class="form-control" value="<?php echo e($client['name'] ?? ''); ?>" required>

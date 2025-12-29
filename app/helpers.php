@@ -77,6 +77,50 @@ function log_message(string $level, string $message): void
     file_put_contents($logFile, $entry, FILE_APPEND);
 }
 
+function upload_avatar(?array $file, string $prefix): array
+{
+    if ($file === null || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return ['path' => null, 'error' => null];
+    }
+
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+        return ['path' => null, 'error' => 'No pudimos cargar la imagen, intenta nuevamente.'];
+    }
+
+    if (($file['size'] ?? 0) > 2 * 1024 * 1024) {
+        return ['path' => null, 'error' => 'La imagen supera el tamaño máximo de 2MB.'];
+    }
+
+    $info = getimagesize($file['tmp_name'] ?? '');
+    if ($info === false || empty($info['mime'])) {
+        return ['path' => null, 'error' => 'El archivo seleccionado no es una imagen válida.'];
+    }
+
+    $allowed = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ];
+
+    $extension = $allowed[$info['mime']] ?? null;
+    if ($extension === null) {
+        return ['path' => null, 'error' => 'Solo se permiten imágenes JPG, PNG o WEBP.'];
+    }
+
+    $directory = __DIR__ . '/../storage/uploads/avatars';
+    if (!is_dir($directory)) {
+        mkdir($directory, 0755, true);
+    }
+
+    $filename = sprintf('%s-%s.%s', $prefix, bin2hex(random_bytes(8)), $extension);
+    $destination = $directory . '/' . $filename;
+    if (!move_uploaded_file($file['tmp_name'], $destination)) {
+        return ['path' => null, 'error' => 'No pudimos guardar la imagen en el servidor.'];
+    }
+
+    return ['path' => 'storage/uploads/avatars/' . $filename, 'error' => null];
+}
+
 function audit(Database $db, int $userId, string $action, string $entity, ?int $entityId = null): void
 {
     $db->execute(

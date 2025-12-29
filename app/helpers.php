@@ -136,6 +136,10 @@ function permission_catalog(): array
             'label' => 'Servicios',
             'routes' => ['services'],
         ],
+        'quotes' => [
+            'label' => 'Cotizaciones',
+            'routes' => ['quotes'],
+        ],
         'invoices' => [
             'label' => 'Facturas',
             'routes' => ['invoices'],
@@ -151,6 +155,10 @@ function permission_catalog(): array
         'settings' => [
             'label' => 'Configuración',
             'routes' => ['settings'],
+        ],
+        'maintainers' => [
+            'label' => 'Mantenedores',
+            'routes' => ['maintainers'],
         ],
         'users' => [
             'label' => 'Usuarios',

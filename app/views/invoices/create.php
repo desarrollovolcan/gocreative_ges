@@ -8,7 +8,9 @@
                     <select name="client_id" class="form-select" required>
                         <option value="">Selecciona cliente</option>
                         <?php foreach ($clients as $client): ?>
-                            <option value="<?php echo $client['id']; ?>"><?php echo e($client['name']); ?></option>
+                            <option value="<?php echo $client['id']; ?>" <?php echo (int)($selectedClientId ?? 0) === (int)$client['id'] ? 'selected' : ''; ?>>
+                                <?php echo e($client['name']); ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -26,7 +28,9 @@
                     <select name="project_id" class="form-select">
                         <option value="">Sin proyecto</option>
                         <?php foreach ($projects as $project): ?>
-                            <option value="<?php echo $project['id']; ?>"><?php echo e($project['name']); ?> (<?php echo e($project['client_name']); ?>)</option>
+                            <option value="<?php echo $project['id']; ?>" <?php echo (int)($selectedProjectId ?? 0) === (int)$project['id'] ? 'selected' : ''; ?>>
+                                <?php echo e($project['name']); ?> (<?php echo e($project['client_name']); ?>)
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>

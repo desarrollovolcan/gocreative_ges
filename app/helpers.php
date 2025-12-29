@@ -54,6 +54,12 @@ function render_template_vars(string $html, array $context = []): string
         'hosting' => $context['hosting'] ?? '',
         'fecha_eliminacion' => $context['fecha_eliminacion'] ?? '',
         'link_pago' => $context['link_pago'] ?? '',
+        'numero_factura' => $context['numero_factura'] ?? '',
+        'monto_pagado' => $context['monto_pagado'] ?? '',
+        'saldo_pendiente' => $context['saldo_pendiente'] ?? '',
+        'fecha_pago' => $context['fecha_pago'] ?? '',
+        'metodo_pago' => $context['metodo_pago'] ?? '',
+        'referencia_pago' => $context['referencia_pago'] ?? '',
     ];
 
     foreach ($defaults as $key => $value) {

@@ -21,6 +21,8 @@ class EmailConfigController extends Controller
         $defaults = [
             'host' => 'mail.gocreative.cl',
             'port' => 465,
+            'port_ssl' => 465,
+            'port_tls' => 587,
             'security' => 'ssl',
             'username' => 'informevolcan@gocreative.cl',
             'password' => '#(3-QiWGI;l}oJW_',
@@ -44,6 +46,8 @@ class EmailConfigController extends Controller
         $this->settings->set('smtp_info', [
             'host' => trim($_POST['host'] ?? ''),
             'port' => (int)($_POST['port'] ?? 587),
+            'port_ssl' => (int)($_POST['port_ssl'] ?? 465),
+            'port_tls' => (int)($_POST['port_tls'] ?? 587),
             'security' => trim($_POST['security'] ?? 'tls'),
             'username' => trim($_POST['username'] ?? ''),
             'password' => trim($_POST['password'] ?? ''),
@@ -71,7 +75,7 @@ class EmailConfigController extends Controller
                 'message' => 'No se encontró correo para enviar la prueba.',
                 'type' => 'danger',
             ]);
-            $this->redirect('index.php?route=maintainers/email-config');
+            $this->redirect('index.php?route=maintainers/email-config&test=missing');
         }
 
         $mailer = new Mailer($this->db);
@@ -83,6 +87,6 @@ class EmailConfigController extends Controller
             'type' => $sent ? 'success' : 'danger',
         ]);
 
-        $this->redirect('index.php?route=maintainers/email-config');
+        $this->redirect('index.php?route=maintainers/email-config&test=' . ($sent ? 'success' : 'failed'));
     }
 }

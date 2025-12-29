@@ -174,11 +174,24 @@ class ClientsController extends Controller
                         'email' => $email,
                     ]
                 );
-                if (!$client || empty($client['portal_password']) || !password_verify($password, $client['portal_password'])) {
+                if (!$client || empty($client['portal_password'])) {
                     $error = 'Las credenciales no son válidas.';
                 } else {
-                    $_SESSION['client_portal_token'] = $client['portal_token'];
-                    $this->redirect('index.php?route=clients/portal&token=' . urlencode($client['portal_token']));
+                    $storedPassword = (string)$client['portal_password'];
+                    $passwordMatches = password_verify($password, $storedPassword);
+                    if (!$passwordMatches && hash_equals($storedPassword, $password)) {
+                        $passwordMatches = true;
+                        $this->clients->update((int)$client['id'], [
+                            'portal_password' => password_hash($password, PASSWORD_DEFAULT),
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                    if (!$passwordMatches) {
+                        $error = 'Las credenciales no son válidas.';
+                    } else {
+                        $_SESSION['client_portal_token'] = $client['portal_token'];
+                        $this->redirect('index.php?route=clients/portal&token=' . urlencode($client['portal_token']));
+                    }
                 }
             }
         }

@@ -123,6 +123,11 @@
                                     <span class="menu-text">Tipos de servicios</span>
                                 </a>
                             </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=maintainers/email-config" class="side-nav-link">
+                                    <span class="menu-text">Configuración de correo</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>

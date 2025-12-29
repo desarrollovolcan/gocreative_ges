@@ -150,49 +150,44 @@
 
                 <div class="col-xl-8">
                     <div class="card shadow-sm border-0">
-                        <div class="card-header card-tabs d-flex flex-column flex-lg-row align-items-lg-center gap-3">
+                        <div class="card-header card-tabs d-flex align-items-center flex-wrap gap-2">
                             <div class="flex-grow-1">
                                 <h4 class="card-title">Portal Cliente</h4>
                             </div>
-                            <ul class="nav nav-pills bg-light rounded-3 p-1 gap-1 flex-wrap justify-content-start">
+                            <ul class="nav nav-tabs card-header-tabs nav-bordered flex-wrap gap-1">
                                 <li class="nav-item">
-                                    <a href="#portal-wall" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
-                                        <i class="ti ti-layout-dashboard me-1"></i><span class="fw-bold">Muro</span>
+                                    <a href="#portal-wall" data-bs-toggle="tab" aria-expanded="true" class="nav-link active py-1 px-2">
+                                        <i class="ti ti-layout-dashboard me-1"></i><span class="fw-semibold">Muro</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-projects" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <i class="ti ti-briefcase me-1"></i><span class="fw-bold">Proyectos</span>
+                                    <a href="#portal-projects" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-briefcase me-1"></i><span class="fw-semibold">Proyectos</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-activities" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <i class="ti ti-activity me-1"></i><span class="fw-bold">Actividades</span>
+                                    <a href="#portal-activities" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-activity me-1"></i><span class="fw-semibold">Actividades</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-payments" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <i class="ti ti-credit-card me-1"></i><span class="fw-bold">Pagos</span>
+                                    <a href="#portal-payments" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-credit-card me-1"></i><span class="fw-semibold">Pagos</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-invoices" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <i class="ti ti-receipt me-1"></i><span class="fw-bold">Facturas</span>
+                                    <a href="#portal-invoices" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-receipt me-1"></i><span class="fw-semibold">Facturas</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-profile" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <i class="ti ti-user me-1"></i><span class="fw-bold">Perfil</span>
+                                    <a href="#portal-profile" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-user me-1"></i><span class="fw-semibold">Perfil</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#portal-chat" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <i class="ti ti-messages me-1"></i><span class="fw-bold">Mensajes</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="#portal-chat" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                        <span class="fw-bold">Mensajes</span>
+                                    <a href="#portal-chat" data-bs-toggle="tab" aria-expanded="false" class="nav-link py-1 px-2">
+                                        <i class="ti ti-messages me-1"></i><span class="fw-semibold">Mensajes</span>
                                     </a>
                                 </li>
                             </ul>

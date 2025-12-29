@@ -2,6 +2,12 @@
 
 return [
     'dashboard' => ['DashboardController', 'index'],
+    'tickets' => ['TicketsController', 'index'],
+    'tickets/create' => ['TicketsController', 'create'],
+    'tickets/store' => ['TicketsController', 'store'],
+    'tickets/show' => ['TicketsController', 'show'],
+    'tickets/message' => ['TicketsController', 'addMessage'],
+    'tickets/status' => ['TicketsController', 'updateStatus'],
     'clients' => ['ClientsController', 'index'],
     'clients/create' => ['ClientsController', 'create'],
     'clients/store' => ['ClientsController', 'store'],
@@ -10,6 +16,8 @@ return [
     'clients/show' => ['ClientsController', 'show'],
     'clients/login' => ['ClientsController', 'portalLogin'],
     'clients/portal' => ['ClientsController', 'portal'],
+    'clients/portal/tickets/create' => ['ClientsController', 'portalTicketCreate'],
+    'clients/portal/tickets/message' => ['ClientsController', 'portalTicketMessage'],
     'clients/portal/update' => ['ClientsController', 'portalUpdate'],
     'clients/portal/logout' => ['ClientsController', 'portalLogout'],
     'clients/portal/invoice' => ['ClientsController', 'portalInvoice'],

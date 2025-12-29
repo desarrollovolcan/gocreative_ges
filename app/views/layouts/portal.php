@@ -25,9 +25,13 @@
                         </div>
                         <div class="dropdown">
                             <button class="btn btn-light border-0 d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="avatar-sm rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-semibold">
-                                    <?php echo e(substr($client['name'] ?? 'C', 0, 1)); ?>
-                                </span>
+                                <?php if (!empty($client['avatar_path'])): ?>
+                                    <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                                <?php else: ?>
+                                    <span class="avatar-sm rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-semibold">
+                                        <?php echo e(substr($client['name'] ?? 'C', 0, 1)); ?>
+                                    </span>
+                                <?php endif; ?>
                                 <span class="d-none d-sm-inline">Mi cuenta</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm">

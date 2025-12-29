@@ -127,13 +127,6 @@
             <li class="side-nav-title" data-lang="apps-title">Apps</li>
 
             <li class="side-nav-item">
-                <a href="chat.php" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="message-square-dot"></i></span>
-                    <span class="menu-text" data-lang="chat"> Chat </span>
-                </a>
-            </li>
-
-            <li class="side-nav-item">
                 <a href="calendar.php" class="side-nav-link">
                     <span class="menu-icon"><i data-lucide="calendar"></i></span>
                     <span class="menu-text" data-lang="calendar"> Calendar </span>

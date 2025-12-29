@@ -14,7 +14,7 @@
                 </div>
             </div>
         </div>
-        <form method="post" action="index.php?route=clients/store" id="client-create-form">
+        <form method="post" action="index.php?route=clients/store" id="client-create-form" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <div class="accordion" id="clientFormAccordion">
                 <div class="accordion-item">
@@ -26,6 +26,11 @@
                     <div id="collapseCompany" class="accordion-collapse collapse show" aria-labelledby="headingCompany" data-bs-parent="#clientFormAccordion">
                         <div class="accordion-body">
                             <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Foto de perfil</label>
+                                    <input type="file" name="avatar" class="form-control" accept="image/png,image/jpeg,image/webp">
+                                    <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>
+                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Razón social</label>
                                     <input type="text" name="name" class="form-control" required>

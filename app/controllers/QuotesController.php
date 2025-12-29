@@ -29,7 +29,12 @@ class QuotesController extends Controller
     {
         $this->requireLogin();
         $clients = $this->clients->active();
-        $services = $this->services->popularHostingAndDomain(10);
+        try {
+            $services = $this->services->popularHostingAndDomain(10);
+        } catch (PDOException $e) {
+            log_message('error', 'Failed to load system services for quotes: ' . $e->getMessage());
+            $services = [];
+        }
         $projects = $this->db->fetchAll('SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL ORDER BY projects.id DESC');
         $number = $this->quotes->nextNumber('COT-');
         $this->render('quotes/create', [

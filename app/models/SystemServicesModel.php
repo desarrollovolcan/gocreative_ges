@@ -13,14 +13,14 @@ class SystemServicesModel extends Model
 
     public function popularHostingAndDomain(int $limit = 10): array
     {
+        $limit = max(1, (int)$limit);
         return $this->db->fetchAll(
             'SELECT system_services.*, service_types.name as type_name
              FROM system_services
              JOIN service_types ON system_services.service_type_id = service_types.id
              WHERE LOWER(service_types.name) IN ("hosting", "dominio")
              ORDER BY system_services.id DESC
-             LIMIT :limit',
-            ['limit' => $limit]
+             LIMIT ' . $limit
         );
     }
 }

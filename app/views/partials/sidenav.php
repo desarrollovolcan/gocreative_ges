@@ -42,10 +42,32 @@
             <?php endif; ?>
             <?php if ($canAccess('clients')): ?>
                 <li class="side-nav-item">
-                    <a href="index.php?route=clients" class="side-nav-link">
+                    <a data-bs-toggle="collapse" href="#sidebarClients" aria-expanded="false" aria-controls="sidebarClients" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="users"></i></span>
                         <span class="menu-text">Clientes</span>
+                        <span class="menu-arrow"></span>
                     </a>
+                    <div class="collapse" id="sidebarClients">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="index.php?route=clients" class="side-nav-link">
+                                    <span class="menu-text">Listado</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="chat.php" class="side-nav-link">
+                                    <span class="menu-text">Chat</span>
+                                </a>
+                            </li>
+                            <?php if ($canAccess('tickets')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=tickets" class="side-nav-link">
+                                        <span class="menu-text">Tickets</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </li>
             <?php endif; ?>
             <?php if ($canAccess('projects')): ?>

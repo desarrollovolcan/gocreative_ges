@@ -147,9 +147,9 @@
             <!-- Notification Dropdown -->
             <div class="topbar-item">
                 <div class="dropdown">
-                    <button class="topbar-link dropdown-toggle drop-arrow-none" data-bs-toggle="dropdown" data-bs-offset="0,24" type="button" data-bs-auto-close="outside" aria-haspopup="false" aria-expanded="false">
+                    <button id="chatNotificationButton" class="topbar-link dropdown-toggle drop-arrow-none" data-bs-toggle="dropdown" data-bs-offset="0,24" type="button" data-bs-auto-close="outside" aria-haspopup="false" aria-expanded="false">
                         <i data-lucide="bell" class="fs-xxl"></i>
-                        <span class="badge text-bg-danger badge-circle topbar-badge">5</span>
+                        <span id="chatNotificationBadge" class="badge text-bg-danger badge-circle topbar-badge d-none">!</span>
                     </button>
 
                     <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg">

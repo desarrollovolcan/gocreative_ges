@@ -34,6 +34,13 @@ class Controller
             $notifications = [];
         }
         $notificationCount = count($notifications);
+        try {
+            $settingsModel = new SettingsModel($this->db);
+            $companySettings = $settingsModel->get('company', []);
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to load company settings: ' . $e->getMessage());
+            $companySettings = [];
+        }
         include __DIR__ . '/../views/layouts/main.php';
     }
 
@@ -41,6 +48,13 @@ class Controller
     {
         extract($data);
         $config = $this->config;
+        try {
+            $settingsModel = new SettingsModel($this->db);
+            $companySettings = $settingsModel->get('company', []);
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to load company settings: ' . $e->getMessage());
+            $companySettings = [];
+        }
         include __DIR__ . '/../views/layouts/portal.php';
     }
 

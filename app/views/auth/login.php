@@ -1,3 +1,8 @@
+<?php
+$logoColor = $companySettings['logo_color'] ?? 'assets/images/logo.png';
+$logoBlack = $companySettings['logo_black'] ?? 'assets/images/logo-black.png';
+?>
+
 <div class="auth-box p-0 w-100">
     <div class="row w-100 g-0">
         <div class="col-xxl-4 col-xl-6">
@@ -31,10 +36,10 @@
                 <div class="card-body min-vh-100 d-flex flex-column justify-content-center">
                     <div class="auth-brand mb-0 text-center">
                         <a href="index.php" class="logo-dark">
-                            <img src="assets/images/logo-black.png" alt="dark logo" height="28">
+                            <img src="<?php echo e($logoBlack); ?>" alt="dark logo" height="28">
                         </a>
                         <a href="index.php" class="logo-light">
-                            <img src="assets/images/logo.png" alt="logo" height="28">
+                            <img src="<?php echo e($logoColor); ?>" alt="logo" height="28">
                         </a>
                     </div>
 

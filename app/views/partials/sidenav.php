@@ -1,12 +1,19 @@
+<?php
+$logoColor = $companySettings['logo_color'] ?? 'assets/images/logo.png';
+$logoBlack = $companySettings['logo_black'] ?? 'assets/images/logo-black.png';
+$logoSmallColor = $companySettings['logo_color'] ?? 'assets/images/logo-sm.png';
+$logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
+?>
+
 <div class="sidenav-menu">
     <a href="index.php" class="logo">
         <span class="logo logo-light">
-            <span class="logo-lg"><img src="assets/images/logo.png" alt="logo"></span>
-            <span class="logo-sm"><img src="assets/images/logo-sm.png" alt="small logo"></span>
+            <span class="logo-lg"><img src="<?php echo e($logoColor); ?>" alt="logo"></span>
+            <span class="logo-sm"><img src="<?php echo e($logoSmallColor); ?>" alt="small logo"></span>
         </span>
         <span class="logo logo-dark">
-            <span class="logo-lg"><img src="assets/images/logo-black.png" alt="dark logo"></span>
-            <span class="logo-sm"><img src="assets/images/logo-sm.png" alt="small logo"></span>
+            <span class="logo-lg"><img src="<?php echo e($logoBlack); ?>" alt="dark logo"></span>
+            <span class="logo-sm"><img src="<?php echo e($logoSmallBlack); ?>" alt="small logo"></span>
         </span>
     </a>
     <button class="button-on-hover">

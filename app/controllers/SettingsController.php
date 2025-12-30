@@ -34,7 +34,18 @@ class SettingsController extends Controller
         verify_csrf();
         $section = $_POST['section'] ?? '';
         if ($section === 'company') {
-            $this->settings->set('company', [
+            $company = $this->settings->get('company', []);
+            $logoColorResult = upload_company_logo($_FILES['logo_color'] ?? null, 'logo-color');
+            if (!empty($logoColorResult['error'])) {
+                flash('error', $logoColorResult['error']);
+                $this->redirect('index.php?route=settings');
+            }
+            $logoBlackResult = upload_company_logo($_FILES['logo_black'] ?? null, 'logo-black');
+            if (!empty($logoBlackResult['error'])) {
+                flash('error', $logoBlackResult['error']);
+                $this->redirect('index.php?route=settings');
+            }
+            $companyData = [
                 'name' => trim($_POST['name'] ?? ''),
                 'rut' => trim($_POST['rut'] ?? ''),
                 'bank' => trim($_POST['bank'] ?? ''),
@@ -42,7 +53,16 @@ class SettingsController extends Controller
                 'account_number' => trim($_POST['account_number'] ?? ''),
                 'email' => trim($_POST['email'] ?? ''),
                 'signature' => trim($_POST['signature'] ?? ''),
-            ]);
+                'logo_color' => $company['logo_color'] ?? null,
+                'logo_black' => $company['logo_black'] ?? null,
+            ];
+            if (!empty($logoColorResult['path'])) {
+                $companyData['logo_color'] = $logoColorResult['path'];
+            }
+            if (!empty($logoBlackResult['path'])) {
+                $companyData['logo_black'] = $logoBlackResult['path'];
+            }
+            $this->settings->set('company', $companyData);
         }
 
         if ($section === 'billing') {

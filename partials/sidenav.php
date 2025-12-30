@@ -118,6 +118,13 @@
             </li>
 
             <li class="side-nav-item">
+                <a href="projects.php" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="briefcase"></i></span>
+                    <span class="menu-text" data-lang="projects">Proyectos</span>
+                </a>
+            </li>
+
+            <li class="side-nav-item">
                 <a href="landing.php" target="_blank" class="side-nav-link">
                     <span class="menu-icon"><i data-lucide="earth"></i></span>
                     <span class="menu-text" data-lang="landing-page">Landing Page</span>
@@ -286,6 +293,21 @@
                 </a>
                 <div class="collapse" id="sidebarCRM">
                     <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="projects.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-projects-services">Projects &amp; Services</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="tickets-list.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-service-desk">Service Desk</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-reports.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-reports">Reports &amp; Insights</span>
+                            </a>
+                        </li>
                         <li class="side-nav-item">
                             <a href="crm-contacts.php" class="side-nav-link">
                                 <span class="menu-text" data-lang="crm-contacts">Contacts</span>

@@ -65,7 +65,12 @@ class ProjectsController extends Controller
                 $projects = [];
             }
         }
-        $clients = $this->clients->active($companyId);
+        try {
+            $clients = $this->clients->active($companyId);
+        } catch (PDOException $e) {
+            log_message('error', 'Failed to load clients list for projects: ' . $e->getMessage());
+            $clients = [];
+        }
         $this->render('projects/index', [
             'title' => 'Proyectos',
             'pageTitle' => 'Proyectos',

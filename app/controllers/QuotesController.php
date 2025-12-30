@@ -17,7 +17,7 @@ class QuotesController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $quotes = $this->quotes->allWithClient();
+        $quotes = $this->quotes->allWithClient(current_company_id());
         $this->render('quotes/index', [
             'title' => 'Cotizaciones',
             'pageTitle' => 'Cotizaciones',
@@ -28,15 +28,19 @@ class QuotesController extends Controller
     public function create(): void
     {
         $this->requireLogin();
-        $clients = $this->clients->active();
+        $companyId = current_company_id();
+        $clients = $this->clients->active($companyId);
         try {
             $services = $this->services->popularHostingAndDomain(10);
         } catch (PDOException $e) {
             log_message('error', 'Failed to load system services for quotes: ' . $e->getMessage());
             $services = [];
         }
-        $projects = $this->db->fetchAll('SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL ORDER BY projects.id DESC');
-        $number = $this->quotes->nextNumber('COT-');
+        $projects = $this->db->fetchAll(
+            'SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL AND projects.company_id = :company_id ORDER BY projects.id DESC',
+            ['company_id' => $companyId]
+        );
+        $number = $this->quotes->nextNumber('COT-', $companyId);
         $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $selectedProjectId = (int)($_GET['project_id'] ?? 0);
         $this->render('quotes/create', [
@@ -55,15 +59,26 @@ class QuotesController extends Controller
     {
         $this->requireLogin();
         verify_csrf();
+        $companyId = current_company_id();
         $serviceId = trim($_POST['system_service_id'] ?? '');
         $projectId = trim($_POST['project_id'] ?? '');
         $issueDate = trim($_POST['fecha_emision'] ?? '');
         $subtotal = trim($_POST['subtotal'] ?? '');
         $impuestos = trim($_POST['impuestos'] ?? '');
         $total = trim($_POST['total'] ?? '');
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=quotes/create');
+        }
 
         $quoteId = $this->quotes->create([
-            'client_id' => (int)($_POST['client_id'] ?? 0),
+            'company_id' => $companyId,
+            'client_id' => $clientId,
             'system_service_id' => $serviceId !== '' ? $serviceId : null,
             'project_id' => $projectId !== '' ? $projectId : null,
             'numero' => trim($_POST['numero'] ?? ''),
@@ -103,12 +118,18 @@ class QuotesController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $quote = $this->quotes->find($id);
+        $quote = $this->db->fetch(
+            'SELECT * FROM quotes WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$quote) {
             $this->redirect('index.php?route=quotes');
         }
         $items = (new QuoteItemsModel($this->db))->byQuote($id);
-        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $quote['client_id']]);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $quote['client_id'], 'company_id' => current_company_id()]
+        );
         $this->render('quotes/show', [
             'title' => 'Detalle Cotización',
             'pageTitle' => 'Detalle Cotización',
@@ -122,19 +143,26 @@ class QuotesController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $quote = $this->quotes->find($id);
+        $companyId = current_company_id();
+        $quote = $this->db->fetch(
+            'SELECT * FROM quotes WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
         if (!$quote) {
             $this->redirect('index.php?route=quotes');
         }
         $items = (new QuoteItemsModel($this->db))->byQuote($id);
-        $clients = $this->clients->active();
+        $clients = $this->clients->active($companyId);
         try {
             $services = $this->services->popularHostingAndDomain(10);
         } catch (PDOException $e) {
             log_message('error', 'Failed to load system services for quotes edit: ' . $e->getMessage());
             $services = [];
         }
-        $projects = $this->db->fetchAll('SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL ORDER BY projects.id DESC');
+        $projects = $this->db->fetchAll(
+            'SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL AND projects.company_id = :company_id ORDER BY projects.id DESC',
+            ['company_id' => $companyId]
+        );
         $this->render('quotes/edit', [
             'title' => 'Editar Cotización',
             'pageTitle' => 'Editar Cotización',
@@ -151,7 +179,10 @@ class QuotesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
-        $quote = $this->quotes->find($id);
+        $quote = $this->db->fetch(
+            'SELECT * FROM quotes WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$quote) {
             $this->redirect('index.php?route=quotes');
         }
@@ -204,6 +235,14 @@ class QuotesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $quote = $this->db->fetch(
+            'SELECT id FROM quotes WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
+        if (!$quote) {
+            flash('error', 'Cotización no encontrada para esta empresa.');
+            $this->redirect('index.php?route=quotes');
+        }
         $this->db->execute('DELETE FROM quote_items WHERE quote_id = :quote_id', ['quote_id' => $id]);
         $this->db->execute('DELETE FROM quotes WHERE id = :id', ['id' => $id]);
         audit($this->db, Auth::user()['id'], 'delete', 'quotes', $id);
@@ -216,14 +255,21 @@ class QuotesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
-        $quote = $this->quotes->find($id);
+        $quote = $this->db->fetch(
+            'SELECT * FROM quotes WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$quote) {
             $this->redirect('index.php?route=quotes');
         }
-        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $quote['client_id']]);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $quote['client_id'], 'company_id' => current_company_id()]
+        );
         $recipient = $client['email'] ?? '';
         if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
-            $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+            $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+                'company_id' => current_company_id(),
                 'title' => 'Cotización no enviada',
                 'message' => 'El cliente no tiene un correo válido.',
                 'type' => 'danger',
@@ -242,7 +288,8 @@ class QuotesController extends Controller
         $body = '<p>Adjuntamos la cotización solicitada.</p>'
             . '<p><a href="' . e($printUrl) . '">Ver cotización</a></p>';
         $sent = (new Mailer($this->db))->send('info', $recipient, $subject, $body);
-        $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+        $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+            'company_id' => current_company_id(),
             'title' => $sent ? 'Cotización enviada' : 'Cotización no enviada',
             'message' => $sent ? 'La cotización fue enviada correctamente.' : 'No se pudo enviar la cotización.',
             'type' => $sent ? 'success' : 'danger',
@@ -255,12 +302,18 @@ class QuotesController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $quote = $this->quotes->find($id);
+        $quote = $this->db->fetch(
+            'SELECT * FROM quotes WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$quote) {
             $this->redirect('index.php?route=quotes');
         }
         $items = (new QuoteItemsModel($this->db))->byQuote($id);
-        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $quote['client_id']]);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $quote['client_id'], 'company_id' => current_company_id()]
+        );
         $company = (new SettingsModel($this->db))->get('company', []);
         $viewPath = __DIR__ . '/../views/quotes/print.php';
         if (file_exists($viewPath)) {

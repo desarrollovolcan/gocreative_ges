@@ -78,7 +78,8 @@ class EmailConfigController extends Controller
             $to = $company['email'] ?? '';
         }
         if ($to === '') {
-            $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+            $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+                'company_id' => current_company_id(),
                 'title' => 'Prueba SMTP',
                 'message' => 'No se encontró correo para enviar la prueba.',
                 'type' => 'danger',
@@ -90,7 +91,8 @@ class EmailConfigController extends Controller
         $mailer = new Mailer($this->db);
         $sent = $mailer->send('info', $to, 'Prueba SMTP', '<p>Correo de prueba exitoso.</p>');
 
-        $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+        $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+            'company_id' => current_company_id(),
             'title' => 'Prueba SMTP',
             'message' => $sent ? 'Correo enviado correctamente.' : 'Fallo el envío.',
             'type' => $sent ? 'success' : 'danger',

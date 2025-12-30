@@ -2,8 +2,6 @@
 
 return [
     'dashboard' => ['DashboardController', 'index'],
-    'chat/messages' => ['ChatController', 'messages'],
-    'chat/notifications' => ['ChatController', 'notifications'],
     'tickets' => ['TicketsController', 'index'],
     'tickets/create' => ['TicketsController', 'create'],
     'tickets/store' => ['TicketsController', 'store'],
@@ -18,10 +16,6 @@ return [
     'clients/show' => ['ClientsController', 'show'],
     'clients/login' => ['ClientsController', 'portalLogin'],
     'clients/portal' => ['ClientsController', 'portal'],
-    'clients/portal/chat/create' => ['ClientsController', 'portalChatCreate'],
-    'clients/portal/chat/messages' => ['ClientsController', 'portalChatMessages'],
-    'clients/portal/chat/notifications' => ['ClientsController', 'portalChatNotifications'],
-    'clients/portal/chat/send' => ['ClientsController', 'portalChatSend'],
     'clients/portal/tickets/create' => ['ClientsController', 'portalTicketCreate'],
     'clients/portal/tickets/message' => ['ClientsController', 'portalTicketMessage'],
     'clients/portal/update' => ['ClientsController', 'portalUpdate'],

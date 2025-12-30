@@ -42,6 +42,28 @@ body {
     font-weight: 600;
 }
 
+.side-nav .side-nav-link {
+    border-radius: 10px;
+    font-weight: 600;
+    color: var(--ins-text);
+    margin: 2px 8px;
+}
+
+.side-nav .side-nav-link:hover,
+.side-nav .side-nav-link:focus {
+    background-color: rgba(var(--ins-primary-rgb), 0.08);
+    color: var(--ins-primary);
+}
+
+.side-nav .side-nav-link.active {
+    background-color: rgba(var(--ins-primary-rgb), 0.12);
+    color: var(--ins-primary);
+}
+
+.side-nav .menu-icon {
+    color: inherit;
+}
+
 .text-muted {
     color: var(--ins-muted) !important;
 }

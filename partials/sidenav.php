@@ -118,6 +118,13 @@
             </li>
 
             <li class="side-nav-item">
+                <a href="projects.php" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="briefcase"></i></span>
+                    <span class="menu-text" data-lang="projects">Proyectos</span>
+                </a>
+            </li>
+
+            <li class="side-nav-item">
                 <a href="landing.php" target="_blank" class="side-nav-link">
                     <span class="menu-icon"><i data-lucide="earth"></i></span>
                     <span class="menu-text" data-lang="landing-page">Landing Page</span>

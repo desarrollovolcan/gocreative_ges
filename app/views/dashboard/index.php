@@ -1,3 +1,4 @@
+<div class="dashboard-compact">
 <div class="dashboard-hero dashboard-hero-light mb-4">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
@@ -10,6 +11,7 @@
             <a href="index.php?route=invoices/create" class="btn btn-outline-primary btn-sm">Nueva factura</a>
         </div>
     </div>
+</div>
 </div>
 
 <div class="row g-3">
@@ -169,6 +171,9 @@
                         <h3 class="fw-semibold mb-0"><?php echo (int)$overdueCount; ?></h3>
                     </div>
                 </div>
+                <div class="dashboard-chart dashboard-chart-xs mt-3">
+                    <canvas id="invoiceStatusChart"></canvas>
+                </div>
                 <div class="dashboard-actions mt-3">
                     <a href="index.php?route=invoices" class="btn btn-outline-success btn-sm">Ver facturas</a>
                     <a href="index.php?route=quotes" class="btn btn-outline-info btn-sm">Ver cotizaciones</a>
@@ -190,7 +195,7 @@
                     <div class="text-muted">No hay facturas recientes.</div>
                 <?php else: ?>
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped align-middle">
+                        <table class="table table-sm table-striped align-middle table-compact">
                             <thead>
                                 <tr>
                                     <th>Número</th>
@@ -236,7 +241,7 @@
                     <div class="text-muted">No hay facturas vencidas.</div>
                 <?php else: ?>
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped align-middle">
+                        <table class="table table-sm table-striped align-middle table-compact">
                             <thead>
                                 <tr>
                                     <th>Número</th>
@@ -284,6 +289,15 @@ $ticketTotals = [];
 foreach (array_keys($ticketStatusLabels) as $key) {
     $ticketTotals[] = $ticketStatusMap[$key] ?? 0;
 }
+$invoiceStatusMap = [];
+foreach ($invoiceStatusSummary as $statusRow) {
+    $invoiceStatusMap[$statusRow['status'] ?? ''] = (int)($statusRow['total'] ?? 0);
+}
+$invoiceStatusLabels = ['pendiente' => 'Pendiente', 'pagada' => 'Pagada', 'vencida' => 'Vencida', 'anulada' => 'Anulada'];
+$invoiceTotals = [];
+foreach (array_keys($invoiceStatusLabels) as $key) {
+    $invoiceTotals[] = $invoiceStatusMap[$key] ?? 0;
+}
 ?>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -292,6 +306,8 @@ foreach (array_keys($ticketStatusLabels) as $key) {
     const revenueTotals = <?php echo json_encode($revenueTotals, JSON_UNESCAPED_UNICODE); ?>;
     const ticketLabels = <?php echo json_encode(array_values($ticketStatusLabels), JSON_UNESCAPED_UNICODE); ?>;
     const ticketTotals = <?php echo json_encode($ticketTotals, JSON_UNESCAPED_UNICODE); ?>;
+    const invoiceLabels = <?php echo json_encode(array_values($invoiceStatusLabels), JSON_UNESCAPED_UNICODE); ?>;
+    const invoiceTotals = <?php echo json_encode($invoiceTotals, JSON_UNESCAPED_UNICODE); ?>;
 
     if (window.Chart) {
         const revenueCtx = document.getElementById('revenueTrendChart');
@@ -347,6 +363,34 @@ foreach (array_keys($ticketStatusLabels) as $key) {
                 }
             });
         }
+
+        const invoiceCtx = document.getElementById('invoiceStatusChart');
+        if (invoiceCtx) {
+            new Chart(invoiceCtx, {
+                type: 'bar',
+                data: {
+                    labels: invoiceLabels,
+                    datasets: [{
+                        label: 'Facturas',
+                        data: invoiceTotals,
+                        backgroundColor: ['#f3a257', '#22b59a', '#f06c6c', '#94a3b8'],
+                        borderRadius: 8,
+                        maxBarThickness: 28
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: 'rgba(148, 163, 184, 0.25)' }, beginAtZero: true }
+                    }
+                }
+            });
+        }
     }
 </script>
 <div class="row">
@@ -361,7 +405,7 @@ foreach (array_keys($ticketStatusLabels) as $key) {
                     <div class="text-muted">No hay servicios próximos a vencer.</div>
                 <?php else: ?>
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped align-middle">
+                        <table class="table table-sm table-striped align-middle table-compact">
                             <thead>
                                 <tr>
                                     <th>Servicio</th>
@@ -395,7 +439,7 @@ foreach (array_keys($ticketStatusLabels) as $key) {
                     <div class="text-muted">No hay datos de facturación aún.</div>
                 <?php else: ?>
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped align-middle">
+                        <table class="table table-sm table-striped align-middle table-compact">
                             <thead>
                                 <tr>
                                     <th>Cliente</th>
@@ -430,7 +474,7 @@ foreach (array_keys($ticketStatusLabels) as $key) {
                     <div class="text-muted">No hay pagos recientes.</div>
                 <?php else: ?>
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped align-middle">
+                        <table class="table table-sm table-striped align-middle table-compact">
                             <thead>
                                 <tr>
                                     <th>Cliente</th>

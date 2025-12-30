@@ -116,6 +116,10 @@ body {
     box-shadow: 0 16px 36px rgba(76, 65, 202, 0.18);
 }
 
+.dashboard-compact .dashboard-hero {
+    padding: 16px 20px;
+}
+
 .dashboard-hero-light {
     background: linear-gradient(120deg, #f4f3ff, #f8f7ff 50%, #eef1ff);
     border: 1px solid rgba(90, 77, 225, 0.12);
@@ -129,6 +133,23 @@ body {
 
 .dashboard-hero-light p {
     color: var(--ins-muted);
+}
+
+.dashboard-compact .card-body {
+    padding: 1rem;
+}
+
+.dashboard-compact .card-header {
+    padding: 0.85rem 1rem;
+}
+
+.dashboard-compact .stat-value {
+    font-size: 1.4rem;
+}
+
+.dashboard-compact .stat-icon {
+    width: 44px;
+    height: 44px;
 }
 
 .stat-card {
@@ -173,11 +194,21 @@ body {
 }
 
 .dashboard-chart {
-    height: 260px;
+    height: 220px;
 }
 
 .dashboard-chart-sm {
-    height: 220px;
+    height: 190px;
+}
+
+.dashboard-chart-xs {
+    height: 160px;
+}
+
+.table-compact th,
+.table-compact td {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.82rem;
 }
 
 .card-title {

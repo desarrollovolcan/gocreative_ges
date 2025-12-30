@@ -76,6 +76,12 @@ class DashboardController extends Controller
                  FROM support_tickets
                  GROUP BY status'
             );
+            $invoiceStatusSummary = $this->db->fetchAll(
+                'SELECT estado as status, COUNT(*) as total
+                 FROM invoices
+                 WHERE deleted_at IS NULL
+                 GROUP BY estado'
+            );
         } catch (PDOException $e) {
             log_message('error', 'Failed to load dashboard metrics: ' . $e->getMessage());
             $clientsActive = ['total' => 0];
@@ -99,6 +105,7 @@ class DashboardController extends Controller
             $recentPayments = [];
             $revenueTrend = [];
             $ticketStatusSummary = [];
+            $invoiceStatusSummary = [];
         }
 
         $this->render('dashboard/index', [
@@ -125,6 +132,7 @@ class DashboardController extends Controller
             'recentPayments' => $recentPayments,
             'revenueTrend' => $revenueTrend,
             'ticketStatusSummary' => $ticketStatusSummary,
+            'invoiceStatusSummary' => $invoiceStatusSummary,
         ]);
     }
 }

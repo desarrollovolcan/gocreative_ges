@@ -15,7 +15,10 @@ class EmailQueueController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $emails = $this->db->fetchAll('SELECT email_queue.*, clients.name as client_name, clients.email, clients.billing_email FROM email_queue LEFT JOIN clients ON email_queue.client_id = clients.id ORDER BY email_queue.id DESC');
+        $emails = $this->db->fetchAll(
+            'SELECT email_queue.*, clients.name as client_name, clients.email, clients.billing_email FROM email_queue LEFT JOIN clients ON email_queue.client_id = clients.id WHERE email_queue.company_id = :company_id ORDER BY email_queue.id DESC',
+            ['company_id' => current_company_id()]
+        );
         $this->render('email_queue/index', [
             'title' => 'Cola de Correos',
             'pageTitle' => 'Cola de Correos',
@@ -26,8 +29,9 @@ class EmailQueueController extends Controller
     public function compose(): void
     {
         $this->requireLogin();
-        $templates = $this->templates->all('deleted_at IS NULL');
-        $clients = $this->db->fetchAll('SELECT * FROM clients WHERE deleted_at IS NULL ORDER BY name');
+        $companyId = current_company_id();
+        $templates = $this->templates->all('deleted_at IS NULL AND company_id = :company_id', ['company_id' => $companyId]);
+        $clients = $this->db->fetchAll('SELECT * FROM clients WHERE deleted_at IS NULL AND company_id = :company_id ORDER BY name', ['company_id' => $companyId]);
         $this->render('email_queue/compose', [
             'title' => 'Nuevo Correo',
             'pageTitle' => 'Nuevo Correo',
@@ -41,6 +45,7 @@ class EmailQueueController extends Controller
         $this->requireLogin();
         verify_csrf();
         $this->queue->create([
+            'company_id' => current_company_id(),
             'client_id' => $_POST['client_id'] ?: null,
             'template_id' => $_POST['template_id'] ?: null,
             'subject' => trim($_POST['subject'] ?? ''),
@@ -62,7 +67,10 @@ class EmailQueueController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
-        $email = $this->db->fetch('SELECT * FROM email_queue WHERE id = :id', ['id' => $id]);
+        $email = $this->db->fetch(
+            'SELECT * FROM email_queue WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$email) {
             $this->redirect('index.php?route=email-queue');
         }
@@ -80,7 +88,10 @@ class EmailQueueController extends Controller
             $this->redirect('index.php?route=email-queue');
         }
 
-        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $email['client_id']]);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $email['client_id'], 'company_id' => current_company_id()]
+        );
         if (!$client) {
             $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = "Cliente no encontrado" WHERE id = :id', ['id' => $email['id']]);
             $this->createNotification('Correo fallido', 'No encontramos el cliente asociado al correo.', 'danger');
@@ -88,7 +99,6 @@ class EmailQueueController extends Controller
             $this->redirect('index.php?route=email-queue');
         }
 
-        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $email['client_id']]);
         $recipients = array_filter([
             $client['email'] ?? null,
             $client['billing_email'] ?? null,
@@ -134,7 +144,8 @@ class EmailQueueController extends Controller
     private function createNotification(string $title, string $message, string $type): void
     {
         try {
-            $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+            $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+                'company_id' => current_company_id(),
                 'title' => $title,
                 'message' => $message,
                 'type' => $type,
@@ -147,7 +158,8 @@ class EmailQueueController extends Controller
     private function storeEmailLog(array $email, string $status): void
     {
         try {
-            $this->db->execute('INSERT INTO email_logs (client_id, type, subject, body_html, status, created_at, updated_at) VALUES (:client_id, :type, :subject, :body_html, :status, NOW(), NOW())', [
+            $this->db->execute('INSERT INTO email_logs (company_id, client_id, type, subject, body_html, status, created_at, updated_at) VALUES (:company_id, :client_id, :type, :subject, :body_html, :status, NOW(), NOW())', [
+                'company_id' => current_company_id(),
                 'client_id' => $email['client_id'],
                 'type' => $email['type'],
                 'subject' => $email['subject'],

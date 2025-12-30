@@ -4,27 +4,31 @@ class SupportTicketsModel extends Model
 {
     protected string $table = 'support_tickets';
 
-    public function allWithClient(): array
+    public function allWithClient(?int $companyId = null): array
     {
+        $companyId = $companyId ?? current_company_id();
         return $this->db->fetchAll(
             'SELECT support_tickets.*,
                     clients.name AS client_name
              FROM support_tickets
              JOIN clients ON support_tickets.client_id = clients.id
-             ORDER BY support_tickets.updated_at DESC'
+             WHERE support_tickets.company_id = :company_id
+             ORDER BY support_tickets.updated_at DESC',
+            ['company_id' => $companyId]
         );
     }
 
-    public function findWithClient(int $id): ?array
+    public function findWithClient(int $id, ?int $companyId = null): ?array
     {
+        $companyId = $companyId ?? current_company_id();
         return $this->db->fetch(
             'SELECT support_tickets.*,
                     clients.name AS client_name,
                     clients.email AS client_email
              FROM support_tickets
              JOIN clients ON support_tickets.client_id = clients.id
-             WHERE support_tickets.id = :id',
-            ['id' => $id]
+             WHERE support_tickets.id = :id AND support_tickets.company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
         );
     }
 

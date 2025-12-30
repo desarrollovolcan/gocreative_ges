@@ -15,8 +15,9 @@ class ProjectsController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $conditions = ['projects.deleted_at IS NULL'];
-        $params = [];
+        $companyId = current_company_id();
+        $conditions = ['projects.deleted_at IS NULL', 'projects.company_id = :company_id'];
+        $params = ['company_id' => $companyId];
         $clientId = (int)($_GET['client_id'] ?? 0);
         if ($clientId > 0) {
             $conditions[] = 'projects.client_id = :client_id';
@@ -39,7 +40,7 @@ class ProjectsController extends Controller
         }
         $where = implode(' AND ', $conditions);
         $projects = $this->db->fetchAll("SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$where} ORDER BY projects.id DESC", $params);
-        $clients = $this->clients->active();
+        $clients = $this->clients->active($companyId);
         $this->render('projects/index', [
             'title' => 'Proyectos',
             'pageTitle' => 'Proyectos',
@@ -57,7 +58,7 @@ class ProjectsController extends Controller
     public function create(): void
     {
         $this->requireLogin();
-        $clients = $this->clients->active();
+        $clients = $this->clients->active(current_company_id());
         $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $this->render('projects/create', [
             'title' => 'Nuevo Proyecto',
@@ -74,8 +75,19 @@ class ProjectsController extends Controller
         $startDate = trim($_POST['start_date'] ?? '');
         $deliveryDate = trim($_POST['delivery_date'] ?? '');
         $value = trim($_POST['value'] ?? '');
+        $companyId = current_company_id();
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=projects/create');
+        }
         $data = [
-            'client_id' => (int)($_POST['client_id'] ?? 0),
+            'company_id' => $companyId,
+            'client_id' => $clientId,
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
             'status' => $_POST['status'] ?? 'cotizado',
@@ -100,11 +112,14 @@ class ProjectsController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $project = $this->projects->find($id);
+        $project = $this->db->fetch(
+            'SELECT * FROM projects WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$project) {
             $this->redirect('index.php?route=projects');
         }
-        $clients = $this->clients->active();
+        $clients = $this->clients->active(current_company_id());
         $this->render('projects/edit', [
             'title' => 'Editar Proyecto',
             'pageTitle' => 'Editar Proyecto',
@@ -118,6 +133,14 @@ class ProjectsController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $project = $this->db->fetch(
+            'SELECT id FROM projects WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
+        if (!$project) {
+            flash('error', 'Proyecto no encontrado para esta empresa.');
+            $this->redirect('index.php?route=projects');
+        }
         $startDate = trim($_POST['start_date'] ?? '');
         $deliveryDate = trim($_POST['delivery_date'] ?? '');
         $value = trim($_POST['value'] ?? '');
@@ -146,16 +169,35 @@ class ProjectsController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $project = $this->projects->find($id);
+        $companyId = current_company_id();
+        $project = $this->db->fetch(
+            'SELECT * FROM projects WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
         if (!$project) {
             $this->redirect('index.php?route=projects');
         }
         $checklist = $this->db->fetchAll('SELECT * FROM project_tasks WHERE project_id = :id ORDER BY id ASC', ['id' => $id]);
-        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $project['client_id']]);
-        $invoices = $this->db->fetchAll('SELECT * FROM invoices WHERE project_id = :id AND deleted_at IS NULL ORDER BY id DESC', ['id' => $id]);
-        $quotes = $this->db->fetchAll('SELECT * FROM quotes WHERE project_id = :id ORDER BY id DESC', ['id' => $id]);
-        $services = $this->db->fetchAll('SELECT * FROM services WHERE client_id = :id AND deleted_at IS NULL ORDER BY id DESC', ['id' => $project['client_id']]);
-        $tickets = $this->db->fetchAll('SELECT * FROM support_tickets WHERE client_id = :id ORDER BY id DESC', ['id' => $project['client_id']]);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $project['client_id'], 'company_id' => $companyId]
+        );
+        $invoices = $this->db->fetchAll(
+            'SELECT * FROM invoices WHERE project_id = :id AND deleted_at IS NULL AND company_id = :company_id ORDER BY id DESC',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        $quotes = $this->db->fetchAll(
+            'SELECT * FROM quotes WHERE project_id = :id AND company_id = :company_id ORDER BY id DESC',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        $services = $this->db->fetchAll(
+            'SELECT * FROM services WHERE client_id = :id AND deleted_at IS NULL AND company_id = :company_id ORDER BY id DESC',
+            ['id' => $project['client_id'], 'company_id' => $companyId]
+        );
+        $tickets = $this->db->fetchAll(
+            'SELECT * FROM support_tickets WHERE client_id = :id AND company_id = :company_id ORDER BY id DESC',
+            ['id' => $project['client_id'], 'company_id' => $companyId]
+        );
         $this->render('projects/show', [
             'title' => 'Detalle Proyecto',
             'pageTitle' => 'Detalle Proyecto',

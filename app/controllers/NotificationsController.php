@@ -13,7 +13,9 @@ class NotificationsController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $notifications = $this->notificationsModel->all();
+        $notifications = $this->notificationsModel->all('company_id = :company_id', [
+            'company_id' => current_company_id(),
+        ]);
         $this->render('notifications/index', [
             'title' => 'Notificaciones',
             'pageTitle' => 'Notificaciones',

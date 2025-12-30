@@ -3,7 +3,7 @@
         <h4 class="card-title mb-0">Datos empresa</h4>
     </div>
     <div class="card-body">
-        <form method="post" action="index.php?route=settings/update">
+        <form method="post" action="index.php?route=settings/update" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="section" value="company">
             <div class="row">
@@ -30,6 +30,26 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Email contacto</label>
                     <input type="email" name="email" class="form-control" value="<?php echo e($company['email'] ?? ''); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Logo color</label>
+                    <input type="file" name="logo_color" class="form-control" accept="image/png,image/jpeg,image/webp">
+                    <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>
+                </div>
+                <div class="col-md-6 mb-3 d-flex align-items-end">
+                    <?php if (!empty($company['logo_color'])): ?>
+                        <img src="<?php echo e($company['logo_color']); ?>" alt="Logo color" class="rounded border" style="height: 48px; object-fit: contain;">
+                    <?php endif; ?>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Logo negro</label>
+                    <input type="file" name="logo_black" class="form-control" accept="image/png,image/jpeg,image/webp">
+                    <div class="form-text">Usa la versión en negro para fondos claros.</div>
+                </div>
+                <div class="col-md-6 mb-3 d-flex align-items-end">
+                    <?php if (!empty($company['logo_black'])): ?>
+                        <img src="<?php echo e($company['logo_black']); ?>" alt="Logo negro" class="rounded border" style="height: 48px; object-fit: contain;">
+                    <?php endif; ?>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Firma</label>

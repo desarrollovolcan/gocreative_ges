@@ -2,6 +2,19 @@
 $companyName = $company['name'] ?? 'Empresa';
 $companyRut = $company['rut'] ?? '';
 $companyEmail = $company['email'] ?? '';
+$companyLogoColor = $company['logo_color'] ?? 'assets/images/logo.png';
+$companyLogoBlack = $company['logo_black'] ?? 'assets/images/logo-black.png';
+$companyLogoDataUri = '';
+if ($companyLogoColor !== '') {
+    $logoFilePath = __DIR__ . '/../../../' . ltrim($companyLogoColor, '/');
+    if (is_file($logoFilePath)) {
+        $logoContents = file_get_contents($logoFilePath);
+        if ($logoContents !== false) {
+            $mimeType = mime_content_type($logoFilePath) ?: 'image/png';
+            $companyLogoDataUri = 'data:' . $mimeType . ';base64,' . base64_encode($logoContents);
+        }
+    }
+}
 $invoiceStatus = $invoice['estado'] ?? 'pendiente';
 $invoiceNumber = $invoice['numero'] ?? '';
 $issueDate = $invoice['fecha_emision'] ?? '';
@@ -32,6 +45,7 @@ $invoiceData = [
         'name' => $companyName,
         'rut' => $companyRut,
         'email' => $companyEmail,
+        'logo' => $companyLogoDataUri,
     ],
     'items' => array_map(
         static fn(array $item): array => [
@@ -55,10 +69,10 @@ $portalToken = $client['portal_token'] ?? '';
                         <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
                             <div class="auth-brand mb-0">
                                 <a href="index.php" class="logo-dark">
-                                    <img src="assets/images/logo-black.png" alt="logo" height="24">
+                                    <img src="<?php echo e($companyLogoBlack); ?>" alt="logo" height="24">
                                 </a>
                                 <a href="index.php" class="logo-light">
-                                    <img src="assets/images/logo.png" alt="logo" height="24">
+                                    <img src="<?php echo e($companyLogoColor); ?>" alt="logo" height="24">
                                 </a>
                             </div>
                             <div class="text-end">
@@ -205,9 +219,15 @@ $portalToken = $client['portal_token'] ?? '';
             ...items,
         ];
 
+        const content = [];
+        if (data.company.logo) {
+            content.push({ image: data.company.logo, width: 120, margin: [0, 0, 0, 12] });
+        }
+        content.push({ text: `Factura #${data.invoice.numero || ''}`, style: 'header' });
+
         return {
             content: [
-                { text: `Factura #${data.invoice.numero || ''}`, style: 'header' },
+                ...content,
                 {
                     columns: [
                         [

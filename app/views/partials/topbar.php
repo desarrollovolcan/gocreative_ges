@@ -1,21 +1,28 @@
+<?php
+$logoColor = $companySettings['logo_color'] ?? 'assets/images/logo.png';
+$logoBlack = $companySettings['logo_black'] ?? 'assets/images/logo-black.png';
+$logoSmallColor = $companySettings['logo_color'] ?? 'assets/images/logo-sm.png';
+$logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
+?>
+
 <header class="app-topbar">
     <div class="container-fluid topbar-menu">
         <div class="d-flex align-items-center gap-2">
             <div class="logo-topbar">
                 <a href="index.php" class="logo-light">
                     <span class="logo-lg">
-                        <img src="assets/images/logo.png" alt="logo">
+                        <img src="<?php echo e($logoColor); ?>" alt="logo">
                     </span>
                     <span class="logo-sm">
-                        <img src="assets/images/logo-sm.png" alt="small logo">
+                        <img src="<?php echo e($logoSmallColor); ?>" alt="small logo">
                     </span>
                 </a>
                 <a href="index.php" class="logo-dark">
                     <span class="logo-lg">
-                        <img src="assets/images/logo-black.png" alt="dark logo">
+                        <img src="<?php echo e($logoBlack); ?>" alt="dark logo">
                     </span>
                     <span class="logo-sm">
-                        <img src="assets/images/logo-sm.png" alt="small logo">
+                        <img src="<?php echo e($logoSmallBlack); ?>" alt="small logo">
                     </span>
                 </a>
             </div>

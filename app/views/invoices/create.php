@@ -36,6 +36,7 @@
                         <option value="">Sin proyecto</option>
                         <?php foreach ($projects as $project): ?>
                             <option value="<?php echo $project['id']; ?>"
+                                data-client-id="<?php echo $project['client_id'] ?? ''; ?>"
                                 data-project-name="<?php echo e($project['name'] ?? ''); ?>"
                                 data-project-value="<?php echo e($project['value'] ?? 0); ?>"
                                 <?php echo (int)($selectedProjectId ?? 0) === (int)$project['id'] ? 'selected' : ''; ?>>
@@ -155,6 +156,7 @@
     const applyTaxCheckbox = document.querySelector('[data-apply-tax]');
     const addItemButton = document.querySelector('[data-add-item]');
     const projectSelect = document.querySelector('select[name="project_id"]');
+    const clientSelect = document.querySelector('select[name="client_id"]');
 
     const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
@@ -247,6 +249,7 @@
         }
         const projectName = selected.dataset.projectName || '';
         const projectValue = Number(selected.dataset.projectValue || 0);
+        const projectClientId = selected.dataset.clientId || '';
         const firstRow = document.querySelector('[data-item-row]');
         if (firstRow) {
             const descriptionInput = firstRow.querySelector('[data-item-description]');
@@ -267,6 +270,9 @@
                 taxRateInputRow.value = taxRateInput?.value || '0';
             }
             updateFromItems();
+        }
+        if (clientSelect && projectClientId) {
+            clientSelect.value = projectClientId;
         }
     };
 

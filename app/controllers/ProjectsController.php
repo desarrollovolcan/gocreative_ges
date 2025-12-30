@@ -39,7 +39,32 @@ class ProjectsController extends Controller
             $params['name'] = '%' . $name . '%';
         }
         $where = implode(' AND ', $conditions);
-        $projects = $this->db->fetchAll("SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$where} ORDER BY projects.id DESC", $params);
+        try {
+            $projects = $this->db->fetchAll("SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$where} ORDER BY projects.id DESC", $params);
+        } catch (PDOException $e) {
+            log_message('error', 'Failed to load projects list: ' . $e->getMessage());
+            $fallbackConditions = ['projects.deleted_at IS NULL', 'projects.company_id = :company_id'];
+            $fallbackParams = ['company_id' => $companyId];
+            if ($clientId > 0) {
+                $fallbackConditions[] = 'projects.client_id = :client_id';
+                $fallbackParams['client_id'] = $clientId;
+            }
+            if ($status !== '') {
+                $fallbackConditions[] = 'projects.status = :status';
+                $fallbackParams['status'] = $status;
+            }
+            if ($name !== '') {
+                $fallbackConditions[] = 'projects.name LIKE :name';
+                $fallbackParams['name'] = '%' . $name . '%';
+            }
+            $fallbackWhere = implode(' AND ', $fallbackConditions);
+            try {
+                $projects = $this->db->fetchAll("SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$fallbackWhere} ORDER BY projects.id DESC", $fallbackParams);
+            } catch (PDOException $fallbackError) {
+                log_message('error', 'Failed to load projects list fallback: ' . $fallbackError->getMessage());
+                $projects = [];
+            }
+        }
         $clients = $this->clients->active($companyId);
         $this->render('projects/index', [
             'title' => 'Proyectos',
@@ -293,6 +318,32 @@ class ProjectsController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $companyId = current_company_id();
+        $project = $this->db->fetch(
+            'SELECT id FROM projects WHERE id = :id AND deleted_at IS NULL' . ($companyId ? ' AND company_id = :company_id' : ''),
+            $companyId ? ['id' => $id, 'company_id' => $companyId] : ['id' => $id]
+        );
+        if (!$project) {
+            flash('error', 'Proyecto no encontrado.');
+            $this->redirect('index.php?route=projects');
+        }
+        $taskCount = $this->db->fetch('SELECT COUNT(*) as total FROM project_tasks WHERE project_id = :id', ['id' => $id]);
+        $invoiceCount = $this->db->fetch('SELECT COUNT(*) as total FROM invoices WHERE project_id = :id AND deleted_at IS NULL', ['id' => $id]);
+        $quoteCount = $this->db->fetch('SELECT COUNT(*) as total FROM quotes WHERE project_id = :id', ['id' => $id]);
+        $blocked = [];
+        if (!empty($taskCount['total'])) {
+            $blocked[] = 'tareas';
+        }
+        if (!empty($invoiceCount['total'])) {
+            $blocked[] = 'facturas';
+        }
+        if (!empty($quoteCount['total'])) {
+            $blocked[] = 'cotizaciones';
+        }
+        if (!empty($blocked)) {
+            flash('error', 'No se puede eliminar el proyecto porque tiene registros asociados: ' . implode(', ', $blocked) . '.');
+            $this->redirect('index.php?route=projects');
+        }
         $this->projects->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'projects', $id);
         flash('success', 'Proyecto eliminado correctamente.');

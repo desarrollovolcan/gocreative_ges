@@ -19,15 +19,18 @@ class EmailConfigController extends Controller
             $smtpConfig = [];
         }
         $defaults = [
-            'host' => 'mail.gocreative.cl',
+            'host' => 'ges.gocreative.cl',
             'port_ssl' => 465,
             'port_tls' => 587,
             'security' => 'ssl',
-            'username' => 'informevolcan@gocreative.cl',
-            'password' => '#(3-QiWGI;l}oJW_',
+            'username' => 'info@ges.gocreative.cl',
+            'password' => '',
             'from_name' => 'Información',
-            'from_email' => 'informevolcan@gocreative.cl',
-            'reply_to' => 'informevolcan@gocreative.cl',
+            'from_email' => 'info@ges.gocreative.cl',
+            'reply_to' => 'info@ges.gocreative.cl',
+            'incoming_host' => 'ges.gocreative.cl',
+            'imap_port' => 993,
+            'pop3_port' => 995,
         ];
         $smtpConfig = array_merge($defaults, $smtpConfig);
         $this->render('maintainers/email-config', [
@@ -52,6 +55,9 @@ class EmailConfigController extends Controller
             'from_name' => trim($_POST['from_name'] ?? ''),
             'from_email' => trim($_POST['from_email'] ?? ''),
             'reply_to' => trim($_POST['reply_to'] ?? ''),
+            'incoming_host' => trim($_POST['incoming_host'] ?? ''),
+            'imap_port' => (int)($_POST['imap_port'] ?? 993),
+            'pop3_port' => (int)($_POST['pop3_port'] ?? 995),
         ]);
         audit($this->db, Auth::user()['id'], 'update', 'smtp_info');
         flash('success', 'Configuración SMTP actualizada correctamente.');

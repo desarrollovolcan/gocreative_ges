@@ -193,6 +193,19 @@ class ServicesController extends Controller
             flash('error', 'Servicio no encontrado para esta empresa.');
             $this->redirect('index.php?route=services');
         }
+        $invoiceCount = $this->db->fetch('SELECT COUNT(*) as total FROM invoices WHERE service_id = :id AND deleted_at IS NULL', ['id' => $id]);
+        $quoteCount = $this->db->fetch('SELECT COUNT(*) as total FROM quotes WHERE service_id = :id', ['id' => $id]);
+        $blocked = [];
+        if (!empty($invoiceCount['total'])) {
+            $blocked[] = 'facturas';
+        }
+        if (!empty($quoteCount['total'])) {
+            $blocked[] = 'cotizaciones';
+        }
+        if (!empty($blocked)) {
+            flash('error', 'No se puede eliminar el servicio porque tiene registros asociados: ' . implode(', ', $blocked) . '.');
+            $this->redirect('index.php?route=services');
+        }
         $this->services->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'services', $id);
         flash('success', 'Servicio eliminado correctamente.');

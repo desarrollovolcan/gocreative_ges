@@ -223,6 +223,24 @@ function permission_catalog(): array
     ];
 }
 
+function flash(string $type, string $message): void
+{
+    if (!isset($_SESSION['flash'])) {
+        $_SESSION['flash'] = [];
+    }
+    if (!isset($_SESSION['flash'][$type])) {
+        $_SESSION['flash'][$type] = [];
+    }
+    $_SESSION['flash'][$type][] = $message;
+}
+
+function consume_flash(): array
+{
+    $messages = $_SESSION['flash'] ?? [];
+    unset($_SESSION['flash']);
+    return $messages;
+}
+
 function permission_key_for_route(string $route): ?string
 {
     $catalog = permission_catalog();

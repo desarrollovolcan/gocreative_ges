@@ -1,6 +1,25 @@
+:root,
+html[data-skin] {
+    --ins-primary: #4f46e5;
+    --ins-primary-rgb: 79, 70, 229;
+    --ins-secondary: #06b6d4;
+    --ins-secondary-rgb: 6, 182, 212;
+    --ins-success: #22c55e;
+    --ins-success-rgb: 34, 197, 94;
+    --ins-info: #38bdf8;
+    --ins-info-rgb: 56, 189, 248;
+    --ins-warning: #f97316;
+    --ins-warning-rgb: 249, 115, 22;
+    --ins-danger: #ef4444;
+    --ins-danger-rgb: 239, 68, 68;
+    --ins-purple: #8b5cf6;
+    --ins-purple-rgb: 139, 92, 246;
+}
+
 .form-label {
     margin-bottom: 0.25rem;
-    font-weight: 500;
+    font-weight: 600;
+    color: #1f2937;
 }
 
 form .mb-3 {
@@ -13,6 +32,20 @@ form .mb-3 {
     padding: 0.35rem 0.6rem;
     font-size: 0.875rem;
     border-radius: 0.5rem;
+    background-color: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--ins-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--ins-primary-rgb), 0.2), 0 8px 16px rgba(15, 23, 42, 0.08);
+}
+
+.form-control::placeholder {
+    color: #9ca3af;
 }
 
 textarea.form-control {
@@ -27,4 +60,70 @@ textarea.form-control {
 
 .form-section-title small {
     font-weight: 400;
+}
+
+.input-group-text {
+    border-radius: 0.5rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background-color: #f8fafc;
+    color: #475569;
+}
+
+.form-check-input {
+    border-color: rgba(15, 23, 42, 0.2);
+    border-radius: 0.35rem;
+}
+
+.btn {
+    font-weight: 600;
+    border-radius: 0.6rem;
+    letter-spacing: 0.01em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-info,
+.btn-warning,
+.btn-danger {
+    border: none;
+}
+
+.btn-primary {
+    --btn-shadow-color: var(--ins-primary-rgb);
+}
+
+.btn-secondary {
+    --btn-shadow-color: var(--ins-secondary-rgb);
+}
+
+.btn-success {
+    --btn-shadow-color: var(--ins-success-rgb);
+}
+
+.btn-info {
+    --btn-shadow-color: var(--ins-info-rgb);
+}
+
+.btn-warning {
+    --btn-shadow-color: var(--ins-warning-rgb);
+}
+
+.btn-danger {
+    --btn-shadow-color: var(--ins-danger-rgb);
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-info,
+.btn-warning,
+.btn-danger {
+    box-shadow: 0 10px 22px rgba(var(--btn-shadow-color), 0.25);
+}
+
+.btn:hover,
+.btn:focus {
+    transform: translateY(-1px);
 }

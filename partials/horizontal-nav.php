@@ -10,6 +10,12 @@
                             <span class="menu-text">Dashboard</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="projects.php">
+                            <span class="menu-icon"><i data-lucide="briefcase"></i></span>
+                            <span class="menu-text">Proyectos</span>
+                        </a>
+                    </li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle drop-arrow-none" href="#" id="topnav-drop" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">

@@ -31,8 +31,20 @@ class AuthController extends Controller
             $this->redirect('login.php');
         }
 
-        $user = $this->db->fetch('SELECT users.*, roles.name as role FROM users JOIN roles ON users.role_id = roles.id WHERE users.email = :email AND users.deleted_at IS NULL', [
+        if ($companyId === 0) {
+            $_SESSION['error'] = 'Selecciona una empresa.';
+            $this->redirect('login.php');
+        }
+
+        $company = $this->db->fetch('SELECT * FROM companies WHERE id = :id', ['id' => $companyId]);
+        if (!$company) {
+            $_SESSION['error'] = 'Empresa no encontrada.';
+            $this->redirect('login.php');
+        }
+
+        $user = $this->db->fetch('SELECT users.*, roles.name as role FROM users JOIN roles ON users.role_id = roles.id WHERE users.email = :email AND users.company_id = :company_id AND users.deleted_at IS NULL', [
             'email' => $email,
+            'company_id' => $companyId,
         ]);
         if ($user) {
             $companyIds = user_company_ids($this->db, $user);

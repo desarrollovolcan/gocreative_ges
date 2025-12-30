@@ -37,8 +37,13 @@ try {
     exit;
 }
 
-$settings = new SettingsModel($db);
-$currencyFormat = $settings->get('currency_format', []);
+$currencyCacheKey = 'settings.currency_format';
+$currencyFormat = session_cache_get($currencyCacheKey);
+if ($currencyFormat === null) {
+    $settings = new SettingsModel($db);
+    $currencyFormat = $settings->get('currency_format', []);
+    session_cache_set($currencyCacheKey, $currencyFormat);
+}
 if (is_array($currencyFormat)) {
     $config['currency_format'] = array_merge($config['currency_format'] ?? [], $currencyFormat);
 }

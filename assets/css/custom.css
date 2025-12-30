@@ -61,7 +61,7 @@ body {
 }
 
 .sidenav-menu {
-    background: linear-gradient(180deg, var(--ins-sidebar-bg), var(--ins-sidebar-bg-2));
+    background: linear-gradient(180deg, #3b2f7d 0%, #46389b 45%, #4b3fb2 100%);
 }
 
 .sidenav-menu .logo .logo-light,
@@ -70,7 +70,7 @@ body {
 }
 
 .side-nav-title {
-    color: #fff;
+    color: #b9b3e6;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 600;
@@ -86,16 +86,16 @@ body {
 
 .side-nav .side-nav-link:hover,
 .side-nav .side-nav-link:focus {
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.08);
     color: #fff;
 }
 
 .side-nav .side-nav-link.active,
 .side-nav > .side-nav-item.active > a,
 .side-nav .sub-menu .side-nav-item.active > a {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.18);
     color: #fff;
-    box-shadow: inset 3px 0 0 #fff;
+    box-shadow: none;
 }
 
 .side-nav .menu-arrow {
@@ -228,14 +228,14 @@ body {
 
 .side-nav .side-nav-link:hover,
 .side-nav .side-nav-link:focus {
-    background-color: rgba(255, 255, 255, 0.18);
+    background-color: rgba(255, 255, 255, 0.08);
     color: #fff;
 }
 
 .side-nav .side-nav-link.active {
-    background-color: rgba(255, 255, 255, 0.24);
+    background-color: rgba(255, 255, 255, 0.18);
     color: #fff;
-    box-shadow: inset 3px 0 0 #fff;
+    box-shadow: none;
 }
 
 .side-nav .menu-icon {

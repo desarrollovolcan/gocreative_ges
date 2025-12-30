@@ -8,9 +8,11 @@ $companyLogoDataUri = '';
 if ($companyLogoColor !== '') {
     $logoFilePath = __DIR__ . '/../../../' . ltrim($companyLogoColor, '/');
     if (is_file($logoFilePath)) {
-        $logoContents = file_get_contents($logoFilePath);
+        $logoContents = @file_get_contents($logoFilePath);
         if ($logoContents !== false) {
-            $mimeType = mime_content_type($logoFilePath) ?: 'image/png';
+            $mimeType = function_exists('mime_content_type')
+                ? (mime_content_type($logoFilePath) ?: 'image/png')
+                : 'image/png';
             $companyLogoDataUri = 'data:' . $mimeType . ';base64,' . base64_encode($logoContents);
         }
     }
@@ -27,6 +29,16 @@ $clientAddress = $client['address'] ?? '';
 $clientPhone = $client['phone'] ?? '';
 $clientEmail = $client['email'] ?? '';
 $badgeClass = $invoiceStatus === 'pagada' ? 'success' : ($invoiceStatus === 'vencida' ? 'danger' : 'warning');
+$itemsData = [];
+foreach ($items as $item) {
+    $itemsData[] = [
+        'descripcion' => $item['descripcion'] ?? '',
+        'cantidad' => $item['cantidad'] ?? '',
+        'precio_unitario_formatted' => format_currency((float)($item['precio_unitario'] ?? 0)),
+        'total_formatted' => format_currency((float)($item['total'] ?? 0)),
+    ];
+}
+
 $invoiceData = [
     'invoice' => [
         'numero' => $invoiceNumber,
@@ -47,15 +59,7 @@ $invoiceData = [
         'email' => $companyEmail,
         'logo' => $companyLogoDataUri,
     ],
-    'items' => array_map(
-        static fn(array $item): array => [
-            'descripcion' => $item['descripcion'] ?? '',
-            'cantidad' => $item['cantidad'] ?? '',
-            'precio_unitario_formatted' => format_currency((float)($item['precio_unitario'] ?? 0)),
-            'total_formatted' => format_currency((float)($item['total'] ?? 0)),
-        ],
-        $items
-    ),
+    'items' => $itemsData,
 ];
 $portalToken = $client['portal_token'] ?? '';
 ?>

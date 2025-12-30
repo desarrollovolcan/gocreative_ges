@@ -70,14 +70,14 @@ body {
 }
 
 .side-nav-title {
-    color: var(--ins-sidebar-muted);
+    color: rgba(255, 255, 255, 0.7);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 600;
 }
 
 .side-nav .side-nav-link {
-    color: var(--ins-sidebar-text);
+    color: #fff;
 }
 
 .side-nav .side-nav-link .menu-text {
@@ -90,17 +90,20 @@ body {
     color: #fff;
 }
 
-.side-nav .side-nav-link.active {
-    background-color: rgba(255, 255, 255, 0.18);
+.side-nav .side-nav-link.active,
+.side-nav > .side-nav-item.active > a,
+.side-nav .sub-menu .side-nav-item.active > a {
+    background-color: rgba(255, 255, 255, 0.2);
     color: #fff;
+    box-shadow: inset 3px 0 0 #fff;
 }
 
 .side-nav .menu-arrow {
-    color: var(--ins-sidebar-text);
+    color: #fff;
 }
 
 .side-nav .sub-menu .side-nav-link {
-    color: var(--ins-sidebar-muted);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .card {
@@ -219,19 +222,20 @@ body {
 .side-nav .side-nav-link {
     border-radius: 10px;
     font-weight: 600;
-    color: var(--ins-text);
+    color: #fff;
     margin: 2px 8px;
 }
 
 .side-nav .side-nav-link:hover,
 .side-nav .side-nav-link:focus {
-    background-color: rgba(var(--ins-primary-rgb), 0.08);
-    color: var(--ins-primary);
+    background-color: rgba(255, 255, 255, 0.18);
+    color: #fff;
 }
 
 .side-nav .side-nav-link.active {
-    background-color: rgba(var(--ins-primary-rgb), 0.12);
-    color: var(--ins-primary);
+    background-color: rgba(255, 255, 255, 0.24);
+    color: #fff;
+    box-shadow: inset 3px 0 0 #fff;
 }
 
 .side-nav .menu-icon {

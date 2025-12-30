@@ -40,7 +40,10 @@ class ProjectsController extends Controller
         }
         $where = implode(' AND ', $conditions);
         try {
-            $projects = $this->db->fetchAll("SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$where} ORDER BY projects.id DESC", $params);
+            $projects = $this->db->fetchAll(
+                "SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$where} ORDER BY projects.id DESC",
+                $params
+            );
         } catch (PDOException $e) {
             log_message('error', 'Failed to load projects list: ' . $e->getMessage());
             $fallbackConditions = ['projects.deleted_at IS NULL', 'projects.company_id = :company_id'];
@@ -59,13 +62,50 @@ class ProjectsController extends Controller
             }
             $fallbackWhere = implode(' AND ', $fallbackConditions);
             try {
-                $projects = $this->db->fetchAll("SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$fallbackWhere} ORDER BY projects.id DESC", $fallbackParams);
+                $projects = $this->db->fetchAll(
+                    "SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$fallbackWhere} ORDER BY projects.id DESC",
+                    $fallbackParams
+                );
             } catch (PDOException $fallbackError) {
                 log_message('error', 'Failed to load projects list fallback: ' . $fallbackError->getMessage());
-                $projects = [];
+                $safeConditions = [];
+                $safeParams = [];
+                if ($clientId > 0) {
+                    $safeConditions[] = 'projects.client_id = :client_id';
+                    $safeParams['client_id'] = $clientId;
+                }
+                if ($status !== '') {
+                    $safeConditions[] = 'projects.status = :status';
+                    $safeParams['status'] = $status;
+                }
+                if ($name !== '') {
+                    $safeConditions[] = 'projects.name LIKE :name';
+                    $safeParams['name'] = '%' . $name . '%';
+                }
+                $safeWhere = $safeConditions ? implode(' AND ', $safeConditions) : '1=1';
+                try {
+                    $projects = $this->db->fetchAll(
+                        "SELECT projects.* FROM projects WHERE {$safeWhere} ORDER BY projects.id DESC",
+                        $safeParams
+                    );
+                } catch (PDOException $safeError) {
+                    log_message('error', 'Failed to load projects list safe fallback: ' . $safeError->getMessage());
+                    $projects = [];
+                }
             }
         }
-        $clients = $this->clients->active($companyId);
+        foreach ($projects as &$project) {
+            if (!array_key_exists('client_name', $project)) {
+                $project['client_name'] = '-';
+            }
+        }
+        unset($project);
+        try {
+            $clients = $this->clients->active($companyId);
+        } catch (PDOException $e) {
+            log_message('error', 'Failed to load clients list for projects: ' . $e->getMessage());
+            $clients = [];
+        }
         $this->render('projects/index', [
             'title' => 'Proyectos',
             'pageTitle' => 'Proyectos',

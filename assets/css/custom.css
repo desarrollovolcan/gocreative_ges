@@ -158,6 +158,14 @@ body {
     flex-wrap: wrap;
 }
 
+.dashboard-chart {
+    height: 260px;
+}
+
+.dashboard-chart-sm {
+    height: 220px;
+}
+
 .card-title {
     color: var(--ins-text);
     font-weight: 600;

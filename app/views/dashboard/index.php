@@ -90,7 +90,9 @@
                 <a href="index.php?route=invoices" class="btn btn-outline-primary btn-sm">Ver facturas</a>
             </div>
             <div class="card-body">
-                <canvas id="revenueTrendChart" height="140"></canvas>
+                <div class="dashboard-chart">
+                    <canvas id="revenueTrendChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -110,7 +112,9 @@
                         <i class="ti ti-ticket"></i>
                     </div>
                 </div>
-                <canvas id="ticketStatusChart" height="180"></canvas>
+                <div class="dashboard-chart dashboard-chart-sm">
+                    <canvas id="ticketStatusChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -337,7 +341,7 @@ foreach (array_keys($ticketStatusLabels) as $key) {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom' }
+                        legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10 } }
                     },
                     cutout: '65%'
                 }

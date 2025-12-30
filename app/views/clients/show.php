@@ -25,6 +25,16 @@
                 <?php endif; ?>
             </div>
         </div>
+        <div class="card">
+            <div class="card-header"><h4 class="card-title mb-0">Acciones rápidas</h4></div>
+            <div class="card-body d-grid gap-2">
+                <a href="index.php?route=projects/create&client_id=<?php echo (int)$client['id']; ?>" class="btn btn-outline-primary">Nuevo proyecto</a>
+                <a href="index.php?route=services/create&client_id=<?php echo (int)$client['id']; ?>" class="btn btn-outline-warning">Nuevo servicio</a>
+                <a href="index.php?route=quotes/create&client_id=<?php echo (int)$client['id']; ?>" class="btn btn-outline-info">Nueva cotización</a>
+                <a href="index.php?route=invoices/create&client_id=<?php echo (int)$client['id']; ?>" class="btn btn-outline-success">Nueva factura</a>
+                <a href="index.php?route=tickets/create&client_id=<?php echo (int)$client['id']; ?>" class="btn btn-outline-danger">Abrir ticket</a>
+            </div>
+        </div>
     </div>
     <div class="col-lg-8">
         <div class="card">
@@ -35,7 +45,9 @@
                 <ul class="list-group">
                     <?php foreach ($services as $service): ?>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <?php echo e($service['name']); ?>
+                            <a href="index.php?route=services/show&id=<?php echo (int)$service['id']; ?>" class="link-reset">
+                                <?php echo e($service['name']); ?>
+                            </a>
                             <span class="badge bg-info-subtle text-info"><?php echo e($service['service_type']); ?></span>
                         </li>
                     <?php endforeach; ?>
@@ -50,7 +62,9 @@
                 <ul class="list-group">
                     <?php foreach ($invoices as $invoice): ?>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <?php echo e($invoice['numero']); ?>
+                            <a href="index.php?route=invoices/show&id=<?php echo (int)$invoice['id']; ?>" class="link-reset">
+                                <?php echo e($invoice['numero']); ?>
+                            </a>
                             <span class="badge bg-secondary-subtle text-secondary"><?php echo e($invoice['estado']); ?></span>
                         </li>
                     <?php endforeach; ?>
@@ -89,7 +103,9 @@
                 <ul class="list-group">
                     <?php foreach ($projects as $project): ?>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <?php echo e($project['name']); ?>
+                            <a href="index.php?route=projects/show&id=<?php echo (int)$project['id']; ?>" class="link-reset">
+                                <?php echo e($project['name']); ?>
+                            </a>
                             <span class="badge bg-light text-dark"><?php echo e($project['status']); ?></span>
                         </li>
                     <?php endforeach; ?>

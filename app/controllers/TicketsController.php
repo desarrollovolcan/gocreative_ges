@@ -28,11 +28,13 @@ class TicketsController extends Controller
         $this->requireLogin();
         $clients = $this->db->fetchAll('SELECT id, name, email FROM clients WHERE deleted_at IS NULL ORDER BY name');
         $users = $this->db->fetchAll('SELECT id, name FROM users WHERE deleted_at IS NULL ORDER BY name');
+        $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $this->render('tickets/create', [
             'title' => 'Nuevo ticket',
             'pageTitle' => 'Nuevo ticket',
             'clients' => $clients,
             'users' => $users,
+            'selectedClientId' => $selectedClientId,
         ]);
     }
 
@@ -44,7 +46,7 @@ class TicketsController extends Controller
         $subject = trim($_POST['subject'] ?? '');
         $description = trim($_POST['description'] ?? '');
         if ($clientId === 0 || $subject === '' || $description === '') {
-            $_SESSION['error'] = 'Completa los campos obligatorios.';
+            flash('error', 'Completa los campos obligatorios.');
             $this->redirect('index.php?route=tickets/create');
         }
         $priority = $_POST['priority'] ?? 'media';
@@ -69,6 +71,7 @@ class TicketsController extends Controller
             'message' => $description,
             'created_at' => $now,
         ]);
+        flash('success', 'Ticket creado correctamente.');
         $this->redirect('index.php?route=tickets/show&id=' . $ticketId);
     }
 
@@ -98,7 +101,7 @@ class TicketsController extends Controller
         $ticketId = (int)($_POST['ticket_id'] ?? 0);
         $message = trim($_POST['message'] ?? '');
         if ($ticketId === 0 || $message === '') {
-            $_SESSION['error'] = 'Escribe un mensaje antes de enviar.';
+            flash('error', 'Escribe un mensaje antes de enviar.');
             $this->redirect('index.php?route=tickets/show&id=' . $ticketId);
         }
         $ticket = $this->tickets->findWithClient($ticketId);
@@ -116,6 +119,7 @@ class TicketsController extends Controller
         $this->tickets->update($ticketId, [
             'updated_at' => $now,
         ]);
+        flash('success', 'Mensaje enviado correctamente.');
         $this->redirect('index.php?route=tickets/show&id=' . $ticketId);
     }
 
@@ -132,7 +136,7 @@ class TicketsController extends Controller
         }
         $allowed = ['abierto', 'en_progreso', 'pendiente', 'resuelto', 'cerrado'];
         if (!in_array($newStatus, $allowed, true)) {
-            $_SESSION['error'] = 'Estado inválido.';
+            flash('error', 'Estado inválido.');
             $this->redirect('index.php?route=tickets/show&id=' . $ticketId);
         }
         $now = date('Y-m-d H:i:s');
@@ -159,7 +163,7 @@ class TicketsController extends Controller
             $mailer->send('support_ticket_status', $ticket['client_email'] ?? '', $subject, $html);
         }
 
-        $_SESSION['success'] = 'Estado actualizado.';
+        flash('success', 'Estado actualizado.');
         $this->redirect('index.php?route=tickets/show&id=' . $ticketId);
     }
 }

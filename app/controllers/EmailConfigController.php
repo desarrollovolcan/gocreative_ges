@@ -54,6 +54,7 @@ class EmailConfigController extends Controller
             'reply_to' => trim($_POST['reply_to'] ?? ''),
         ]);
         audit($this->db, Auth::user()['id'], 'update', 'smtp_info');
+        flash('success', 'Configuración SMTP actualizada correctamente.');
         $this->redirect('index.php?route=maintainers/email-config');
     }
 
@@ -68,6 +69,7 @@ class EmailConfigController extends Controller
         }
         $hasRequiredConfig = !empty($smtpConfig['host']) && !empty($smtpConfig['username']) && !empty($smtpConfig['password']);
         if (!$hasRequiredConfig) {
+            flash('error', 'Completa la configuración SMTP antes de probar.');
             $this->redirect('index.php?route=maintainers/email-config&test=missing-config');
         }
         $to = Auth::user()['email'] ?? '';
@@ -81,6 +83,7 @@ class EmailConfigController extends Controller
                 'message' => 'No se encontró correo para enviar la prueba.',
                 'type' => 'danger',
             ]);
+            flash('error', 'No se encontró correo para enviar la prueba.');
             $this->redirect('index.php?route=maintainers/email-config&test=missing');
         }
 
@@ -92,6 +95,7 @@ class EmailConfigController extends Controller
             'message' => $sent ? 'Correo enviado correctamente.' : 'Fallo el envío.',
             'type' => $sent ? 'success' : 'danger',
         ]);
+        flash($sent ? 'success' : 'error', $sent ? 'Correo de prueba enviado correctamente.' : 'Fallo el envío del correo de prueba.');
 
         $this->redirect('index.php?route=maintainers/email-config&test=' . ($sent ? 'success' : 'failed'));
     }

@@ -31,7 +31,7 @@ $defaultIssueDate = date('Y-m-d');
                     <select name="client_id" class="form-select" data-client-select required>
                         <option value="">Selecciona un cliente</option>
                         <?php foreach ($clients as $client): ?>
-                            <option value="<?php echo $client['id']; ?>">
+                            <option value="<?php echo $client['id']; ?>" <?php echo (int)($selectedClientId ?? 0) === (int)$client['id'] ? 'selected' : ''; ?>>
                                 <?php echo e($client['name']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -58,7 +58,8 @@ $defaultIssueDate = date('Y-m-d');
                             <option value="<?php echo $project['id']; ?>"
                                     data-client-id="<?php echo $project['client_id']; ?>"
                                     data-name="<?php echo e($project['name']); ?>"
-                                    data-price="<?php echo e($project['value'] ?? 0); ?>">
+                                    data-price="<?php echo e($project['value'] ?? 0); ?>"
+                                    <?php echo (int)($selectedProjectId ?? 0) === (int)$project['id'] ? 'selected' : ''; ?>>
                                 <?php echo e($project['name']); ?> (<?php echo e($project['client_name']); ?>)
                             </option>
                         <?php endforeach; ?>
@@ -127,6 +128,7 @@ $defaultIssueDate = date('Y-m-d');
 <script>
     const serviceSelect = document.querySelector('[data-service-select]');
     const projectSelect = document.querySelector('[data-project-select]');
+    const clientSelect = document.querySelector('[data-client-select]');
     const descriptionInput = document.querySelector('[data-item-description]');
     const qtyInput = document.querySelector('[data-item-qty]');
     const priceInput = document.querySelector('[data-item-price]');
@@ -180,11 +182,24 @@ $defaultIssueDate = date('Y-m-d');
         }
         const option = event.target.selectedOptions[0];
         applySourceData(option);
+        const clientId = option?.dataset?.clientId;
+        if (clientSelect && clientId) {
+            clientSelect.value = clientId;
+        }
     });
 
     qtyInput?.addEventListener('input', updateTotals);
     priceInput?.addEventListener('input', updateTotals);
     taxesInput?.addEventListener('input', updateTotals);
+
+    if (projectSelect?.value) {
+        const option = projectSelect.selectedOptions[0];
+        applySourceData(option);
+        const clientId = option?.dataset?.clientId;
+        if (clientSelect && clientId) {
+            clientSelect.value = clientId;
+        }
+    }
 
     updateTotals();
 </script>

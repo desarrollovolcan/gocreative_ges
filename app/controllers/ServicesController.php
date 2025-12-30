@@ -31,10 +31,12 @@ class ServicesController extends Controller
     {
         $this->requireLogin();
         $clients = $this->clients->active();
+        $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $this->render('services/create', [
             'title' => 'Nuevo Servicio',
             'pageTitle' => 'Nuevo Servicio',
             'clients' => $clients,
+            'selectedClientId' => $selectedClientId,
         ]);
     }
 
@@ -72,6 +74,7 @@ class ServicesController extends Controller
             }
         }
         audit($this->db, Auth::user()['id'], 'create', 'services');
+        flash('success', 'Servicio creado correctamente.');
         $this->redirect('index.php?route=services');
     }
 
@@ -119,6 +122,7 @@ class ServicesController extends Controller
         ];
         $this->services->update($id, $data);
         audit($this->db, Auth::user()['id'], 'update', 'services', $id);
+        flash('success', 'Servicio actualizado correctamente.');
         $this->redirect('index.php?route=services');
     }
 
@@ -148,6 +152,7 @@ class ServicesController extends Controller
         $id = (int)($_POST['id'] ?? 0);
         $this->services->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'services', $id);
+        flash('success', 'Servicio eliminado correctamente.');
         $this->redirect('index.php?route=services');
     }
 
@@ -192,6 +197,7 @@ class ServicesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
+        flash('success', 'Factura generada desde el servicio.');
         $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
     }
 

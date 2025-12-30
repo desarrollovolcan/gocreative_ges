@@ -43,6 +43,7 @@ class ServiceTypesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         audit($this->db, Auth::user()['id'], 'create', 'service_types');
+        flash('success', 'Tipo de servicio creado correctamente.');
         $this->redirect('index.php?route=maintainers/service-types');
     }
 
@@ -73,6 +74,7 @@ class ServiceTypesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         audit($this->db, Auth::user()['id'], 'update', 'service_types', $id);
+        flash('success', 'Tipo de servicio actualizado correctamente.');
         $this->redirect('index.php?route=maintainers/service-types');
     }
 
@@ -84,6 +86,7 @@ class ServiceTypesController extends Controller
         $id = (int)($_POST['id'] ?? 0);
         $this->db->execute('DELETE FROM service_types WHERE id = :id', ['id' => $id]);
         audit($this->db, Auth::user()['id'], 'delete', 'service_types', $id);
+        flash('success', 'Tipo de servicio eliminado correctamente.');
         $this->redirect('index.php?route=maintainers/service-types');
     }
 }

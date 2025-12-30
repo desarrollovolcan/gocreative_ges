@@ -77,6 +77,38 @@ function log_message(string $level, string $message): void
     file_put_contents($logFile, $entry, FILE_APPEND);
 }
 
+function session_cache_get(string $key)
+{
+    if (empty($_SESSION['cache']) || !isset($_SESSION['cache'][$key])) {
+        return null;
+    }
+
+    $entry = $_SESSION['cache'][$key];
+    if (!is_array($entry) || !isset($entry['expires_at'])) {
+        unset($_SESSION['cache'][$key]);
+        return null;
+    }
+
+    if ($entry['expires_at'] < time()) {
+        unset($_SESSION['cache'][$key]);
+        return null;
+    }
+
+    return $entry['value'] ?? null;
+}
+
+function session_cache_set(string $key, $value, int $ttlSeconds = 300): void
+{
+    if (!isset($_SESSION['cache']) || !is_array($_SESSION['cache'])) {
+        $_SESSION['cache'] = [];
+    }
+
+    $_SESSION['cache'][$key] = [
+        'value' => $value,
+        'expires_at' => time() + $ttlSeconds,
+    ];
+}
+
 function current_company_id(): ?int
 {
     $companyId = null;

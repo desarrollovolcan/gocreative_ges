@@ -28,8 +28,8 @@ class Controller
                 $permissions = role_permissions($this->db, $roleId);
             }
         }
+        $companyId = current_company_id();
         try {
-            $companyId = current_company_id();
             $notifications = $companyId
                 ? $this->db->fetchAll(
                     "SELECT * FROM notifications WHERE read_at IS NULL AND company_id = :company_id ORDER BY created_at DESC LIMIT 5",
@@ -41,21 +41,30 @@ class Controller
             $notifications = [];
         }
         $notificationCount = count($notifications);
-        try {
-            $settingsModel = new SettingsModel($this->db);
-            $companySettings = $settingsModel->get('company', []);
-        } catch (Throwable $e) {
-            log_message('error', 'Failed to load company settings: ' . $e->getMessage());
-            $companySettings = [];
+        $companySettingsCacheKey = 'settings.company.' . ($companyId ?? 'global');
+        $companySettings = session_cache_get($companySettingsCacheKey);
+        if ($companySettings === null) {
+            try {
+                $settingsModel = new SettingsModel($this->db);
+                $companySettings = $settingsModel->get('company', []);
+                session_cache_set($companySettingsCacheKey, $companySettings);
+            } catch (Throwable $e) {
+                log_message('error', 'Failed to load company settings: ' . $e->getMessage());
+                $companySettings = [];
+            }
         }
         $currentCompany = null;
-        $companyId = current_company_id();
         if ($companyId) {
-            try {
-                $currentCompany = $this->db->fetch('SELECT * FROM companies WHERE id = :id', ['id' => $companyId]);
-            } catch (Throwable $e) {
-                log_message('error', 'Failed to load company: ' . $e->getMessage());
-                $currentCompany = null;
+            $companyCacheKey = 'companies.' . $companyId;
+            $currentCompany = session_cache_get($companyCacheKey);
+            if ($currentCompany === null) {
+                try {
+                    $currentCompany = $this->db->fetch('SELECT * FROM companies WHERE id = :id', ['id' => $companyId]);
+                    session_cache_set($companyCacheKey, $currentCompany);
+                } catch (Throwable $e) {
+                    log_message('error', 'Failed to load company: ' . $e->getMessage());
+                    $currentCompany = null;
+                }
             }
         }
         include __DIR__ . '/../views/layouts/main.php';
@@ -65,21 +74,31 @@ class Controller
     {
         extract($data);
         $config = $this->config;
-        try {
-            $settingsModel = new SettingsModel($this->db);
-            $companySettings = $settingsModel->get('company', []);
-        } catch (Throwable $e) {
-            log_message('error', 'Failed to load company settings: ' . $e->getMessage());
-            $companySettings = [];
+        $companyId = current_company_id();
+        $companySettingsCacheKey = 'settings.company.' . ($companyId ?? 'global');
+        $companySettings = session_cache_get($companySettingsCacheKey);
+        if ($companySettings === null) {
+            try {
+                $settingsModel = new SettingsModel($this->db);
+                $companySettings = $settingsModel->get('company', []);
+                session_cache_set($companySettingsCacheKey, $companySettings);
+            } catch (Throwable $e) {
+                log_message('error', 'Failed to load company settings: ' . $e->getMessage());
+                $companySettings = [];
+            }
         }
         $currentCompany = null;
-        $companyId = current_company_id();
         if ($companyId) {
-            try {
-                $currentCompany = $this->db->fetch('SELECT * FROM companies WHERE id = :id', ['id' => $companyId]);
-            } catch (Throwable $e) {
-                log_message('error', 'Failed to load company: ' . $e->getMessage());
-                $currentCompany = null;
+            $companyCacheKey = 'companies.' . $companyId;
+            $currentCompany = session_cache_get($companyCacheKey);
+            if ($currentCompany === null) {
+                try {
+                    $currentCompany = $this->db->fetch('SELECT * FROM companies WHERE id = :id', ['id' => $companyId]);
+                    session_cache_set($companyCacheKey, $currentCompany);
+                } catch (Throwable $e) {
+                    log_message('error', 'Failed to load company: ' . $e->getMessage());
+                    $currentCompany = null;
+                }
             }
         }
         include __DIR__ . '/../views/layouts/portal.php';

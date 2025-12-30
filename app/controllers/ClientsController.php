@@ -13,7 +13,7 @@ class ClientsController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $clients = $this->clients->active();
+        $clients = $this->clients->active(current_company_id());
         $this->render('clients/index', [
             'title' => 'Clientes',
             'pageTitle' => 'Clientes',
@@ -41,12 +41,14 @@ class ClientsController extends Controller
             $this->redirect('index.php?route=clients/create');
         }
         $rut = trim($_POST['rut'] ?? '');
-        $existingQuery = 'SELECT id FROM clients WHERE deleted_at IS NULL AND email = :email';
-        $existingParams = ['email' => $email];
+        $companyId = current_company_id();
+        $existingQuery = 'SELECT id FROM clients WHERE deleted_at IS NULL AND company_id = :company_id AND (email = :email';
+        $existingParams = ['company_id' => $companyId, 'email' => $email];
         if ($rut !== '') {
             $existingQuery .= ' OR rut = :rut';
             $existingParams['rut'] = $rut;
         }
+        $existingQuery .= ')';
         $existingClient = $this->db->fetch($existingQuery . ' LIMIT 1', $existingParams);
         if ($existingClient) {
             flash('error', 'Ya existe un cliente con este email o RUT. Revisa los datos antes de duplicar.');
@@ -65,6 +67,7 @@ class ClientsController extends Controller
             $this->redirect('index.php?route=clients/create');
         }
         $data = [
+            'company_id' => $companyId,
             'name' => $name,
             'rut' => $rut,
             'email' => $email,
@@ -94,7 +97,10 @@ class ClientsController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $client = $this->clients->find($id);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$client) {
             $this->redirect('index.php?route=clients');
         }
@@ -111,6 +117,15 @@ class ClientsController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $companyId = current_company_id();
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=clients');
+        }
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         if (!Validator::required($name) || !Validator::email($email)) {
@@ -161,15 +176,22 @@ class ClientsController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $client = $this->clients->find($id);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$client) {
             $this->redirect('index.php?route=clients');
         }
-        $services = $this->db->fetchAll('SELECT * FROM services WHERE client_id = :id AND deleted_at IS NULL', ['id' => $id]);
-        $projects = $this->db->fetchAll('SELECT * FROM projects WHERE client_id = :id AND deleted_at IS NULL', ['id' => $id]);
-        $invoices = $this->db->fetchAll('SELECT * FROM invoices WHERE client_id = :id AND deleted_at IS NULL', ['id' => $id]);
-        $emails = $this->db->fetchAll('SELECT * FROM email_logs WHERE client_id = :id ORDER BY created_at DESC', ['id' => $id]);
-        $payments = $this->db->fetchAll('SELECT payments.* FROM payments JOIN invoices ON payments.invoice_id = invoices.id WHERE invoices.client_id = :id', ['id' => $id]);
+        $companyId = current_company_id();
+        $services = $this->db->fetchAll('SELECT * FROM services WHERE client_id = :id AND company_id = :company_id AND deleted_at IS NULL', ['id' => $id, 'company_id' => $companyId]);
+        $projects = $this->db->fetchAll('SELECT * FROM projects WHERE client_id = :id AND company_id = :company_id AND deleted_at IS NULL', ['id' => $id, 'company_id' => $companyId]);
+        $invoices = $this->db->fetchAll('SELECT * FROM invoices WHERE client_id = :id AND company_id = :company_id AND deleted_at IS NULL', ['id' => $id, 'company_id' => $companyId]);
+        $emails = $this->db->fetchAll('SELECT * FROM email_logs WHERE client_id = :id AND company_id = :company_id ORDER BY created_at DESC', ['id' => $id, 'company_id' => $companyId]);
+        $payments = $this->db->fetchAll(
+            'SELECT payments.* FROM payments JOIN invoices ON payments.invoice_id = invoices.id WHERE invoices.client_id = :id AND invoices.company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
 
         $this->render('clients/show', [
             'title' => 'Detalle Cliente',
@@ -194,8 +216,8 @@ class ClientsController extends Controller
             return;
         }
         $client = $this->db->fetch(
-            'SELECT * FROM clients WHERE deleted_at IS NULL AND (email = :term OR rut = :term) ORDER BY id DESC LIMIT 1',
-            ['term' => $term]
+            'SELECT * FROM clients WHERE company_id = :company_id AND deleted_at IS NULL AND (email = :term OR rut = :term) ORDER BY id DESC LIMIT 1',
+            ['company_id' => current_company_id(), 'term' => $term]
         );
         if (!$client) {
             echo json_encode(['found' => false], JSON_UNESCAPED_UNICODE);
@@ -227,17 +249,22 @@ class ClientsController extends Controller
     {
         $error = null;
         $email = '';
+        $companyId = 0;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             verify_csrf();
             $email = trim($_POST['email'] ?? '');
             $password = trim($_POST['password'] ?? '');
+            $companyId = (int)($_POST['company_id'] ?? 0);
             if (!Validator::email($email) || $password === '') {
                 $error = 'Completa los datos solicitados.';
+            } elseif ($companyId === 0) {
+                $error = 'Selecciona una empresa.';
             } else {
                 $client = $this->db->fetch(
-                    'SELECT * FROM clients WHERE email = :email AND deleted_at IS NULL',
+                    'SELECT * FROM clients WHERE email = :email AND company_id = :company_id AND deleted_at IS NULL',
                     [
                         'email' => $email,
+                        'company_id' => $companyId,
                     ]
                 );
                 if (!$client || empty($client['portal_password'])) {
@@ -256,6 +283,7 @@ class ClientsController extends Controller
                         $error = 'Las credenciales no son válidas.';
                     } else {
                         $_SESSION['client_portal_token'] = $client['portal_token'];
+                        $_SESSION['client_company_id'] = $client['company_id'] ?? null;
                         $this->redirect('index.php?route=clients/portal&token=' . urlencode($client['portal_token']));
                     }
                 }
@@ -267,6 +295,8 @@ class ClientsController extends Controller
             'pageTitle' => 'Acceso Portal Cliente',
             'error' => $error,
             'email' => $email,
+            'companyId' => $companyId,
+            'companies' => (new CompaniesModel($this->db))->active(),
             'showAdminAccess' => true,
             'hidePortalHeader' => true,
         ]);
@@ -398,6 +428,7 @@ class ClientsController extends Controller
     public function portalLogout(): void
     {
         unset($_SESSION['client_portal_token']);
+        unset($_SESSION['client_company_id']);
         $this->redirect('index.php?route=clients/login');
     }
 

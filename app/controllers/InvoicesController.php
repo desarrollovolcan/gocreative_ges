@@ -17,7 +17,7 @@ class InvoicesController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $invoices = $this->invoices->allWithClient();
+        $invoices = $this->invoices->allWithClient(current_company_id());
         $this->render('invoices/index', [
             'title' => 'Facturas',
             'pageTitle' => 'Facturas',
@@ -28,12 +28,16 @@ class InvoicesController extends Controller
     public function create(): void
     {
         $this->requireLogin();
-        $clients = $this->clients->active();
-        $services = $this->services->active();
-        $projects = $this->db->fetchAll('SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL ORDER BY projects.id DESC');
+        $companyId = current_company_id();
+        $clients = $this->clients->active($companyId);
+        $services = $this->services->active($companyId);
+        $projects = $this->db->fetchAll(
+            'SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL AND projects.company_id = :company_id ORDER BY projects.id DESC',
+            ['company_id' => $companyId]
+        );
         $settings = new SettingsModel($this->db);
         $prefix = $settings->get('invoice_prefix', 'FAC-');
-        $number = $this->invoices->nextNumber($prefix);
+        $number = $this->invoices->nextNumber($prefix, $companyId);
         $invoiceDefaults = $settings->get('invoice_defaults', []);
         $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $selectedProjectId = (int)($_GET['project_id'] ?? 0);
@@ -41,8 +45,8 @@ class InvoicesController extends Controller
         $projectInvoiceCount = 0;
         if ($selectedProjectId > 0) {
             $countRow = $this->db->fetch(
-                'SELECT COUNT(*) as total FROM invoices WHERE project_id = :project_id AND deleted_at IS NULL',
-                ['project_id' => $selectedProjectId]
+                'SELECT COUNT(*) as total FROM invoices WHERE project_id = :project_id AND deleted_at IS NULL AND company_id = :company_id',
+                ['project_id' => $selectedProjectId, 'company_id' => $companyId]
             );
             $projectInvoiceCount = (int)($countRow['total'] ?? 0);
         }
@@ -65,6 +69,7 @@ class InvoicesController extends Controller
     {
         $this->requireLogin();
         verify_csrf();
+        $companyId = current_company_id();
         $serviceId = trim($_POST['service_id'] ?? '');
         $projectId = trim($_POST['project_id'] ?? '');
         $issueDate = trim($_POST['fecha_emision'] ?? '');
@@ -72,9 +77,19 @@ class InvoicesController extends Controller
         $subtotal = trim($_POST['subtotal'] ?? '');
         $impuestos = trim($_POST['impuestos'] ?? '');
         $total = trim($_POST['total'] ?? '');
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=invoices/create');
+        }
 
         $invoiceId = $this->invoices->create([
-            'client_id' => (int)($_POST['client_id'] ?? 0),
+            'company_id' => $companyId,
+            'client_id' => $clientId,
             'service_id' => $serviceId !== '' ? $serviceId : null,
             'project_id' => $projectId !== '' ? $projectId : null,
             'numero' => trim($_POST['numero'] ?? ''),
@@ -115,13 +130,19 @@ class InvoicesController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $invoice = $this->invoices->find($id);
+        $invoice = $this->db->fetch(
+            'SELECT * FROM invoices WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$invoice) {
             $this->redirect('index.php?route=invoices');
         }
         $itemsModel = new InvoiceItemsModel($this->db);
         $paymentsModel = new PaymentsModel($this->db);
-        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $invoice['client_id']]);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $invoice['client_id'], 'company_id' => current_company_id()]
+        );
         $items = $itemsModel->byInvoice($id);
         $payments = $paymentsModel->byInvoice($id);
         $paidTotal = array_sum(array_map(static fn(array $payment) => (float)$payment['monto'], $payments));
@@ -142,12 +163,18 @@ class InvoicesController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $invoice = $this->invoices->find($id);
+        $invoice = $this->db->fetch(
+            'SELECT * FROM invoices WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$invoice) {
             $this->redirect('index.php?route=invoices');
         }
         $itemsModel = new InvoiceItemsModel($this->db);
-        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $invoice['client_id']]);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $invoice['client_id'], 'company_id' => current_company_id()]
+        );
         $items = $itemsModel->byInvoice($id);
         $settings = new SettingsModel($this->db);
         $company = $settings->get('company', []);
@@ -180,7 +207,8 @@ class InvoicesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         $this->syncInvoiceBalance($invoiceId);
-        $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+        $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+            'company_id' => current_company_id(),
             'title' => 'Pago registrado',
             'message' => 'Se registró un pago para la factura #' . $invoiceId,
             'type' => 'success',
@@ -197,6 +225,14 @@ class InvoicesController extends Controller
         verify_csrf();
         $paymentId = (int)($_POST['payment_id'] ?? 0);
         $invoiceId = (int)($_POST['invoice_id'] ?? 0);
+        $invoice = $this->db->fetch(
+            'SELECT id FROM invoices WHERE id = :id AND company_id = :company_id',
+            ['id' => $invoiceId, 'company_id' => current_company_id()]
+        );
+        if (!$invoice) {
+            flash('error', 'Factura no encontrada para esta empresa.');
+            $this->redirect('index.php?route=invoices');
+        }
         $payment = (new PaymentsModel($this->db))->find($paymentId);
         if (!$payment) {
             $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
@@ -220,6 +256,14 @@ class InvoicesController extends Controller
         verify_csrf();
         $paymentId = (int)($_POST['payment_id'] ?? 0);
         $invoiceId = (int)($_POST['invoice_id'] ?? 0);
+        $invoice = $this->db->fetch(
+            'SELECT id FROM invoices WHERE id = :id AND company_id = :company_id',
+            ['id' => $invoiceId, 'company_id' => current_company_id()]
+        );
+        if (!$invoice) {
+            flash('error', 'Factura no encontrada para esta empresa.');
+            $this->redirect('index.php?route=invoices');
+        }
         $payment = (new PaymentsModel($this->db))->find($paymentId);
         if ($payment) {
             $this->db->execute('DELETE FROM payments WHERE id = :id', ['id' => $paymentId]);
@@ -236,9 +280,18 @@ class InvoicesController extends Controller
         verify_csrf();
         $paymentId = (int)($_POST['payment_id'] ?? 0);
         $invoiceId = (int)($_POST['invoice_id'] ?? 0);
+        $invoice = $this->db->fetch(
+            'SELECT id FROM invoices WHERE id = :id AND company_id = :company_id',
+            ['id' => $invoiceId, 'company_id' => current_company_id()]
+        );
+        if (!$invoice) {
+            flash('error', 'Factura no encontrada para esta empresa.');
+            $this->redirect('index.php?route=invoices');
+        }
         $sent = $this->sendPaymentReceiptEmail($paymentId, false);
         if ($sent) {
-            $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+            $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+                'company_id' => current_company_id(),
                 'title' => 'Comprobante enviado',
                 'message' => 'El comprobante de pago fue enviado correctamente.',
                 'type' => 'success',
@@ -273,11 +326,17 @@ class InvoicesController extends Controller
         if (!$payment) {
             return false;
         }
-        $invoice = $this->invoices->find((int)$payment['invoice_id']);
+        $invoice = $this->db->fetch(
+            'SELECT * FROM invoices WHERE id = :id AND company_id = :company_id',
+            ['id' => (int)$payment['invoice_id'], 'company_id' => current_company_id()]
+        );
         if (!$invoice) {
             return false;
         }
-        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $invoice['client_id']]);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $invoice['client_id'], 'company_id' => current_company_id()]
+        );
         if (!$client) {
             return false;
         }
@@ -288,7 +347,8 @@ class InvoicesController extends Controller
         ], fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL));
         if (empty($recipients)) {
             if (!$silent) {
-                $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+                $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+                    'company_id' => current_company_id(),
                     'title' => 'Correo no enviado',
                     'message' => 'No hay email asociado al cliente para enviar el comprobante.',
                     'type' => 'danger',
@@ -314,9 +374,10 @@ class InvoicesController extends Controller
             'referencia_pago' => $payment['referencia'] ?? '',
         ];
 
-        $template = $this->db->fetch('SELECT * FROM email_templates WHERE type = :type AND deleted_at IS NULL ORDER BY id DESC LIMIT 1', [
-            'type' => 'pago',
-        ]);
+        $template = $this->db->fetch(
+            'SELECT * FROM email_templates WHERE type = :type AND deleted_at IS NULL AND company_id = :company_id ORDER BY id DESC LIMIT 1',
+            ['type' => 'pago', 'company_id' => current_company_id()]
+        );
         $subject = 'Comprobante de pago factura ' . ($invoice['numero'] ?? '');
         $bodyHtml = $this->buildPaymentReceiptFallback($context);
         if ($template) {
@@ -329,7 +390,8 @@ class InvoicesController extends Controller
             $mailer = new Mailer($this->db);
             $sent = $mailer->send('info', $recipients, $subject, $bodyHtml);
             if ($sent) {
-                $this->db->execute('INSERT INTO email_logs (client_id, type, subject, body_html, status, created_at, updated_at) VALUES (:client_id, :type, :subject, :body_html, :status, NOW(), NOW())', [
+                $this->db->execute('INSERT INTO email_logs (company_id, client_id, type, subject, body_html, status, created_at, updated_at) VALUES (:company_id, :client_id, :type, :subject, :body_html, :status, NOW(), NOW())', [
+                    'company_id' => current_company_id(),
                     'client_id' => $client['id'],
                     'type' => 'pago',
                     'subject' => $subject,
@@ -337,7 +399,8 @@ class InvoicesController extends Controller
                     'status' => 'sent',
                 ]);
             } elseif (!$silent) {
-                $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+                $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+                    'company_id' => current_company_id(),
                     'title' => 'Correo fallido',
                     'message' => 'No se pudo enviar el comprobante.',
                     'type' => 'danger',
@@ -347,7 +410,8 @@ class InvoicesController extends Controller
         } catch (Throwable $e) {
             log_message('error', 'Payment receipt email failed: ' . $e->getMessage());
             if (!$silent) {
-                $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+                $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+                    'company_id' => current_company_id(),
                     'title' => 'Correo fallido',
                     'message' => 'No se pudo enviar el comprobante.',
                     'type' => 'danger',

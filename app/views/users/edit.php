@@ -12,6 +12,16 @@
                     <input type="text" name="name" class="form-control" value="<?php echo e($user['name']); ?>" required>
                 </div>
                 <div class="col-md-6 mb-3">
+                    <label class="form-label">Empresa</label>
+                    <select name="company_id" class="form-select" required>
+                        <?php foreach (($companies ?? []) as $company): ?>
+                            <option value="<?php echo e((string)$company['id']); ?>" <?php echo ((int)$company['id'] === (int)$user['company_id']) ? 'selected' : ''; ?>>
+                                <?php echo e($company['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
                     <label class="form-label">Email</label>
                     <input type="email" name="email" class="form-control" value="<?php echo e($user['email']); ?>" required>
                 </div>

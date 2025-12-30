@@ -186,18 +186,34 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
             <?php endif; ?>
             <?php if ($canAccess('users')): ?>
                 <li class="side-nav-item">
-                    <a href="index.php?route=users" class="side-nav-link">
+                    <a data-bs-toggle="collapse" href="#sidebarUsers" aria-expanded="false" aria-controls="sidebarUsers" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="user"></i></span>
                         <span class="menu-text">Usuarios</span>
+                        <span class="menu-arrow"></span>
                     </a>
-                </li>
-            <?php endif; ?>
-            <?php if ($canAccess('users_permissions')): ?>
-                <li class="side-nav-item">
-                    <a href="index.php?route=users/permissions" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="shield-check"></i></span>
-                        <span class="menu-text">Permisos usuarios</span>
-                    </a>
+                    <div class="collapse" id="sidebarUsers">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="index.php?route=users" class="side-nav-link">
+                                    <span class="menu-text">Listado usuarios</span>
+                                </a>
+                            </li>
+                            <?php if ($canAccess('users_permissions')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=users/permissions" class="side-nav-link">
+                                        <span class="menu-text">Roles y permisos</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($canAccess('users_companies')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=users/assign-company" class="side-nav-link">
+                                        <span class="menu-text">Asignar empresa</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </li>
             <?php endif; ?>
         </ul>

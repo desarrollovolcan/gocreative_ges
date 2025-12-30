@@ -109,6 +109,11 @@ $userInitials = $userInitials !== '' ? strtoupper(mb_substr($userInitials, 0, 1)
                             <i class="ti ti-settings me-2"></i> Configuración
                         </a>
                         <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+                            <a href="index.php?route=auth/switch-company" class="dropdown-item">
+                                <i class="ti ti-building me-2"></i> Cambiar empresa
+                            </a>
+                        <?php endif; ?>
+                        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
                             <a href="index.php?route=users" class="dropdown-item">
                                 <i class="ti ti-users me-2"></i> Usuarios
                             </a>

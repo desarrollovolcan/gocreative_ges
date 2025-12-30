@@ -293,6 +293,10 @@ function permission_catalog(): array
             'label' => 'Usuarios',
             'routes' => ['users'],
         ],
+        'users_companies' => [
+            'label' => 'Usuarios por empresa',
+            'routes' => ['users/assign-company'],
+        ],
         'users_permissions' => [
             'label' => 'Permisos de usuarios',
             'routes' => ['users/permissions'],

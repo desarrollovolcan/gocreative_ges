@@ -104,9 +104,13 @@ return [
     'users/edit' => ['UsersController', 'edit'],
     'users/update' => ['UsersController', 'update'],
     'users/delete' => ['UsersController', 'delete'],
+    'users/assign-company' => ['UsersController', 'assignCompany'],
+    'users/assign-company/update' => ['UsersController', 'updateCompany'],
     'users/permissions' => ['PermissionsController', 'index'],
     'users/permissions/update' => ['PermissionsController', 'update'],
     'notifications' => ['NotificationsController', 'index'],
     'search' => ['SearchController', 'index'],
+    'auth/switch-company' => ['AuthController', 'switchCompany'],
+    'auth/switch-company/update' => ['AuthController', 'updateCompany'],
     'logout' => ['AuthController', 'logout'],
 ];

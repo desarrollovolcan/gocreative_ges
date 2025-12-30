@@ -59,4 +59,34 @@ class AuthController extends Controller
         Auth::logout();
         $this->redirect('login.php');
     }
+
+    public function switchCompany(): void
+    {
+        $this->requireLogin();
+        $this->requireRole('admin');
+        $companies = (new CompaniesModel($this->db))->active();
+        $this->render('auth/switch-company', [
+            'title' => 'Cambiar empresa',
+            'pageTitle' => 'Cambiar empresa',
+            'companies' => $companies,
+            'currentCompanyId' => (int)(Auth::user()['company_id'] ?? 0),
+        ]);
+    }
+
+    public function updateCompany(): void
+    {
+        $this->requireLogin();
+        $this->requireRole('admin');
+        verify_csrf();
+        $companyId = (int)($_POST['company_id'] ?? 0);
+        $company = $this->db->fetch('SELECT id, name FROM companies WHERE id = :id', ['id' => $companyId]);
+        if (!$company) {
+            flash('error', 'Empresa no encontrada.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $_SESSION['user']['company_id'] = $companyId;
+        $_SESSION['user']['company_name'] = $company['name'];
+        flash('success', 'Empresa cambiada correctamente.');
+        $this->redirect('index.php?route=dashboard');
+    }
 }

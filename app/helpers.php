@@ -310,6 +310,10 @@ function permission_catalog(): array
             'label' => 'Mantenedores',
             'routes' => ['maintainers'],
         ],
+        'companies' => [
+            'label' => 'Empresas',
+            'routes' => ['companies'],
+        ],
         'users' => [
             'label' => 'Usuarios',
             'routes' => ['users'],

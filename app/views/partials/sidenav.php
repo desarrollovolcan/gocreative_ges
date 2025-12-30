@@ -165,6 +165,13 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                     <div class="collapse" id="sidebarMaintainers">
                         <ul class="sub-menu">
+                            <?php if ($canAccess('companies')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=companies" class="side-nav-link">
+                                        <span class="menu-text">Empresas</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                             <li class="side-nav-item">
                                 <a href="index.php?route=maintainers/services" class="side-nav-link">
                                     <span class="menu-text">Servicios</span>

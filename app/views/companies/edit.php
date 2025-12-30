@@ -1,0 +1,13 @@
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="index.php?route=companies/update">
+            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+            <input type="hidden" name="id" value="<?php echo e((string)($company['id'] ?? 0)); ?>">
+            <?php include __DIR__ . '/_form.php'; ?>
+            <div class="d-flex justify-content-end gap-2">
+                <a href="index.php?route=companies" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Actualizar</button>
+            </div>
+        </form>
+    </div>
+</div>

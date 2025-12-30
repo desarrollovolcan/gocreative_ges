@@ -12,6 +12,11 @@
         <p><strong>Vencimiento:</strong> <?php echo e($service['due_date']); ?></p>
         <p><strong>Auto facturar:</strong> <?php echo $service['auto_invoice'] ? 'Sí' : 'No'; ?></p>
         <p><strong>Auto correo:</strong> <?php echo $service['auto_email'] ? 'Sí' : 'No'; ?></p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <a href="index.php?route=clients/show&id=<?php echo (int)($client['id'] ?? 0); ?>" class="btn btn-outline-primary btn-sm">Ver cliente</a>
+            <a href="index.php?route=invoices/create&service_id=<?php echo (int)$service['id']; ?>&client_id=<?php echo (int)($client['id'] ?? 0); ?>" class="btn btn-outline-success btn-sm">Crear factura</a>
+            <a href="index.php?route=tickets/create&client_id=<?php echo (int)($client['id'] ?? 0); ?>" class="btn btn-outline-warning btn-sm">Abrir ticket</a>
+        </div>
     </div>
 </div>
 

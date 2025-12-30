@@ -43,12 +43,12 @@ class UsersController extends Controller
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         if (!Validator::required($name) || !Validator::email($email)) {
-            $_SESSION['error'] = 'Completa los campos obligatorios.';
+            flash('error', 'Completa los campos obligatorios.');
             $this->redirect('index.php?route=users/create');
         }
         $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'user');
         if (!empty($avatarResult['error'])) {
-            $_SESSION['error'] = $avatarResult['error'];
+            flash('error', $avatarResult['error']);
             $this->redirect('index.php?route=users/create');
         }
 
@@ -63,6 +63,7 @@ class UsersController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         audit($this->db, Auth::user()['id'], 'create', 'users');
+        flash('success', 'Usuario creado correctamente.');
         $this->redirect('index.php?route=users');
     }
 
@@ -90,7 +91,7 @@ class UsersController extends Controller
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         if (!Validator::required($name) || !Validator::email($email)) {
-            $_SESSION['error'] = 'Completa los campos obligatorios.';
+            flash('error', 'Completa los campos obligatorios.');
             $this->redirect('index.php?route=users/edit&id=' . $id);
         }
         $data = [
@@ -102,7 +103,7 @@ class UsersController extends Controller
         ];
         $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'user');
         if (!empty($avatarResult['error'])) {
-            $_SESSION['error'] = $avatarResult['error'];
+            flash('error', $avatarResult['error']);
             $this->redirect('index.php?route=users/edit&id=' . $id);
         }
         if (!empty($avatarResult['path'])) {
@@ -113,6 +114,7 @@ class UsersController extends Controller
         }
         $this->users->update($id, $data);
         audit($this->db, Auth::user()['id'], 'update', 'users', $id);
+        flash('success', 'Usuario actualizado correctamente.');
         $this->redirect('index.php?route=users');
     }
 
@@ -124,6 +126,7 @@ class UsersController extends Controller
         $id = (int)($_POST['id'] ?? 0);
         $this->users->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'users', $id);
+        flash('success', 'Usuario eliminado correctamente.');
         $this->redirect('index.php?route=users');
     }
 }

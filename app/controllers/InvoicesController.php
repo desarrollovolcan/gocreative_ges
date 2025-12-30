@@ -37,6 +37,7 @@ class InvoicesController extends Controller
         $invoiceDefaults = $settings->get('invoice_defaults', []);
         $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $selectedProjectId = (int)($_GET['project_id'] ?? 0);
+        $selectedServiceId = (int)($_GET['service_id'] ?? 0);
         $projectInvoiceCount = 0;
         if ($selectedProjectId > 0) {
             $countRow = $this->db->fetch(
@@ -55,6 +56,7 @@ class InvoicesController extends Controller
             'invoiceDefaults' => $invoiceDefaults,
             'selectedClientId' => $selectedClientId,
             'selectedProjectId' => $selectedProjectId,
+            'selectedServiceId' => $selectedServiceId,
             'projectInvoiceCount' => $projectInvoiceCount,
         ]);
     }
@@ -105,6 +107,7 @@ class InvoicesController extends Controller
         }
 
         audit($this->db, Auth::user()['id'], 'create', 'invoices', $invoiceId);
+        flash('success', 'Factura creada correctamente.');
         $this->redirect('index.php?route=invoices');
     }
 
@@ -184,6 +187,7 @@ class InvoicesController extends Controller
         ]);
         $this->sendPaymentReceiptEmail($paymentId, true);
         audit($this->db, Auth::user()['id'], 'pay', 'invoices', $invoiceId);
+        flash('success', 'Pago registrado correctamente.');
         $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
     }
 
@@ -206,6 +210,7 @@ class InvoicesController extends Controller
         ]);
         $this->syncInvoiceBalance($invoiceId);
         audit($this->db, Auth::user()['id'], 'update', 'payments', $paymentId);
+        flash('success', 'Pago actualizado correctamente.');
         $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
     }
 
@@ -220,6 +225,7 @@ class InvoicesController extends Controller
             $this->db->execute('DELETE FROM payments WHERE id = :id', ['id' => $paymentId]);
             $this->syncInvoiceBalance($invoiceId);
             audit($this->db, Auth::user()['id'], 'delete', 'payments', $paymentId);
+            flash('success', 'Pago eliminado correctamente.');
         }
         $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
     }
@@ -237,6 +243,9 @@ class InvoicesController extends Controller
                 'message' => 'El comprobante de pago fue enviado correctamente.',
                 'type' => 'success',
             ]);
+            flash('success', 'Comprobante enviado correctamente.');
+        } else {
+            flash('error', 'No se pudo enviar el comprobante.');
         }
         $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
     }
@@ -380,6 +389,7 @@ class InvoicesController extends Controller
         $id = (int)($_POST['id'] ?? 0);
         $this->invoices->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'invoices', $id);
+        flash('success', 'Factura eliminada correctamente.');
         $this->redirect('index.php?route=invoices');
     }
 

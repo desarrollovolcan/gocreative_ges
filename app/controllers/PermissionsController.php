@@ -45,6 +45,7 @@ class PermissionsController extends Controller
         if ($roleId) {
             $this->permissions->replaceForRole($roleId, $permissions);
             audit($this->db, Auth::user()['id'], 'update', 'role_permissions', $roleId);
+            flash('success', 'Permisos actualizados correctamente.');
         }
         $this->redirect('index.php?route=users/permissions&role_id=' . $roleId);
     }

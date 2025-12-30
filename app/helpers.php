@@ -93,6 +93,27 @@ function current_company_id(): ?int
     return $companyId ?: null;
 }
 
+function user_company_ids(Database $db, ?array $user): array
+{
+    if (!$user) {
+        return [];
+    }
+    $companyIds = [];
+    if (!empty($user['company_id'])) {
+        $companyIds[] = (int)$user['company_id'];
+    }
+    $rows = $db->fetchAll(
+        'SELECT company_id FROM user_companies WHERE user_id = :user_id',
+        ['user_id' => (int)($user['id'] ?? 0)]
+    );
+    foreach ($rows as $row) {
+        $companyIds[] = (int)$row['company_id'];
+    }
+    $companyIds = array_values(array_unique(array_filter($companyIds)));
+    sort($companyIds);
+    return $companyIds;
+}
+
 function ensure_upload_directory(string $directory): ?string
 {
     if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
@@ -296,6 +317,10 @@ function permission_catalog(): array
         'users_companies' => [
             'label' => 'Usuarios por empresa',
             'routes' => ['users/assign-company'],
+        ],
+        'company_switch' => [
+            'label' => 'Cambio de empresa',
+            'routes' => ['auth/switch-company'],
         ],
         'users_permissions' => [
             'label' => 'Permisos de usuarios',

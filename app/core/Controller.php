@@ -15,6 +15,7 @@ class Controller
     {
         extract($data);
         $config = $this->config;
+        $db = $this->db;
         $currentUser = Auth::user();
         $permissions = [];
         if ($currentUser && ($currentUser['role'] ?? '') !== 'admin') {

@@ -44,10 +44,22 @@ class UsersController extends Controller
         verify_csrf();
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
+        $companyIds = array_values(array_filter(array_map('intval', $_POST['company_ids'] ?? [])));
         $companyId = (int)($_POST['company_id'] ?? 0);
-        $company = $this->db->fetch('SELECT id FROM companies WHERE id = :id', ['id' => $companyId]);
-        if (!$company) {
+        if ($companyId > 0) {
+            $companyIds[] = $companyId;
+        }
+        $companyIds = array_values(array_unique($companyIds));
+        if (empty($companyIds)) {
             flash('error', 'Selecciona una empresa válida.');
+            $this->redirect('index.php?route=users/create');
+        }
+        $validCompanyCount = $this->db->fetch(
+            'SELECT COUNT(*) as total FROM companies WHERE id IN (' . implode(',', array_fill(0, count($companyIds), '?')) . ')',
+            $companyIds
+        );
+        if ((int)($validCompanyCount['total'] ?? 0) !== count($companyIds)) {
+            flash('error', 'Selecciona empresas válidas.');
             $this->redirect('index.php?route=users/create');
         }
         if (!Validator::required($name) || !Validator::email($email)) {
@@ -60,8 +72,9 @@ class UsersController extends Controller
             $this->redirect('index.php?route=users/create');
         }
 
-        $this->users->create([
-            'company_id' => $companyId,
+        $primaryCompanyId = $companyIds[0];
+        $userId = $this->users->create([
+            'company_id' => $primaryCompanyId,
             'name' => $name,
             'email' => $email,
             'password' => password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT),
@@ -71,6 +84,7 @@ class UsersController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+        $this->syncUserCompanies($userId, $companyIds);
         audit($this->db, Auth::user()['id'], 'create', 'users');
         flash('success', 'Usuario creado correctamente.');
         $this->redirect('index.php?route=users');
@@ -93,6 +107,7 @@ class UsersController extends Controller
             'user' => $user,
             'roles' => $roles,
             'companies' => $companies,
+            'userCompanyIds' => user_company_ids($this->db, $user),
         ]);
     }
 
@@ -104,18 +119,31 @@ class UsersController extends Controller
         $id = (int)($_POST['id'] ?? 0);
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
+        $companyIds = array_values(array_filter(array_map('intval', $_POST['company_ids'] ?? [])));
         $companyId = (int)($_POST['company_id'] ?? 0);
-        $company = $this->db->fetch('SELECT id FROM companies WHERE id = :id', ['id' => $companyId]);
-        if (!$company) {
+        if ($companyId > 0) {
+            $companyIds[] = $companyId;
+        }
+        $companyIds = array_values(array_unique($companyIds));
+        if (empty($companyIds)) {
             flash('error', 'Selecciona una empresa válida.');
+            $this->redirect('index.php?route=users/edit&id=' . $id);
+        }
+        $validCompanyCount = $this->db->fetch(
+            'SELECT COUNT(*) as total FROM companies WHERE id IN (' . implode(',', array_fill(0, count($companyIds), '?')) . ')',
+            $companyIds
+        );
+        if ((int)($validCompanyCount['total'] ?? 0) !== count($companyIds)) {
+            flash('error', 'Selecciona empresas válidas.');
             $this->redirect('index.php?route=users/edit&id=' . $id);
         }
         if (!Validator::required($name) || !Validator::email($email)) {
             flash('error', 'Completa los campos obligatorios.');
             $this->redirect('index.php?route=users/edit&id=' . $id);
         }
+        $primaryCompanyId = $companyIds[0];
         $data = [
-            'company_id' => $companyId,
+            'company_id' => $primaryCompanyId,
             'name' => $name,
             'email' => $email,
             'role_id' => (int)($_POST['role_id'] ?? 2),
@@ -134,9 +162,10 @@ class UsersController extends Controller
             $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
         }
         $this->users->update($id, $data);
+        $this->syncUserCompanies($id, $companyIds);
         if (!empty($_SESSION['user']) && (int)($_SESSION['user']['id'] ?? 0) === $id) {
-            $_SESSION['user']['company_id'] = $companyId;
-            $companyRow = $this->db->fetch('SELECT name FROM companies WHERE id = :id', ['id' => $companyId]);
+            $_SESSION['user']['company_id'] = $primaryCompanyId;
+            $companyRow = $this->db->fetch('SELECT name FROM companies WHERE id = :id', ['id' => $primaryCompanyId]);
             $_SESSION['user']['company_name'] = $companyRow['name'] ?? $_SESSION['user']['company_name'];
         }
         audit($this->db, Auth::user()['id'], 'update', 'users', $id);
@@ -174,6 +203,10 @@ class UsersController extends Controller
              WHERE users.deleted_at IS NULL
              ORDER BY users.name'
         );
+        foreach ($users as &$user) {
+            $user['company_ids'] = user_company_ids($this->db, $user);
+        }
+        unset($user);
         $this->render('users/assign_company', [
             'title' => 'Asociar usuario a empresa',
             'pageTitle' => 'Asociar usuario a empresa',
@@ -188,27 +221,53 @@ class UsersController extends Controller
         $this->requireRole('admin');
         verify_csrf();
         $userId = (int)($_POST['user_id'] ?? 0);
-        $companyId = (int)($_POST['company_id'] ?? 0);
+        $companyIds = array_values(array_filter(array_map('intval', $_POST['company_ids'] ?? [])));
         $user = $this->db->fetch('SELECT id FROM users WHERE id = :id AND deleted_at IS NULL', ['id' => $userId]);
         if (!$user) {
             flash('error', 'Usuario no encontrado.');
             $this->redirect('index.php?route=users/assign-company');
         }
-        $company = $this->db->fetch('SELECT id, name FROM companies WHERE id = :id', ['id' => $companyId]);
-        if (!$company) {
+        if (empty($companyIds)) {
+            flash('error', 'Selecciona al menos una empresa.');
+            $this->redirect('index.php?route=users/assign-company');
+        }
+        $validCompanyCount = $this->db->fetch(
+            'SELECT COUNT(*) as total FROM companies WHERE id IN (' . implode(',', array_fill(0, count($companyIds), '?')) . ')',
+            $companyIds
+        );
+        if ((int)($validCompanyCount['total'] ?? 0) !== count($companyIds)) {
+            flash('error', 'Empresas no encontradas.');
+            $this->redirect('index.php?route=users/assign-company');
+        }
+        $primaryCompanyId = $companyIds[0];
+        $primaryCompany = $this->db->fetch('SELECT id, name FROM companies WHERE id = :id', ['id' => $primaryCompanyId]);
+        if (!$primaryCompany) {
             flash('error', 'Empresa no encontrada.');
             $this->redirect('index.php?route=users/assign-company');
         }
         $this->users->update($userId, [
-            'company_id' => $companyId,
+            'company_id' => $primaryCompanyId,
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+        $this->syncUserCompanies($userId, $companyIds);
         if (!empty($_SESSION['user']) && (int)($_SESSION['user']['id'] ?? 0) === $userId) {
-            $_SESSION['user']['company_id'] = $companyId;
-            $_SESSION['user']['company_name'] = $company['name'];
+            $_SESSION['user']['company_id'] = $primaryCompanyId;
+            $_SESSION['user']['company_name'] = $primaryCompany['name'];
         }
         audit($this->db, Auth::user()['id'], 'update', 'users_company', $userId);
         flash('success', 'Empresa asociada correctamente.');
         $this->redirect('index.php?route=users/assign-company');
+    }
+
+    private function syncUserCompanies(int $userId, array $companyIds): void
+    {
+        $companyIds = array_values(array_unique(array_filter($companyIds)));
+        $this->db->execute('DELETE FROM user_companies WHERE user_id = :user_id', ['user_id' => $userId]);
+        foreach ($companyIds as $companyId) {
+            $this->db->execute(
+                'INSERT INTO user_companies (user_id, company_id, created_at) VALUES (:user_id, :company_id, NOW())',
+                ['user_id' => $userId, 'company_id' => $companyId]
+            );
+        }
     }
 }

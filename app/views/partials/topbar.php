@@ -7,6 +7,10 @@ $companyName = $currentCompany['name'] ?? ($companySettings['name'] ?? '');
 $userAvatar = $currentUser['avatar_path'] ?? '';
 $userInitials = trim((string)($currentUser['name'] ?? 'U'));
 $userInitials = $userInitials !== '' ? strtoupper(mb_substr($userInitials, 0, 1)) : 'U';
+$isAdmin = ($currentUser['role'] ?? '') === 'admin';
+$canSwitchCompany = $isAdmin || in_array('company_switch', $permissions ?? [], true);
+$userCompanies = $canSwitchCompany ? user_company_ids($db, $currentUser) : [];
+$hasMultipleCompanies = count($userCompanies) > 1;
 ?>
 
 <header class="app-topbar">
@@ -108,7 +112,7 @@ $userInitials = $userInitials !== '' ? strtoupper(mb_substr($userInitials, 0, 1)
                         <a href="index.php?route=settings" class="dropdown-item">
                             <i class="ti ti-settings me-2"></i> Configuración
                         </a>
-                        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+                        <?php if ($canSwitchCompany && $hasMultipleCompanies): ?>
                             <a href="index.php?route=auth/switch-company" class="dropdown-item">
                                 <i class="ti ti-building me-2"></i> Cambiar empresa
                             </a>

@@ -31,10 +31,27 @@ class AuthController extends Controller
             $this->redirect('login.php');
         }
 
+        if ($companyId === 0) {
+            $_SESSION['error'] = 'Selecciona una empresa.';
+            $this->redirect('login.php');
+        }
+
+        $company = $this->db->fetch('SELECT * FROM companies WHERE id = :id', ['id' => $companyId]);
+        if (!$company) {
+            $_SESSION['error'] = 'Empresa no encontrada.';
+            $this->redirect('login.php');
+        }
+
         $user = $this->db->fetch('SELECT users.*, roles.name as role FROM users JOIN roles ON users.role_id = roles.id WHERE users.email = :email AND users.company_id = :company_id AND users.deleted_at IS NULL', [
             'email' => $email,
             'company_id' => $companyId,
         ]);
+        if ($user) {
+            $companyIds = user_company_ids($this->db, $user);
+            if (!in_array($companyId, $companyIds, true)) {
+                $user = null;
+            }
+        }
 
         if (!$user || !password_verify($password, $user['password'])) {
             $_SESSION['error'] = 'Credenciales inválidas.';
@@ -63,8 +80,18 @@ class AuthController extends Controller
     public function switchCompany(): void
     {
         $this->requireLogin();
-        $this->requireRole('admin');
-        $companies = (new CompaniesModel($this->db))->active();
+        if (!can_access_route($this->db, 'auth/switch-company', Auth::user())) {
+            $this->redirect('index.php?route=dashboard');
+        }
+        $companyIds = user_company_ids($this->db, Auth::user());
+        $companies = [];
+        if ($companyIds) {
+            $placeholders = implode(',', array_fill(0, count($companyIds), '?'));
+            $companies = $this->db->fetchAll(
+                'SELECT * FROM companies WHERE id IN (' . $placeholders . ') ORDER BY name',
+                array_values($companyIds)
+            );
+        }
         $this->render('auth/switch-company', [
             'title' => 'Cambiar empresa',
             'pageTitle' => 'Cambiar empresa',
@@ -76,9 +103,16 @@ class AuthController extends Controller
     public function updateCompany(): void
     {
         $this->requireLogin();
-        $this->requireRole('admin');
+        if (!can_access_route($this->db, 'auth/switch-company', Auth::user())) {
+            $this->redirect('index.php?route=dashboard');
+        }
         verify_csrf();
         $companyId = (int)($_POST['company_id'] ?? 0);
+        $companyIds = user_company_ids($this->db, Auth::user());
+        if (!in_array($companyId, $companyIds, true)) {
+            flash('error', 'No tienes acceso a esa empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $company = $this->db->fetch('SELECT id, name FROM companies WHERE id = :id', ['id' => $companyId]);
         if (!$company) {
             flash('error', 'Empresa no encontrada.');

@@ -45,6 +45,15 @@ CREATE TABLE users (
     FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
+CREATE TABLE user_companies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    company_id INT NOT NULL,
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
 CREATE TABLE clients (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_id INT NOT NULL,
@@ -387,6 +396,7 @@ CREATE INDEX idx_invoices_estado ON invoices(estado);
 CREATE INDEX idx_invoices_numero ON invoices(numero);
 CREATE INDEX idx_email_queue_status ON email_queue(status);
 CREATE UNIQUE INDEX idx_settings_key_company ON settings(company_id, `key`);
+CREATE UNIQUE INDEX idx_user_companies_unique ON user_companies(user_id, company_id);
 
 INSERT INTO roles (name, created_at, updated_at) VALUES
 ('admin', NOW(), NOW()),
@@ -397,6 +407,9 @@ INSERT INTO companies (name, rut, email, created_at, updated_at) VALUES
 
 INSERT INTO users (company_id, name, email, password, role_id, created_at, updated_at) VALUES
 (1, 'E Isla', 'eisla@gocreative.cl', '$2y$12$Aa7Lucu.iaa3mUMBZjxAyO96KI0d6yNaKuOD/Rdru1FsOhn9Kmtga', 1, NOW(), NOW());
+
+INSERT INTO user_companies (user_id, company_id, created_at) VALUES
+(1, 1, NOW());
 
 INSERT INTO settings (company_id, `key`, value, created_at, updated_at) VALUES
 (1, 'company', '{"name":"GoCreative","rut":"","bank":"","account_type":"","account_number":"","email":"contacto@gocreative.cl","signature":"Saludos"}', NOW(), NOW()),

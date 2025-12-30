@@ -98,6 +98,11 @@ class SystemServicesController extends Controller
         $this->requireRole('admin');
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $linked = $this->db->fetch('SELECT COUNT(*) as total FROM quotes WHERE system_service_id = :id', ['id' => $id]);
+        if (!empty($linked['total'])) {
+            flash('error', 'No se puede eliminar el servicio porque tiene cotizaciones asociadas.');
+            $this->redirect('index.php?route=maintainers/services');
+        }
         $this->db->execute('DELETE FROM system_services WHERE id = :id', ['id' => $id]);
         audit($this->db, Auth::user()['id'], 'delete', 'system_services', $id);
         flash('success', 'Servicio eliminado correctamente.');

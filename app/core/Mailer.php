@@ -18,15 +18,18 @@ class Mailer
     {
         $this->lastError = '';
         $defaultConfig = [
-            'host' => 'mail.gocreative.cl',
+            'host' => 'ges.gocreative.cl',
             'port_ssl' => 465,
             'port_tls' => 587,
             'security' => 'ssl',
-            'username' => 'informevolcan@gocreative.cl',
-            'password' => '#(3-QiWGI;l}oJW_',
+            'username' => 'info@ges.gocreative.cl',
+            'password' => '',
             'from_name' => 'Información',
-            'from_email' => 'informevolcan@gocreative.cl',
-            'reply_to' => 'informevolcan@gocreative.cl',
+            'from_email' => 'info@ges.gocreative.cl',
+            'reply_to' => 'info@ges.gocreative.cl',
+            'incoming_host' => 'ges.gocreative.cl',
+            'imap_port' => 993,
+            'pop3_port' => 995,
         ];
         $config = $this->settings->get('smtp_info', []);
         if (!is_array($config)) {
@@ -81,12 +84,13 @@ class Mailer
                 ],
             ];
 
-            $fromEmail = $config['username'] ?? '';
+            $fromEmail = $config['from_email'] ?? '';
+            if ($fromEmail === '') {
+                $fromEmail = $config['username'] ?? '';
+            }
             $mail->setFrom($fromEmail, $config['from_name'] ?? '');
-            $mail->Sender = $fromEmail;
-            if (!empty($config['from_email']) && $config['from_email'] !== $fromEmail) {
-                $mail->addReplyTo($config['from_email']);
-            } elseif (!empty($config['reply_to'])) {
+            $mail->Sender = $config['username'] ?? $fromEmail;
+            if (!empty($config['reply_to'])) {
                 $mail->addReplyTo($config['reply_to']);
             }
             $recipients = is_array($to) ? $to : [$to];

@@ -84,11 +84,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Listado</span>
                                 </a>
                             </li>
-                            <li class="side-nav-item">
-                                <a href="chat.php" class="side-nav-link">
-                                    <span class="menu-text">Chat</span>
-                                </a>
-                            </li>
                             <?php if ($canAccess('tickets')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=tickets" class="side-nav-link">

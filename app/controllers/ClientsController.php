@@ -361,21 +361,6 @@ class ClientsController extends Controller
             ['id' => $client['id']]
         );
 
-        $chatModel = new ChatModel($this->db);
-        $chatThreads = $chatModel->getThreadsForClient((int)$client['id']);
-        $activeThreadId = (int)($_GET['thread'] ?? 0);
-        if ($activeThreadId === 0 && !empty($chatThreads)) {
-            $activeThreadId = (int)$chatThreads[0]['id'];
-        }
-        $activeChatThread = null;
-        $chatMessages = [];
-        if ($activeThreadId !== 0) {
-            $activeChatThread = $chatModel->getThreadForClient($activeThreadId, (int)$client['id']);
-            if ($activeChatThread) {
-                $chatMessages = $chatModel->getMessages($activeThreadId);
-            }
-        }
-
         $ticketModel = new SupportTicketsModel($this->db);
         $ticketMessageModel = new SupportTicketMessagesModel($this->db);
         $supportTickets = $ticketModel->forClient((int)$client['id']);
@@ -406,12 +391,6 @@ class ClientsController extends Controller
             'paidTotal' => $paidTotal,
             'projectsOverview' => $projectsOverview,
             'projectTasks' => $projectTasks,
-            'chatThreads' => $chatThreads,
-            'activeChatThread' => $activeChatThread,
-            'activeChatThreadId' => $activeThreadId,
-            'chatMessages' => $chatMessages,
-            'chatSuccess' => $_SESSION['chat_success'] ?? null,
-            'chatError' => $_SESSION['chat_error'] ?? null,
             'supportTickets' => $supportTickets,
             'activeSupportTicket' => $activeSupportTicket,
             'activeSupportTicketId' => $activeSupportTicketId,
@@ -421,7 +400,6 @@ class ClientsController extends Controller
             'success' => $_SESSION['success'] ?? null,
         ]);
         unset($_SESSION['success']);
-        unset($_SESSION['chat_success'], $_SESSION['chat_error']);
         unset($_SESSION['support_success'], $_SESSION['support_error']);
     }
 

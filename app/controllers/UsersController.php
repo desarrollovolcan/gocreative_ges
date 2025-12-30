@@ -15,7 +15,7 @@ class UsersController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $users = $this->users->allActive();
+        $users = $this->users->allActive(current_company_id());
         $this->render('users/index', [
             'title' => 'Usuarios',
             'pageTitle' => 'Usuarios',
@@ -53,6 +53,7 @@ class UsersController extends Controller
         }
 
         $this->users->create([
+            'company_id' => current_company_id(),
             'name' => $name,
             'email' => $email,
             'password' => password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT),
@@ -72,7 +73,10 @@ class UsersController extends Controller
         $this->requireLogin();
         $this->requireRole('admin');
         $id = (int)($_GET['id'] ?? 0);
-        $user = $this->users->find($id);
+        $user = $this->db->fetch(
+            'SELECT * FROM users WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         $roles = $this->roles->all();
         $this->render('users/edit', [
             'title' => 'Editar Usuario',
@@ -124,6 +128,14 @@ class UsersController extends Controller
         $this->requireRole('admin');
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $user = $this->db->fetch(
+            'SELECT id FROM users WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
+        if (!$user) {
+            flash('error', 'No encontramos el usuario en esta empresa.');
+            $this->redirect('index.php?route=users');
+        }
         $this->users->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'users', $id);
         flash('success', 'Usuario eliminado correctamente.');

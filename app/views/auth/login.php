@@ -55,6 +55,14 @@ $logoBlack = $companySettings['logo_black'] ?? 'assets/images/logo-black.png';
                             <form class="mt-4" method="post" action="login.php">
                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                 <div class="app-search w-100 input-group rounded-pill mb-3">
+                                    <select name="company_id" class="form-select py-2" required>
+                                        <option value="">Selecciona empresa</option>
+                                        <?php foreach (($companies ?? []) as $company): ?>
+                                            <option value="<?php echo e((string)$company['id']); ?>"><?php echo e($company['name']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="app-search w-100 input-group rounded-pill mb-3">
                                     <input type="email" name="email" class="form-control py-2" placeholder="Correo administrador" required>
                                     <i data-lucide="circle-user" class="app-search-icon text-muted"></i>
                                 </div>

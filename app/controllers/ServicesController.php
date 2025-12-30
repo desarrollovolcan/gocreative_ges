@@ -19,7 +19,7 @@ class ServicesController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $services = $this->services->active();
+        $services = $this->services->active(current_company_id());
         $this->render('services/index', [
             'title' => 'Servicios',
             'pageTitle' => 'Servicios',
@@ -30,7 +30,7 @@ class ServicesController extends Controller
     public function create(): void
     {
         $this->requireLogin();
-        $clients = $this->clients->active();
+        $clients = $this->clients->active(current_company_id());
         $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $this->render('services/create', [
             'title' => 'Nuevo Servicio',
@@ -47,8 +47,19 @@ class ServicesController extends Controller
         $startDate = trim($_POST['start_date'] ?? '');
         $dueDate = trim($_POST['due_date'] ?? '');
         $deleteDate = trim($_POST['delete_date'] ?? '');
+        $companyId = current_company_id();
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=services/create');
+        }
         $data = [
-            'client_id' => (int)($_POST['client_id'] ?? 0),
+            'company_id' => $companyId,
+            'client_id' => $clientId,
             'service_type' => $_POST['service_type'] ?? 'dominio',
             'name' => trim($_POST['name'] ?? ''),
             'cost' => (float)($_POST['cost'] ?? 0),
@@ -68,7 +79,10 @@ class ServicesController extends Controller
         $serviceId = $this->services->create($data);
         $service = $this->services->find($serviceId);
         if ($service) {
-            $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $service['client_id']]);
+            $client = $this->db->fetch(
+                'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+                ['id' => $service['client_id'], 'company_id' => current_company_id()]
+            );
             if ($client) {
                 $this->enqueueServiceEmails($service, $client);
             }
@@ -82,11 +96,14 @@ class ServicesController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $service = $this->services->find($id);
+        $service = $this->db->fetch(
+            'SELECT * FROM services WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$service) {
             $this->redirect('index.php?route=services');
         }
-        $clients = $this->clients->active();
+        $clients = $this->clients->active(current_company_id());
         $this->render('services/edit', [
             'title' => 'Editar Servicio',
             'pageTitle' => 'Editar Servicio',
@@ -100,6 +117,14 @@ class ServicesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $service = $this->db->fetch(
+            'SELECT id FROM services WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
+        if (!$service) {
+            flash('error', 'Servicio no encontrado para esta empresa.');
+            $this->redirect('index.php?route=services');
+        }
         $startDate = trim($_POST['start_date'] ?? '');
         $dueDate = trim($_POST['due_date'] ?? '');
         $deleteDate = trim($_POST['delete_date'] ?? '');
@@ -130,12 +155,22 @@ class ServicesController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $service = $this->services->find($id);
+        $companyId = current_company_id();
+        $service = $this->db->fetch(
+            'SELECT * FROM services WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
         if (!$service) {
             $this->redirect('index.php?route=services');
         }
-        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $service['client_id']]);
-        $invoices = $this->db->fetchAll('SELECT * FROM invoices WHERE service_id = :id ORDER BY id DESC', ['id' => $id]);
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $service['client_id'], 'company_id' => $companyId]
+        );
+        $invoices = $this->db->fetchAll(
+            'SELECT * FROM invoices WHERE service_id = :id AND company_id = :company_id ORDER BY id DESC',
+            ['id' => $id, 'company_id' => $companyId]
+        );
         $this->render('services/show', [
             'title' => 'Detalle Servicio',
             'pageTitle' => 'Detalle Servicio',
@@ -150,6 +185,14 @@ class ServicesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $service = $this->db->fetch(
+            'SELECT id FROM services WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
+        if (!$service) {
+            flash('error', 'Servicio no encontrado para esta empresa.');
+            $this->redirect('index.php?route=services');
+        }
         $this->services->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'services', $id);
         flash('success', 'Servicio eliminado correctamente.');
@@ -161,7 +204,11 @@ class ServicesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
-        $service = $this->services->find($id);
+        $companyId = current_company_id();
+        $service = $this->db->fetch(
+            'SELECT * FROM services WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
         if (!$service) {
             $this->redirect('index.php?route=services');
         }
@@ -169,9 +216,10 @@ class ServicesController extends Controller
         $settings = new SettingsModel($this->db);
         $prefix = $settings->get('invoice_prefix', 'FAC-');
         $invoicesModel = new InvoicesModel($this->db);
-        $number = $invoicesModel->nextNumber($prefix);
+        $number = $invoicesModel->nextNumber($prefix, $companyId);
 
         $invoiceId = $invoicesModel->create([
+            'company_id' => $companyId,
             'client_id' => $service['client_id'],
             'service_id' => $service['id'],
             'numero' => $number,
@@ -209,6 +257,7 @@ class ServicesController extends Controller
         $sendTime = $billingDefaults['send_time'] ?? '09:00';
         $timezone = $billingDefaults['timezone'] ?? ($this->config['app']['timezone'] ?? 'UTC');
         $scheduledNow = (new DateTimeImmutable('now', new DateTimeZone($timezone)))->format('Y-m-d H:i:s');
+        $companyId = current_company_id();
 
         $context = [
             'cliente_nombre' => $client['name'] ?? '',
@@ -222,6 +271,7 @@ class ServicesController extends Controller
         ];
 
         $this->queue->create([
+            'company_id' => $companyId,
             'client_id' => $client['id'],
             'template_id' => $this->getTemplateId('Registro de servicio'),
             'subject' => 'Registro del servicio con éxito',
@@ -258,6 +308,7 @@ class ServicesController extends Controller
             foreach ($reminders as $reminder) {
                 $scheduledAt = $dueDate->sub(new DateInterval('P' . $reminder['days'] . 'D'))->format('Y-m-d H:i:s');
                 $this->queue->create([
+                    'company_id' => $companyId,
                     'client_id' => $client['id'],
                     'template_id' => $this->getTemplateId($reminder['template']),
                     'subject' => $reminder['subject'],
@@ -284,6 +335,7 @@ class ServicesController extends Controller
 
             $suspensionSubject = 'Servicio suspendido por vencimiento';
             $this->queue->create([
+                'company_id' => $companyId,
                 'client_id' => $client['id'],
                 'template_id' => $this->getTemplateId('Servicio suspendido'),
                 'subject' => $suspensionSubject,
@@ -460,9 +512,10 @@ class ServicesController extends Controller
 
     private function renderTemplateOrFallback(string $name, string $fallback, array $context): string
     {
-        $template = $this->db->fetch('SELECT body_html FROM email_templates WHERE name = :name AND deleted_at IS NULL', [
-            'name' => $name,
-        ]);
+        $template = $this->db->fetch(
+            'SELECT body_html FROM email_templates WHERE name = :name AND deleted_at IS NULL AND company_id = :company_id',
+            ['name' => $name, 'company_id' => current_company_id()]
+        );
         if (!$template) {
             return $fallback;
         }
@@ -472,9 +525,10 @@ class ServicesController extends Controller
 
     private function getTemplateId(string $name): ?int
     {
-        $template = $this->db->fetch('SELECT id FROM email_templates WHERE name = :name AND deleted_at IS NULL', [
-            'name' => $name,
-        ]);
+        $template = $this->db->fetch(
+            'SELECT id FROM email_templates WHERE name = :name AND deleted_at IS NULL AND company_id = :company_id',
+            ['name' => $name, 'company_id' => current_company_id()]
+        );
 
         return $template ? (int)$template['id'] : null;
     }

@@ -13,7 +13,9 @@ class EmailTemplatesController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $templates = $this->templates->all('deleted_at IS NULL');
+        $templates = $this->templates->all('deleted_at IS NULL AND company_id = :company_id', [
+            'company_id' => current_company_id(),
+        ]);
         $this->render('email_templates/index', [
             'title' => 'Plantillas de Email',
             'pageTitle' => 'Plantillas de Email',
@@ -37,6 +39,7 @@ class EmailTemplatesController extends Controller
         $this->requireRole('admin');
         verify_csrf();
         $this->templates->create([
+            'company_id' => current_company_id(),
             'name' => trim($_POST['name'] ?? ''),
             'subject' => trim($_POST['subject'] ?? ''),
             'body_html' => $_POST['body_html'] ?? '',
@@ -55,11 +58,17 @@ class EmailTemplatesController extends Controller
         $this->requireLogin();
         $this->requireRole('admin');
         $id = (int)($_GET['id'] ?? 0);
-        $template = $this->templates->find($id);
+        $template = $this->db->fetch(
+            'SELECT * FROM email_templates WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
         if (!$template) {
             $this->redirect('index.php?route=email-templates');
         }
-        $clients = $this->db->fetchAll('SELECT id, name, rut, email, billing_email FROM clients WHERE deleted_at IS NULL ORDER BY name');
+        $clients = $this->db->fetchAll(
+            'SELECT id, name, rut, email, billing_email FROM clients WHERE deleted_at IS NULL AND company_id = :company_id ORDER BY name',
+            ['company_id' => current_company_id()]
+        );
         $this->render('email_templates/edit', [
             'title' => 'Editar Plantilla',
             'pageTitle' => 'Editar Plantilla',
@@ -74,6 +83,14 @@ class EmailTemplatesController extends Controller
         $this->requireRole('admin');
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $template = $this->db->fetch(
+            'SELECT id FROM email_templates WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
+        if (!$template) {
+            flash('error', 'Plantilla no encontrada para esta empresa.');
+            $this->redirect('index.php?route=email-templates');
+        }
         $this->templates->update($id, [
             'name' => trim($_POST['name'] ?? ''),
             'subject' => trim($_POST['subject'] ?? ''),
@@ -92,6 +109,14 @@ class EmailTemplatesController extends Controller
         $this->requireRole('admin');
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $template = $this->db->fetch(
+            'SELECT id FROM email_templates WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
+        if (!$template) {
+            flash('error', 'Plantilla no encontrada para esta empresa.');
+            $this->redirect('index.php?route=email-templates');
+        }
         $this->templates->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'email_templates', $id);
         flash('success', 'Plantilla eliminada correctamente.');
@@ -103,8 +128,14 @@ class EmailTemplatesController extends Controller
         $this->requireLogin();
         $templateId = (int)($_GET['template_id'] ?? 0);
         $clientId = (int)($_GET['client_id'] ?? 0);
-        $template = $this->templates->find($templateId);
-        $client = $clientId ? $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $clientId]) : null;
+        $template = $this->db->fetch(
+            'SELECT * FROM email_templates WHERE id = :id AND company_id = :company_id',
+            ['id' => $templateId, 'company_id' => current_company_id()]
+        );
+        $client = $clientId ? $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => current_company_id()]
+        ) : null;
 
         if (!$template) {
             $this->redirect('index.php?route=email-templates');

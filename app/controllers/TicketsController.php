@@ -15,7 +15,7 @@ class TicketsController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $tickets = $this->tickets->allWithClient();
+        $tickets = $this->tickets->allWithClient(current_company_id());
         $this->render('tickets/index', [
             'title' => 'Tickets de soporte',
             'pageTitle' => 'Tickets de soporte',
@@ -26,8 +26,15 @@ class TicketsController extends Controller
     public function create(): void
     {
         $this->requireLogin();
-        $clients = $this->db->fetchAll('SELECT id, name, email FROM clients WHERE deleted_at IS NULL ORDER BY name');
-        $users = $this->db->fetchAll('SELECT id, name FROM users WHERE deleted_at IS NULL ORDER BY name');
+        $companyId = current_company_id();
+        $clients = $this->db->fetchAll(
+            'SELECT id, name, email FROM clients WHERE deleted_at IS NULL AND company_id = :company_id ORDER BY name',
+            ['company_id' => $companyId]
+        );
+        $users = $this->db->fetchAll(
+            'SELECT id, name FROM users WHERE deleted_at IS NULL AND company_id = :company_id ORDER BY name',
+            ['company_id' => $companyId]
+        );
         $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $this->render('tickets/create', [
             'title' => 'Nuevo ticket',
@@ -49,10 +56,20 @@ class TicketsController extends Controller
             flash('error', 'Completa los campos obligatorios.');
             $this->redirect('index.php?route=tickets/create');
         }
+        $companyId = current_company_id();
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=tickets/create');
+        }
         $priority = $_POST['priority'] ?? 'media';
         $assignedUser = (int)($_POST['assigned_user_id'] ?? 0);
         $now = date('Y-m-d H:i:s');
         $ticketId = $this->tickets->create([
+            'company_id' => $companyId,
             'client_id' => $clientId,
             'subject' => $subject,
             'description' => $description,
@@ -79,12 +96,15 @@ class TicketsController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
-        $ticket = $this->tickets->findWithClient($id);
+        $ticket = $this->tickets->findWithClient($id, current_company_id());
         if (!$ticket) {
             $this->redirect('index.php?route=tickets');
         }
         $messages = $this->messages->forTicket($id);
-        $users = $this->db->fetchAll('SELECT id, name FROM users WHERE deleted_at IS NULL ORDER BY name');
+        $users = $this->db->fetchAll(
+            'SELECT id, name FROM users WHERE deleted_at IS NULL AND company_id = :company_id ORDER BY name',
+            ['company_id' => current_company_id()]
+        );
         $this->render('tickets/show', [
             'title' => 'Ticket #' . $id,
             'pageTitle' => 'Ticket #' . $id,
@@ -104,7 +124,7 @@ class TicketsController extends Controller
             flash('error', 'Escribe un mensaje antes de enviar.');
             $this->redirect('index.php?route=tickets/show&id=' . $ticketId);
         }
-        $ticket = $this->tickets->findWithClient($ticketId);
+        $ticket = $this->tickets->findWithClient($ticketId, current_company_id());
         if (!$ticket) {
             $this->redirect('index.php?route=tickets');
         }
@@ -130,7 +150,7 @@ class TicketsController extends Controller
         $ticketId = (int)($_POST['ticket_id'] ?? 0);
         $newStatus = trim($_POST['status'] ?? '');
         $assignedUser = (int)($_POST['assigned_user_id'] ?? 0);
-        $ticket = $this->tickets->findWithClient($ticketId);
+        $ticket = $this->tickets->findWithClient($ticketId, current_company_id());
         if (!$ticket) {
             $this->redirect('index.php?route=tickets');
         }

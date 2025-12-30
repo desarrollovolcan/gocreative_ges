@@ -77,6 +77,39 @@ function log_message(string $level, string $message): void
     file_put_contents($logFile, $entry, FILE_APPEND);
 }
 
+function current_company_id(): ?int
+{
+    $companyId = null;
+    if (class_exists('Auth')) {
+        $user = Auth::user();
+        if (!empty($user['company_id'])) {
+            $companyId = (int)$user['company_id'];
+        }
+    }
+    if (!$companyId && !empty($_SESSION['client_company_id'])) {
+        $companyId = (int)$_SESSION['client_company_id'];
+    }
+
+    return $companyId ?: null;
+}
+
+function ensure_upload_directory(string $directory): ?string
+{
+    if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+        return 'No pudimos crear la carpeta de cargas en el servidor.';
+    }
+
+    if (!is_writable($directory)) {
+        @chmod($directory, 0775);
+    }
+
+    if (!is_writable($directory)) {
+        return 'No hay permisos de escritura para guardar archivos en el servidor.';
+    }
+
+    return null;
+}
+
 function upload_avatar(?array $file, string $prefix): array
 {
     if ($file === null || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
@@ -108,8 +141,9 @@ function upload_avatar(?array $file, string $prefix): array
     }
 
     $directory = __DIR__ . '/../storage/uploads/avatars';
-    if (!is_dir($directory)) {
-        mkdir($directory, 0755, true);
+    $directoryError = ensure_upload_directory($directory);
+    if ($directoryError !== null) {
+        return ['path' => null, 'error' => $directoryError];
     }
 
     $filename = sprintf('%s-%s.%s', $prefix, bin2hex(random_bytes(8)), $extension);
@@ -152,8 +186,9 @@ function upload_company_logo(?array $file, string $prefix): array
     }
 
     $directory = __DIR__ . '/../storage/uploads/logos';
-    if (!is_dir($directory)) {
-        mkdir($directory, 0755, true);
+    $directoryError = ensure_upload_directory($directory);
+    if ($directoryError !== null) {
+        return ['path' => null, 'error' => $directoryError];
     }
 
     $filename = sprintf('%s-%s.%s', $prefix, bin2hex(random_bytes(8)), $extension);
@@ -167,9 +202,11 @@ function upload_company_logo(?array $file, string $prefix): array
 
 function audit(Database $db, int $userId, string $action, string $entity, ?int $entityId = null): void
 {
+    $companyId = current_company_id();
     $db->execute(
-        'INSERT INTO audit_logs (user_id, action, entity, entity_id, created_at) VALUES (:user_id, :action, :entity, :entity_id, NOW())',
+        'INSERT INTO audit_logs (company_id, user_id, action, entity, entity_id, created_at) VALUES (:company_id, :user_id, :action, :entity, :entity_id, NOW())',
         [
+            'company_id' => $companyId,
             'user_id' => $userId,
             'action' => $action,
             'entity' => $entity,

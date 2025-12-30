@@ -32,6 +32,7 @@ class SettingsController extends Controller
         $this->requireLogin();
         $this->requireRole('admin');
         verify_csrf();
+        $companyId = current_company_id();
         $section = $_POST['section'] ?? '';
         if ($section === 'company') {
             $company = $this->settings->get('company', []);
@@ -63,6 +64,20 @@ class SettingsController extends Controller
                 $companyData['logo_black'] = $logoBlackResult['path'];
             }
             $this->settings->set('company', $companyData);
+            if ($companyId) {
+                $companies = new CompaniesModel($this->db);
+                $companies->update($companyId, [
+                    'name' => $companyData['name'],
+                    'rut' => $companyData['rut'],
+                    'email' => $companyData['email'],
+                    'logo_color' => $companyData['logo_color'],
+                    'logo_black' => $companyData['logo_black'],
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+                if (!empty($_SESSION['user']) && (int)($_SESSION['user']['company_id'] ?? 0) === $companyId) {
+                    $_SESSION['user']['company_name'] = $companyData['name'];
+                }
+            }
         }
 
         if ($section === 'billing') {
@@ -106,7 +121,8 @@ class SettingsController extends Controller
             $to = $company['email'] ?? '';
         }
         if ($to === '') {
-            $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+            $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+                'company_id' => current_company_id(),
                 'title' => 'Prueba SMTP',
                 'message' => 'No se encontró correo para enviar la prueba.',
                 'type' => 'danger',
@@ -118,7 +134,8 @@ class SettingsController extends Controller
         $mailer = new Mailer($this->db);
         $sent = $mailer->send('info', $to, 'Prueba SMTP', '<p>Correo de prueba exitoso.</p>');
 
-        $this->db->execute('INSERT INTO notifications (title, message, type, created_at, updated_at) VALUES (:title, :message, :type, NOW(), NOW())', [
+        $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
+            'company_id' => current_company_id(),
             'title' => 'Prueba SMTP',
             'message' => $sent ? 'Correo enviado correctamente.' : 'Fallo el envío.',
             'type' => $sent ? 'success' : 'danger',

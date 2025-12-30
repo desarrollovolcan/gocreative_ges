@@ -64,6 +64,20 @@ body {
     background: linear-gradient(180deg, #3b2f7d 0%, #46389b 45%, #4b3fb2 100%);
 }
 
+.sidenav-menu .logo {
+    height: var(--ins-topbar-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+}
+
+.sidenav-menu .logo .logo-lg img {
+    height: 100%;
+    max-height: calc(var(--ins-topbar-height) - 12px);
+    width: auto;
+}
+
 .sidenav-menu .logo .logo-light,
 .sidenav-menu .logo .logo-dark {
     filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.2));

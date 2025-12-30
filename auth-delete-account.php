@@ -1,5 +1,13 @@
-<?php include('partials/html.php'); ?>
-
+<?php
+require __DIR__ . '/app/bootstrap.php';
+$companySettings = (new SettingsModel($db))->get('company', []);
+$logoColor = $companySettings['logo_color'] ?? 'assets/images/logo.png';
+$logoBlack = $companySettings['logo_black'] ?? 'assets/images/logo-black.png';
+$loginLogoVariant = $companySettings['login_logo_variant'] ?? 'light';
+$loginLogo = $companySettings['login_logo'] ?? '';
+$loginLogoSrc = $loginLogo !== '' ? $loginLogo : ($loginLogoVariant === 'dark' ? $logoBlack : $logoColor);
+include('partials/html.php');
+?>
 <head>
     <?php $title = "Delete Account"; include('partials/title-meta.php'); ?>
 
@@ -19,10 +27,10 @@
                         </div>
                         <div class="auth-brand text-center mb-3">
                             <a href="index.php" class="logo-dark">
-                                <img src="assets/images/logo-black.png" alt="dark logo" height="28">
+                                <img src="<?php echo e($loginLogoSrc); ?>" alt="dark logo" height="28">
                             </a>
                             <a href="index.php" class="logo-light">
-                                <img src="assets/images/logo.png" alt="logo" height="28">
+                                <img src="<?php echo e($loginLogoSrc); ?>" alt="logo" height="28">
                             </a>
                         </div>
 

@@ -84,11 +84,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Listado</span>
                                 </a>
                             </li>
-                            <li class="side-nav-item">
-                                <a href="chat.php" class="side-nav-link">
-                                    <span class="menu-text">Chat</span>
-                                </a>
-                            </li>
                             <?php if ($canAccess('tickets')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=tickets" class="side-nav-link">
@@ -209,6 +204,13 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                 <li class="side-nav-item">
                                     <a href="index.php?route=users/permissions" class="side-nav-link">
                                         <span class="menu-text">Roles y permisos</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($canAccess('roles')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=roles" class="side-nav-link">
+                                        <span class="menu-text">Roles</span>
                                     </a>
                                 </li>
                             <?php endif; ?>

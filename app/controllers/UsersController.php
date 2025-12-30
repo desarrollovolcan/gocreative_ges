@@ -184,6 +184,12 @@ class UsersController extends Controller
             flash('error', 'No encontramos el usuario.');
             $this->redirect('index.php?route=users');
         }
+        $ticketAssigned = $this->db->fetch('SELECT COUNT(*) as total FROM support_tickets WHERE assigned_user_id = :id', ['id' => $id]);
+        $ticketCreated = $this->db->fetch('SELECT COUNT(*) as total FROM support_tickets WHERE created_by_type = "user" AND created_by_id = :id', ['id' => $id]);
+        if (!empty($ticketAssigned['total']) || !empty($ticketCreated['total'])) {
+            flash('error', 'No se puede eliminar el usuario porque tiene tickets asociados.');
+            $this->redirect('index.php?route=users');
+        }
         $this->users->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'users', $id);
         flash('success', 'Usuario eliminado correctamente.');

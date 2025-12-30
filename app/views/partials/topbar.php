@@ -11,6 +11,9 @@ $isAdmin = ($currentUser['role'] ?? '') === 'admin';
 $canSwitchCompany = $isAdmin || in_array('company_switch', $permissions ?? [], true);
 $userCompanies = $canSwitchCompany ? user_company_ids($db, $currentUser) : [];
 $hasMultipleCompanies = count($userCompanies) > 1;
+$portalBaseUrl = rtrim($config['app']['base_url'] ?? '', '/');
+$portalLoginPath = 'index.php?route=clients/login';
+$portalLoginUrl = $portalBaseUrl !== '' ? $portalBaseUrl . '/' . $portalLoginPath : $portalLoginPath;
 ?>
 
 <header class="app-topbar">
@@ -46,6 +49,12 @@ $hasMultipleCompanies = count($userCompanies) > 1;
                     <input type="search" class="form-control topbar-search rounded-pill" name="q" placeholder="Buscar...">
                     <i data-lucide="search" class="app-search-icon text-muted"></i>
                 </form>
+            </div>
+            <div class="d-none d-lg-flex align-items-center me-2 topbar-portal">
+                <span class="text-white-50 fs-12 me-2">Portal cliente:</span>
+                <a href="<?php echo e($portalLoginUrl); ?>" class="topbar-portal-link" target="_blank" rel="noopener">
+                    <?php echo e($portalLoginUrl); ?>
+                </a>
             </div>
 
             <div class="topbar-item">

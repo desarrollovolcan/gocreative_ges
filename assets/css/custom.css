@@ -452,3 +452,44 @@ textarea.form-control {
         font-size: 0.72rem;
     }
 }
+
+.topbar-portal-link {
+    color: #f7f7ff;
+    font-size: 0.75rem;
+    text-decoration: none;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.topbar-portal-link:hover,
+.topbar-portal-link:focus {
+    text-decoration: underline;
+    color: #ffffff;
+}
+
+@media (max-width: 767.98px) {
+    .table-responsive .table {
+        min-width: 560px;
+    }
+
+    .table-responsive .table th,
+    .table-responsive .table td {
+        padding: 0.45rem 0.55rem;
+        font-size: 0.78rem;
+        white-space: nowrap;
+    }
+
+    .table-responsive .table td .btn,
+    .table-responsive .table th .btn,
+    .table-responsive .table .btn-group .btn,
+    .table-responsive .dataTables_wrapper .btn {
+        padding: 0.28rem 0.5rem;
+        font-size: 0.72rem;
+    }
+
+    .table-responsive .badge {
+        font-size: 0.68rem;
+    }
+}

@@ -46,6 +46,11 @@ class SettingsController extends Controller
                 flash('error', $logoBlackResult['error']);
                 $this->redirect('index.php?route=settings');
             }
+            $loginLogoResult = upload_company_logo($_FILES['login_logo'] ?? null, 'logo-login');
+            if (!empty($loginLogoResult['error'])) {
+                flash('error', $loginLogoResult['error']);
+                $this->redirect('index.php?route=settings');
+            }
             $companyData = [
                 'name' => trim($_POST['name'] ?? ''),
                 'rut' => trim($_POST['rut'] ?? ''),
@@ -56,12 +61,16 @@ class SettingsController extends Controller
                 'signature' => trim($_POST['signature'] ?? ''),
                 'logo_color' => $company['logo_color'] ?? null,
                 'logo_black' => $company['logo_black'] ?? null,
+                'login_logo' => $company['login_logo'] ?? null,
             ];
             if (!empty($logoColorResult['path'])) {
                 $companyData['logo_color'] = $logoColorResult['path'];
             }
             if (!empty($logoBlackResult['path'])) {
                 $companyData['logo_black'] = $logoBlackResult['path'];
+            }
+            if (!empty($loginLogoResult['path'])) {
+                $companyData['login_logo'] = $loginLogoResult['path'];
             }
             $this->settings->set('company', $companyData);
             if ($companyId) {

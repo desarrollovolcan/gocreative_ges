@@ -715,6 +715,39 @@ class ClientsController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $companyId = current_company_id();
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=clients');
+        }
+        $linkedCounts = [
+            'facturas' => $this->db->fetch('SELECT COUNT(*) as total FROM invoices WHERE client_id = :id AND deleted_at IS NULL', ['id' => $id]),
+            'proyectos' => $this->db->fetch('SELECT COUNT(*) as total FROM projects WHERE client_id = :id AND deleted_at IS NULL', ['id' => $id]),
+            'servicios' => $this->db->fetch('SELECT COUNT(*) as total FROM services WHERE client_id = :id AND deleted_at IS NULL', ['id' => $id]),
+            'cotizaciones' => $this->db->fetch('SELECT COUNT(*) as total FROM quotes WHERE client_id = :id', ['id' => $id]),
+            'tickets' => $this->db->fetch('SELECT COUNT(*) as total FROM support_tickets WHERE client_id = :id', ['id' => $id]),
+            'pagos' => $this->db->fetch(
+                'SELECT COUNT(*) as total
+                 FROM payments
+                 JOIN invoices ON payments.invoice_id = invoices.id
+                 WHERE invoices.client_id = :id AND invoices.deleted_at IS NULL',
+                ['id' => $id]
+            ),
+        ];
+        $blocked = [];
+        foreach ($linkedCounts as $label => $row) {
+            if (!empty($row['total'])) {
+                $blocked[] = $label;
+            }
+        }
+        if (!empty($blocked)) {
+            flash('error', 'No se puede eliminar el cliente porque tiene registros asociados: ' . implode(', ', $blocked) . '.');
+            $this->redirect('index.php?route=clients');
+        }
         $this->clients->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'clients', $id);
         flash('success', 'Cliente eliminado correctamente.');

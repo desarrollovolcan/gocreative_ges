@@ -293,6 +293,32 @@ class ProjectsController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $companyId = current_company_id();
+        $project = $this->db->fetch(
+            'SELECT id FROM projects WHERE id = :id AND deleted_at IS NULL' . ($companyId ? ' AND company_id = :company_id' : ''),
+            $companyId ? ['id' => $id, 'company_id' => $companyId] : ['id' => $id]
+        );
+        if (!$project) {
+            flash('error', 'Proyecto no encontrado.');
+            $this->redirect('index.php?route=projects');
+        }
+        $taskCount = $this->db->fetch('SELECT COUNT(*) as total FROM project_tasks WHERE project_id = :id', ['id' => $id]);
+        $invoiceCount = $this->db->fetch('SELECT COUNT(*) as total FROM invoices WHERE project_id = :id AND deleted_at IS NULL', ['id' => $id]);
+        $quoteCount = $this->db->fetch('SELECT COUNT(*) as total FROM quotes WHERE project_id = :id', ['id' => $id]);
+        $blocked = [];
+        if (!empty($taskCount['total'])) {
+            $blocked[] = 'tareas';
+        }
+        if (!empty($invoiceCount['total'])) {
+            $blocked[] = 'facturas';
+        }
+        if (!empty($quoteCount['total'])) {
+            $blocked[] = 'cotizaciones';
+        }
+        if (!empty($blocked)) {
+            flash('error', 'No se puede eliminar el proyecto porque tiene registros asociados: ' . implode(', ', $blocked) . '.');
+            $this->redirect('index.php?route=projects');
+        }
         $this->projects->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'projects', $id);
         flash('success', 'Proyecto eliminado correctamente.');

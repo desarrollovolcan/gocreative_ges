@@ -84,6 +84,11 @@ class ServiceTypesController extends Controller
         $this->requireRole('admin');
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $linked = $this->db->fetch('SELECT COUNT(*) as total FROM system_services WHERE service_type_id = :id', ['id' => $id]);
+        if (!empty($linked['total'])) {
+            flash('error', 'No se puede eliminar el tipo de servicio porque tiene servicios asociados.');
+            $this->redirect('index.php?route=maintainers/service-types');
+        }
         $this->db->execute('DELETE FROM service_types WHERE id = :id', ['id' => $id]);
         audit($this->db, Auth::user()['id'], 'delete', 'service_types', $id);
         flash('success', 'Tipo de servicio eliminado correctamente.');

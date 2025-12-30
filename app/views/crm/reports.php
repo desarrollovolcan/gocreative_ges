@@ -8,30 +8,30 @@
                         <p class="text-muted mb-0">KPIs clave de facturación, pipeline y servicio.</p>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-primary">Descargar reporte</button>
-                        <button class="btn btn-outline-primary">Compartir</button>
+                        <a href="index.php?route=invoices" class="btn btn-primary">Ver facturación</a>
+                        <a href="index.php?route=quotes" class="btn btn-outline-primary">Ver pipeline</a>
                     </div>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-4">
                         <div class="border rounded-3 p-3 h-100">
                             <p class="text-muted mb-1">Facturación mensual</p>
-                            <h3 class="mb-0">$128.4k</h3>
-                            <span class="badge text-bg-success">+14%</span>
+                            <h3 class="mb-0"><?php echo e(format_currency((float)($billingTotal ?? 0))); ?></h3>
+                            <span class="badge text-bg-success">Pagadas</span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="border rounded-3 p-3 h-100">
                             <p class="text-muted mb-1">Pipeline activo</p>
-                            <h3 class="mb-0">$392k</h3>
-                            <span class="badge text-bg-info">38 oportunidades</span>
+                            <h3 class="mb-0"><?php echo e(format_currency((float)($pipelineTotal ?? 0))); ?></h3>
+                            <span class="badge text-bg-info"><?php echo (int)($pipelineCount ?? 0); ?> oportunidades</span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="border rounded-3 p-3 h-100">
                             <p class="text-muted mb-1">SLA de servicio</p>
-                            <h3 class="mb-0">94%</h3>
-                            <span class="badge text-bg-warning">3 alertas</span>
+                            <h3 class="mb-0"><?php echo (int)($slaPercent ?? 0); ?>%</h3>
+                            <span class="badge text-bg-warning"><?php echo (int)($alertCount ?? 0); ?> alertas</span>
                         </div>
                     </div>
                 </div>
@@ -49,27 +49,31 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Andrés Bakery</td>
-                                    <td>Rediseño web</td>
-                                    <td>Camila Díaz</td>
-                                    <td><span class="badge text-bg-primary">Propuesta</span></td>
-                                    <td>Revisar alcance</td>
-                                </tr>
-                                <tr>
-                                    <td>Nova Logistics</td>
-                                    <td>Soporte ERP</td>
-                                    <td>Diego Pérez</td>
-                                    <td><span class="badge text-bg-success">Ganada</span></td>
-                                    <td>Kickoff</td>
-                                </tr>
-                                <tr>
-                                    <td>Cloudline</td>
-                                    <td>Automatización marketing</td>
-                                    <td>Andrea López</td>
-                                    <td><span class="badge text-bg-warning">Negociación</span></td>
-                                    <td>Ajuste de pricing</td>
-                                </tr>
+                                <?php if (!empty($activities)): ?>
+                                    <?php foreach ($activities as $activity): ?>
+                                        <?php
+                                        $status = $activity['estado'] ?? 'pendiente';
+                                        $statusLabel = ucfirst($status);
+                                        $badgeClass = $status === 'aceptada' ? 'success' : ($status === 'rechazada' ? 'danger' : 'warning');
+                                        $nextStep = match ($status) {
+                                            'aceptada' => 'Planificar entrega',
+                                            'rechazada' => 'Revisar feedback',
+                                            default => 'Seguimiento comercial',
+                                        };
+                                        ?>
+                                        <tr>
+                                            <td><?php echo e($activity['client_name'] ?? '-'); ?></td>
+                                            <td><?php echo e($activity['numero'] ?? 'Cotización'); ?></td>
+                                            <td>Equipo comercial</td>
+                                            <td><span class="badge text-bg-<?php echo $badgeClass; ?>"><?php echo e($statusLabel); ?></span></td>
+                                            <td><?php echo e($nextStep); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="5" class="text-muted text-center">No hay oportunidades registradas en el rango seleccionado.</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -81,41 +85,37 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title mb-3">Filtros inteligentes</h5>
-                <form>
+                <form method="get" action="index.php">
+                    <input type="hidden" name="route" value="crm/reports">
                     <div class="mb-3">
                         <label class="form-label" for="crm-report-range">Rango de fechas</label>
-                        <select class="form-select" id="crm-report-range">
-                            <option selected>Últimos 30 días</option>
-                            <option>Trimestre actual</option>
-                            <option>Año en curso</option>
-                            <option>Personalizado</option>
+                        <select class="form-select" id="crm-report-range" name="range">
+                            <option value="30d" <?php echo ($filters['range'] ?? '') === '30d' ? 'selected' : ''; ?>>Últimos 30 días</option>
+                            <option value="quarter" <?php echo ($filters['range'] ?? '') === 'quarter' ? 'selected' : ''; ?>>Trimestre actual</option>
+                            <option value="year" <?php echo ($filters['range'] ?? '') === 'year' ? 'selected' : ''; ?>>Año en curso</option>
+                            <option value="custom" <?php echo ($filters['range'] ?? '') === 'custom' ? 'selected' : ''; ?>>Personalizado</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="crm-report-team">Equipo</label>
-                        <select class="form-select" id="crm-report-team">
-                            <option selected>Todos</option>
-                            <option>Ventas</option>
-                            <option>Delivery</option>
-                            <option>Soporte</option>
+                        <label class="form-label" for="crm-report-status">Estado pipeline</label>
+                        <select class="form-select" id="crm-report-status" name="status">
+                            <option value="all" <?php echo ($filters['status'] ?? '') === 'all' ? 'selected' : ''; ?>>Todos</option>
+                            <option value="pendiente" <?php echo ($filters['status'] ?? '') === 'pendiente' ? 'selected' : ''; ?>>Pendiente</option>
+                            <option value="aceptada" <?php echo ($filters['status'] ?? '') === 'aceptada' ? 'selected' : ''; ?>>Aceptada</option>
+                            <option value="rechazada" <?php echo ($filters['status'] ?? '') === 'rechazada' ? 'selected' : ''; ?>>Rechazada</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="crm-report-region">Región</label>
-                        <select class="form-select" id="crm-report-region">
-                            <option selected>Todas</option>
-                            <option>Latam</option>
-                            <option>Norteamérica</option>
-                            <option>Europa</option>
-                        </select>
+                        <label class="form-label">Fecha inicio</label>
+                        <input type="date" name="start" class="form-control" value="<?php echo e($filters['start'] ?? ''); ?>">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="crm-report-owner">Responsable</label>
-                        <input type="text" class="form-control" id="crm-report-owner" placeholder="Buscar responsable">
+                        <label class="form-label">Fecha término</label>
+                        <input type="date" name="end" class="form-control" value="<?php echo e($filters['end'] ?? ''); ?>">
                     </div>
                     <div class="d-flex flex-wrap gap-2">
                         <button type="submit" class="btn btn-secondary">Aplicar filtros</button>
-                        <button type="button" class="btn btn-outline-secondary">Limpiar</button>
+                        <a href="index.php?route=crm/reports" class="btn btn-outline-secondary">Limpiar</a>
                     </div>
                 </form>
             </div>

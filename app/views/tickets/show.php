@@ -52,42 +52,36 @@
     <div class="col-lg-8">
         <div class="card h-100">
             <div class="card-body d-flex flex-column">
-                <h5 class="card-title mb-3">Conversación</h5>
+                <h5 class="card-title mb-3">Historial de mensajes</h5>
                 <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 420px;">
                     <?php if (!empty($messages)): ?>
                         <?php foreach ($messages as $message): ?>
                             <?php
                             $isUser = ($message['sender_type'] ?? '') === 'user';
-                            $bubbleClasses = $isUser ? 'bg-primary text-white ms-auto' : 'bg-light';
+                            $senderLabel = $message['sender_name'] ?? ($isUser ? 'Equipo' : 'Cliente');
+                            $recipientLabel = $isUser ? 'Cliente' : 'Equipo';
                             ?>
-                            <div class="d-flex mb-3 <?php echo $isUser ? 'justify-content-end' : 'justify-content-start'; ?>">
-                                <?php if (!$isUser): ?>
-                                    <?php if (!empty($message['sender_avatar'])): ?>
-                                        <img src="<?php echo e($message['sender_avatar']); ?>" alt="Avatar" class="rounded-circle me-2" style="width: 36px; height: 36px; object-fit: cover;">
-                                    <?php else: ?>
-                                        <div class="rounded-circle bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
-                                            <?php echo e(strtoupper(substr($message['sender_name'] ?? 'C', 0, 1))); ?>
-                                        </div>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-                                <div class="p-3 rounded-3 <?php echo $bubbleClasses; ?>" style="max-width: 75%;">
-                                    <div class="fw-semibold mb-1"><?php echo e($message['sender_name'] ?? ($isUser ? 'Equipo' : 'Cliente')); ?></div>
-                                    <div><?php echo nl2br(e($message['message'] ?? '')); ?></div>
-                                    <?php if (!empty($message['created_at'])): ?>
-                                        <div class="fs-xxs mt-2 <?php echo $isUser ? 'text-white-50' : 'text-muted'; ?>">
-                                            <?php echo e($message['created_at']); ?>
-                                        </div>
-                                    <?php endif; ?>
+                            <div class="border rounded-3 p-3 mb-3 bg-light bg-opacity-50">
+                                <div class="row g-2">
+                                    <div class="col-sm-4">
+                                        <div class="text-muted fs-xs">De</div>
+                                        <div class="fw-semibold"><?php echo e($senderLabel); ?></div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="text-muted fs-xs">Para</div>
+                                        <div class="fw-semibold"><?php echo e($recipientLabel); ?></div>
+                                    </div>
+                                    <div class="col-sm-4 text-sm-end">
+                                        <div class="text-muted fs-xs">Fecha</div>
+                                        <div class="fw-semibold"><?php echo e($message['created_at'] ?? ''); ?></div>
+                                    </div>
                                 </div>
-                                <?php if ($isUser): ?>
-                                    <?php if (!empty($message['sender_avatar'])): ?>
-                                        <img src="<?php echo e($message['sender_avatar']); ?>" alt="Avatar" class="rounded-circle ms-2" style="width: 36px; height: 36px; object-fit: cover;">
-                                    <?php else: ?>
-                                        <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center ms-2" style="width: 36px; height: 36px;">
-                                            <?php echo e(strtoupper(substr($message['sender_name'] ?? 'E', 0, 1))); ?>
-                                        </div>
-                                    <?php endif; ?>
-                                <?php endif; ?>
+                                <div class="mt-3">
+                                    <div class="text-muted fs-xs mb-1">Mensaje</div>
+                                    <div class="bg-white border rounded-3 p-3">
+                                        <?php echo nl2br(e($message['message'] ?? '')); ?>
+                                    </div>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>

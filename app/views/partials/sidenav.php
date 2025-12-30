@@ -207,6 +207,13 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     </a>
                                 </li>
                             <?php endif; ?>
+                            <?php if ($canAccess('roles')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=roles" class="side-nav-link">
+                                        <span class="menu-text">Roles</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                             <?php if ($canAccess('users_companies')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=users/assign-company" class="side-nav-link">

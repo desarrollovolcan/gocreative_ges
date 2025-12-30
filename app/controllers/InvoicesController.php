@@ -451,6 +451,19 @@ class InvoicesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $invoice = $this->db->fetch(
+            'SELECT id FROM invoices WHERE id = :id AND deleted_at IS NULL' . (current_company_id() ? ' AND company_id = :company_id' : ''),
+            current_company_id() ? ['id' => $id, 'company_id' => current_company_id()] : ['id' => $id]
+        );
+        if (!$invoice) {
+            flash('error', 'Factura no encontrada.');
+            $this->redirect('index.php?route=invoices');
+        }
+        $payments = $this->db->fetch('SELECT COUNT(*) as total FROM payments WHERE invoice_id = :id', ['id' => $id]);
+        if (!empty($payments['total'])) {
+            flash('error', 'No se puede eliminar la factura porque tiene pagos asociados.');
+            $this->redirect('index.php?route=invoices');
+        }
         $this->invoices->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'invoices', $id);
         flash('success', 'Factura eliminada correctamente.');

@@ -51,6 +51,16 @@
                         <img src="<?php echo e($company['logo_black']); ?>" alt="Logo negro" class="rounded border" style="height: 48px; object-fit: contain;">
                     <?php endif; ?>
                 </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Logo para login</label>
+                    <input type="file" name="login_logo" class="form-control" accept="image/png,image/jpeg,image/webp">
+                    <div class="form-text">Logo que se mostrará en la pantalla de acceso.</div>
+                </div>
+                <div class="col-md-6 mb-3 d-flex align-items-end">
+                    <?php if (!empty($company['login_logo'])): ?>
+                        <img src="<?php echo e($company['login_logo']); ?>" alt="Logo login" class="rounded border" style="height: 48px; object-fit: contain;">
+                    <?php endif; ?>
+                </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Firma</label>
                     <textarea name="signature" class="form-control" rows="3"><?php echo e($company['signature'] ?? ''); ?></textarea>

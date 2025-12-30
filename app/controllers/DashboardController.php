@@ -15,6 +15,8 @@ class DashboardController extends Controller
             $overdueCount = $this->db->fetch('SELECT COUNT(*) as total FROM invoices WHERE estado = "vencida" AND deleted_at IS NULL');
             $paidCount = $this->db->fetch('SELECT COUNT(*) as total FROM invoices WHERE estado = "pagada" AND deleted_at IS NULL');
             $paymentsMonth = $this->db->fetch('SELECT COALESCE(SUM(monto),0) as total FROM payments WHERE MONTH(fecha_pago) = MONTH(CURRENT_DATE()) AND YEAR(fecha_pago) = YEAR(CURRENT_DATE())');
+            $projectsTotal = $this->db->fetch('SELECT COUNT(*) as total FROM projects WHERE deleted_at IS NULL');
+            $ticketsOpen = $this->db->fetch('SELECT COUNT(*) as total FROM support_tickets WHERE status IN ("abierto","en_progreso","pendiente")');
 
             $upcoming7 = $this->db->fetch('SELECT COUNT(*) as total FROM services WHERE status = "activo" AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)');
             $upcoming15 = $this->db->fetch('SELECT COUNT(*) as total FROM services WHERE status = "activo" AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY)');
@@ -61,6 +63,25 @@ class DashboardController extends Controller
                  ORDER BY payments.fecha_pago DESC, payments.id DESC
                  LIMIT 5'
             );
+            $revenueTrend = $this->db->fetchAll(
+                'SELECT DATE_FORMAT(fecha_emision, "%Y-%m") as period, COALESCE(SUM(total),0) as total
+                 FROM invoices
+                 WHERE deleted_at IS NULL
+                 GROUP BY DATE_FORMAT(fecha_emision, "%Y-%m")
+                 ORDER BY period DESC
+                 LIMIT 6'
+            );
+            $ticketStatusSummary = $this->db->fetchAll(
+                'SELECT status, COUNT(*) as total
+                 FROM support_tickets
+                 GROUP BY status'
+            );
+            $invoiceStatusSummary = $this->db->fetchAll(
+                'SELECT estado as status, COUNT(*) as total
+                 FROM invoices
+                 WHERE deleted_at IS NULL
+                 GROUP BY estado'
+            );
         } catch (PDOException $e) {
             log_message('error', 'Failed to load dashboard metrics: ' . $e->getMessage());
             $clientsActive = ['total' => 0];
@@ -72,6 +93,8 @@ class DashboardController extends Controller
             $overdueCount = ['total' => 0];
             $paidCount = ['total' => 0];
             $paymentsMonth = ['total' => 0];
+            $projectsTotal = ['total' => 0];
+            $ticketsOpen = ['total' => 0];
             $upcoming7 = ['total' => 0];
             $upcoming15 = ['total' => 0];
             $upcoming30 = ['total' => 0];
@@ -80,6 +103,9 @@ class DashboardController extends Controller
             $upcomingServices = [];
             $topClients = [];
             $recentPayments = [];
+            $revenueTrend = [];
+            $ticketStatusSummary = [];
+            $invoiceStatusSummary = [];
         }
 
         $this->render('dashboard/index', [
@@ -94,6 +120,8 @@ class DashboardController extends Controller
             'overdueCount' => $overdueCount['total'] ?? 0,
             'paidCount' => $paidCount['total'] ?? 0,
             'paymentsMonth' => $paymentsMonth['total'] ?? 0,
+            'projectsTotal' => $projectsTotal['total'] ?? 0,
+            'ticketsOpen' => $ticketsOpen['total'] ?? 0,
             'upcoming7' => $upcoming7['total'] ?? 0,
             'upcoming15' => $upcoming15['total'] ?? 0,
             'upcoming30' => $upcoming30['total'] ?? 0,
@@ -102,6 +130,9 @@ class DashboardController extends Controller
             'upcomingServices' => $upcomingServices,
             'topClients' => $topClients,
             'recentPayments' => $recentPayments,
+            'revenueTrend' => $revenueTrend,
+            'ticketStatusSummary' => $ticketStatusSummary,
+            'invoiceStatusSummary' => $invoiceStatusSummary,
         ]);
     }
 }

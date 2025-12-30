@@ -58,10 +58,12 @@ class ProjectsController extends Controller
     {
         $this->requireLogin();
         $clients = $this->clients->active();
+        $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $this->render('projects/create', [
             'title' => 'Nuevo Proyecto',
             'pageTitle' => 'Nuevo Proyecto',
             'clients' => $clients,
+            'selectedClientId' => $selectedClientId,
         ]);
     }
 
@@ -90,6 +92,7 @@ class ProjectsController extends Controller
         ];
         $this->projects->create($data);
         audit($this->db, Auth::user()['id'], 'create', 'projects');
+        flash('success', 'Proyecto creado correctamente.');
         $this->redirect('index.php?route=projects');
     }
 
@@ -135,6 +138,7 @@ class ProjectsController extends Controller
         ];
         $this->projects->update($id, $data);
         audit($this->db, Auth::user()['id'], 'update', 'projects', $id);
+        flash('success', 'Proyecto actualizado correctamente.');
         $this->redirect('index.php?route=projects');
     }
 
@@ -147,11 +151,21 @@ class ProjectsController extends Controller
             $this->redirect('index.php?route=projects');
         }
         $checklist = $this->db->fetchAll('SELECT * FROM project_tasks WHERE project_id = :id ORDER BY id ASC', ['id' => $id]);
+        $client = $this->db->fetch('SELECT * FROM clients WHERE id = :id', ['id' => $project['client_id']]);
+        $invoices = $this->db->fetchAll('SELECT * FROM invoices WHERE project_id = :id AND deleted_at IS NULL ORDER BY id DESC', ['id' => $id]);
+        $quotes = $this->db->fetchAll('SELECT * FROM quotes WHERE project_id = :id ORDER BY id DESC', ['id' => $id]);
+        $services = $this->db->fetchAll('SELECT * FROM services WHERE client_id = :id AND deleted_at IS NULL ORDER BY id DESC', ['id' => $project['client_id']]);
+        $tickets = $this->db->fetchAll('SELECT * FROM support_tickets WHERE client_id = :id ORDER BY id DESC', ['id' => $project['client_id']]);
         $this->render('projects/show', [
             'title' => 'Detalle Proyecto',
             'pageTitle' => 'Detalle Proyecto',
             'project' => $project,
             'checklist' => $checklist,
+            'client' => $client,
+            'invoices' => $invoices,
+            'quotes' => $quotes,
+            'services' => $services,
+            'tickets' => $tickets,
         ]);
     }
 
@@ -181,6 +195,7 @@ class ProjectsController extends Controller
                 'updated_at' => date('Y-m-d H:i:s'),
             ]
         );
+        flash('success', 'Tarea agregada al proyecto.');
         $this->redirect('index.php?route=projects/show&id=' . $projectId);
     }
 
@@ -211,6 +226,7 @@ class ProjectsController extends Controller
                 'updated_at' => date('Y-m-d H:i:s'),
             ]
         );
+        flash('success', 'Tarea actualizada correctamente.');
         $this->redirect('index.php?route=projects/show&id=' . $projectId);
     }
 
@@ -225,6 +241,7 @@ class ProjectsController extends Controller
                 'id' => $taskId,
                 'project_id' => $projectId,
             ]);
+            flash('success', 'Tarea eliminada correctamente.');
         }
         $this->redirect('index.php?route=projects/show&id=' . $projectId);
     }
@@ -236,6 +253,7 @@ class ProjectsController extends Controller
         $id = (int)($_POST['id'] ?? 0);
         $this->projects->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'projects', $id);
+        flash('success', 'Proyecto eliminado correctamente.');
         $this->redirect('index.php?route=projects');
     }
 }

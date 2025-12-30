@@ -40,6 +40,29 @@
                     </a>
                 </li>
             <?php endif; ?>
+            <?php if ($canAccess('crm')): ?>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarCrm" aria-expanded="false" aria-controls="sidebarCrm" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="handshake"></i></span>
+                        <span class="menu-text">CRM Comercial</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarCrm">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="index.php?route=crm/hub" class="side-nav-link">
+                                    <span class="menu-text">Panel CRM</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=crm/reports" class="side-nav-link">
+                                    <span class="menu-text">Reportes &amp; Insights</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            <?php endif; ?>
             <?php if ($canAccess('clients')): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarClients" aria-expanded="false" aria-controls="sidebarClients" class="side-nav-link">

@@ -176,6 +176,10 @@ function permission_catalog(): array
             'label' => 'Proyectos',
             'routes' => ['projects'],
         ],
+        'crm' => [
+            'label' => 'CRM Comercial',
+            'routes' => ['crm'],
+        ],
         'services' => [
             'label' => 'Servicios',
             'routes' => ['services'],
@@ -217,6 +221,24 @@ function permission_catalog(): array
             'routes' => ['tickets'],
         ],
     ];
+}
+
+function flash(string $type, string $message): void
+{
+    if (!isset($_SESSION['flash'])) {
+        $_SESSION['flash'] = [];
+    }
+    if (!isset($_SESSION['flash'][$type])) {
+        $_SESSION['flash'][$type] = [];
+    }
+    $_SESSION['flash'][$type][] = $message;
+}
+
+function consume_flash(): array
+{
+    $messages = $_SESSION['flash'] ?? [];
+    unset($_SESSION['flash']);
+    return $messages;
 }
 
 function permission_key_for_route(string $route): ?string

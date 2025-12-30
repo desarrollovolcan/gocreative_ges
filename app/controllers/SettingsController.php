@@ -71,6 +71,7 @@ class SettingsController extends Controller
         }
 
         audit($this->db, Auth::user()['id'], 'update', 'settings');
+        flash('success', 'Configuración actualizada correctamente.');
         $this->redirect('index.php?route=settings');
     }
 
@@ -90,6 +91,7 @@ class SettingsController extends Controller
                 'message' => 'No se encontró correo para enviar la prueba.',
                 'type' => 'danger',
             ]);
+            flash('error', 'No se encontró correo para enviar la prueba.');
             $this->redirect('index.php?route=settings');
         }
 
@@ -101,6 +103,7 @@ class SettingsController extends Controller
             'message' => $sent ? 'Correo enviado correctamente.' : 'Fallo el envío.',
             'type' => $sent ? 'success' : 'danger',
         ]);
+        flash($sent ? 'success' : 'error', $sent ? 'Correo de prueba enviado correctamente.' : 'Fallo el envío del correo de prueba.');
 
         $this->redirect('index.php?route=settings');
     }

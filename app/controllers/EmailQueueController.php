@@ -53,6 +53,7 @@ class EmailQueueController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         audit($this->db, Auth::user()['id'], 'create', 'email_queue');
+        flash('success', 'Correo agregado a la cola.');
         $this->redirect('index.php?route=email-queue');
     }
 
@@ -68,12 +69,14 @@ class EmailQueueController extends Controller
 
         if ($email['status'] === 'sent') {
             $this->createNotification('Correo enviado', 'El correo ya fue enviado previamente.', 'info');
+            flash('info', 'El correo ya fue enviado previamente.');
             $this->redirect('index.php?route=email-queue');
         }
 
         if (empty($email['client_id'])) {
             $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = "Sin cliente" WHERE id = :id', ['id' => $email['id']]);
             $this->createNotification('Correo fallido', 'No hay un cliente asociado a este correo.', 'danger');
+            flash('error', 'No hay un cliente asociado a este correo.');
             $this->redirect('index.php?route=email-queue');
         }
 
@@ -81,6 +84,7 @@ class EmailQueueController extends Controller
         if (!$client) {
             $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = "Cliente no encontrado" WHERE id = :id', ['id' => $email['id']]);
             $this->createNotification('Correo fallido', 'No encontramos el cliente asociado al correo.', 'danger');
+            flash('error', 'No encontramos el cliente asociado al correo.');
             $this->redirect('index.php?route=email-queue');
         }
 
@@ -92,6 +96,7 @@ class EmailQueueController extends Controller
         if (empty($recipients)) {
             $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = "Sin email" WHERE id = :id', ['id' => $email['id']]);
             $this->createNotification('Correo fallido', 'No hay email asociado al cliente para enviar.', 'danger');
+            flash('error', 'No hay email asociado al cliente para enviar.');
             $this->redirect('index.php?route=email-queue');
         }
 
@@ -103,6 +108,7 @@ class EmailQueueController extends Controller
                 $this->db->execute('UPDATE email_queue SET status = "sent", updated_at = NOW() WHERE id = :id', ['id' => $email['id']]);
                 $this->storeEmailLog($email, 'sent');
                 $this->createNotification('Correo enviado', 'El correo se envió correctamente.', 'success');
+                flash('success', 'El correo se envió correctamente.');
             } else {
                 $errorDetail = $mailer->getLastError() ?: 'Error envío';
                 $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = :error WHERE id = :id', [
@@ -110,6 +116,7 @@ class EmailQueueController extends Controller
                     'id' => $email['id'],
                 ]);
                 $this->createNotification('Correo fallido', 'No se pudo enviar el correo.', 'danger');
+                flash('error', 'No se pudo enviar el correo.');
             }
         } catch (Throwable $e) {
             $this->db->execute('UPDATE email_queue SET status = "failed", tries = tries + 1, last_error = :error WHERE id = :id', [
@@ -118,6 +125,7 @@ class EmailQueueController extends Controller
             ]);
             log_message('error', 'Email send failed: ' . $e->getMessage());
             $this->createNotification('Correo fallido', 'No se pudo enviar el correo.', 'danger');
+            flash('error', 'No se pudo enviar el correo.');
         }
 
         $this->redirect('index.php?route=email-queue');

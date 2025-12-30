@@ -287,6 +287,16 @@
                 <div class="collapse" id="sidebarCRM">
                     <ul class="sub-menu">
                         <li class="side-nav-item">
+                            <a href="projects.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-projects-services">Projects &amp; Services</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="tickets-list.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-service-desk">Service Desk</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
                             <a href="crm-contacts.php" class="side-nav-link">
                                 <span class="menu-text" data-lang="crm-contacts">Contacts</span>
                             </a>

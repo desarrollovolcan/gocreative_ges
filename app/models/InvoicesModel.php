@@ -4,14 +4,21 @@ class InvoicesModel extends Model
 {
     protected string $table = 'invoices';
 
-    public function allWithClient(): array
+    public function allWithClient(?int $companyId = null): array
     {
-        return $this->db->fetchAll('SELECT invoices.*, clients.name as client_name FROM invoices JOIN clients ON invoices.client_id = clients.id WHERE invoices.deleted_at IS NULL ORDER BY invoices.id DESC');
+        $companyId = $companyId ?? current_company_id();
+        return $this->db->fetchAll(
+            'SELECT invoices.*, clients.name as client_name FROM invoices JOIN clients ON invoices.client_id = clients.id WHERE invoices.deleted_at IS NULL AND invoices.company_id = :company_id ORDER BY invoices.id DESC',
+            ['company_id' => $companyId]
+        );
     }
 
-    public function nextNumber(string $prefix): string
+    public function nextNumber(string $prefix, ?int $companyId = null): string
     {
-        $row = $this->db->fetch('SELECT MAX(id) as max_id FROM invoices');
+        $companyId = $companyId ?? current_company_id();
+        $row = $this->db->fetch('SELECT MAX(id) as max_id FROM invoices WHERE company_id = :company_id', [
+            'company_id' => $companyId,
+        ]);
         $next = (int)($row['max_id'] ?? 0) + 1;
         return $prefix . str_pad((string)$next, 6, '0', STR_PAD_LEFT);
     }

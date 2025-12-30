@@ -9,8 +9,9 @@ class ChatModel
         $this->db = $db;
     }
 
-    public function getThreadsForAdmin(): array
+    public function getThreadsForAdmin(?int $companyId = null): array
     {
+        $companyId = $companyId ?? current_company_id();
         return $this->db->fetchAll(
             'SELECT chat_threads.*,
                     clients.name AS client_name,
@@ -27,7 +28,9 @@ class ChatModel
                      SELECT MAX(id) FROM chat_messages GROUP BY thread_id
                  )
              ) AS latest ON latest.thread_id = chat_threads.id
-             ORDER BY chat_threads.updated_at DESC'
+             WHERE chat_threads.company_id = :company_id
+             ORDER BY chat_threads.updated_at DESC',
+            ['company_id' => $companyId]
         );
     }
 
@@ -51,14 +54,15 @@ class ChatModel
         );
     }
 
-    public function getThread(int $threadId): ?array
+    public function getThread(int $threadId, ?int $companyId = null): ?array
     {
+        $companyId = $companyId ?? current_company_id();
         return $this->db->fetch(
             'SELECT chat_threads.*, clients.name AS client_name, clients.email AS client_email
              FROM chat_threads
              JOIN clients ON chat_threads.client_id = clients.id
-             WHERE chat_threads.id = :id',
-            ['id' => $threadId]
+             WHERE chat_threads.id = :id AND chat_threads.company_id = :company_id',
+            ['id' => $threadId, 'company_id' => $companyId]
         );
     }
 
@@ -124,13 +128,15 @@ class ChatModel
         );
     }
 
-    public function createThread(int $clientId, string $subject): int
+    public function createThread(int $clientId, string $subject, ?int $companyId = null): int
     {
+        $companyId = $companyId ?? current_company_id();
         $now = date('Y-m-d H:i:s');
         $this->db->execute(
-            'INSERT INTO chat_threads (client_id, subject, status, created_at, updated_at)
-             VALUES (:client_id, :subject, :status, :created_at, :updated_at)',
+            'INSERT INTO chat_threads (company_id, client_id, subject, status, created_at, updated_at)
+             VALUES (:company_id, :client_id, :subject, :status, :created_at, :updated_at)',
             [
+                'company_id' => $companyId,
                 'client_id' => $clientId,
                 'subject' => $subject,
                 'status' => 'abierto',
@@ -161,9 +167,16 @@ class ChatModel
         );
     }
 
-    public function getLatestMessageIdForAdmin(): int
+    public function getLatestMessageIdForAdmin(?int $companyId = null): int
     {
-        $row = $this->db->fetch('SELECT COALESCE(MAX(id), 0) AS latest_id FROM chat_messages');
+        $companyId = $companyId ?? current_company_id();
+        $row = $this->db->fetch(
+            'SELECT COALESCE(MAX(chat_messages.id), 0) AS latest_id
+             FROM chat_messages
+             JOIN chat_threads ON chat_messages.thread_id = chat_threads.id
+             WHERE chat_threads.company_id = :company_id',
+            ['company_id' => $companyId]
+        );
         return (int)($row['latest_id'] ?? 0);
     }
 

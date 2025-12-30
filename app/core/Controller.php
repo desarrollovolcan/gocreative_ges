@@ -15,6 +15,7 @@ class Controller
     {
         extract($data);
         $config = $this->config;
+        $db = $this->db;
         $currentUser = Auth::user();
         $permissions = [];
         if ($currentUser && ($currentUser['role'] ?? '') !== 'admin') {
@@ -28,12 +29,35 @@ class Controller
             }
         }
         try {
-            $notifications = $this->db->fetchAll("SELECT * FROM notifications WHERE read_at IS NULL ORDER BY created_at DESC LIMIT 5");
+            $companyId = current_company_id();
+            $notifications = $companyId
+                ? $this->db->fetchAll(
+                    "SELECT * FROM notifications WHERE read_at IS NULL AND company_id = :company_id ORDER BY created_at DESC LIMIT 5",
+                    ['company_id' => $companyId]
+                )
+                : [];
         } catch (PDOException $e) {
             log_message('error', 'Failed to load notifications: ' . $e->getMessage());
             $notifications = [];
         }
         $notificationCount = count($notifications);
+        try {
+            $settingsModel = new SettingsModel($this->db);
+            $companySettings = $settingsModel->get('company', []);
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to load company settings: ' . $e->getMessage());
+            $companySettings = [];
+        }
+        $currentCompany = null;
+        $companyId = current_company_id();
+        if ($companyId) {
+            try {
+                $currentCompany = $this->db->fetch('SELECT * FROM companies WHERE id = :id', ['id' => $companyId]);
+            } catch (Throwable $e) {
+                log_message('error', 'Failed to load company: ' . $e->getMessage());
+                $currentCompany = null;
+            }
+        }
         include __DIR__ . '/../views/layouts/main.php';
     }
 
@@ -41,6 +65,23 @@ class Controller
     {
         extract($data);
         $config = $this->config;
+        try {
+            $settingsModel = new SettingsModel($this->db);
+            $companySettings = $settingsModel->get('company', []);
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to load company settings: ' . $e->getMessage());
+            $companySettings = [];
+        }
+        $currentCompany = null;
+        $companyId = current_company_id();
+        if ($companyId) {
+            try {
+                $currentCompany = $this->db->fetch('SELECT * FROM companies WHERE id = :id', ['id' => $companyId]);
+            } catch (Throwable $e) {
+                log_message('error', 'Failed to load company: ' . $e->getMessage());
+                $currentCompany = null;
+            }
+        }
         include __DIR__ . '/../views/layouts/portal.php';
     }
 

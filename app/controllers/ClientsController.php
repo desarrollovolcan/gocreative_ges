@@ -37,7 +37,7 @@ class ClientsController extends Controller
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         if (!Validator::required($name) || !Validator::email($email)) {
-            $_SESSION['error'] = 'Completa los campos obligatorios.';
+            flash('error', 'Completa los campos obligatorios.');
             $this->redirect('index.php?route=clients/create');
         }
         $rut = trim($_POST['rut'] ?? '');
@@ -49,19 +49,19 @@ class ClientsController extends Controller
         }
         $existingClient = $this->db->fetch($existingQuery . ' LIMIT 1', $existingParams);
         if ($existingClient) {
-            $_SESSION['error'] = 'Ya existe un cliente con este email o RUT. Revisa los datos antes de duplicar.';
+            flash('error', 'Ya existe un cliente con este email o RUT. Revisa los datos antes de duplicar.');
             $this->redirect('index.php?route=clients/edit&id=' . $existingClient['id']);
         }
 
         $portalToken = bin2hex(random_bytes(16));
         $portalPassword = trim($_POST['portal_password'] ?? '');
         if ($portalPassword === '') {
-            $_SESSION['error'] = 'Define una contraseña para el acceso del cliente.';
+            flash('error', 'Define una contraseña para el acceso del cliente.');
             $this->redirect('index.php?route=clients/create');
         }
         $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'client');
         if (!empty($avatarResult['error'])) {
-            $_SESSION['error'] = $avatarResult['error'];
+            flash('error', $avatarResult['error']);
             $this->redirect('index.php?route=clients/create');
         }
         $data = [
@@ -86,7 +86,7 @@ class ClientsController extends Controller
         ];
         $clientId = $this->clients->create($data);
         audit($this->db, Auth::user()['id'], 'create', 'clients');
-        $_SESSION['success'] = 'Cliente creado correctamente.';
+        flash('success', 'Cliente creado correctamente.');
         $this->redirect('index.php?route=clients/edit&id=' . $clientId);
     }
 
@@ -114,7 +114,7 @@ class ClientsController extends Controller
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         if (!Validator::required($name) || !Validator::email($email)) {
-            $_SESSION['error'] = 'Completa los campos obligatorios.';
+            flash('error', 'Completa los campos obligatorios.');
             $this->redirect('index.php?route=clients/edit&id=' . $id);
         }
 
@@ -142,7 +142,7 @@ class ClientsController extends Controller
         ];
         $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'client');
         if (!empty($avatarResult['error'])) {
-            $_SESSION['error'] = $avatarResult['error'];
+            flash('error', $avatarResult['error']);
             $this->redirect('index.php?route=clients/edit&id=' . $id);
         }
         if (!empty($avatarResult['path'])) {
@@ -153,7 +153,7 @@ class ClientsController extends Controller
         }
         $this->clients->update($id, $data);
         audit($this->db, Auth::user()['id'], 'update', 'clients', $id);
-        $_SESSION['success'] = 'Datos actualizados correctamente.';
+        flash('success', 'Datos actualizados correctamente.');
         $this->redirect('index.php?route=clients/edit&id=' . $id);
     }
 
@@ -708,6 +708,7 @@ class ClientsController extends Controller
         $id = (int)($_POST['id'] ?? 0);
         $this->clients->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'clients', $id);
+        flash('success', 'Cliente eliminado correctamente.');
         $this->redirect('index.php?route=clients');
     }
 }

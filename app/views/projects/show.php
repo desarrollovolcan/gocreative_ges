@@ -1,6 +1,13 @@
 <div class="card">
     <div class="card-header">
-        <h4 class="card-title mb-0"><?php echo e($project['name']); ?></h4>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h4 class="card-title mb-0"><?php echo e($project['name']); ?></h4>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="index.php?route=quotes/create&project_id=<?php echo (int)$project['id']; ?>" class="btn btn-outline-primary btn-sm">Nueva cotización</a>
+                <a href="index.php?route=invoices/create&project_id=<?php echo (int)$project['id']; ?>" class="btn btn-outline-success btn-sm">Crear factura</a>
+                <a href="index.php?route=tickets/create&client_id=<?php echo (int)($project['client_id'] ?? 0); ?>" class="btn btn-outline-warning btn-sm">Abrir ticket</a>
+            </div>
+        </div>
     </div>
     <div class="card-body">
         <p class="text-muted"><?php echo e($project['description']); ?></p>
@@ -14,6 +21,98 @@
             <div class="col-md-6"><strong>Mandante RUT:</strong> <?php echo e($project['mandante_rut'] ?? '-'); ?></div>
             <div class="col-md-6"><strong>Mandante Teléfono:</strong> <?php echo e($project['mandante_phone'] ?? '-'); ?></div>
             <div class="col-md-6"><strong>Mandante Correo:</strong> <?php echo e($project['mandante_email'] ?? '-'); ?></div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6"><strong>Cliente:</strong> <?php echo e($client['name'] ?? '-'); ?></div>
+            <div class="col-md-6"><strong>Email Cliente:</strong> <?php echo e($client['email'] ?? '-'); ?></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title mb-0">Facturas asociadas</h4></div>
+            <div class="card-body">
+                <?php if (!empty($invoices)): ?>
+                    <ul class="list-group">
+                        <?php foreach ($invoices as $invoice): ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <?php echo e($invoice['numero']); ?>
+                                <span class="badge bg-secondary-subtle text-secondary"><?php echo e($invoice['estado']); ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <div class="text-muted">Aún no hay facturas para este proyecto.</div>
+                <?php endif; ?>
+                <div class="mt-3">
+                    <a href="index.php?route=invoices/create&project_id=<?php echo (int)$project['id']; ?>" class="btn btn-sm btn-success">Emitir factura</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title mb-0">Cotizaciones</h4></div>
+            <div class="card-body">
+                <?php if (!empty($quotes)): ?>
+                    <ul class="list-group">
+                        <?php foreach ($quotes as $quote): ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <?php echo e($quote['numero']); ?>
+                                <span class="badge bg-info-subtle text-info"><?php echo e($quote['estado']); ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <div class="text-muted">Aún no hay cotizaciones asociadas.</div>
+                <?php endif; ?>
+                <div class="mt-3">
+                    <a href="index.php?route=quotes/create&project_id=<?php echo (int)$project['id']; ?>" class="btn btn-sm btn-primary">Crear cotización</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title mb-0">Servicios &amp; Tickets</h4></div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="fw-semibold text-muted mb-2">Servicios activos</div>
+                    <?php if (!empty($services)): ?>
+                        <ul class="list-group">
+                            <?php foreach (array_slice($services, 0, 3) as $service): ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <?php echo e($service['name']); ?>
+                                    <span class="badge bg-light text-dark"><?php echo e($service['status']); ?></span>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else: ?>
+                        <div class="text-muted">Sin servicios activos.</div>
+                    <?php endif; ?>
+                </div>
+                <div>
+                    <div class="fw-semibold text-muted mb-2">Últimos tickets</div>
+                    <?php if (!empty($tickets)): ?>
+                        <ul class="list-group">
+                            <?php foreach (array_slice($tickets, 0, 3) as $ticket): ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    #<?php echo e($ticket['id']); ?> <?php echo e($ticket['subject']); ?>
+                                    <span class="badge bg-warning-subtle text-warning"><?php echo e($ticket['status']); ?></span>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else: ?>
+                        <div class="text-muted">Sin tickets recientes.</div>
+                    <?php endif; ?>
+                </div>
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                    <a href="index.php?route=services/create&client_id=<?php echo (int)($project['client_id'] ?? 0); ?>" class="btn btn-sm btn-outline-warning">Nuevo servicio</a>
+                    <a href="index.php?route=tickets/create&client_id=<?php echo (int)($project['client_id'] ?? 0); ?>" class="btn btn-sm btn-warning">Abrir ticket</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -39,6 +39,8 @@ return [
     'projects/tasks/update' => ['ProjectsController', 'updateTask'],
     'projects/tasks/delete' => ['ProjectsController', 'deleteTask'],
     'projects/delete' => ['ProjectsController', 'delete'],
+    'crm/hub' => ['CrmController', 'hub'],
+    'crm/reports' => ['CrmController', 'reports'],
     'services' => ['ServicesController', 'index'],
     'services/create' => ['ServicesController', 'create'],
     'services/store' => ['ServicesController', 'store'],

@@ -1,18 +1,20 @@
-<?php if (!empty($_SESSION['error'])): ?>
-    <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
-<?php endif; ?>
-<?php if (!empty($_SESSION['success'])): ?>
-    <div class="alert alert-success"><?php echo e($_SESSION['success']); unset($_SESSION['success']); ?></div>
-<?php endif; ?>
-
 <div class="row g-3">
     <div class="col-lg-4">
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title mb-3">Detalle del ticket</h5>
-                <p class="mb-1"><strong>Cliente:</strong> <?php echo e($ticket['client_name'] ?? ''); ?></p>
+                <p class="mb-1">
+                    <strong>Cliente:</strong>
+                    <a href="index.php?route=clients/show&id=<?php echo (int)($ticket['client_id'] ?? 0); ?>" class="link-reset">
+                        <?php echo e($ticket['client_name'] ?? ''); ?>
+                    </a>
+                </p>
                 <p class="mb-1"><strong>Asunto:</strong> <?php echo e($ticket['subject'] ?? ''); ?></p>
                 <p class="mb-3"><strong>Prioridad:</strong> <?php echo e(ucfirst($ticket['priority'] ?? 'media')); ?></p>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <a href="index.php?route=projects&client_id=<?php echo (int)($ticket['client_id'] ?? 0); ?>" class="btn btn-outline-primary btn-sm">Ver proyectos</a>
+                    <a href="index.php?route=invoices&client_id=<?php echo (int)($ticket['client_id'] ?? 0); ?>" class="btn btn-outline-success btn-sm">Ver facturas</a>
+                </div>
 
                 <form method="post" action="index.php?route=tickets/status">
                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">

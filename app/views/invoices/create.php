@@ -24,7 +24,9 @@
                     <select name="service_id" class="form-select">
                         <option value="">Sin servicio</option>
                         <?php foreach ($services as $service): ?>
-                            <option value="<?php echo $service['id']; ?>"><?php echo e($service['name']); ?></option>
+                            <option value="<?php echo $service['id']; ?>" <?php echo (int)($selectedServiceId ?? 0) === (int)$service['id'] ? 'selected' : ''; ?>>
+                                <?php echo e($service['name']); ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>

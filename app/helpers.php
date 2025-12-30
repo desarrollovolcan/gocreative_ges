@@ -176,6 +176,10 @@ function permission_catalog(): array
             'label' => 'Proyectos',
             'routes' => ['projects'],
         ],
+        'crm' => [
+            'label' => 'CRM Comercial',
+            'routes' => ['crm'],
+        ],
         'services' => [
             'label' => 'Servicios',
             'routes' => ['services'],

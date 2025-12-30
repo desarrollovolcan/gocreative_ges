@@ -37,6 +37,8 @@ class QuotesController extends Controller
         }
         $projects = $this->db->fetchAll('SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL ORDER BY projects.id DESC');
         $number = $this->quotes->nextNumber('COT-');
+        $selectedClientId = (int)($_GET['client_id'] ?? 0);
+        $selectedProjectId = (int)($_GET['project_id'] ?? 0);
         $this->render('quotes/create', [
             'title' => 'Nueva Cotización',
             'pageTitle' => 'Nueva Cotización',
@@ -44,6 +46,8 @@ class QuotesController extends Controller
             'services' => $services,
             'projects' => $projects,
             'number' => $number,
+            'selectedClientId' => $selectedClientId,
+            'selectedProjectId' => $selectedProjectId,
         ]);
     }
 
@@ -91,6 +95,7 @@ class QuotesController extends Controller
         }
 
         audit($this->db, Auth::user()['id'], 'create', 'quotes', $quoteId);
+        flash('success', 'Cotización creada correctamente.');
         $this->redirect('index.php?route=quotes');
     }
 
@@ -190,6 +195,7 @@ class QuotesController extends Controller
         }
 
         audit($this->db, Auth::user()['id'], 'update', 'quotes', $id);
+        flash('success', 'Cotización actualizada correctamente.');
         $this->redirect('index.php?route=quotes/show&id=' . $id);
     }
 
@@ -201,6 +207,7 @@ class QuotesController extends Controller
         $this->db->execute('DELETE FROM quote_items WHERE quote_id = :quote_id', ['quote_id' => $id]);
         $this->db->execute('DELETE FROM quotes WHERE id = :id', ['id' => $id]);
         audit($this->db, Auth::user()['id'], 'delete', 'quotes', $id);
+        flash('success', 'Cotización eliminada correctamente.');
         $this->redirect('index.php?route=quotes');
     }
 
@@ -221,6 +228,7 @@ class QuotesController extends Controller
                 'message' => 'El cliente no tiene un correo válido.',
                 'type' => 'danger',
             ]);
+            flash('error', 'No se pudo enviar la cotización: email inválido.');
             $this->redirect('index.php?route=quotes');
         }
         $baseUrl = rtrim($this->config['app']['base_url'] ?? '', '/');
@@ -239,6 +247,7 @@ class QuotesController extends Controller
             'message' => $sent ? 'La cotización fue enviada correctamente.' : 'No se pudo enviar la cotización.',
             'type' => $sent ? 'success' : 'danger',
         ]);
+        flash($sent ? 'success' : 'error', $sent ? 'Cotización enviada correctamente.' : 'No se pudo enviar la cotización.');
         $this->redirect('index.php?route=quotes');
     }
 

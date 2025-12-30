@@ -51,6 +51,7 @@ class SystemServicesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         audit($this->db, Auth::user()['id'], 'create', 'system_services');
+        flash('success', 'Servicio creado correctamente.');
         $this->redirect('index.php?route=maintainers/services');
     }
 
@@ -87,6 +88,7 @@ class SystemServicesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         audit($this->db, Auth::user()['id'], 'update', 'system_services', $id);
+        flash('success', 'Servicio actualizado correctamente.');
         $this->redirect('index.php?route=maintainers/services');
     }
 
@@ -98,6 +100,7 @@ class SystemServicesController extends Controller
         $id = (int)($_POST['id'] ?? 0);
         $this->db->execute('DELETE FROM system_services WHERE id = :id', ['id' => $id]);
         audit($this->db, Auth::user()['id'], 'delete', 'system_services', $id);
+        flash('success', 'Servicio eliminado correctamente.');
         $this->redirect('index.php?route=maintainers/services');
     }
 }

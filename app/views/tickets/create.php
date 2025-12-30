@@ -1,7 +1,3 @@
-<?php if (!empty($_SESSION['error'])): ?>
-    <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
-<?php endif; ?>
-
 <div class="card">
     <div class="card-body">
         <form method="post" action="index.php?route=tickets/store">
@@ -12,7 +8,7 @@
                     <select name="client_id" class="form-select" required>
                         <option value="">Selecciona un cliente</option>
                         <?php foreach ($clients as $client): ?>
-                            <option value="<?php echo (int)$client['id']; ?>">
+                            <option value="<?php echo (int)$client['id']; ?>" <?php echo (int)($selectedClientId ?? 0) === (int)$client['id'] ? 'selected' : ''; ?>>
                                 <?php echo e($client['name'] ?? ''); ?> · <?php echo e($client['email'] ?? ''); ?>
                             </option>
                         <?php endforeach; ?>

@@ -46,6 +46,7 @@ class EmailTemplatesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         audit($this->db, Auth::user()['id'], 'create', 'email_templates');
+        flash('success', 'Plantilla creada correctamente.');
         $this->redirect('index.php?route=email-templates');
     }
 
@@ -81,6 +82,7 @@ class EmailTemplatesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         audit($this->db, Auth::user()['id'], 'update', 'email_templates', $id);
+        flash('success', 'Plantilla actualizada correctamente.');
         $this->redirect('index.php?route=email-templates');
     }
 
@@ -92,6 +94,7 @@ class EmailTemplatesController extends Controller
         $id = (int)($_POST['id'] ?? 0);
         $this->templates->softDelete($id);
         audit($this->db, Auth::user()['id'], 'delete', 'email_templates', $id);
+        flash('success', 'Plantilla eliminada correctamente.');
         $this->redirect('index.php?route=email-templates');
     }
 

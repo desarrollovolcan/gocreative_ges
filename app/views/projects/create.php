@@ -21,7 +21,8 @@
                                                 data-mandante-name="<?php echo e($client['mandante_name'] ?? ''); ?>"
                                                 data-mandante-rut="<?php echo e($client['mandante_rut'] ?? ''); ?>"
                                                 data-mandante-phone="<?php echo e($client['mandante_phone'] ?? ''); ?>"
-                                                data-mandante-email="<?php echo e($client['mandante_email'] ?? ''); ?>">
+                                                data-mandante-email="<?php echo e($client['mandante_email'] ?? ''); ?>"
+                                                <?php echo (int)($selectedClientId ?? 0) === (int)$client['id'] ? 'selected' : ''; ?>>
                                                 <?php echo e($client['name']); ?>
                                             </option>
                                         <?php endforeach; ?>
@@ -180,5 +181,9 @@
             }
         });
     });
+
+    if (projectClientSelect?.value) {
+        fillProjectMandanteFromClient();
+    }
 
 </script>

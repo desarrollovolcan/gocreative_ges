@@ -111,10 +111,24 @@ body {
 }
 
 .dashboard-hero {
-    background: linear-gradient(120deg, #4f3cc9, #5a4de1 45%, #6a5bff);
     border-radius: 18px;
     padding: 24px 28px;
-    box-shadow: 0 16px 36px rgba(76, 65, 202, 0.25);
+    box-shadow: 0 16px 36px rgba(76, 65, 202, 0.18);
+}
+
+.dashboard-hero-light {
+    background: linear-gradient(120deg, #f4f3ff, #f8f7ff 50%, #eef1ff);
+    border: 1px solid rgba(90, 77, 225, 0.12);
+    color: var(--ins-text);
+}
+
+.dashboard-hero-light h3 {
+    color: var(--ins-text);
+    font-weight: 700;
+}
+
+.dashboard-hero-light p {
+    color: var(--ins-muted);
 }
 
 .stat-card {

@@ -1,13 +1,13 @@
-<div class="dashboard-hero mb-4">
+<div class="dashboard-hero dashboard-hero-light mb-4">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
-            <h3 class="text-white mb-1">Panel comercial</h3>
-            <p class="text-white-50 mb-0">Indicadores actualizados de proyectos, servicios y facturación.</p>
+            <h3 class="mb-1">Panel comercial</h3>
+            <p class="mb-0">Indicadores actualizados de proyectos, servicios y facturación.</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
-            <a href="index.php?route=crm/hub" class="btn btn-light btn-sm">Ir al CRM</a>
-            <a href="index.php?route=projects/create" class="btn btn-outline-light btn-sm">Nuevo proyecto</a>
-            <a href="index.php?route=invoices/create" class="btn btn-outline-light btn-sm">Nueva factura</a>
+            <a href="index.php?route=crm/hub" class="btn btn-primary btn-sm">Ir al CRM</a>
+            <a href="index.php?route=projects/create" class="btn btn-outline-primary btn-sm">Nuevo proyecto</a>
+            <a href="index.php?route=invoices/create" class="btn btn-outline-primary btn-sm">Nueva factura</a>
         </div>
     </div>
 </div>

@@ -6,6 +6,7 @@ return [
     'tickets/create' => ['TicketsController', 'create'],
     'tickets/store' => ['TicketsController', 'store'],
     'tickets/show' => ['TicketsController', 'show'],
+    'tickets/messages' => ['TicketsController', 'messages'],
     'tickets/message' => ['TicketsController', 'addMessage'],
     'tickets/status' => ['TicketsController', 'updateStatus'],
     'clients' => ['ClientsController', 'index'],

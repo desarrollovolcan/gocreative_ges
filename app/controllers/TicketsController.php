@@ -186,4 +186,23 @@ class TicketsController extends Controller
         flash('success', 'Estado actualizado.');
         $this->redirect('index.php?route=tickets/show&id=' . $ticketId);
     }
+
+    public function messages(): void
+    {
+        $this->requireLogin();
+        $ticketId = (int)($_GET['ticket_id'] ?? 0);
+        $sinceId = (int)($_GET['since_id'] ?? 0);
+        $ticket = $this->tickets->findWithClient($ticketId, current_company_id());
+        if (!$ticket) {
+            http_response_code(404);
+            echo json_encode(['messages' => []]);
+            return;
+        }
+        $messages = $sinceId > 0
+            ? $this->messages->forTicketSince($ticketId, $sinceId)
+            : $this->messages->forTicket($ticketId);
+
+        header('Content-Type: application/json');
+        echo json_encode(['messages' => $messages]);
+    }
 }

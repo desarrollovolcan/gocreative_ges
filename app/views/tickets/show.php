@@ -52,8 +52,11 @@
     <div class="col-lg-8">
         <div class="card h-100">
             <div class="card-body d-flex flex-column">
-                <h5 class="card-title mb-3">Historial de mensajes</h5>
-                <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 420px;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h5 class="card-title mb-0">Historial de mensajes</h5>
+                    <small class="text-muted">Actualización automática</small>
+                </div>
+                <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 420px;" id="ticketMessages" data-last-id="<?php echo !empty($messages) ? (int)end($messages)['id'] : 0; ?>">
                     <?php if (!empty($messages)): ?>
                         <?php foreach ($messages as $message): ?>
                             <?php
@@ -61,26 +64,20 @@
                             $senderLabel = $message['sender_name'] ?? ($isUser ? 'Equipo' : 'Cliente');
                             $recipientLabel = $isUser ? 'Cliente' : 'Equipo';
                             ?>
-                            <div class="border rounded-3 p-3 mb-3 bg-light bg-opacity-50">
-                                <div class="row g-2">
+                            <div class="border rounded-3 p-3 mb-2 bg-light bg-opacity-50">
+                                <div class="row g-2 small text-muted">
                                     <div class="col-sm-4">
-                                        <div class="text-muted fs-xs">De</div>
-                                        <div class="fw-semibold"><?php echo e($senderLabel); ?></div>
+                                        <span class="fw-semibold text-dark">De:</span> <?php echo e($senderLabel); ?>
                                     </div>
                                     <div class="col-sm-4">
-                                        <div class="text-muted fs-xs">Para</div>
-                                        <div class="fw-semibold"><?php echo e($recipientLabel); ?></div>
+                                        <span class="fw-semibold text-dark">Para:</span> <?php echo e($recipientLabel); ?>
                                     </div>
                                     <div class="col-sm-4 text-sm-end">
-                                        <div class="text-muted fs-xs">Fecha</div>
-                                        <div class="fw-semibold"><?php echo e($message['created_at'] ?? ''); ?></div>
+                                        <?php echo e($message['created_at'] ?? ''); ?>
                                     </div>
                                 </div>
-                                <div class="mt-3">
-                                    <div class="text-muted fs-xs mb-1">Mensaje</div>
-                                    <div class="bg-white border rounded-3 p-3">
-                                        <?php echo nl2br(e($message['message'] ?? '')); ?>
-                                    </div>
+                                <div class="mt-2 bg-white border rounded-3 px-3 py-2">
+                                    <?php echo nl2br(e($message['message'] ?? '')); ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -102,3 +99,49 @@
         </div>
     </div>
 </div>
+
+<script>
+    const ticketMessages = document.getElementById('ticketMessages');
+    const ticketId = <?php echo (int)($ticket['id'] ?? 0); ?>;
+
+    const appendMessage = (message) => {
+        const isUser = message.sender_type === 'user';
+        const senderLabel = message.sender_name || (isUser ? 'Equipo' : 'Cliente');
+        const recipientLabel = isUser ? 'Cliente' : 'Equipo';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'border rounded-3 p-3 mb-2 bg-light bg-opacity-50';
+        wrapper.innerHTML = `
+            <div class="row g-2 small text-muted">
+                <div class="col-sm-4"><span class="fw-semibold text-dark">De:</span> ${senderLabel}</div>
+                <div class="col-sm-4"><span class="fw-semibold text-dark">Para:</span> ${recipientLabel}</div>
+                <div class="col-sm-4 text-sm-end">${message.created_at || ''}</div>
+            </div>
+            <div class="mt-2 bg-white border rounded-3 px-3 py-2">${(message.message || '').replace(/\\n/g, '<br>')}</div>
+        `;
+        ticketMessages.appendChild(wrapper);
+    };
+
+    const refreshMessages = async () => {
+        if (!ticketMessages || !ticketId) {
+            return;
+        }
+        const lastId = Number(ticketMessages.dataset.lastId || 0);
+        const response = await fetch(`index.php?route=tickets/messages&ticket_id=${ticketId}&since_id=${lastId}`);
+        if (!response.ok) {
+            return;
+        }
+        const payload = await response.json();
+        if (!payload.messages || payload.messages.length === 0) {
+            return;
+        }
+        payload.messages.forEach((message) => {
+            appendMessage(message);
+            ticketMessages.dataset.lastId = String(message.id || lastId);
+        });
+        ticketMessages.scrollTop = ticketMessages.scrollHeight;
+    };
+
+    if (ticketMessages) {
+        setInterval(refreshMessages, 8000);
+    }
+</script>

@@ -110,6 +110,54 @@ body {
     background-color: var(--ins-card);
 }
 
+.dashboard-hero {
+    background: linear-gradient(120deg, #4f3cc9, #5a4de1 45%, #6a5bff);
+    border-radius: 18px;
+    padding: 24px 28px;
+    box-shadow: 0 16px 36px rgba(76, 65, 202, 0.25);
+}
+
+.stat-card {
+    border: 1px solid rgba(90, 77, 225, 0.08);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--ins-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+}
+
+.stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ins-text);
+    margin-bottom: 4px;
+}
+
+.stat-sub {
+    font-size: 0.78rem;
+    color: var(--ins-muted);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+.dashboard-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 .card-title {
     color: var(--ins-text);
     font-weight: 600;

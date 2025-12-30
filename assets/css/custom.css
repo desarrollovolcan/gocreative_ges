@@ -103,7 +103,7 @@ body {
 }
 
 .side-nav .sub-menu .side-nav-link {
-    color: rgba(255, 255, 255, 0.85);
+    color: #fff;
 }
 
 .card {
@@ -242,8 +242,9 @@ body {
     color: inherit;
 }
 
-.text-muted {
-    color: var(--ins-muted) !important;
+.sidenav-menu .text-muted,
+.sidenav-menu .text-muted * {
+    color: #fff !important;
 }
 
 .form-label {

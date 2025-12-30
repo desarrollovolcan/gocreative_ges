@@ -16,83 +16,50 @@ class ProjectsController extends Controller
     {
         $this->requireLogin();
         $companyId = current_company_id();
-        $conditions = ['projects.deleted_at IS NULL', 'projects.company_id = :company_id'];
-        $params = ['company_id' => $companyId];
+        $projectColumns = $this->getTableColumns('projects');
+        $clientColumns = $this->getTableColumns('clients');
+        $hasProjectColumn = static fn (string $column): bool => in_array($column, $projectColumns, true);
+        $conditions = [];
+        $params = [];
+        if ($hasProjectColumn('deleted_at')) {
+            $conditions[] = 'projects.deleted_at IS NULL';
+        }
+        if ($companyId && $hasProjectColumn('company_id')) {
+            $conditions[] = 'projects.company_id = :company_id';
+            $params['company_id'] = $companyId;
+        }
         $clientId = (int)($_GET['client_id'] ?? 0);
-        if ($clientId > 0) {
+        if ($clientId > 0 && $hasProjectColumn('client_id')) {
             $conditions[] = 'projects.client_id = :client_id';
             $params['client_id'] = $clientId;
         }
         $status = trim($_GET['status'] ?? '');
-        if ($status !== '') {
+        if ($status !== '' && $hasProjectColumn('status')) {
             $conditions[] = 'projects.status = :status';
             $params['status'] = $status;
         }
         $mandante = trim($_GET['mandante'] ?? '');
-        if ($mandante !== '') {
+        if ($mandante !== '' && $hasProjectColumn('mandante_name')) {
             $conditions[] = 'projects.mandante_name LIKE :mandante';
             $params['mandante'] = '%' . $mandante . '%';
         }
         $name = trim($_GET['name'] ?? '');
-        if ($name !== '') {
+        if ($name !== '' && $hasProjectColumn('name')) {
             $conditions[] = 'projects.name LIKE :name';
             $params['name'] = '%' . $name . '%';
         }
-        $where = implode(' AND ', $conditions);
+        $where = $conditions ? implode(' AND ', $conditions) : '1=1';
+        $useClientJoin = $hasProjectColumn('client_id')
+            && in_array('id', $clientColumns, true)
+            && in_array('name', $clientColumns, true);
+        $projectsQuery = $useClientJoin
+            ? "SELECT projects.*, clients.name as client_name FROM projects LEFT JOIN clients ON projects.client_id = clients.id WHERE {$where} ORDER BY projects.id DESC"
+            : "SELECT projects.* FROM projects WHERE {$where} ORDER BY projects.id DESC";
         try {
-            $projects = $this->db->fetchAll(
-                "SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$where} ORDER BY projects.id DESC",
-                $params
-            );
+            $projects = $this->db->fetchAll($projectsQuery, $params);
         } catch (PDOException $e) {
             log_message('error', 'Failed to load projects list: ' . $e->getMessage());
-            $fallbackConditions = ['projects.deleted_at IS NULL', 'projects.company_id = :company_id'];
-            $fallbackParams = ['company_id' => $companyId];
-            if ($clientId > 0) {
-                $fallbackConditions[] = 'projects.client_id = :client_id';
-                $fallbackParams['client_id'] = $clientId;
-            }
-            if ($status !== '') {
-                $fallbackConditions[] = 'projects.status = :status';
-                $fallbackParams['status'] = $status;
-            }
-            if ($name !== '') {
-                $fallbackConditions[] = 'projects.name LIKE :name';
-                $fallbackParams['name'] = '%' . $name . '%';
-            }
-            $fallbackWhere = implode(' AND ', $fallbackConditions);
-            try {
-                $projects = $this->db->fetchAll(
-                    "SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE {$fallbackWhere} ORDER BY projects.id DESC",
-                    $fallbackParams
-                );
-            } catch (PDOException $fallbackError) {
-                log_message('error', 'Failed to load projects list fallback: ' . $fallbackError->getMessage());
-                $safeConditions = [];
-                $safeParams = [];
-                if ($clientId > 0) {
-                    $safeConditions[] = 'projects.client_id = :client_id';
-                    $safeParams['client_id'] = $clientId;
-                }
-                if ($status !== '') {
-                    $safeConditions[] = 'projects.status = :status';
-                    $safeParams['status'] = $status;
-                }
-                if ($name !== '') {
-                    $safeConditions[] = 'projects.name LIKE :name';
-                    $safeParams['name'] = '%' . $name . '%';
-                }
-                $safeWhere = $safeConditions ? implode(' AND ', $safeConditions) : '1=1';
-                try {
-                    $projects = $this->db->fetchAll(
-                        "SELECT projects.* FROM projects WHERE {$safeWhere} ORDER BY projects.id DESC",
-                        $safeParams
-                    );
-                } catch (PDOException $safeError) {
-                    log_message('error', 'Failed to load projects list safe fallback: ' . $safeError->getMessage());
-                    $projects = [];
-                }
-            }
+            $projects = [];
         }
         foreach ($projects as &$project) {
             if (!array_key_exists('client_name', $project)) {
@@ -100,11 +67,27 @@ class ProjectsController extends Controller
             }
         }
         unset($project);
-        try {
-            $clients = $this->clients->active($companyId);
-        } catch (PDOException $e) {
-            log_message('error', 'Failed to load clients list for projects: ' . $e->getMessage());
-            $clients = [];
+        $clients = [];
+        if (!empty($clientColumns)) {
+            $clientConditions = [];
+            $clientParams = [];
+            if (in_array('deleted_at', $clientColumns, true)) {
+                $clientConditions[] = 'deleted_at IS NULL';
+            }
+            if ($companyId && in_array('company_id', $clientColumns, true)) {
+                $clientConditions[] = 'company_id = :company_id';
+                $clientParams['company_id'] = $companyId;
+            }
+            $clientWhere = $clientConditions ? implode(' AND ', $clientConditions) : '1=1';
+            try {
+                $clients = $this->db->fetchAll(
+                    "SELECT * FROM clients WHERE {$clientWhere} ORDER BY id DESC",
+                    $clientParams
+                );
+            } catch (PDOException $e) {
+                log_message('error', 'Failed to load clients list for projects: ' . $e->getMessage());
+                $clients = [];
+            }
         }
         $this->render('projects/index', [
             'title' => 'Proyectos',
@@ -118,6 +101,23 @@ class ProjectsController extends Controller
                 'name' => $name,
             ],
         ]);
+    }
+
+    private function getTableColumns(string $table): array
+    {
+        try {
+            $rows = $this->db->fetchAll("SHOW COLUMNS FROM {$table}");
+        } catch (PDOException $e) {
+            log_message('error', 'Failed to inspect table ' . $table . ': ' . $e->getMessage());
+            return [];
+        }
+        $columns = [];
+        foreach ($rows as $row) {
+            if (isset($row['Field'])) {
+                $columns[] = $row['Field'];
+            }
+        }
+        return $columns;
     }
 
     public function create(): void

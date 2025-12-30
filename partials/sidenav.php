@@ -297,6 +297,11 @@
                             </a>
                         </li>
                         <li class="side-nav-item">
+                            <a href="crm-reports.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-reports">Reports &amp; Insights</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
                             <a href="crm-contacts.php" class="side-nav-link">
                                 <span class="menu-text" data-lang="crm-contacts">Contacts</span>
                             </a>

@@ -83,17 +83,17 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href="crm-briefs.php" class="side-nav-link">
+                                <a href="index.php?route=crm/briefs" class="side-nav-link">
                                     <span class="menu-text">Briefs Comerciales</span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href="crm-orders.php" class="side-nav-link">
+                                <a href="index.php?route=crm/orders" class="side-nav-link">
                                     <span class="menu-text">Órdenes de Venta</span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href="crm-renewals.php" class="side-nav-link">
+                                <a href="index.php?route=crm/renewals" class="side-nav-link">
                                     <span class="menu-text">Renovaciones</span>
                                 </a>
                             </li>
@@ -112,23 +112,18 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     <div class="collapse" id="sidebarCrmProspeccion">
                         <ul class="sub-menu">
                             <li class="side-nav-item">
-                                <a href="crm-leads.php" class="side-nav-link">
-                                    <span class="menu-text">Leads</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="crm-briefs.php" class="side-nav-link">
+                                <a href="index.php?route=crm/briefs" class="side-nav-link">
                                     <span class="menu-text">Briefs Comerciales</span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href="crm-campaign.php" class="side-nav-link">
-                                    <span class="menu-text">Campaign</span>
+                                <a href="index.php?route=clients" class="side-nav-link">
+                                    <span class="menu-text">Clientes</span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href="crm-contacts.php" class="side-nav-link">
-                                    <span class="menu-text">Contacts</span>
+                                <a href="index.php?route=quotes" class="side-nav-link">
+                                    <span class="menu-text">Cotizaciones</span>
                                 </a>
                             </li>
                         </ul>
@@ -143,33 +138,23 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     <div class="collapse" id="sidebarCrmVentas">
                         <ul class="sub-menu">
                             <li class="side-nav-item">
-                                <a href="crm-opportunities.php" class="side-nav-link">
-                                    <span class="menu-text">Opportunities</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="crm-deals.php" class="side-nav-link">
-                                    <span class="menu-text">Deals</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="crm-pipeline.php" class="side-nav-link">
-                                    <span class="menu-text">Pipeline</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="crm-proposals.php" class="side-nav-link">
-                                    <span class="menu-text">Proposals</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="crm-estimations.php" class="side-nav-link">
-                                    <span class="menu-text">Estimations</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="crm-orders.php" class="side-nav-link">
+                                <a href="index.php?route=crm/orders" class="side-nav-link">
                                     <span class="menu-text">Órdenes de Venta</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=invoices" class="side-nav-link">
+                                    <span class="menu-text">Facturas</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=payments/paid" class="side-nav-link">
+                                    <span class="menu-text">Pagos recibidos</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=payments/pending" class="side-nav-link">
+                                    <span class="menu-text">Pagos pendientes</span>
                                 </a>
                             </li>
                         </ul>
@@ -184,28 +169,23 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     <div class="collapse" id="sidebarCrmPostventa">
                         <ul class="sub-menu">
                             <li class="side-nav-item">
-                                <a href="crm-customers.php" class="side-nav-link">
-                                    <span class="menu-text">Customers</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="crm-activities.php" class="side-nav-link">
-                                    <span class="menu-text">Activities</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="tickets-list.php" class="side-nav-link">
-                                    <span class="menu-text">Service Desk</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="crm-renewals.php" class="side-nav-link">
+                                <a href="index.php?route=crm/renewals" class="side-nav-link">
                                     <span class="menu-text">Renovaciones</span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href="crm-reports.php" class="side-nav-link">
-                                    <span class="menu-text">Reports &amp; Insights</span>
+                                <a href="index.php?route=services" class="side-nav-link">
+                                    <span class="menu-text">Servicios</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=tickets" class="side-nav-link">
+                                    <span class="menu-text">Service Desk</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=crm/reports" class="side-nav-link">
+                                    <span class="menu-text">Reportes &amp; Insights</span>
                                 </a>
                             </li>
                         </ul>

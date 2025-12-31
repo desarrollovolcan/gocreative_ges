@@ -2,6 +2,22 @@
 
 class CrmController extends Controller
 {
+    private ClientsModel $clients;
+    private CommercialBriefsModel $briefs;
+    private SalesOrdersModel $orders;
+    private ServiceRenewalsModel $renewals;
+    private ServicesModel $services;
+
+    public function __construct(array $config, Database $db)
+    {
+        parent::__construct($config, $db);
+        $this->clients = new ClientsModel($db);
+        $this->briefs = new CommercialBriefsModel($db);
+        $this->orders = new SalesOrdersModel($db);
+        $this->renewals = new ServiceRenewalsModel($db);
+        $this->services = new ServicesModel($db);
+    }
+
     public function hub(): void
     {
         $this->requireLogin();
@@ -139,5 +155,231 @@ class CrmController extends Controller
                 'end' => $endParam,
             ],
         ]);
+    }
+
+    public function briefs(): void
+    {
+        $this->requireLogin();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $briefs = $this->db->fetchAll(
+            'SELECT commercial_briefs.*, clients.name as client_name
+             FROM commercial_briefs
+             JOIN clients ON commercial_briefs.client_id = clients.id
+             WHERE commercial_briefs.deleted_at IS NULL AND commercial_briefs.company_id = :company_id
+             ORDER BY commercial_briefs.id DESC',
+            ['company_id' => $companyId]
+        );
+        $clients = $this->clients->active($companyId);
+        $this->render('crm/briefs', [
+            'title' => 'Briefs Comerciales',
+            'pageTitle' => 'Briefs Comerciales',
+            'briefs' => $briefs,
+            'clients' => $clients,
+        ]);
+    }
+
+    public function storeBrief(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $data = [
+            'company_id' => $companyId,
+            'client_id' => $clientId,
+            'title' => trim($_POST['title'] ?? ''),
+            'contact_name' => trim($_POST['contact_name'] ?? ''),
+            'contact_email' => trim($_POST['contact_email'] ?? ''),
+            'contact_phone' => trim($_POST['contact_phone'] ?? ''),
+            'service_summary' => trim($_POST['service_summary'] ?? ''),
+            'expected_budget' => $_POST['expected_budget'] !== '' ? (float)$_POST['expected_budget'] : null,
+            'desired_start_date' => $_POST['desired_start_date'] !== '' ? $_POST['desired_start_date'] : null,
+            'status' => $_POST['status'] ?? 'nuevo',
+            'notes' => trim($_POST['notes'] ?? ''),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+        if ($data['title'] === '') {
+            flash('error', 'Ingresa un nombre para el brief.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $this->briefs->create($data);
+        audit($this->db, Auth::user()['id'], 'create', 'commercial_briefs');
+        flash('success', 'Brief comercial creado correctamente.');
+        $this->redirect('index.php?route=crm/briefs');
+    }
+
+    public function orders(): void
+    {
+        $this->requireLogin();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $orders = $this->db->fetchAll(
+            'SELECT sales_orders.*, clients.name as client_name, commercial_briefs.title as brief_title
+             FROM sales_orders
+             JOIN clients ON sales_orders.client_id = clients.id
+             LEFT JOIN commercial_briefs ON sales_orders.brief_id = commercial_briefs.id
+             WHERE sales_orders.deleted_at IS NULL AND sales_orders.company_id = :company_id
+             ORDER BY sales_orders.id DESC',
+            ['company_id' => $companyId]
+        );
+        $clients = $this->clients->active($companyId);
+        $briefs = $this->briefs->active($companyId);
+        $this->render('crm/orders', [
+            'title' => 'Órdenes de Venta',
+            'pageTitle' => 'Órdenes de Venta',
+            'orders' => $orders,
+            'clients' => $clients,
+            'briefs' => $briefs,
+        ]);
+    }
+
+    public function storeOrder(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=crm/orders');
+        }
+        $briefId = (int)($_POST['brief_id'] ?? 0);
+        $briefExists = null;
+        if ($briefId > 0) {
+            $briefExists = $this->db->fetch(
+                'SELECT id FROM commercial_briefs WHERE id = :id AND company_id = :company_id',
+                ['id' => $briefId, 'company_id' => $companyId]
+            );
+        }
+        $orderNumber = trim($_POST['order_number'] ?? '');
+        if ($orderNumber === '') {
+            $orderNumber = 'OV-' . date('Ymd-His');
+        }
+        $data = [
+            'company_id' => $companyId,
+            'client_id' => $clientId,
+            'brief_id' => $briefExists ? $briefId : null,
+            'order_number' => $orderNumber,
+            'order_date' => $_POST['order_date'] !== '' ? $_POST['order_date'] : date('Y-m-d'),
+            'status' => $_POST['status'] ?? 'pendiente',
+            'total' => (float)($_POST['total'] ?? 0),
+            'currency' => $_POST['currency'] ?? 'CLP',
+            'notes' => trim($_POST['notes'] ?? ''),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+        if ($data['total'] <= 0) {
+            flash('error', 'Ingresa un total válido para la orden.');
+            $this->redirect('index.php?route=crm/orders');
+        }
+        $this->orders->create($data);
+        audit($this->db, Auth::user()['id'], 'create', 'sales_orders');
+        flash('success', 'Orden de venta creada correctamente.');
+        $this->redirect('index.php?route=crm/orders');
+    }
+
+    public function renewals(): void
+    {
+        $this->requireLogin();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $renewals = $this->db->fetchAll(
+            'SELECT service_renewals.*, clients.name as client_name, services.name as service_name
+             FROM service_renewals
+             JOIN clients ON service_renewals.client_id = clients.id
+             LEFT JOIN services ON service_renewals.service_id = services.id
+             WHERE service_renewals.deleted_at IS NULL AND service_renewals.company_id = :company_id
+             ORDER BY service_renewals.id DESC',
+            ['company_id' => $companyId]
+        );
+        $clients = $this->clients->active($companyId);
+        $services = $this->services->active($companyId);
+        $this->render('crm/renewals', [
+            'title' => 'Renovaciones',
+            'pageTitle' => 'Renovaciones',
+            'renewals' => $renewals,
+            'clients' => $clients,
+            'services' => $services,
+        ]);
+    }
+
+    public function storeRenewal(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=crm/renewals');
+        }
+        $serviceId = (int)($_POST['service_id'] ?? 0);
+        $serviceExists = null;
+        if ($serviceId > 0) {
+            $serviceExists = $this->db->fetch(
+                'SELECT id FROM services WHERE id = :id AND company_id = :company_id',
+                ['id' => $serviceId, 'company_id' => $companyId]
+            );
+        }
+        $data = [
+            'company_id' => $companyId,
+            'client_id' => $clientId,
+            'service_id' => $serviceExists ? $serviceId : null,
+            'renewal_date' => $_POST['renewal_date'] !== '' ? $_POST['renewal_date'] : date('Y-m-d'),
+            'status' => $_POST['status'] ?? 'pendiente',
+            'amount' => (float)($_POST['amount'] ?? 0),
+            'currency' => $_POST['currency'] ?? 'CLP',
+            'reminder_days' => (int)($_POST['reminder_days'] ?? 15),
+            'notes' => trim($_POST['notes'] ?? ''),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+        if ($data['amount'] <= 0) {
+            flash('error', 'Ingresa un monto válido para la renovación.');
+            $this->redirect('index.php?route=crm/renewals');
+        }
+        $this->renewals->create($data);
+        audit($this->db, Auth::user()['id'], 'create', 'service_renewals');
+        flash('success', 'Renovación registrada correctamente.');
+        $this->redirect('index.php?route=crm/renewals');
     }
 }

@@ -92,9 +92,9 @@
                     </div>
                     <div class="d-flex flex-wrap gap-2">
                         <a href="index.php?route=crm/hub" class="btn btn-outline-primary btn-sm">Panel CRM</a>
-                        <a href="crm-briefs.php" class="btn btn-outline-secondary btn-sm">Briefs</a>
-                        <a href="crm-orders.php" class="btn btn-outline-secondary btn-sm">Órdenes</a>
-                        <a href="crm-renewals.php" class="btn btn-outline-secondary btn-sm">Renovaciones</a>
+                        <a href="index.php?route=crm/briefs" class="btn btn-outline-secondary btn-sm">Briefs</a>
+                        <a href="index.php?route=crm/orders" class="btn btn-outline-secondary btn-sm">Órdenes</a>
+                        <a href="index.php?route=crm/renewals" class="btn btn-outline-secondary btn-sm">Renovaciones</a>
                     </div>
                 </div>
             </div>

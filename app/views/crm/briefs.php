@@ -1,0 +1,120 @@
+<div class="card">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h4 class="card-title mb-1">Briefs comerciales</h4>
+            <p class="text-muted mb-0">Registra y prioriza requerimientos comerciales en una sola vista.</p>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#briefModal">Nuevo brief</button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Brief</th>
+                        <th>Cliente</th>
+                        <th>Servicio</th>
+                        <th>Estado</th>
+                        <th class="text-end">Presupuesto</th>
+                        <th>Fecha deseada</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($briefs)): ?>
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No hay briefs comerciales registrados.</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($briefs as $brief): ?>
+                            <tr>
+                                <td><?php echo e($brief['title']); ?></td>
+                                <td><?php echo e($brief['client_name'] ?? ''); ?></td>
+                                <td><?php echo e($brief['service_summary'] ?? ''); ?></td>
+                                <td>
+                                    <?php $status = $brief['status'] ?? 'nuevo'; ?>
+                                    <span class="badge bg-<?php echo $status === 'aprobado' ? 'success' : ($status === 'en_revision' ? 'warning' : ($status === 'descartado' ? 'danger' : 'info')); ?>-subtle text-<?php echo $status === 'aprobado' ? 'success' : ($status === 'en_revision' ? 'warning' : ($status === 'descartado' ? 'danger' : 'info')); ?>">
+                                        <?php echo e(str_replace('_', ' ', $status)); ?>
+                                    </span>
+                                </td>
+                                <td class="text-end"><?php echo e(format_currency((float)($brief['expected_budget'] ?? 0))); ?></td>
+                                <td><?php echo e($brief['desired_start_date'] ?? '-'); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="briefModal" tabindex="-1" aria-labelledby="briefModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" action="index.php?route=crm/briefs/store">
+                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="briefModalLabel">Nuevo brief comercial</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="brief-title">Nombre del brief</label>
+                            <input type="text" class="form-control" id="brief-title" name="title" placeholder="Ej: Campaña verano 2025" autocomplete="off" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="brief-client">Cliente</label>
+                            <select class="form-select" id="brief-client" name="client_id" required>
+                                <option value="">Selecciona cliente</option>
+                                <?php foreach ($clients as $client): ?>
+                                    <option value="<?php echo (int)$client['id']; ?>"><?php echo e($client['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="brief-contact-name">Contacto</label>
+                            <input type="text" class="form-control" id="brief-contact-name" name="contact_name" placeholder="Nombre del contacto" autocomplete="name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="brief-contact-email">Correo contacto</label>
+                            <input type="email" class="form-control" id="brief-contact-email" name="contact_email" placeholder="contacto@cliente.cl" autocomplete="email" inputmode="email">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="brief-contact-phone">Teléfono contacto</label>
+                            <input type="tel" class="form-control" id="brief-contact-phone" name="contact_phone" placeholder="+56 9 1234 5678" autocomplete="tel" inputmode="tel">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="brief-service">Servicio solicitado</label>
+                            <input type="text" class="form-control" id="brief-service" name="service_summary" placeholder="Ej: Branding, Ads, Web">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="brief-budget">Presupuesto estimado (CLP)</label>
+                            <input type="number" class="form-control" id="brief-budget" name="expected_budget" min="0" step="0.01" placeholder="Ej: 1500000" inputmode="decimal">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="brief-start">Fecha deseada</label>
+                            <input type="date" class="form-control" id="brief-start" name="desired_start_date">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="brief-status">Estado</label>
+                            <select class="form-select" id="brief-status" name="status">
+                                <option value="nuevo">Nuevo</option>
+                                <option value="en_revision">En revisión</option>
+                                <option value="aprobado">Aprobado</option>
+                                <option value="descartado">Descartado</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="brief-notes">Notas comerciales</label>
+                            <textarea class="form-control" id="brief-notes" name="notes" rows="3" placeholder="Contexto, objetivos y próximos pasos"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
+                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar brief</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

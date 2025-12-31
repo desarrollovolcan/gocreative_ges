@@ -11,8 +11,8 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Tipo</label>
                     <select name="type" class="form-select">
+                        <option value="informativa" <?php echo $template['type'] === 'informativa' ? 'selected' : ''; ?>>Informativa</option>
                         <option value="cobranza" <?php echo $template['type'] === 'cobranza' ? 'selected' : ''; ?>>Cobranza</option>
-                        <option value="info" <?php echo $template['type'] === 'info' ? 'selected' : ''; ?>>Información</option>
                         <option value="pago" <?php echo $template['type'] === 'pago' ? 'selected' : ''; ?>>Pago</option>
                     </select>
                 </div>

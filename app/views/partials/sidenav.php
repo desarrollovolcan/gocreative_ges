@@ -33,13 +33,14 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
         </div>
         <?php
         $isAdmin = ($currentUser['role'] ?? '') === 'admin';
+        $hasCompany = !empty($currentCompany['id']);
         $canAccess = static function (string $key) use ($permissions, $isAdmin): bool {
             return $isAdmin || in_array($key, $permissions ?? [], true);
         };
         ?>
         <ul class="side-nav">
             <li class="side-nav-title mt-2">Menú</li>
-            <?php if ($canAccess('dashboard')): ?>
+            <?php if ($hasCompany && $canAccess('dashboard')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=dashboard" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="circle-gauge"></i></span>
@@ -47,7 +48,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccess('crm')): ?>
+            <?php if ($hasCompany && $canAccess('crm')): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrm" aria-expanded="false" aria-controls="sidebarCrm" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="handshake"></i></span>
@@ -70,7 +71,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </div>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccess('clients')): ?>
+            <?php if ($hasCompany && $canAccess('clients')): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarClients" aria-expanded="false" aria-controls="sidebarClients" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="users"></i></span>
@@ -95,7 +96,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </div>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccess('projects')): ?>
+            <?php if ($hasCompany && $canAccess('projects')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=projects" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="folder"></i></span>
@@ -103,7 +104,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccess('services')): ?>
+            <?php if ($hasCompany && $canAccess('services')): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarServices" aria-expanded="false" aria-controls="sidebarServices" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="server"></i></span>
@@ -133,7 +134,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </div>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccess('quotes')): ?>
+            <?php if ($hasCompany && $canAccess('quotes')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=quotes" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="clipboard-list"></i></span>
@@ -141,7 +142,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccess('invoices')): ?>
+            <?php if ($hasCompany && $canAccess('invoices')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=invoices" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="file-text"></i></span>
@@ -149,7 +150,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccess('email_templates')): ?>
+            <?php if ($hasCompany && $canAccess('email_templates')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=email-templates" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="mail"></i></span>
@@ -157,19 +158,11 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccess('email_queue')): ?>
+            <?php if ($hasCompany && $canAccess('email_queue')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=email-queue" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="send"></i></span>
                         <span class="menu-text">Cola de Correos</span>
-                    </a>
-                </li>
-            <?php endif; ?>
-            <?php if ($canAccess('settings')): ?>
-                <li class="side-nav-item">
-                    <a href="index.php?route=settings" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="settings"></i></span>
-                        <span class="menu-text">Configuración</span>
                     </a>
                 </li>
             <?php endif; ?>
@@ -237,10 +230,26 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     </div>
                                 </li>
                             <?php endif; ?>
-                            <?php if ($canAccess('settings')): ?>
+                            <?php if ($hasCompany && $canAccess('settings')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=settings" class="side-nav-link">
                                         <span class="menu-text">Configuraciones</span>
+                                    </a>
+                                    <div class="collapse" id="sidebarMaintainersCompanies">
+                                        <ul class="sub-menu">
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=companies/create" class="side-nav-link">
+                                                    <span class="menu-text">Crear empresa</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasCompany): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=maintainers/email-config" class="side-nav-link">
+                                        <span class="menu-text">Configuración de correo</span>
                                     </a>
                                 </li>
                             <?php endif; ?>

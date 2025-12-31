@@ -298,74 +298,142 @@ function permission_catalog(): array
         'dashboard' => [
             'label' => 'Dashboard',
             'routes' => ['dashboard'],
-        ],
-        'clients' => [
-            'label' => 'Clientes',
-            'routes' => ['clients'],
-        ],
-        'projects' => [
-            'label' => 'Proyectos',
-            'routes' => ['projects'],
+            'legacy_key' => 'dashboard',
+            'view_key' => 'dashboard_view',
+            'edit_key' => null,
         ],
         'crm' => [
             'label' => 'CRM Comercial',
             'routes' => ['crm'],
+            'legacy_key' => 'crm',
+            'view_key' => 'crm_view',
+            'edit_key' => null,
         ],
-        'services' => [
-            'label' => 'Servicios',
-            'routes' => ['services'],
-        ],
-        'quotes' => [
-            'label' => 'Cotizaciones',
-            'routes' => ['quotes'],
-        ],
-        'invoices' => [
-            'label' => 'Facturas',
-            'routes' => ['invoices'],
-        ],
-        'email_templates' => [
-            'label' => 'Plantillas Email',
-            'routes' => ['email-templates'],
-        ],
-        'email_queue' => [
-            'label' => 'Cola de Correos',
-            'routes' => ['email-queue'],
-        ],
-        'settings' => [
-            'label' => 'Configuración',
-            'routes' => ['settings'],
-        ],
-        'maintainers' => [
-            'label' => 'Mantenedores',
-            'routes' => ['maintainers'],
-        ],
-        'companies' => [
-            'label' => 'Empresas',
-            'routes' => ['companies'],
-        ],
-        'users' => [
-            'label' => 'Usuarios',
-            'routes' => ['users'],
-        ],
-        'roles' => [
-            'label' => 'Roles de usuarios',
-            'routes' => ['roles'],
-        ],
-        'users_companies' => [
-            'label' => 'Usuarios por empresa',
-            'routes' => ['users/assign-company'],
-        ],
-        'company_switch' => [
-            'label' => 'Cambio de empresa',
-            'routes' => ['auth/switch-company'],
-        ],
-        'users_permissions' => [
-            'label' => 'Permisos de usuarios',
-            'routes' => ['users/permissions'],
+        'clients' => [
+            'label' => 'Clientes',
+            'routes' => ['clients'],
+            'legacy_key' => 'clients',
+            'view_key' => 'clients_view',
+            'edit_key' => 'clients_edit',
         ],
         'tickets' => [
             'label' => 'Tickets de soporte',
             'routes' => ['tickets'],
+            'legacy_key' => 'tickets',
+            'view_key' => 'tickets_view',
+            'edit_key' => 'tickets_edit',
+        ],
+        'projects' => [
+            'label' => 'Proyectos',
+            'routes' => ['projects'],
+            'legacy_key' => 'projects',
+            'view_key' => 'projects_view',
+            'edit_key' => 'projects_edit',
+        ],
+        'services' => [
+            'label' => 'Servicios (clientes)',
+            'routes' => ['services'],
+            'legacy_key' => 'services',
+            'view_key' => 'services_view',
+            'edit_key' => 'services_edit',
+        ],
+        'system_services' => [
+            'label' => 'Servicios catálogo',
+            'routes' => ['maintainers/services'],
+            'legacy_key' => 'maintainers',
+            'view_key' => 'system_services_view',
+            'edit_key' => 'system_services_edit',
+        ],
+        'service_types' => [
+            'label' => 'Tipos de servicios',
+            'routes' => ['maintainers/service-types'],
+            'legacy_key' => 'maintainers',
+            'view_key' => 'service_types_view',
+            'edit_key' => 'service_types_edit',
+        ],
+        'quotes' => [
+            'label' => 'Cotizaciones',
+            'routes' => ['quotes'],
+            'legacy_key' => 'quotes',
+            'view_key' => 'quotes_view',
+            'edit_key' => 'quotes_edit',
+        ],
+        'invoices' => [
+            'label' => 'Facturas',
+            'routes' => ['invoices'],
+            'legacy_key' => 'invoices',
+            'view_key' => 'invoices_view',
+            'edit_key' => 'invoices_edit',
+        ],
+        'email_templates' => [
+            'label' => 'Plantillas Email',
+            'routes' => ['email-templates'],
+            'legacy_key' => 'email_templates',
+            'view_key' => 'email_templates_view',
+            'edit_key' => 'email_templates_edit',
+        ],
+        'email_queue' => [
+            'label' => 'Cola de Correos',
+            'routes' => ['email-queue'],
+            'legacy_key' => 'email_queue',
+            'view_key' => 'email_queue_view',
+            'edit_key' => 'email_queue_edit',
+        ],
+        'settings' => [
+            'label' => 'Configuraciones',
+            'routes' => ['settings'],
+            'legacy_key' => 'settings',
+            'view_key' => 'settings_view',
+            'edit_key' => 'settings_edit',
+        ],
+        'email_config' => [
+            'label' => 'Configuración de correo',
+            'routes' => ['maintainers/email-config'],
+            'legacy_key' => 'maintainers',
+            'view_key' => 'email_config_view',
+            'edit_key' => 'email_config_edit',
+        ],
+        'companies' => [
+            'label' => 'Empresas',
+            'routes' => ['companies'],
+            'legacy_key' => 'companies',
+            'view_key' => 'companies_view',
+            'edit_key' => 'companies_edit',
+        ],
+        'users' => [
+            'label' => 'Usuarios',
+            'routes' => ['users'],
+            'legacy_key' => 'users',
+            'view_key' => 'users_view',
+            'edit_key' => 'users_edit',
+        ],
+        'roles' => [
+            'label' => 'Roles de usuarios',
+            'routes' => ['roles'],
+            'legacy_key' => 'roles',
+            'view_key' => 'roles_view',
+            'edit_key' => 'roles_edit',
+        ],
+        'users_companies' => [
+            'label' => 'Asignar empresa',
+            'routes' => ['users/assign-company'],
+            'legacy_key' => 'users_companies',
+            'view_key' => 'users_companies_view',
+            'edit_key' => 'users_companies_edit',
+        ],
+        'users_permissions' => [
+            'label' => 'Permisos de usuarios',
+            'routes' => ['users/permissions'],
+            'legacy_key' => 'users_permissions',
+            'view_key' => 'users_permissions_view',
+            'edit_key' => 'users_permissions_edit',
+        ],
+        'company_switch' => [
+            'label' => 'Cambio de empresa',
+            'routes' => ['auth/switch-company'],
+            'legacy_key' => 'company_switch',
+            'view_key' => 'company_switch_view',
+            'edit_key' => 'company_switch_edit',
         ],
     ];
 }
@@ -394,8 +462,44 @@ function permission_key_for_route(string $route): ?string
     foreach ($catalog as $key => $data) {
         foreach ($data['routes'] as $prefix) {
             if ($route === $prefix || str_starts_with($route, $prefix . '/')) {
-                return $key;
+                $isEdit = permission_is_edit_route($route);
+                if ($isEdit && !empty($data['edit_key'])) {
+                    return $data['edit_key'];
+                }
+                return $data['view_key'] ?? $data['edit_key'] ?? $key;
             }
+        }
+    }
+    return null;
+}
+
+function permission_is_edit_route(string $route): bool
+{
+    $editMarkers = [
+        '/create',
+        '/store',
+        '/edit',
+        '/update',
+        '/delete',
+        '/generate',
+        '/send',
+        '/test',
+        '/import',
+        '/export',
+    ];
+    foreach ($editMarkers as $marker) {
+        if (str_contains($route, $marker)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function permission_legacy_key_for(string $key): ?string
+{
+    foreach (permission_catalog() as $data) {
+        if (($data['view_key'] ?? null) === $key || ($data['edit_key'] ?? null) === $key) {
+            return $data['legacy_key'] ?? null;
         }
     }
     return null;
@@ -436,7 +540,11 @@ function can_access_route(Database $db, string $route, ?array $user): bool
         return false;
     }
     $permissions = role_permissions($db, $roleId);
-    return in_array($key, $permissions, true);
+    if (in_array($key, $permissions, true)) {
+        return true;
+    }
+    $legacyKey = permission_legacy_key_for($key);
+    return $legacyKey ? in_array($legacyKey, $permissions, true) : false;
 }
 
 function create_notification(Database $db, ?int $companyId, string $title, string $message, string $type = 'info'): void

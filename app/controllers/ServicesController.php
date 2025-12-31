@@ -6,6 +6,8 @@ class ServicesController extends Controller
     private ClientsModel $clients;
     private EmailQueueModel $queue;
     private EmailTemplatesModel $templates;
+    private ServiceTypesModel $serviceTypes;
+    private SystemServicesModel $systemServices;
 
     public function __construct(array $config, Database $db)
     {
@@ -14,6 +16,8 @@ class ServicesController extends Controller
         $this->clients = new ClientsModel($db);
         $this->queue = new EmailQueueModel($db);
         $this->templates = new EmailTemplatesModel($db);
+        $this->serviceTypes = new ServiceTypesModel($db);
+        $this->systemServices = new SystemServicesModel($db);
     }
 
     public function index(): void
@@ -30,12 +34,21 @@ class ServicesController extends Controller
     public function create(): void
     {
         $this->requireLogin();
-        $clients = $this->clients->active(current_company_id());
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $clients = $this->clients->active($companyId);
+        $serviceTypes = $this->serviceTypes->all('company_id = :company_id', ['company_id' => $companyId]);
+        $systemServices = $this->systemServices->allWithType($companyId);
         $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $this->render('services/create', [
             'title' => 'Nuevo Servicio',
             'pageTitle' => 'Nuevo Servicio',
             'clients' => $clients,
+            'serviceTypes' => $serviceTypes,
+            'systemServices' => $systemServices,
             'selectedClientId' => $selectedClientId,
         ]);
     }
@@ -48,6 +61,10 @@ class ServicesController extends Controller
         $dueDate = trim($_POST['due_date'] ?? '');
         $deleteDate = trim($_POST['delete_date'] ?? '');
         $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $clientId = (int)($_POST['client_id'] ?? 0);
         $client = $this->db->fetch(
             'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
@@ -57,13 +74,46 @@ class ServicesController extends Controller
             flash('error', 'Cliente no encontrado para esta empresa.');
             $this->redirect('index.php?route=services/create');
         }
+        $serviceTypeId = (int)($_POST['service_type_id'] ?? 0);
+        $serviceType = $this->db->fetch(
+            'SELECT * FROM service_types WHERE id = :id AND company_id = :company_id',
+            ['id' => $serviceTypeId, 'company_id' => $companyId]
+        );
+        if (!$serviceType) {
+            flash('error', 'Tipo de servicio no encontrado para esta empresa.');
+            $this->redirect('index.php?route=services/create');
+        }
+        $systemServiceId = (int)($_POST['system_service_id'] ?? 0);
+        $systemService = null;
+        if ($systemServiceId > 0) {
+            $systemService = $this->db->fetch(
+                'SELECT * FROM system_services WHERE id = :id AND company_id = :company_id',
+                ['id' => $systemServiceId, 'company_id' => $companyId]
+            );
+            if (!$systemService || (int)$systemService['service_type_id'] !== $serviceTypeId) {
+                flash('error', 'Servicio no encontrado para esta empresa.');
+                $this->redirect('index.php?route=services/create');
+            }
+        }
+        $name = trim($_POST['name'] ?? '');
+        if ($name === '' && $systemService) {
+            $name = $systemService['name'] ?? '';
+        }
+        $cost = (float)($_POST['cost'] ?? 0);
+        if ($cost <= 0 && $systemService) {
+            $cost = (float)($systemService['cost'] ?? 0);
+        }
+        $currency = $_POST['currency'] ?? '';
+        if ($currency === '' && $systemService) {
+            $currency = $systemService['currency'] ?? 'CLP';
+        }
         $data = [
             'company_id' => $companyId,
             'client_id' => $clientId,
-            'service_type' => $_POST['service_type'] ?? 'dominio',
-            'name' => trim($_POST['name'] ?? ''),
-            'cost' => (float)($_POST['cost'] ?? 0),
-            'currency' => $_POST['currency'] ?? 'CLP',
+            'service_type' => $serviceType['name'],
+            'name' => $name,
+            'cost' => $cost,
+            'currency' => $currency !== '' ? $currency : 'CLP',
             'billing_cycle' => $_POST['billing_cycle'] ?? 'anual',
             'start_date' => $startDate !== '' ? $startDate : null,
             'due_date' => $dueDate !== '' ? $dueDate : null,
@@ -96,19 +146,36 @@ class ServicesController extends Controller
     {
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $service = $this->db->fetch(
             'SELECT * FROM services WHERE id = :id AND company_id = :company_id',
-            ['id' => $id, 'company_id' => current_company_id()]
+            ['id' => $id, 'company_id' => $companyId]
         );
         if (!$service) {
             $this->redirect('index.php?route=services');
         }
-        $clients = $this->clients->active(current_company_id());
+        $clients = $this->clients->active($companyId);
+        $serviceTypes = $this->serviceTypes->all('company_id = :company_id', ['company_id' => $companyId]);
+        $systemServices = $this->systemServices->allWithType($companyId);
+        $selectedServiceTypeId = null;
+        foreach ($serviceTypes as $type) {
+            if (($type['name'] ?? '') === ($service['service_type'] ?? '')) {
+                $selectedServiceTypeId = (int)$type['id'];
+                break;
+            }
+        }
         $this->render('services/edit', [
             'title' => 'Editar Servicio',
             'pageTitle' => 'Editar Servicio',
             'service' => $service,
             'clients' => $clients,
+            'serviceTypes' => $serviceTypes,
+            'systemServices' => $systemServices,
+            'selectedServiceTypeId' => $selectedServiceTypeId,
         ]);
     }
 
@@ -125,15 +192,53 @@ class ServicesController extends Controller
             flash('error', 'Servicio no encontrado para esta empresa.');
             $this->redirect('index.php?route=services');
         }
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $startDate = trim($_POST['start_date'] ?? '');
         $dueDate = trim($_POST['due_date'] ?? '');
         $deleteDate = trim($_POST['delete_date'] ?? '');
+        $serviceTypeId = (int)($_POST['service_type_id'] ?? 0);
+        $serviceType = $this->db->fetch(
+            'SELECT * FROM service_types WHERE id = :id AND company_id = :company_id',
+            ['id' => $serviceTypeId, 'company_id' => $companyId]
+        );
+        if (!$serviceType) {
+            flash('error', 'Tipo de servicio no encontrado para esta empresa.');
+            $this->redirect('index.php?route=services/edit&id=' . $id);
+        }
+        $systemServiceId = (int)($_POST['system_service_id'] ?? 0);
+        $systemService = null;
+        if ($systemServiceId > 0) {
+            $systemService = $this->db->fetch(
+                'SELECT * FROM system_services WHERE id = :id AND company_id = :company_id',
+                ['id' => $systemServiceId, 'company_id' => $companyId]
+            );
+            if (!$systemService || (int)$systemService['service_type_id'] !== $serviceTypeId) {
+                flash('error', 'Servicio no encontrado para esta empresa.');
+                $this->redirect('index.php?route=services/edit&id=' . $id);
+            }
+        }
+        $name = trim($_POST['name'] ?? '');
+        if ($name === '' && $systemService) {
+            $name = $systemService['name'] ?? '';
+        }
+        $cost = (float)($_POST['cost'] ?? 0);
+        if ($cost <= 0 && $systemService) {
+            $cost = (float)($systemService['cost'] ?? 0);
+        }
+        $currency = $_POST['currency'] ?? '';
+        if ($currency === '' && $systemService) {
+            $currency = $systemService['currency'] ?? 'CLP';
+        }
         $data = [
             'client_id' => (int)($_POST['client_id'] ?? 0),
-            'service_type' => $_POST['service_type'] ?? 'dominio',
-            'name' => trim($_POST['name'] ?? ''),
-            'cost' => (float)($_POST['cost'] ?? 0),
-            'currency' => $_POST['currency'] ?? 'CLP',
+            'service_type' => $serviceType['name'],
+            'name' => $name,
+            'cost' => $cost,
+            'currency' => $currency !== '' ? $currency : 'CLP',
             'billing_cycle' => $_POST['billing_cycle'] ?? 'anual',
             'start_date' => $startDate !== '' ? $startDate : null,
             'due_date' => $dueDate !== '' ? $dueDate : null,

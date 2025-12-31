@@ -140,13 +140,16 @@ CREATE TABLE services (
 
 CREATE TABLE service_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
     name VARCHAR(100) NOT NULL,
     created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
 CREATE TABLE system_services (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
     service_type_id INT NOT NULL,
     name VARCHAR(150) NOT NULL,
     description TEXT NULL,
@@ -154,7 +157,8 @@ CREATE TABLE system_services (
     currency VARCHAR(10) NOT NULL DEFAULT 'CLP',
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
-    FOREIGN KEY (service_type_id) REFERENCES service_types(id)
+    FOREIGN KEY (service_type_id) REFERENCES service_types(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
 CREATE TABLE invoices (

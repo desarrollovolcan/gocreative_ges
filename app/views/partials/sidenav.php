@@ -263,6 +263,15 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <a href="index.php?route=settings" class="side-nav-link">
                                         <span class="menu-text">Configuraciones</span>
                                     </a>
+                                    <div class="collapse" id="sidebarMaintainersCompanies">
+                                        <ul class="sub-menu">
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=companies/create" class="side-nav-link">
+                                                    <span class="menu-text">Crear empresa</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </li>
                             <?php endif; ?>
                             <?php if ($hasCompany && $hasPermission('email_config_view')): ?>
@@ -272,6 +281,11 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     </a>
                                 </li>
                             <?php endif; ?>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=maintainers/email-config" class="side-nav-link">
+                                    <span class="menu-text">Configuración de correo</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>

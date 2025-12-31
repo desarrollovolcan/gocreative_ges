@@ -95,6 +95,8 @@ return [
     'maintainers/email-config' => ['EmailConfigController', 'index'],
     'maintainers/email-config/update' => ['EmailConfigController', 'update'],
     'maintainers/email-config/test' => ['EmailConfigController', 'test'],
+    'maintainers/online-payments' => ['OnlinePaymentsConfigController', 'index'],
+    'maintainers/online-payments/update' => ['OnlinePaymentsConfigController', 'update'],
     'companies' => ['CompaniesController', 'index'],
     'companies/create' => ['CompaniesController', 'create'],
     'companies/store' => ['CompaniesController', 'store'],

@@ -393,6 +393,13 @@ function permission_catalog(): array
             'view_key' => 'email_config_view',
             'edit_key' => 'email_config_edit',
         ],
+        'online_payments_config' => [
+            'label' => 'Pagos en línea',
+            'routes' => ['maintainers/online-payments'],
+            'legacy_key' => 'maintainers',
+            'view_key' => 'online_payments_config_view',
+            'edit_key' => 'online_payments_config_edit',
+        ],
         'companies' => [
             'label' => 'Empresas',
             'routes' => ['companies'],

@@ -82,6 +82,132 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Reportes &amp; Insights</span>
                                 </a>
                             </li>
+                            <li class="side-nav-item">
+                                <a href="crm-briefs.php" class="side-nav-link">
+                                    <span class="menu-text">Briefs Comerciales</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-orders.php" class="side-nav-link">
+                                    <span class="menu-text">Órdenes de Venta</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-renewals.php" class="side-nav-link">
+                                    <span class="menu-text">Renovaciones</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            <?php endif; ?>
+            <?php if ($hasCompany && $hasPermission('crm_view')): ?>
+                <li class="side-nav-title">Flujo CRM</li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarCrmProspeccion" aria-expanded="false" aria-controls="sidebarCrmProspeccion" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="radar"></i></span>
+                        <span class="menu-text">Prospección</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarCrmProspeccion">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="crm-leads.php" class="side-nav-link">
+                                    <span class="menu-text">Leads</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-briefs.php" class="side-nav-link">
+                                    <span class="menu-text">Briefs Comerciales</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-campaign.php" class="side-nav-link">
+                                    <span class="menu-text">Campaign</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-contacts.php" class="side-nav-link">
+                                    <span class="menu-text">Contacts</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarCrmVentas" aria-expanded="false" aria-controls="sidebarCrmVentas" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="shopping-cart"></i></span>
+                        <span class="menu-text">Ventas</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarCrmVentas">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="crm-opportunities.php" class="side-nav-link">
+                                    <span class="menu-text">Opportunities</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-deals.php" class="side-nav-link">
+                                    <span class="menu-text">Deals</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-pipeline.php" class="side-nav-link">
+                                    <span class="menu-text">Pipeline</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-proposals.php" class="side-nav-link">
+                                    <span class="menu-text">Proposals</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-estimations.php" class="side-nav-link">
+                                    <span class="menu-text">Estimations</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-orders.php" class="side-nav-link">
+                                    <span class="menu-text">Órdenes de Venta</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarCrmPostventa" aria-expanded="false" aria-controls="sidebarCrmPostventa" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="handshake"></i></span>
+                        <span class="menu-text">Postventa</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarCrmPostventa">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="crm-customers.php" class="side-nav-link">
+                                    <span class="menu-text">Customers</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-activities.php" class="side-nav-link">
+                                    <span class="menu-text">Activities</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="tickets-list.php" class="side-nav-link">
+                                    <span class="menu-text">Service Desk</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-renewals.php" class="side-nav-link">
+                                    <span class="menu-text">Renovaciones</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="crm-reports.php" class="side-nav-link">
+                                    <span class="menu-text">Reports &amp; Insights</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>

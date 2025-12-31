@@ -14,7 +14,7 @@
 </div>
 </div>
 
-<div class="row g-3">
+<div class="row g-2">
     <div class="col-xxl-3 col-md-6">
         <div class="card stat-card">
             <div class="card-body">
@@ -81,7 +81,28 @@
     </div>
 </div>
 
-<div class="row g-3 mt-1">
+<div class="row g-2 mt-2">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body py-3">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div>
+                        <h6 class="mb-1">Accesos del flujo comercial</h6>
+                        <p class="text-muted mb-0">Briefs, órdenes y renovaciones para mantener el ciclo comercial activo.</p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="index.php?route=crm/hub" class="btn btn-outline-primary btn-sm">Panel CRM</a>
+                        <a href="crm-briefs.php" class="btn btn-outline-secondary btn-sm">Briefs</a>
+                        <a href="crm-orders.php" class="btn btn-outline-secondary btn-sm">Órdenes</a>
+                        <a href="crm-renewals.php" class="btn btn-outline-secondary btn-sm">Renovaciones</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-2 mt-2">
     <div class="col-xl-8">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -122,7 +143,7 @@
     </div>
 </div>
 
-<div class="row g-3 mt-1">
+<div class="row g-2 mt-2">
     <div class="col-xl-6">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -183,7 +204,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row g-2 mt-2">
     <div class="col-xl-6">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">

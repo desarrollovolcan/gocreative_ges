@@ -19,8 +19,8 @@ class OnlinePaymentsConfigController extends Controller
             $flowConfig = [];
         }
         $defaultBaseUrls = [
-            'sandbox' => 'https://sandbox.flow.cl/',
-            'production' => 'https://www.flow.cl/',
+            'sandbox' => 'https://sandbox.flow.cl/api',
+            'production' => 'https://www.flow.cl/api',
         ];
         $defaults = [
             'environment' => 'sandbox',
@@ -48,8 +48,8 @@ class OnlinePaymentsConfigController extends Controller
         $this->requireRole('admin');
         verify_csrf();
         $defaultBaseUrls = [
-            'sandbox' => 'https://sandbox.flow.cl/',
-            'production' => 'https://www.flow.cl/',
+            'sandbox' => 'https://sandbox.flow.cl/api',
+            'production' => 'https://www.flow.cl/api',
         ];
         $environment = trim($_POST['environment'] ?? 'sandbox');
         if (!array_key_exists($environment, $defaultBaseUrls)) {

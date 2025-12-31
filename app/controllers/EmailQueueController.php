@@ -112,10 +112,18 @@ class EmailQueueController extends Controller
 
         try {
             $mailer = new Mailer($this->db);
-            $sent = $mailer->send('info', $recipients, $email['subject'], $email['body_html']);
+            $bodyHtml = $email['body_html'];
+            if (($email['type'] ?? '') === 'cobranza') {
+                $context = $this->buildPendingInvoiceContext((int)$client['id']);
+                if ($context) {
+                    $bodyHtml = render_template_vars($bodyHtml, $context);
+                }
+            }
+            $sent = $mailer->send('info', $recipients, $email['subject'], $bodyHtml);
 
             if ($sent) {
                 $this->db->execute('UPDATE email_queue SET status = "sent", updated_at = NOW() WHERE id = :id', ['id' => $email['id']]);
+                $email['body_html'] = $bodyHtml;
                 $this->storeEmailLog($email, 'sent');
                 $this->createNotification('Correo enviado', 'El correo se envió correctamente.', 'success');
                 flash('success', 'El correo se envió correctamente.');
@@ -169,5 +177,71 @@ class EmailQueueController extends Controller
         } catch (PDOException $e) {
             log_message('error', 'Email log insert failed: ' . $e->getMessage());
         }
+    }
+
+    private function buildPendingInvoiceContext(int $clientId): ?array
+    {
+        $companyId = current_company_id();
+        $invoice = $this->db->fetch(
+            'SELECT invoices.id,
+                    invoices.numero,
+                    invoices.total,
+                    invoices.fecha_vencimiento,
+                    COALESCE(SUM(payments.monto), 0) as paid_total,
+                    MAX(invoices.total) - COALESCE(SUM(payments.monto), 0) as pending_total
+             FROM invoices
+             LEFT JOIN payments ON payments.invoice_id = invoices.id
+             WHERE invoices.client_id = :client_id AND invoices.company_id = :company_id AND invoices.deleted_at IS NULL
+             GROUP BY invoices.id
+             HAVING pending_total > 0
+             ORDER BY invoices.fecha_vencimiento ASC
+             LIMIT 1',
+            ['client_id' => $clientId, 'company_id' => $companyId]
+        );
+
+        if (!$invoice) {
+            return null;
+        }
+
+        $client = $this->db->fetch(
+            'SELECT name, email, billing_email FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            return null;
+        }
+        $paymentEmail = $client['billing_email'] ?? $client['email'] ?? '';
+        if (!filter_var($paymentEmail, FILTER_VALIDATE_EMAIL)) {
+            return null;
+        }
+
+        $items = $this->db->fetchAll('SELECT descripcion FROM invoice_items WHERE invoice_id = :invoice_id', ['invoice_id' => $invoice['id']]);
+        $detail = $items[0]['descripcion'] ?? 'Servicios';
+
+        $settings = new SettingsModel($this->db);
+        $flowConfig = $settings->get('flow_payment_config', []);
+        $invoiceDefaults = $settings->get('invoice_defaults', []);
+        $currency = $invoiceDefaults['currency'] ?? 'CLP';
+        $pendingAmount = (float)($invoice['pending_total'] ?? 0);
+        $flowLink = create_flow_payment_link($flowConfig, [
+            'commerce_order' => (string)($invoice['numero'] ?? $invoice['id']),
+            'subject' => 'Pago factura #' . ($invoice['numero'] ?? $invoice['id']) . ' - ' . ($client['name'] ?? ''),
+            'currency' => (string)$currency,
+            'amount' => number_format($pendingAmount, 0, '.', ''),
+            'email' => $paymentEmail,
+        ]);
+        if ($flowLink === null) {
+            return null;
+        }
+
+        return [
+            'cliente_nombre' => $client['name'] ?? '',
+            'monto_total' => format_currency($pendingAmount),
+            'fecha_vencimiento' => $invoice['fecha_vencimiento'] ?? '',
+            'servicio_nombre' => $detail,
+            'link_pago' => $flowLink,
+            'numero_factura' => $invoice['numero'] ?? '',
+            'detalle_factura' => $detail,
+        ];
     }
 }

@@ -389,16 +389,42 @@ class ServicesController extends Controller
         $timezone = $billingDefaults['timezone'] ?? ($this->config['app']['timezone'] ?? 'UTC');
         $scheduledNow = (new DateTimeImmutable('now', new DateTimeZone($timezone)))->format('Y-m-d H:i:s');
         $companyId = current_company_id();
+        $invoice = $this->db->fetch(
+            'SELECT id, numero, total FROM invoices WHERE service_id = :service_id AND company_id = :company_id AND deleted_at IS NULL ORDER BY id DESC LIMIT 1',
+            ['service_id' => $service['id'], 'company_id' => $companyId]
+        );
+        $invoiceNumber = (string)($invoice['numero'] ?? '');
+        $serviceName = (string)($service['name'] ?? '');
+        $amount = (float)($invoice['total'] ?? $service['cost'] ?? 0);
+        $currency = (string)($service['currency'] ?? 'CLP');
+        $paymentEmail = '';
+        $clientEmail = $client['billing_email'] ?? $client['email'] ?? '';
+        if (filter_var($clientEmail, FILTER_VALIDATE_EMAIL)) {
+            $paymentEmail = $clientEmail;
+        }
+        $flowConfig = $settings->get('flow_payment_config', []);
+        $flowLink = null;
+        if ($paymentEmail !== '') {
+            $flowLink = create_flow_payment_link($flowConfig, [
+                'commerce_order' => $invoiceNumber !== '' ? $invoiceNumber : ('SERV-' . $service['id'] . '-' . date('YmdHis')),
+                'subject' => 'Pago factura ' . ($invoiceNumber !== '' ? '#' . $invoiceNumber . ' - ' : '') . $serviceName,
+                'currency' => $currency,
+                'amount' => number_format($amount, 0, '.', ''),
+                'email' => $paymentEmail,
+            ]);
+        }
 
         $context = [
             'cliente_nombre' => $client['name'] ?? '',
             'servicio_nombre' => $service['name'] ?? '',
             'dominio' => ($service['service_type'] ?? '') === 'dominio' ? ($service['name'] ?? '') : '',
             'hosting' => ($service['service_type'] ?? '') === 'hosting' ? ($service['name'] ?? '') : '',
-            'monto_total' => format_currency((float)($service['cost'] ?? 0)),
+            'monto_total' => format_currency($amount),
             'fecha_vencimiento' => $service['due_date'] ?? '',
-            'fecha_eliminacion' => $service['delete_date'] ?? '',
-            'link_pago' => '',
+            'fecha_eliminacion' => $service['delete_date'] ?? ($service['due_date'] ?? ''),
+            'link_pago' => $flowLink ?? '',
+            'numero_factura' => $invoiceNumber,
+            'detalle_factura' => $serviceName,
         ];
 
         $this->queue->create([
@@ -544,7 +570,8 @@ class ServicesController extends Controller
                     <strong>Consecuencias de la eliminación:</strong><br />
                     &bull; <strong>Baja definitiva del sitio web</strong> (la página dejará de estar disponible).<br />
                     &bull; <strong>Desactivación de los correos asociados al dominio</strong> (ej.: contacto@{{dominio}}).<br />
-                    &bull; Pérdida de continuidad en la <strong>presencia en Google y en la web</strong>.
+                    &bull; Pérdida de continuidad en la <strong>presencia en Google y en la web</strong>, afectando la visibilidad
+                    del negocio y provocando que <strong>potenciales clientes no puedan encontrar ni contactar a su empresa</strong>.
                   </p>
                 </div>
 
@@ -556,21 +583,21 @@ class ServicesController extends Controller
                   <tbody>
                     <tr>
                       <td style="padding:10px; border:1px solid #e5e7eb; background:#f9fafb;">{{servicio_nombre}}</td>
-                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right;">$ {{monto_total}}</td>
+                      <td style="padding:10px; border:1px solid #e5e7eb; text-align:right;">{{monto_total}}</td>
                     </tr>
                     <tr>
                       <td style="padding:10px; border:1px solid #e5e7eb; background:#f3f4f6; font-weight:bold;">
                         Total adeudado
                       </td>
                       <td style="padding:10px; border:1px solid #e5e7eb; text-align:right; font-weight:bold;">
-                        $ {{monto_total}}
+                        {{monto_total}}
                       </td>
                     </tr>
                   </tbody>
                 </table>
 
                 <p style="font-size:14px; margin:0 0 16px 0; color:#111827;">
-                  <strong>Fecha de vencimiento:</strong> {{fecha_vencimiento}}
+                  <strong>Fecha de eliminación definitiva:</strong> {{fecha_eliminacion}}
                 </p>
 
                 <h2 style="font-size:14px; margin:0 0 8px 0; color:#111827;">
@@ -594,6 +621,14 @@ class ServicesController extends Controller
                     </tr>
                   </tbody>
                 </table>
+
+                <div style="text-align:center; margin-bottom:10px;">
+                  <a href="{{link_pago}}"
+                     style="background:' . e($accentColor) . '; color:#ffffff; padding:12px 18px; border-radius:10px;
+                            text-decoration:none; font-size:14px; font-weight:bold; display:inline-block;">
+                    Pagar factura #{{numero_factura}} · {{detalle_factura}} ({{monto_total}})
+                  </a>
+                </div>
 
                 <div style="text-align:center; margin-bottom:10px;">
                   <a href="mailto:' . e($companyEmail) . '?subject=Comprobante%20de%20pago%20-%20{{dominio}}"

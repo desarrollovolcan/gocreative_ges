@@ -60,10 +60,21 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label" for="renewal-client">Cliente</label>
-                            <select class="form-select" id="renewal-client" name="client_id" required>
+                            <select class="form-select" id="renewal-client" name="client_id" data-client-select required>
                                 <option value="">Selecciona cliente</option>
                                 <?php foreach ($clients as $client): ?>
-                                    <option value="<?php echo (int)$client['id']; ?>"><?php echo e($client['name']); ?></option>
+                                    <?php
+                                    $contactName = $client['contact'] ?: $client['name'];
+                                    ?>
+                                    <option value="<?php echo (int)$client['id']; ?>"
+                                        data-contact-name="<?php echo e($contactName); ?>"
+                                        data-contact-email="<?php echo e($client['email'] ?? ''); ?>"
+                                        data-contact-phone="<?php echo e($client['phone'] ?? ''); ?>"
+                                        data-address="<?php echo e($client['address'] ?? ''); ?>"
+                                        data-rut="<?php echo e($client['rut'] ?? ''); ?>"
+                                        data-billing-email="<?php echo e($client['billing_email'] ?? ''); ?>">
+                                        <?php echo e($client['name']); ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -104,6 +115,18 @@
                             <label class="form-label" for="renewal-reminder">Recordatorio (días)</label>
                             <input type="number" class="form-control" id="renewal-reminder" name="reminder_days" min="1" value="15">
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="renewal-contact-name">Contacto cliente</label>
+                            <input type="text" class="form-control" id="renewal-contact-name" name="contact_name" data-client-field="contact_name" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="renewal-contact-email">Correo contacto</label>
+                            <input type="email" class="form-control" id="renewal-contact-email" name="contact_email" data-client-field="contact_email" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="renewal-contact-phone">Teléfono contacto</label>
+                            <input type="text" class="form-control" id="renewal-contact-phone" name="contact_phone" data-client-field="contact_phone" readonly>
+                        </div>
                         <div class="col-12">
                             <label class="form-label" for="renewal-notes">Notas</label>
                             <textarea class="form-control" id="renewal-notes" name="notes" rows="3" placeholder="Responsables, acuerdos y próximos pasos"></textarea>
@@ -118,3 +141,5 @@
         </div>
     </div>
 </div>
+
+<script src="assets/js/pages/crm-modal-forms.js"></script>

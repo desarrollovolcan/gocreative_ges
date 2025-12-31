@@ -64,24 +64,35 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="brief-client">Cliente</label>
-                            <select class="form-select" id="brief-client" name="client_id" required>
+                            <select class="form-select" id="brief-client" name="client_id" data-client-select required>
                                 <option value="">Selecciona cliente</option>
                                 <?php foreach ($clients as $client): ?>
-                                    <option value="<?php echo (int)$client['id']; ?>"><?php echo e($client['name']); ?></option>
+                                    <?php
+                                    $contactName = $client['contact'] ?: $client['name'];
+                                    ?>
+                                    <option value="<?php echo (int)$client['id']; ?>"
+                                        data-contact-name="<?php echo e($contactName); ?>"
+                                        data-contact-email="<?php echo e($client['email'] ?? ''); ?>"
+                                        data-contact-phone="<?php echo e($client['phone'] ?? ''); ?>"
+                                        data-address="<?php echo e($client['address'] ?? ''); ?>"
+                                        data-rut="<?php echo e($client['rut'] ?? ''); ?>"
+                                        data-billing-email="<?php echo e($client['billing_email'] ?? ''); ?>">
+                                        <?php echo e($client['name']); ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="brief-contact-name">Contacto</label>
-                            <input type="text" class="form-control" id="brief-contact-name" name="contact_name" placeholder="Nombre del contacto" autocomplete="name">
+                            <input type="text" class="form-control" id="brief-contact-name" name="contact_name" placeholder="Nombre del contacto" autocomplete="name" data-client-field="contact_name">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="brief-contact-email">Correo contacto</label>
-                            <input type="email" class="form-control" id="brief-contact-email" name="contact_email" placeholder="contacto@cliente.cl" autocomplete="email" inputmode="email">
+                            <input type="email" class="form-control" id="brief-contact-email" name="contact_email" placeholder="contacto@cliente.cl" autocomplete="email" inputmode="email" data-client-field="contact_email">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="brief-contact-phone">Teléfono contacto</label>
-                            <input type="tel" class="form-control" id="brief-contact-phone" name="contact_phone" placeholder="+56 9 1234 5678" autocomplete="tel" inputmode="tel">
+                            <input type="tel" class="form-control" id="brief-contact-phone" name="contact_phone" placeholder="+56 9 1234 5678" autocomplete="tel" inputmode="tel" data-client-field="contact_phone">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="brief-service">Servicio solicitado</label>
@@ -118,3 +129,5 @@
         </div>
     </div>
 </div>
+
+<script src="assets/js/pages/crm-modal-forms.js"></script>

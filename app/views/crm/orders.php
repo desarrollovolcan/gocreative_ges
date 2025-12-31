@@ -60,10 +60,21 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label" for="order-client">Cliente</label>
-                            <select class="form-select" id="order-client" name="client_id" required>
+                            <select class="form-select" id="order-client" name="client_id" data-client-select required>
                                 <option value="">Selecciona cliente</option>
                                 <?php foreach ($clients as $client): ?>
-                                    <option value="<?php echo (int)$client['id']; ?>"><?php echo e($client['name']); ?></option>
+                                    <?php
+                                    $contactName = $client['contact'] ?: $client['name'];
+                                    ?>
+                                    <option value="<?php echo (int)$client['id']; ?>"
+                                        data-contact-name="<?php echo e($contactName); ?>"
+                                        data-contact-email="<?php echo e($client['email'] ?? ''); ?>"
+                                        data-contact-phone="<?php echo e($client['phone'] ?? ''); ?>"
+                                        data-address="<?php echo e($client['address'] ?? ''); ?>"
+                                        data-rut="<?php echo e($client['rut'] ?? ''); ?>"
+                                        data-billing-email="<?php echo e($client['billing_email'] ?? ''); ?>">
+                                        <?php echo e($client['name']); ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -79,6 +90,10 @@
                         <div class="col-md-6">
                             <label class="form-label" for="order-number">Número de orden</label>
                             <input type="text" class="form-control" id="order-number" name="order_number" placeholder="Ej: OV-2025-001" autocomplete="off">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="order-contact-name">Contacto cliente</label>
+                            <input type="text" class="form-control" id="order-contact-name" name="contact_name" data-client-field="contact_name" readonly>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="order-date">Fecha</label>
@@ -104,6 +119,14 @@
                                 <option value="finalizada">Finalizada</option>
                             </select>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="order-contact-email">Correo contacto</label>
+                            <input type="email" class="form-control" id="order-contact-email" name="contact_email" data-client-field="contact_email" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="order-contact-phone">Teléfono contacto</label>
+                            <input type="text" class="form-control" id="order-contact-phone" name="contact_phone" data-client-field="contact_phone" readonly>
+                        </div>
                         <div class="col-12">
                             <label class="form-label" for="order-notes">Notas</label>
                             <textarea class="form-control" id="order-notes" name="notes" rows="3" placeholder="Condiciones comerciales, alcance y responsables"></textarea>
@@ -118,3 +141,5 @@
         </div>
     </div>
 </div>
+
+<script src="assets/js/pages/crm-modal-forms.js"></script>

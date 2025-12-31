@@ -365,6 +365,13 @@ function permission_catalog(): array
             'view_key' => 'invoices_view',
             'edit_key' => 'invoices_edit',
         ],
+        'payments' => [
+            'label' => 'Pagos',
+            'routes' => ['payments'],
+            'legacy_key' => 'invoices',
+            'view_key' => 'payments_view',
+            'edit_key' => null,
+        ],
         'email_templates' => [
             'label' => 'Plantillas Email',
             'routes' => ['email-templates'],
@@ -392,6 +399,13 @@ function permission_catalog(): array
             'legacy_key' => 'maintainers',
             'view_key' => 'email_config_view',
             'edit_key' => 'email_config_edit',
+        ],
+        'online_payments_config' => [
+            'label' => 'Pagos en línea',
+            'routes' => ['maintainers/online-payments'],
+            'legacy_key' => 'maintainers',
+            'view_key' => 'online_payments_config_view',
+            'edit_key' => 'online_payments_config_edit',
         ],
         'companies' => [
             'label' => 'Empresas',

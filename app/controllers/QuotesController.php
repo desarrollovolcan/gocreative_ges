@@ -17,7 +17,12 @@ class QuotesController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $quotes = $this->quotes->allWithClient(current_company_id());
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $quotes = $this->quotes->allWithClient($companyId);
         $this->render('quotes/index', [
             'title' => 'Cotizaciones',
             'pageTitle' => 'Cotizaciones',
@@ -29,9 +34,13 @@ class QuotesController extends Controller
     {
         $this->requireLogin();
         $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $clients = $this->clients->active($companyId);
         try {
-            $services = $this->services->popularHostingAndDomain(10);
+            $services = $this->services->popularHostingAndDomain($companyId, 10);
         } catch (PDOException $e) {
             log_message('error', 'Failed to load system services for quotes: ' . $e->getMessage());
             $services = [];
@@ -60,6 +69,10 @@ class QuotesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $serviceId = trim($_POST['system_service_id'] ?? '');
         $projectId = trim($_POST['project_id'] ?? '');
         $issueDate = trim($_POST['fecha_emision'] ?? '');
@@ -75,6 +88,16 @@ class QuotesController extends Controller
         if (!$client) {
             flash('error', 'Cliente no encontrado para esta empresa.');
             $this->redirect('index.php?route=quotes/create');
+        }
+        if ($serviceId !== '') {
+            $service = $this->db->fetch(
+                'SELECT id FROM system_services WHERE id = :id AND company_id = :company_id',
+                ['id' => $serviceId, 'company_id' => $companyId]
+            );
+            if (!$service) {
+                flash('error', 'Servicio no encontrado para esta empresa.');
+                $this->redirect('index.php?route=quotes/create');
+            }
         }
 
         $quoteId = $this->quotes->create([
@@ -125,10 +148,15 @@ class QuotesController extends Controller
     public function show(): void
     {
         $this->requireLogin();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $id = (int)($_GET['id'] ?? 0);
         $quote = $this->db->fetch(
             'SELECT * FROM quotes WHERE id = :id AND company_id = :company_id',
-            ['id' => $id, 'company_id' => current_company_id()]
+            ['id' => $id, 'company_id' => $companyId]
         );
         if (!$quote) {
             $this->redirect('index.php?route=quotes');
@@ -136,7 +164,7 @@ class QuotesController extends Controller
         $items = (new QuoteItemsModel($this->db))->byQuote($id);
         $client = $this->db->fetch(
             'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
-            ['id' => $quote['client_id'], 'company_id' => current_company_id()]
+            ['id' => $quote['client_id'], 'company_id' => $companyId]
         );
         $this->render('quotes/show', [
             'title' => 'Detalle Cotización',
@@ -152,6 +180,10 @@ class QuotesController extends Controller
         $this->requireLogin();
         $id = (int)($_GET['id'] ?? 0);
         $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $quote = $this->db->fetch(
             'SELECT * FROM quotes WHERE id = :id AND company_id = :company_id',
             ['id' => $id, 'company_id' => $companyId]
@@ -162,7 +194,7 @@ class QuotesController extends Controller
         $items = (new QuoteItemsModel($this->db))->byQuote($id);
         $clients = $this->clients->active($companyId);
         try {
-            $services = $this->services->popularHostingAndDomain(10);
+            $services = $this->services->popularHostingAndDomain($companyId, 10);
         } catch (PDOException $e) {
             log_message('error', 'Failed to load system services for quotes edit: ' . $e->getMessage());
             $services = [];
@@ -187,9 +219,14 @@ class QuotesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $quote = $this->db->fetch(
             'SELECT * FROM quotes WHERE id = :id AND company_id = :company_id',
-            ['id' => $id, 'company_id' => current_company_id()]
+            ['id' => $id, 'company_id' => $companyId]
         );
         if (!$quote) {
             $this->redirect('index.php?route=quotes');
@@ -200,6 +237,17 @@ class QuotesController extends Controller
         $subtotal = trim($_POST['subtotal'] ?? '');
         $impuestos = trim($_POST['impuestos'] ?? '');
         $total = trim($_POST['total'] ?? '');
+
+        if ($serviceId !== '') {
+            $service = $this->db->fetch(
+                'SELECT id FROM system_services WHERE id = :id AND company_id = :company_id',
+                ['id' => $serviceId, 'company_id' => $companyId]
+            );
+            if (!$service) {
+                flash('error', 'Servicio no encontrado para esta empresa.');
+                $this->redirect('index.php?route=quotes/edit&id=' . $id);
+            }
+        }
 
         $this->quotes->update($id, [
             'client_id' => (int)($_POST['client_id'] ?? 0),
@@ -242,10 +290,15 @@ class QuotesController extends Controller
     {
         $this->requireLogin();
         verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $id = (int)($_POST['id'] ?? 0);
         $quote = $this->db->fetch(
             'SELECT id FROM quotes WHERE id = :id AND company_id = :company_id',
-            ['id' => $id, 'company_id' => current_company_id()]
+            ['id' => $id, 'company_id' => $companyId]
         );
         if (!$quote) {
             flash('error', 'Cotización no encontrada para esta empresa.');
@@ -262,17 +315,22 @@ class QuotesController extends Controller
     {
         $this->requireLogin();
         verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $id = (int)($_POST['id'] ?? 0);
         $quote = $this->db->fetch(
             'SELECT * FROM quotes WHERE id = :id AND company_id = :company_id',
-            ['id' => $id, 'company_id' => current_company_id()]
+            ['id' => $id, 'company_id' => $companyId]
         );
         if (!$quote) {
             $this->redirect('index.php?route=quotes');
         }
         $client = $this->db->fetch(
             'SELECT * FROM clients WHERE id = :id AND company_id = :company_id',
-            ['id' => $quote['client_id'], 'company_id' => current_company_id()]
+            ['id' => $quote['client_id'], 'company_id' => $companyId]
         );
         $recipient = $client['email'] ?? '';
         if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {

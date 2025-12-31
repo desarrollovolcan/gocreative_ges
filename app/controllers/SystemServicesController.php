@@ -16,7 +16,12 @@ class SystemServicesController extends Controller
     {
         $this->requireLogin();
         $this->requireRole('admin');
-        $services = $this->services->allWithType();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $services = $this->services->allWithType($companyId);
         $this->render('maintainers/services/index', [
             'title' => 'Servicios',
             'pageTitle' => 'Servicios',
@@ -28,7 +33,12 @@ class SystemServicesController extends Controller
     {
         $this->requireLogin();
         $this->requireRole('admin');
-        $types = $this->serviceTypes->all();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $types = $this->serviceTypes->all('company_id = :company_id', ['company_id' => $companyId]);
         $this->render('maintainers/services/create', [
             'title' => 'Nuevo servicio',
             'pageTitle' => 'Nuevo servicio',
@@ -41,8 +51,23 @@ class SystemServicesController extends Controller
         $this->requireLogin();
         $this->requireRole('admin');
         verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $serviceTypeId = (int)($_POST['service_type_id'] ?? 0);
+        $serviceType = $this->db->fetch(
+            'SELECT id FROM service_types WHERE id = :id AND company_id = :company_id',
+            ['id' => $serviceTypeId, 'company_id' => $companyId]
+        );
+        if (!$serviceType) {
+            flash('error', 'Tipo de servicio no encontrado para esta empresa.');
+            $this->redirect('index.php?route=maintainers/services/create');
+        }
         $this->services->create([
-            'service_type_id' => (int)($_POST['service_type_id'] ?? 0),
+            'company_id' => $companyId,
+            'service_type_id' => $serviceTypeId,
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
             'cost' => (float)($_POST['cost'] ?? 0),
@@ -59,12 +84,20 @@ class SystemServicesController extends Controller
     {
         $this->requireLogin();
         $this->requireRole('admin');
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $id = (int)($_GET['id'] ?? 0);
-        $service = $this->services->find($id);
+        $service = $this->db->fetch(
+            'SELECT * FROM system_services WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
         if (!$service) {
             $this->redirect('index.php?route=maintainers/services');
         }
-        $types = $this->serviceTypes->all();
+        $types = $this->serviceTypes->all('company_id = :company_id', ['company_id' => $companyId]);
         $this->render('maintainers/services/edit', [
             'title' => 'Editar servicio',
             'pageTitle' => 'Editar servicio',
@@ -78,9 +111,30 @@ class SystemServicesController extends Controller
         $this->requireLogin();
         $this->requireRole('admin');
         verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $id = (int)($_POST['id'] ?? 0);
+        $service = $this->db->fetch(
+            'SELECT id FROM system_services WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$service) {
+            $this->redirect('index.php?route=maintainers/services');
+        }
+        $serviceTypeId = (int)($_POST['service_type_id'] ?? 0);
+        $serviceType = $this->db->fetch(
+            'SELECT id FROM service_types WHERE id = :id AND company_id = :company_id',
+            ['id' => $serviceTypeId, 'company_id' => $companyId]
+        );
+        if (!$serviceType) {
+            flash('error', 'Tipo de servicio no encontrado para esta empresa.');
+            $this->redirect('index.php?route=maintainers/services/edit&id=' . $id);
+        }
         $this->services->update($id, [
-            'service_type_id' => (int)($_POST['service_type_id'] ?? 0),
+            'service_type_id' => $serviceTypeId,
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
             'cost' => (float)($_POST['cost'] ?? 0),
@@ -97,13 +151,31 @@ class SystemServicesController extends Controller
         $this->requireLogin();
         $this->requireRole('admin');
         verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
         $id = (int)($_POST['id'] ?? 0);
-        $linked = $this->db->fetch('SELECT COUNT(*) as total FROM quotes WHERE system_service_id = :id', ['id' => $id]);
+        $service = $this->db->fetch(
+            'SELECT id FROM system_services WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$service) {
+            $this->redirect('index.php?route=maintainers/services');
+        }
+        $linked = $this->db->fetch(
+            'SELECT COUNT(*) as total FROM quotes WHERE system_service_id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
         if (!empty($linked['total'])) {
             flash('error', 'No se puede eliminar el servicio porque tiene cotizaciones asociadas.');
             $this->redirect('index.php?route=maintainers/services');
         }
-        $this->db->execute('DELETE FROM system_services WHERE id = :id', ['id' => $id]);
+        $this->db->execute(
+            'DELETE FROM system_services WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
         audit($this->db, Auth::user()['id'], 'delete', 'system_services', $id);
         flash('success', 'Servicio eliminado correctamente.');
         $this->redirect('index.php?route=maintainers/services');

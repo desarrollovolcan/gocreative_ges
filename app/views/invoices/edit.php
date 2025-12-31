@@ -1,19 +1,29 @@
+<?php
+$invoiceItems = $items ?? [];
+if (empty($invoiceItems)) {
+    $invoiceItems = [[
+        'descripcion' => '',
+        'cantidad' => 1,
+        'precio_unitario' => 0,
+        'impuesto_pct' => $invoiceDefaults['tax_rate'] ?? 0,
+        'impuesto_monto' => 0,
+        'total' => 0,
+    ]];
+}
+?>
+
 <div class="card">
     <div class="card-body">
-        <?php if (!empty($selectedProjectId) && ($projectInvoiceCount ?? 0) > 0): ?>
-            <div class="alert alert-warning">
-                Este proyecto ya tiene <?php echo (int)$projectInvoiceCount; ?> factura(s) asociada(s). Revisa antes de crear una nueva.
-            </div>
-        <?php endif; ?>
-        <form method="post" action="index.php?route=invoices/store">
+        <form method="post" action="index.php?route=invoices/update">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+            <input type="hidden" name="id" value="<?php echo $invoice['id'] ?? ''; ?>">
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Cliente</label>
                     <select name="client_id" class="form-select" required>
                         <option value="">Selecciona cliente</option>
                         <?php foreach ($clients as $client): ?>
-                            <option value="<?php echo $client['id']; ?>" <?php echo (int)($selectedClientId ?? 0) === (int)$client['id'] ? 'selected' : ''; ?>>
+                            <option value="<?php echo $client['id']; ?>" <?php echo (int)($invoice['client_id'] ?? 0) === (int)$client['id'] ? 'selected' : ''; ?>>
                                 <?php echo e($client['name']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -28,7 +38,7 @@
                                 data-client-id="<?php echo $project['client_id'] ?? ''; ?>"
                                 data-project-name="<?php echo e($project['name'] ?? ''); ?>"
                                 data-project-value="<?php echo e($project['value'] ?? 0); ?>"
-                                <?php echo (int)($selectedProjectId ?? 0) === (int)$project['id'] ? 'selected' : ''; ?>>
+                                <?php echo (int)($invoice['project_id'] ?? 0) === (int)$project['id'] ? 'selected' : ''; ?>>
                                 <?php echo e($project['name']); ?> (<?php echo e($project['client_name']); ?>)
                             </option>
                         <?php endforeach; ?>
@@ -45,15 +55,15 @@
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Número</label>
-                    <input type="text" name="numero" class="form-control" value="<?php echo e($number); ?>" required>
+                    <input type="text" name="numero" class="form-control" value="<?php echo e($invoice['numero'] ?? ''); ?>" required>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Fecha emisión</label>
-                    <input type="date" name="fecha_emision" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+                    <input type="date" name="fecha_emision" class="form-control" value="<?php echo e($invoice['fecha_emision'] ?? date('Y-m-d')); ?>">
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Fecha vencimiento</label>
-                    <input type="date" name="fecha_vencimiento" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+                    <input type="date" name="fecha_vencimiento" class="form-control" value="<?php echo e($invoice['fecha_vencimiento'] ?? date('Y-m-d')); ?>">
                     <div class="mt-2">
                         <span class="badge" data-due-indicator>Sin fecha</span>
                     </div>
@@ -61,15 +71,15 @@
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Estado</label>
                     <select name="estado" class="form-select">
-                        <option value="pendiente">Pendiente</option>
-                        <option value="pagada">Pagada</option>
-                        <option value="vencida">Vencida</option>
-                        <option value="anulada">Anulada</option>
+                        <option value="pendiente" <?php echo ($invoice['estado'] ?? '') === 'pendiente' ? 'selected' : ''; ?>>Pendiente</option>
+                        <option value="pagada" <?php echo ($invoice['estado'] ?? '') === 'pagada' ? 'selected' : ''; ?>>Pagada</option>
+                        <option value="vencida" <?php echo ($invoice['estado'] ?? '') === 'vencida' ? 'selected' : ''; ?>>Vencida</option>
+                        <option value="anulada" <?php echo ($invoice['estado'] ?? '') === 'anulada' ? 'selected' : ''; ?>>Anulada</option>
                     </select>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Notas</label>
-                    <textarea name="notas" class="form-control" rows="3"></textarea>
+                    <textarea name="notas" class="form-control" rows="3"><?php echo e($invoice['notas'] ?? ''); ?></textarea>
                 </div>
             </div>
             <div class="card mb-3">
@@ -101,26 +111,28 @@
                         <div class="col-md-2">Impuesto $</div>
                         <div class="col-md-1">Total</div>
                     </div>
-                    <div class="row g-2 mb-2" data-item-row>
-                        <div class="col-md-3">
-                            <input type="text" name="items[0][descripcion]" class="form-control" placeholder="Descripción" data-item-description>
+                    <?php foreach ($invoiceItems as $index => $item): ?>
+                        <div class="row g-2 mb-2" data-item-row>
+                            <div class="col-md-3">
+                                <input type="text" name="items[<?php echo $index; ?>][descripcion]" class="form-control" placeholder="Descripción" data-item-description value="<?php echo e($item['descripcion'] ?? ''); ?>">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" name="items[<?php echo $index; ?>][cantidad]" class="form-control" value="<?php echo e($item['cantidad'] ?? 1); ?>" data-item-qty>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" name="items[<?php echo $index; ?>][precio_unitario]" class="form-control" value="<?php echo e($item['precio_unitario'] ?? 0); ?>" data-item-price>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" name="items[<?php echo $index; ?>][impuesto_pct]" class="form-control" value="<?php echo e($item['impuesto_pct'] ?? ($invoiceDefaults['tax_rate'] ?? 0)); ?>" data-item-tax-rate>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" name="items[<?php echo $index; ?>][impuesto_monto]" class="form-control" value="<?php echo e($item['impuesto_monto'] ?? 0); ?>" data-item-tax readonly>
+                            </div>
+                            <div class="col-md-1">
+                                <input type="number" name="items[<?php echo $index; ?>][total]" class="form-control" value="<?php echo e($item['total'] ?? 0); ?>" data-item-total readonly>
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <input type="number" name="items[0][cantidad]" class="form-control" value="1" data-item-qty>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" name="items[0][precio_unitario]" class="form-control" value="0" data-item-price>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" name="items[0][impuesto_pct]" class="form-control" value="<?php echo e($invoiceDefaults['tax_rate'] ?? 0); ?>" data-item-tax-rate>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" name="items[0][impuesto_monto]" class="form-control" value="0" data-item-tax readonly>
-                        </div>
-                        <div class="col-md-1">
-                            <input type="number" name="items[0][total]" class="form-control" value="0" data-item-total readonly>
-                        </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
             <div class="row">
@@ -136,20 +148,20 @@
                 </div>
                 <div class="col-md-2 mb-3">
                     <label class="form-label">Subtotal</label>
-                    <input type="number" step="0.01" name="subtotal" class="form-control" value="0" data-subtotal readonly>
+                    <input type="number" step="0.01" name="subtotal" class="form-control" value="<?php echo e($invoice['subtotal'] ?? 0); ?>" data-subtotal readonly>
                 </div>
                 <div class="col-md-2 mb-3">
                     <label class="form-label">Impuestos</label>
-                    <input type="number" step="0.01" name="impuestos" class="form-control" value="0" data-impuestos readonly>
+                    <input type="number" step="0.01" name="impuestos" class="form-control" value="<?php echo e($invoice['impuestos'] ?? 0); ?>" data-impuestos readonly>
                 </div>
                 <div class="col-md-2 mb-3">
                     <label class="form-label">Total</label>
-                    <input type="number" step="0.01" name="total" class="form-control" value="0" data-total readonly>
+                    <input type="number" step="0.01" name="total" class="form-control" value="<?php echo e($invoice['total'] ?? 0); ?>" data-total readonly>
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2">
                 <a href="index.php?route=invoices" class="btn btn-light">Cancelar</a>
-                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="submit" class="btn btn-primary">Actualizar</button>
             </div>
         </form>
     </div>
@@ -344,10 +356,6 @@
     };
 
     dueDateInput?.addEventListener('change', updateDueIndicator);
-
-    <?php if (!empty($selectedProjectId)): ?>
-    fillFromProject();
-    <?php endif; ?>
 
     updateFromItems();
     updateDueIndicator();

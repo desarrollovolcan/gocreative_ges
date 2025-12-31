@@ -15,12 +15,33 @@
                         <th>Cliente</th>
                         <th>Emisión</th>
                         <th>Vencimiento</th>
-                        <th>Estado</th>
+                        <th>Estado pago</th>
+                        <th>Estado vencimiento</th>
                         <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($invoices as $invoice): ?>
+                        <?php
+                        $dueDate = $invoice['fecha_vencimiento'] ?? '';
+                        $dueBadgeClass = 'bg-secondary-subtle text-secondary';
+                        $dueLabel = 'Sin fecha';
+                        if ($dueDate !== '') {
+                            $today = new DateTime('today');
+                            $due = DateTime::createFromFormat('Y-m-d', $dueDate) ?: new DateTime($dueDate);
+                            $diffDays = (int)$today->diff($due)->format('%r%a');
+                            if ($diffDays < 0) {
+                                $dueBadgeClass = 'bg-danger-subtle text-danger';
+                                $dueLabel = 'Vencida hace ' . abs($diffDays) . ' días';
+                            } elseif ($diffDays <= 10) {
+                                $dueBadgeClass = 'bg-warning-subtle text-warning';
+                                $dueLabel = 'Vence en ' . $diffDays . ' días';
+                            } else {
+                                $dueBadgeClass = 'bg-success-subtle text-success';
+                                $dueLabel = 'Vence en ' . $diffDays . ' días';
+                            }
+                        }
+                        ?>
                         <tr>
                             <td><?php echo e($invoice['numero']); ?></td>
                             <td><?php echo e($invoice['client_name']); ?></td>
@@ -31,8 +52,14 @@
                                     <?php echo e($invoice['estado']); ?>
                                 </span>
                             </td>
+                            <td>
+                                <span class="badge <?php echo $dueBadgeClass; ?>">
+                                    <?php echo e($dueLabel); ?>
+                                </span>
+                            </td>
                             <td class="text-end">
                                 <a href="index.php?route=invoices/show&id=<?php echo $invoice['id']; ?>" class="btn btn-light btn-sm">Ver</a>
+                                <a href="index.php?route=invoices/edit&id=<?php echo $invoice['id']; ?>" class="btn btn-outline-secondary btn-sm">Editar</a>
                                 <a href="index.php?route=invoices/details&id=<?php echo $invoice['id']; ?>" class="btn btn-outline-primary btn-sm">Ver factura</a>
                                 <form method="post" action="index.php?route=invoices/delete" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">

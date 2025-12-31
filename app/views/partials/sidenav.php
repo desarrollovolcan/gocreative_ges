@@ -190,7 +190,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccessAny(['users_view', 'roles_view', 'users_companies_view', 'users_permissions_view', 'companies_view', 'settings_view', 'email_config_view', 'system_services_view', 'service_types_view'])): ?>
+            <?php if ($canAccessAny(['users_view', 'roles_view', 'users_companies_view', 'users_permissions_view', 'companies_view', 'settings_view', 'email_config_view', 'online_payments_config_view', 'system_services_view', 'service_types_view'])): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarMaintainers" aria-expanded="false" aria-controls="sidebarMaintainers" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="database"></i></span>
@@ -278,6 +278,13 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                 <li class="side-nav-item">
                                     <a href="index.php?route=maintainers/email-config" class="side-nav-link">
                                         <span class="menu-text">Configuración de correo</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasCompany && $hasPermission('online_payments_config_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=maintainers/online-payments" class="side-nav-link">
+                                        <span class="menu-text">Pagos en línea</span>
                                     </a>
                                 </li>
                             <?php endif; ?>

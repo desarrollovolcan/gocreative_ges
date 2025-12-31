@@ -38,19 +38,6 @@ $defaultIssueDate = date('Y-m-d');
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Servicio</label>
-                    <select name="system_service_id" class="form-select" data-service-select>
-                        <option value="">Selecciona servicio</option>
-                        <?php foreach ($services as $service): ?>
-                            <option value="<?php echo $service['id']; ?>"
-                                    data-name="<?php echo e($service['name']); ?>"
-                                    data-price="<?php echo e($service['cost']); ?>">
-                                <?php echo e($service['name']); ?> (<?php echo e($service['type_name']); ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-3 mb-3">
                     <label class="form-label">Proyecto</label>
                     <select name="project_id" class="form-select" data-project-select>
                         <option value="">Selecciona proyecto</option>
@@ -67,49 +54,80 @@ $defaultIssueDate = date('Y-m-d');
                 </div>
             </div>
 
-            <div class="table-responsive mt-3">
-                <table class="table table-bordered align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Descripción</th>
-                            <th style="width: 120px;">Cantidad</th>
-                            <th style="width: 160px;">Precio unitario</th>
-                            <th style="width: 160px;">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <input type="text" name="items[0][descripcion]" class="form-control" data-item-description>
-                            </td>
-                            <td>
-                                <input type="number" name="items[0][cantidad]" class="form-control" value="1" min="1" data-item-qty>
-                            </td>
-                            <td>
-                                <input type="number" name="items[0][precio_unitario]" class="form-control" value="0" step="0.01" data-item-price>
-                            </td>
-                            <td>
-                                <input type="number" name="items[0][total]" class="form-control" value="0" step="0.01" readonly data-item-total>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                        <h5 class="card-title mb-0">Items de cotización</h5>
+                        <div class="d-flex flex-wrap flex-md-nowrap align-items-center gap-2 text-nowrap">
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2" data-add-manual-item>Agregar item manual</button>
+                            <div class="d-flex align-items-center gap-2">
+                                <select class="form-select form-select-sm py-1" data-service-item-select>
+                                    <option value="">Selecciona servicio</option>
+                                    <?php foreach ($services as $service): ?>
+                                        <option value="<?php echo $service['id']; ?>" data-service-price="<?php echo e($service['cost'] ?? 0); ?>">
+                                            <?php echo e($service['name']); ?> (<?php echo e($service['type_name']); ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary btn-sm py-1 px-2" data-add-service-item>Agregar servicio</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-2 fw-semibold text-muted small">
+                        <div class="col-md-3">Descripción</div>
+                        <div class="col-md-2">Cantidad</div>
+                        <div class="col-md-2">Precio unitario</div>
+                        <div class="col-md-2">Impuesto %</div>
+                        <div class="col-md-2">Impuesto $</div>
+                        <div class="col-md-1">Total</div>
+                    </div>
+                    <div class="row g-2 mb-2" data-item-row>
+                        <div class="col-md-3">
+                            <input type="text" name="items[0][descripcion]" class="form-control" data-item-description>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" name="items[0][cantidad]" class="form-control" value="1" min="1" data-item-qty>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" name="items[0][precio_unitario]" class="form-control" value="0" step="0.01" data-item-price>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" name="items[0][impuesto_pct]" class="form-control" value="0" data-item-tax-rate>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" name="items[0][impuesto_monto]" class="form-control" value="0" data-item-tax readonly>
+                        </div>
+                        <div class="col-md-1">
+                            <input type="number" name="items[0][total]" class="form-control" value="0" step="0.01" readonly data-item-total>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="row justify-content-end">
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <label class="form-label">Subtotal</label>
-                        <input type="number" name="subtotal" class="form-control" value="0" step="0.01" readonly data-subtotal>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Impuesto (%)</label>
+                    <input type="number" step="0.01" name="tax_rate" class="form-control" value="0" data-tax-rate>
+                </div>
+                <div class="col-md-3 mb-3 d-flex align-items-center">
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" name="apply_tax_display" id="apply_tax_display" data-apply-tax>
+                        <label class="form-check-label" for="apply_tax_display">Aplicar impuesto</label>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Impuestos</label>
-                        <input type="number" name="impuestos" class="form-control" value="0" step="0.01" data-taxes>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Total</label>
-                        <input type="number" name="total" class="form-control" value="0" step="0.01" readonly data-total>
-                    </div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Subtotal</label>
+                    <input type="number" name="subtotal" class="form-control" value="0" step="0.01" readonly data-subtotal>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Impuestos</label>
+                    <input type="number" name="impuestos" class="form-control" value="0" step="0.01" readonly data-impuestos>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Total</label>
+                    <input type="number" name="total" class="form-control" value="0" step="0.01" readonly data-total>
                 </div>
             </div>
 
@@ -126,80 +144,185 @@ $defaultIssueDate = date('Y-m-d');
 </div>
 
 <script>
-    const serviceSelect = document.querySelector('[data-service-select]');
     const projectSelect = document.querySelector('[data-project-select]');
     const clientSelect = document.querySelector('[data-client-select]');
-    const descriptionInput = document.querySelector('[data-item-description]');
-    const qtyInput = document.querySelector('[data-item-qty]');
-    const priceInput = document.querySelector('[data-item-price]');
-    const totalInput = document.querySelector('[data-item-total]');
     const subtotalInput = document.querySelector('[data-subtotal]');
-    const taxesInput = document.querySelector('[data-taxes]');
+    const impuestosInput = document.querySelector('[data-impuestos]');
     const totalSummaryInput = document.querySelector('[data-total]');
+    const taxRateInput = document.querySelector('[data-tax-rate]');
+    const applyTaxCheckbox = document.querySelector('[data-apply-tax]');
+    const addManualItemButton = document.querySelector('[data-add-manual-item]');
+    const addServiceItemButton = document.querySelector('[data-add-service-item]');
+    const serviceItemSelect = document.querySelector('[data-service-item-select]');
 
-    const updateTotals = () => {
-        const qty = Number(qtyInput?.value || 0);
-        const price = Number(priceInput?.value || 0);
-        const subtotal = qty * price;
-        if (totalInput) {
-            totalInput.value = subtotal.toFixed(2);
+    const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+
+    const updateItemTotal = (row) => {
+        const qty = Number(row.querySelector('[data-item-qty]')?.value || 0);
+        const price = Number(row.querySelector('[data-item-price]')?.value || 0);
+        const totalField = row.querySelector('[data-item-total]');
+        const taxRateField = row.querySelector('[data-item-tax-rate]');
+        const taxField = row.querySelector('[data-item-tax]');
+        const taxRate = Number(taxRateField?.value || 0);
+        const applyTax = !!applyTaxCheckbox?.checked;
+        const rowSubtotal = formatNumber(qty * price);
+        if (totalField) {
+            totalField.value = rowSubtotal.toFixed(2);
         }
-        if (subtotalInput) {
-            subtotalInput.value = subtotal.toFixed(2);
-        }
-        const taxes = Number(taxesInput?.value || 0);
-        if (totalSummaryInput) {
-            totalSummaryInput.value = (subtotal + taxes).toFixed(2);
+        if (taxField) {
+            const taxAmount = applyTax ? formatNumber(rowSubtotal * (taxRate / 100)) : 0;
+            taxField.value = taxAmount.toFixed(2);
         }
     };
 
-    const applySourceData = (option) => {
-        if (!option) {
-            return;
+    const updateTotals = () => {
+        const subtotal = Number(subtotalInput?.value || 0);
+        const impuestos = Number(impuestosInput?.value || 0);
+        if (totalSummaryInput) {
+            totalSummaryInput.value = formatNumber(subtotal + impuestos).toFixed(2);
         }
-        const name = option.dataset.name || '';
-        const price = option.dataset.price || 0;
-        if (descriptionInput) {
-            descriptionInput.value = name;
+    };
+
+    const updateFromItems = () => {
+        const rows = document.querySelectorAll('[data-item-row]');
+        let subtotal = 0;
+        let taxes = 0;
+        rows.forEach((row) => {
+            updateItemTotal(row);
+            subtotal += Number(row.querySelector('[data-item-total]')?.value || 0);
+            taxes += Number(row.querySelector('[data-item-tax]')?.value || 0);
+        });
+        if (subtotalInput) {
+            subtotalInput.value = formatNumber(subtotal).toFixed(2);
         }
-        if (priceInput) {
-            priceInput.value = Number(price).toFixed(2);
+        if (impuestosInput) {
+            impuestosInput.value = formatNumber(taxes).toFixed(2);
         }
         updateTotals();
     };
 
-    serviceSelect?.addEventListener('change', (event) => {
-        if (projectSelect) {
-            projectSelect.value = '';
+    document.addEventListener('input', (event) => {
+        if (event.target?.matches('[data-item-qty], [data-item-price], [data-item-tax-rate]')) {
+            updateFromItems();
         }
-        const option = event.target.selectedOptions[0];
-        applySourceData(option);
+    });
+
+    const addItemRow = ({ description = '', price = 0 } = {}) => {
+        const rows = document.querySelectorAll('[data-item-row]');
+        const index = rows.length;
+        const row = document.createElement('div');
+        row.className = 'row g-2 mb-2';
+        row.setAttribute('data-item-row', 'true');
+        const defaultTaxRate = Number(taxRateInput?.value || 0);
+        row.innerHTML = `
+            <div class="col-md-3">
+                <input type="text" name="items[${index}][descripcion]" class="form-control" data-item-description value="${description}">
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="items[${index}][cantidad]" class="form-control" value="1" min="1" data-item-qty>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="items[${index}][precio_unitario]" class="form-control" value="${formatNumber(price).toFixed(2)}" step="0.01" data-item-price>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="items[${index}][impuesto_pct]" class="form-control" value="${defaultTaxRate}" data-item-tax-rate>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="items[${index}][impuesto_monto]" class="form-control" value="0" data-item-tax readonly>
+            </div>
+            <div class="col-md-1">
+                <input type="number" name="items[${index}][total]" class="form-control" value="0" step="0.01" readonly data-item-total>
+            </div>
+        `;
+        rows[rows.length - 1]?.after(row);
+        updateFromItems();
+    };
+
+    addManualItemButton?.addEventListener('click', () => {
+        addItemRow();
+    });
+
+    addServiceItemButton?.addEventListener('click', () => {
+        const selected = serviceItemSelect?.selectedOptions?.[0];
+        if (!selected || !selected.value) {
+            return;
+        }
+        addItemRow({
+            description: selected.textContent?.trim() || '',
+            price: Number(selected.dataset.servicePrice || 0),
+        });
+        serviceItemSelect.value = '';
     });
 
     projectSelect?.addEventListener('change', (event) => {
-        if (serviceSelect) {
-            serviceSelect.value = '';
-        }
         const option = event.target.selectedOptions[0];
-        applySourceData(option);
+        const projectName = option?.dataset?.name || '';
+        const projectPrice = Number(option?.dataset?.price || 0);
         const clientId = option?.dataset?.clientId;
+        const firstRow = document.querySelector('[data-item-row]');
+        if (firstRow) {
+            const descriptionInput = firstRow.querySelector('[data-item-description]');
+            const priceInput = firstRow.querySelector('[data-item-price]');
+            const qtyInput = firstRow.querySelector('[data-item-qty]');
+            const taxRateInputRow = firstRow.querySelector('[data-item-tax-rate]');
+            if (descriptionInput) {
+                descriptionInput.value = projectName;
+            }
+            if (priceInput) {
+                priceInput.value = formatNumber(projectPrice).toFixed(2);
+            }
+            if (qtyInput) {
+                qtyInput.value = '1';
+                qtyInput.readOnly = true;
+            }
+            if (taxRateInputRow) {
+                taxRateInputRow.value = taxRateInput?.value || '0';
+            }
+            updateFromItems();
+        }
         if (clientSelect && clientId) {
             clientSelect.value = clientId;
         }
     });
 
-    qtyInput?.addEventListener('input', updateTotals);
-    priceInput?.addEventListener('input', updateTotals);
-    taxesInput?.addEventListener('input', updateTotals);
+    taxRateInput?.addEventListener('input', () => {
+        document.querySelectorAll('[data-item-tax-rate]').forEach((input) => {
+            input.value = taxRateInput.value;
+        });
+        updateFromItems();
+    });
+
+    applyTaxCheckbox?.addEventListener('change', () => {
+        updateFromItems();
+    });
 
     if (projectSelect?.value) {
         const option = projectSelect.selectedOptions[0];
-        applySourceData(option);
         const clientId = option?.dataset?.clientId;
         if (clientSelect && clientId) {
             clientSelect.value = clientId;
         }
+        const firstRow = document.querySelector('[data-item-row]');
+        if (firstRow) {
+            const descriptionInput = firstRow.querySelector('[data-item-description]');
+            const priceInput = firstRow.querySelector('[data-item-price]');
+            const qtyInput = firstRow.querySelector('[data-item-qty]');
+            const taxRateInputRow = firstRow.querySelector('[data-item-tax-rate]');
+            if (descriptionInput) {
+                descriptionInput.value = option?.dataset?.name || '';
+            }
+            if (priceInput) {
+                priceInput.value = formatNumber(option?.dataset?.price || 0).toFixed(2);
+            }
+            if (qtyInput) {
+                qtyInput.value = '1';
+                qtyInput.readOnly = true;
+            }
+            if (taxRateInputRow) {
+                taxRateInputRow.value = taxRateInput?.value || '0';
+            }
+        }
     }
 
-    updateTotals();
+    updateFromItems();
 </script>

@@ -126,6 +126,112 @@ class InvoicesController extends Controller
         $this->redirect('index.php?route=invoices');
     }
 
+    public function edit(): void
+    {
+        $this->requireLogin();
+        $id = (int)($_GET['id'] ?? 0);
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $invoice = $this->db->fetch(
+            'SELECT * FROM invoices WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$invoice) {
+            $this->redirect('index.php?route=invoices');
+        }
+        $itemsModel = new InvoiceItemsModel($this->db);
+        $items = $itemsModel->byInvoice($id);
+        $clients = $this->clients->active($companyId);
+        $services = $this->services->active($companyId);
+        $projects = $this->db->fetchAll(
+            'SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL AND projects.company_id = :company_id ORDER BY projects.id DESC',
+            ['company_id' => $companyId]
+        );
+        $settings = new SettingsModel($this->db);
+        $invoiceDefaults = $settings->get('invoice_defaults', []);
+        $this->render('invoices/edit', [
+            'title' => 'Editar Factura',
+            'pageTitle' => 'Editar Factura',
+            'invoice' => $invoice,
+            'items' => $items,
+            'clients' => $clients,
+            'services' => $services,
+            'projects' => $projects,
+            'invoiceDefaults' => $invoiceDefaults,
+        ]);
+    }
+
+    public function update(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        $id = (int)($_POST['id'] ?? 0);
+        $invoice = $this->db->fetch(
+            'SELECT id FROM invoices WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$invoice) {
+            flash('error', 'Factura no encontrada para esta empresa.');
+            $this->redirect('index.php?route=invoices');
+        }
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=invoices/edit&id=' . $id);
+        }
+        $serviceId = trim($_POST['service_id'] ?? '');
+        $projectId = trim($_POST['project_id'] ?? '');
+        $issueDate = trim($_POST['fecha_emision'] ?? '');
+        $dueDate = trim($_POST['fecha_vencimiento'] ?? '');
+        $subtotal = trim($_POST['subtotal'] ?? '');
+        $impuestos = trim($_POST['impuestos'] ?? '');
+        $total = trim($_POST['total'] ?? '');
+        $this->invoices->update($id, [
+            'client_id' => $clientId,
+            'service_id' => $serviceId !== '' ? $serviceId : null,
+            'project_id' => $projectId !== '' ? $projectId : null,
+            'numero' => trim($_POST['numero'] ?? ''),
+            'fecha_emision' => $issueDate !== '' ? $issueDate : date('Y-m-d'),
+            'fecha_vencimiento' => $dueDate !== '' ? $dueDate : date('Y-m-d'),
+            'estado' => $_POST['estado'] ?? 'pendiente',
+            'subtotal' => $subtotal !== '' ? $subtotal : 0,
+            'impuestos' => $impuestos !== '' ? $impuestos : 0,
+            'total' => $total !== '' ? $total : 0,
+            'notas' => trim($_POST['notas'] ?? ''),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $items = $_POST['items'] ?? [];
+        $itemsModel = new InvoiceItemsModel($this->db);
+        $this->db->execute('DELETE FROM invoice_items WHERE invoice_id = :invoice_id', ['invoice_id' => $id]);
+        foreach ($items as $item) {
+            if (empty($item['descripcion'])) {
+                continue;
+            }
+            $itemsModel->create([
+                'invoice_id' => $id,
+                'descripcion' => $item['descripcion'],
+                'cantidad' => $item['cantidad'] ?? 1,
+                'precio_unitario' => $item['precio_unitario'] ?? 0,
+                'total' => $item['total'] ?? 0,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        audit($this->db, Auth::user()['id'], 'update', 'invoices', $id);
+        flash('success', 'Factura actualizada correctamente.');
+        $this->redirect('index.php?route=invoices');
+    }
+
     public function show(): void
     {
         $this->requireLogin();

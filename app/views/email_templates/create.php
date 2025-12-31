@@ -10,8 +10,8 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Tipo</label>
                     <select name="type" class="form-select">
+                        <option value="informativa">Informativa</option>
                         <option value="cobranza">Cobranza</option>
-                        <option value="info">Información</option>
                         <option value="pago">Pago</option>
                     </select>
                 </div>

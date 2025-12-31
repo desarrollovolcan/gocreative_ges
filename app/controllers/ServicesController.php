@@ -418,7 +418,7 @@ class ServicesController extends Controller
                 ),
                 $context
             ),
-            'type' => 'informativo',
+            'type' => 'informativa',
             'status' => 'pending',
             'scheduled_at' => $scheduledNow,
             'tries' => 0,

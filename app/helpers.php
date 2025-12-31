@@ -365,6 +365,13 @@ function permission_catalog(): array
             'view_key' => 'invoices_view',
             'edit_key' => 'invoices_edit',
         ],
+        'payments' => [
+            'label' => 'Pagos',
+            'routes' => ['payments'],
+            'legacy_key' => 'invoices',
+            'view_key' => 'payments_view',
+            'edit_key' => null,
+        ],
         'email_templates' => [
             'label' => 'Plantillas Email',
             'routes' => ['email-templates'],

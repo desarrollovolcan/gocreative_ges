@@ -174,6 +174,34 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
+            <?php if ($hasCompany && $hasPermission('payments_view')): ?>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarPayments" aria-expanded="false" aria-controls="sidebarPayments" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="credit-card"></i></span>
+                        <span class="menu-text">Pagos</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarPayments">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="index.php?route=payments/buttons" class="side-nav-link">
+                                    <span class="menu-text">Botones de pago</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=payments/paid" class="side-nav-link">
+                                    <span class="menu-text">Pagos realizados</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=payments/pending" class="side-nav-link">
+                                    <span class="menu-text">Pagos pendientes</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            <?php endif; ?>
             <?php if ($hasCompany && $hasPermission('email_templates_view')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=email-templates" class="side-nav-link">

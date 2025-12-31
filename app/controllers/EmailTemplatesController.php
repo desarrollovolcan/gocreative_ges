@@ -123,6 +123,62 @@ class EmailTemplatesController extends Controller
         $this->redirect('index.php?route=email-templates');
     }
 
+    public function seedDefaults(): void
+    {
+        $this->requireLogin();
+        $this->requireRole('admin');
+        verify_csrf();
+        $companyId = current_company_id();
+        $templates = [
+            [
+                'name' => 'Informativa base',
+                'subject' => 'Información de servicio',
+                'type' => 'informativa',
+                'file' => 'informativa.html',
+            ],
+            [
+                'name' => 'Pago base',
+                'subject' => 'Confirmación de pago',
+                'type' => 'pago',
+                'file' => 'pago.html',
+            ],
+            [
+                'name' => 'Cobranza base',
+                'subject' => 'Recordatorio de pago',
+                'type' => 'cobranza',
+                'file' => 'cobranza.html',
+            ],
+        ];
+        $created = 0;
+        foreach ($templates as $template) {
+            $existing = $this->db->fetch(
+                'SELECT id FROM email_templates WHERE name = :name AND deleted_at IS NULL AND company_id = :company_id',
+                ['name' => $template['name'], 'company_id' => $companyId]
+            );
+            if ($existing) {
+                continue;
+            }
+            $bodyHtml = $this->loadTemplateHtml($template['file']);
+            if ($bodyHtml === null) {
+                continue;
+            }
+            $this->templates->create([
+                'company_id' => $companyId,
+                'name' => $template['name'],
+                'subject' => $template['subject'],
+                'body_html' => $bodyHtml,
+                'type' => $template['type'],
+                'created_by' => Auth::user()['id'],
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+            $created++;
+        }
+
+        flash('success', 'Plantillas cargadas: ' . $created);
+        $this->redirect('index.php?route=email-templates');
+    }
+
     public function preview(): void
     {
         $this->requireLogin();
@@ -156,5 +212,20 @@ class EmailTemplatesController extends Controller
             'client' => $client,
             'body' => $body,
         ]);
+    }
+
+    private function loadTemplateHtml(string $filename): ?string
+    {
+        $path = __DIR__ . '/../../storage/email_templates/' . $filename;
+        if (!is_file($path)) {
+            log_message('error', 'No se encontró la plantilla base: ' . $path);
+            return null;
+        }
+        $contents = file_get_contents($path);
+        if ($contents === false) {
+            log_message('error', 'No se pudo leer la plantilla base: ' . $path);
+            return null;
+        }
+        return $contents;
     }
 }

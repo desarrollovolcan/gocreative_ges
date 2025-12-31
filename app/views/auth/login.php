@@ -1,9 +1,5 @@
 <?php
-$logoColor = $companySettings['logo_color'] ?? 'assets/images/logo.png';
-$logoBlack = $companySettings['logo_black'] ?? 'assets/images/logo-black.png';
-$loginLogoVariant = $companySettings['login_logo_variant'] ?? 'light';
-$loginLogo = $companySettings['login_logo'] ?? '';
-$loginLogoSrc = $loginLogo !== '' ? $loginLogo : ($loginLogoVariant === 'dark' ? $logoBlack : $logoColor);
+$loginLogoSrc = login_logo_src($companySettings ?? []);
 ?>
 
 <div class="auth-box p-0 w-100">

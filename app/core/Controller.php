@@ -44,17 +44,7 @@ class Controller
         $currentCompany = null;
         $companyId = current_company_id();
         try {
-            $settingsModel = new SettingsModel($this->db);
-            $companySettings = $settingsModel->get('company', []);
-            if (!$companyId && empty($companySettings['login_logo'] ?? '')) {
-                $firstCompany = $this->db->fetch('SELECT id FROM companies ORDER BY id ASC LIMIT 1');
-                if ($firstCompany) {
-                    $fallbackSettings = $settingsModel->get('company', [], (int)$firstCompany['id']);
-                    if (!empty($fallbackSettings)) {
-                        $companySettings = array_merge($companySettings, $fallbackSettings);
-                    }
-                }
-            }
+            $companySettings = login_company_settings($this->db);
         } catch (Throwable $e) {
             log_message('error', 'Failed to load company settings: ' . $e->getMessage());
             $companySettings = [];

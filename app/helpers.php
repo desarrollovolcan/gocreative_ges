@@ -131,6 +131,35 @@ function ensure_upload_directory(string $directory): ?string
     return null;
 }
 
+function login_company_settings(Database $db): array
+{
+    $settingsModel = new SettingsModel($db);
+    $companySettings = $settingsModel->get('company', []);
+    if (!empty($companySettings['login_logo'] ?? '')) {
+        return $companySettings;
+    }
+    $firstCompany = $db->fetch('SELECT id FROM companies ORDER BY id ASC LIMIT 1');
+    if ($firstCompany) {
+        $fallbackSettings = $settingsModel->get('company', [], (int)$firstCompany['id']);
+        if (!empty($fallbackSettings)) {
+            $companySettings = array_merge($companySettings, $fallbackSettings);
+        }
+    }
+    return $companySettings;
+}
+
+function login_logo_src(array $companySettings): string
+{
+    $logoColor = $companySettings['logo_color'] ?? 'assets/images/logo.png';
+    $logoBlack = $companySettings['logo_black'] ?? 'assets/images/logo-black.png';
+    $loginLogoVariant = $companySettings['login_logo_variant'] ?? 'light';
+    $loginLogo = $companySettings['login_logo'] ?? '';
+    if ($loginLogo !== '') {
+        return $loginLogo;
+    }
+    return $loginLogoVariant === 'dark' ? $logoBlack : $logoColor;
+}
+
 function upload_avatar(?array $file, string $prefix): array
 {
     if ($file === null || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {

@@ -1,6 +1,6 @@
 <?php
 require __DIR__ . '/app/bootstrap.php';
-$companySettings = (new SettingsModel($db))->get('company', []);
+$companySettings = login_company_settings($db);
 $logoColor = $companySettings['logo_color'] ?? 'assets/images/logo.png';
 $logoBlack = $companySettings['logo_black'] ?? 'assets/images/logo-black.png';
 $loginLogoVariant = $companySettings['login_logo_variant'] ?? 'light';

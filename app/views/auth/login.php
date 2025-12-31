@@ -62,12 +62,14 @@ $loginLogoSrc = $loginLogo !== '' ? $loginLogo : ($loginLogoVariant === 'dark' ?
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
+                                <div class="text-muted small text-start mb-3">Selecciona la empresa donde administrarás la cuenta.</div>
                                 <div class="app-search w-100 input-group rounded-pill mb-3">
                                     <input type="email" name="email" class="form-control py-2" placeholder="Correo administrador" required>
                                     <i data-lucide="circle-user" class="app-search-icon text-muted"></i>
                                 </div>
                                 <div class="app-search w-100 input-group rounded-pill mb-2">
-                                    <input type="password" name="password" class="form-control py-2" placeholder="Contraseña" required>
+                                    <input type="password" name="password" class="form-control py-2" placeholder="Contraseña" required data-password-field>
+                                    <button class="btn btn-outline-secondary" type="button" data-toggle-password>Mostrar</button>
                                     <i data-lucide="key-round" class="app-search-icon text-muted"></i>
                                 </div>
                                 <div class="d-grid gap-2 mt-3">
@@ -95,3 +97,16 @@ $loginLogoSrc = $loginLogo !== '' ? $loginLogo : ($loginLogoVariant === 'dark' ?
         </div>
     </div>
 </div>
+
+<script>
+    document.querySelector('[data-toggle-password]')?.addEventListener('click', (event) => {
+        const button = event.currentTarget;
+        const passwordInput = document.querySelector('[data-password-field]');
+        if (!passwordInput || !button) {
+            return;
+        }
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        button.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+    });
+</script>

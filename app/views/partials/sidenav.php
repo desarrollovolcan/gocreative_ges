@@ -105,10 +105,32 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
             <?php endif; ?>
             <?php if ($canAccess('services')): ?>
                 <li class="side-nav-item">
-                    <a href="index.php?route=services" class="side-nav-link">
+                    <a data-bs-toggle="collapse" href="#sidebarServices" aria-expanded="false" aria-controls="sidebarServices" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="server"></i></span>
                         <span class="menu-text">Servicios</span>
+                        <span class="menu-arrow"></span>
                     </a>
+                    <div class="collapse" id="sidebarServices">
+                        <ul class="sub-menu">
+                            <li class="side-nav-item">
+                                <a href="index.php?route=services" class="side-nav-link">
+                                    <span class="menu-text">Listado servicios</span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=services/create" class="side-nav-link">
+                                    <span class="menu-text">Crear servicio</span>
+                                </a>
+                            </li>
+                            <?php if ($canAccess('maintainers')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=maintainers/service-types/create" class="side-nav-link">
+                                        <span class="menu-text">Crear tipo de servicio</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </li>
             <?php endif; ?>
             <?php if ($canAccess('quotes')): ?>
@@ -160,67 +182,73 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                     <div class="collapse" id="sidebarMaintainers">
                         <ul class="sub-menu">
+                            <?php if ($canAccess('users')): ?>
+                                <li class="side-nav-item">
+                                    <a data-bs-toggle="collapse" href="#sidebarMaintainersUsers" aria-expanded="false" aria-controls="sidebarMaintainersUsers" class="side-nav-link">
+                                        <span class="menu-text">Usuarios</span>
+                                        <span class="menu-arrow"></span>
+                                    </a>
+                                    <div class="collapse" id="sidebarMaintainersUsers">
+                                        <ul class="sub-menu">
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=users" class="side-nav-link">
+                                                    <span class="menu-text">Listado usuarios</span>
+                                                </a>
+                                            </li>
+                                            <?php if ($canAccess('users_permissions')): ?>
+                                                <li class="side-nav-item">
+                                                    <a href="index.php?route=users/permissions" class="side-nav-link">
+                                                        <span class="menu-text">Roles y permisos</span>
+                                                    </a>
+                                                </li>
+                                            <?php endif; ?>
+                                            <?php if ($canAccess('roles')): ?>
+                                                <li class="side-nav-item">
+                                                    <a href="index.php?route=roles" class="side-nav-link">
+                                                        <span class="menu-text">Roles</span>
+                                                    </a>
+                                                </li>
+                                            <?php endif; ?>
+                                            <?php if ($canAccess('users_companies')): ?>
+                                                <li class="side-nav-item">
+                                                    <a href="index.php?route=users/assign-company" class="side-nav-link">
+                                                        <span class="menu-text">Asignar empresa</span>
+                                                    </a>
+                                                </li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </div>
+                                </li>
+                            <?php endif; ?>
                             <?php if ($canAccess('companies')): ?>
                                 <li class="side-nav-item">
-                                    <a href="index.php?route=companies" class="side-nav-link">
-                                        <span class="menu-text">Empresas</span>
+                                    <a data-bs-toggle="collapse" href="#sidebarMaintainersCompanies" aria-expanded="false" aria-controls="sidebarMaintainersCompanies" class="side-nav-link">
+                                        <span class="menu-text">Empresa</span>
+                                        <span class="menu-arrow"></span>
+                                    </a>
+                                    <div class="collapse" id="sidebarMaintainersCompanies">
+                                        <ul class="sub-menu">
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=companies/create" class="side-nav-link">
+                                                    <span class="menu-text">Crear empresa</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($canAccess('settings')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=settings" class="side-nav-link">
+                                        <span class="menu-text">Configuraciones</span>
                                     </a>
                                 </li>
                             <?php endif; ?>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=maintainers/services" class="side-nav-link">
-                                    <span class="menu-text">Servicios</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=maintainers/service-types" class="side-nav-link">
-                                    <span class="menu-text">Tipos de servicios</span>
-                                </a>
-                            </li>
                             <li class="side-nav-item">
                                 <a href="index.php?route=maintainers/email-config" class="side-nav-link">
                                     <span class="menu-text">Configuración de correo</span>
                                 </a>
                             </li>
-                        </ul>
-                    </div>
-                </li>
-            <?php endif; ?>
-            <?php if ($canAccess('users')): ?>
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarUsers" aria-expanded="false" aria-controls="sidebarUsers" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="user"></i></span>
-                        <span class="menu-text">Usuarios</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarUsers">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="index.php?route=users" class="side-nav-link">
-                                    <span class="menu-text">Listado usuarios</span>
-                                </a>
-                            </li>
-                            <?php if ($canAccess('users_permissions')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=users/permissions" class="side-nav-link">
-                                        <span class="menu-text">Roles y permisos</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($canAccess('roles')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=roles" class="side-nav-link">
-                                        <span class="menu-text">Roles</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($canAccess('users_companies')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=users/assign-company" class="side-nav-link">
-                                        <span class="menu-text">Asignar empresa</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
                         </ul>
                     </div>
                 </li>

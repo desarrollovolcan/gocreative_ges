@@ -1,0 +1,41 @@
+<table style="width:100%; background:#f6f7f9; padding:24px;" role="presentation" cellspacing="0" cellpadding="0">
+  <tbody>
+    <tr>
+      <td align="center">
+        <table style="max-width:640px; background:#ffffff; border-radius:12px; padding:24px;" role="presentation" cellspacing="0" cellpadding="0">
+          <tbody>
+            <tr>
+              <td style="font-size:18px; font-weight:bold; color:#9a3412; padding-bottom:12px;">
+                Recordatorio de pago
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size:14px; color:#374151; line-height:1.6;">
+                Hola {{cliente_nombre}},<br><br>
+                Te recordamos que tienes un pago pendiente por <strong>{{monto_total}}</strong>.
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-top:12px; font-size:14px; color:#111827;">
+                <strong>Servicio:</strong> {{servicio_nombre}}<br>
+                <strong>Fecha de vencimiento:</strong> {{fecha_vencimiento}}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-top:16px;">
+                <a href="{{link_pago}}" style="background:#9a3412; color:#ffffff; padding:10px 16px; border-radius:8px; text-decoration:none; display:inline-block;">
+                  Pagar ahora
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-top:20px; font-size:12px; color:#6b7280;">
+                Si ya realizaste el pago, ignora este mensaje.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>

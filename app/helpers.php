@@ -296,11 +296,11 @@ function render_template_vars(string $html, array $context = []): string
 function build_flow_signature(array $params, string $secretKey): string
 {
     ksort($params);
-    $pairs = [];
+    $toSign = '';
     foreach ($params as $key => $value) {
-        $pairs[] = $key . '=' . $value;
+        $toSign .= $key . $value;
     }
-    return hash_hmac('sha256', implode('&', $pairs), $secretKey);
+    return hash_hmac('sha256', $toSign, $secretKey);
 }
 
 function create_flow_payment_link(array $config, array $payload): ?string
@@ -332,7 +332,11 @@ function create_flow_payment_link(array $config, array $payload): ?string
 
     $params['s'] = build_flow_signature($params, $secretKey);
 
-    $endpoint = rtrim($baseUrl, '/') . '/api/payment/create';
+    $trimmedBase = rtrim($baseUrl, '/');
+    if (!str_ends_with($trimmedBase, '/api')) {
+        $trimmedBase .= '/api';
+    }
+    $endpoint = $trimmedBase . '/payment/create';
     $response = null;
     $curl = curl_init($endpoint);
     if ($curl === false) {

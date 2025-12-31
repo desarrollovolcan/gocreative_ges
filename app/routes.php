@@ -61,6 +61,8 @@ return [
     'invoices/show' => ['InvoicesController', 'show'],
     'invoices/details' => ['InvoicesController', 'details'],
     'invoices/pay' => ['InvoicesController', 'pay'],
+    'invoices/flow-payment' => ['InvoicesController', 'createFlowPayment'],
+    'invoices/send-email' => ['InvoicesController', 'sendInvoiceEmail'],
     'invoices/payments/update' => ['InvoicesController', 'updatePayment'],
     'invoices/payments/delete' => ['InvoicesController', 'deletePayment'],
     'invoices/payments/send-receipt' => ['InvoicesController', 'sendPaymentReceipt'],

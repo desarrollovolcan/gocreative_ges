@@ -166,6 +166,59 @@ class InvoicesController extends Controller
         ]);
     }
 
+    public function createFlowPayment(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $invoiceId = (int)($_POST['invoice_id'] ?? 0);
+        if ($invoiceId <= 0) {
+            flash('error', 'Factura no encontrada.');
+            $this->redirect('index.php?route=invoices');
+        }
+
+        $companyId = current_company_id();
+        $invoice = $this->db->fetch(
+            'SELECT invoices.id, invoices.numero, invoices.total, invoices.estado, clients.name as client_name, clients.email, clients.billing_email
+             FROM invoices
+             JOIN clients ON invoices.client_id = clients.id
+             WHERE invoices.id = :id AND invoices.company_id = :company_id AND invoices.deleted_at IS NULL',
+            ['id' => $invoiceId, 'company_id' => $companyId]
+        );
+        if (!$invoice) {
+            flash('error', 'Factura no encontrada.');
+            $this->redirect('index.php?route=invoices');
+        }
+        if (($invoice['estado'] ?? '') === 'pagada') {
+            flash('error', 'La factura ya está pagada.');
+            $this->redirect('index.php?route=invoices');
+        }
+
+        $settings = new SettingsModel($this->db);
+        $flowConfig = $settings->get('flow_payment_config', []);
+        $invoiceDefaults = $settings->get('invoice_defaults', []);
+        $currency = $invoiceDefaults['currency'] ?? 'CLP';
+        $paymentEmail = $invoice['billing_email'] ?? $invoice['email'] ?? '';
+        if (!filter_var($paymentEmail, FILTER_VALIDATE_EMAIL)) {
+            flash('error', 'El cliente no tiene email válido para generar el pago.');
+            $this->redirect('index.php?route=invoices');
+        }
+
+        $flowLink = create_flow_payment_link($flowConfig, [
+            'commerce_order' => (string)($invoice['numero'] ?? $invoice['id']),
+            'subject' => 'Pago factura #' . ($invoice['numero'] ?? $invoice['id']) . ' - ' . ($invoice['client_name'] ?? ''),
+            'currency' => (string)$currency,
+            'amount' => number_format((float)($invoice['total'] ?? 0), 0, '.', ''),
+            'email' => $paymentEmail,
+        ]);
+
+        if ($flowLink === null) {
+            flash('error', 'No se pudo generar el pago con Flow. Revisa la configuración de pagos en línea.');
+            $this->redirect('index.php?route=invoices');
+        }
+
+        $this->redirect($flowLink);
+    }
+
     public function update(): void
     {
         $this->requireLogin();
@@ -408,6 +461,103 @@ class InvoicesController extends Controller
         } else {
             flash('error', 'No se pudo enviar el comprobante.');
         }
+        $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
+    }
+
+    public function sendInvoiceEmail(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $invoiceId = (int)($_POST['invoice_id'] ?? 0);
+        $companyId = current_company_id();
+        $invoice = $this->db->fetch(
+            'SELECT invoices.*, clients.name as client_name, clients.email, clients.billing_email
+             FROM invoices
+             JOIN clients ON invoices.client_id = clients.id
+             WHERE invoices.id = :id AND invoices.company_id = :company_id AND invoices.deleted_at IS NULL',
+            ['id' => $invoiceId, 'company_id' => $companyId]
+        );
+        if (!$invoice) {
+            flash('error', 'Factura no encontrada para esta empresa.');
+            $this->redirect('index.php?route=invoices');
+        }
+
+        $items = $this->db->fetchAll('SELECT * FROM invoice_items WHERE invoice_id = :invoice_id', ['invoice_id' => $invoiceId]);
+        $firstItem = $items[0]['descripcion'] ?? 'Servicios';
+        $settings = new SettingsModel($this->db);
+        $flowConfig = $settings->get('flow_payment_config', []);
+        $invoiceDefaults = $settings->get('invoice_defaults', []);
+        $currency = $invoiceDefaults['currency'] ?? 'CLP';
+        $paymentEmail = $invoice['billing_email'] ?? $invoice['email'] ?? '';
+        if (!filter_var($paymentEmail, FILTER_VALIDATE_EMAIL)) {
+            flash('error', 'El cliente no tiene email válido para enviar la factura.');
+            $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
+        }
+
+        $flowLink = create_flow_payment_link($flowConfig, [
+            'commerce_order' => (string)($invoice['numero'] ?? $invoice['id']),
+            'subject' => 'Pago factura #' . ($invoice['numero'] ?? $invoice['id']) . ' - ' . ($invoice['client_name'] ?? ''),
+            'currency' => (string)$currency,
+            'amount' => number_format((float)($invoice['total'] ?? 0), 0, '.', ''),
+            'email' => $paymentEmail,
+        ]);
+
+        if ($flowLink === null) {
+            flash('error', 'No se pudo generar el pago con Flow. Revisa la configuración de pagos en línea.');
+            $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
+        }
+
+        $context = [
+            'cliente_nombre' => $invoice['client_name'] ?? '',
+            'monto_total' => format_currency((float)($invoice['total'] ?? 0)),
+            'fecha_vencimiento' => $invoice['fecha_vencimiento'] ?? '',
+            'servicio_nombre' => $firstItem,
+            'link_pago' => $flowLink,
+            'numero_factura' => $invoice['numero'] ?? '',
+            'detalle_factura' => $firstItem,
+        ];
+
+        $template = $this->db->fetch(
+            'SELECT * FROM email_templates WHERE type = :type AND deleted_at IS NULL AND company_id = :company_id ORDER BY id DESC LIMIT 1',
+            ['type' => 'informativa', 'company_id' => $companyId]
+        );
+        $subject = 'Factura #' . ($invoice['numero'] ?? $invoice['id']);
+        $bodyHtml = '';
+        if ($template) {
+            $bodyHtml = render_template_vars($template['body_html'], $context);
+        } else {
+            $path = __DIR__ . '/../../storage/email_templates/informativa.html';
+            $fallback = is_file($path) ? file_get_contents($path) : '';
+            $bodyHtml = render_template_vars($fallback, $context);
+        }
+
+        $recipients = array_filter([$invoice['email'] ?? null, $invoice['billing_email'] ?? null], fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL));
+        if (empty($recipients)) {
+            flash('error', 'No hay email asociado al cliente para enviar la factura.');
+            $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
+        }
+
+        try {
+            $mailer = new Mailer($this->db);
+            $sent = $mailer->send('info', $recipients, $subject, $bodyHtml);
+            if ($sent) {
+                $this->db->execute('INSERT INTO email_logs (company_id, client_id, type, subject, body_html, status, created_at, updated_at) VALUES (:company_id, :client_id, :type, :subject, :body_html, :status, NOW(), NOW())', [
+                    'company_id' => $companyId,
+                    'client_id' => $invoice['client_id'],
+                    'type' => 'informativa',
+                    'subject' => $subject,
+                    'body_html' => $bodyHtml,
+                    'status' => 'sent',
+                ]);
+                flash('success', 'La factura fue enviada por correo.');
+            } else {
+                flash('error', 'No se pudo enviar la factura por correo.');
+            }
+        } catch (Throwable $e) {
+            log_message('error', 'Invoice email failed: ' . $e->getMessage());
+            flash('error', 'No se pudo enviar la factura por correo.');
+        }
+
         $this->redirect('index.php?route=invoices/show&id=' . $invoiceId);
     }
 

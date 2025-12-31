@@ -25,11 +25,19 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Tipo de servicio</label>
-                                    <select name="service_type" class="form-select" data-service-type>
-                                        <option value="dominio">Dominio</option>
-                                        <option value="hosting">Hosting</option>
-                                        <option value="plan">Plan mensual</option>
-                                        <option value="otro">Otro</option>
+                                    <select name="service_type_id" class="form-select" data-service-type-id required>
+                                        <option value="">Selecciona tipo</option>
+                                        <?php foreach (($serviceTypes ?? []) as $type): ?>
+                                            <option value="<?php echo $type['id']; ?>">
+                                                <?php echo e($type['name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Servicio catálogo</label>
+                                    <select name="system_service_id" class="form-select" data-system-service>
+                                        <option value="">Selecciona servicio</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
@@ -143,7 +151,61 @@
     const dueDateInput = document.querySelector('[data-due-date]');
     const calcDueButton = document.querySelector('[data-calc-due]');
     const deleteDateInput = document.querySelector('[data-delete-date]');
+    const serviceTypeSelect = document.querySelector('[data-service-type-id]');
+    const systemServiceSelect = document.querySelector('[data-system-service]');
+    const serviceNameInput = document.querySelector('input[name="name"]');
+    const serviceCostInput = document.querySelector('input[name="cost"]');
+    const currencySelect = document.querySelector('select[name="currency"]');
+    const systemServices = <?php echo json_encode($systemServices ?? []); ?>;
     let dueDateTouched = false;
+
+    const renderSystemServices = () => {
+        if (!systemServiceSelect || !serviceTypeSelect) {
+            return;
+        }
+        const selectedTypeId = parseInt(serviceTypeSelect.value, 10);
+        systemServiceSelect.innerHTML = '<option value="">Selecciona servicio</option>';
+        if (!Number.isNaN(selectedTypeId)) {
+            systemServices
+                .filter((service) => Number(service.service_type_id) === selectedTypeId)
+                .forEach((service) => {
+                    const option = document.createElement('option');
+                    option.value = service.id;
+                    option.textContent = service.name;
+                    option.dataset.cost = service.cost;
+                    option.dataset.currency = service.currency;
+                    systemServiceSelect.appendChild(option);
+                });
+        }
+    };
+
+    const applySystemService = () => {
+        if (!systemServiceSelect) {
+            return;
+        }
+        const selected = systemServiceSelect.options[systemServiceSelect.selectedIndex];
+        if (!selected || !selected.value) {
+            return;
+        }
+        if (serviceNameInput && !serviceNameInput.value) {
+            serviceNameInput.value = selected.textContent ?? '';
+        }
+        if (serviceCostInput && !serviceCostInput.value) {
+            serviceCostInput.value = selected.dataset.cost ?? '';
+        }
+        if (currencySelect && selected.dataset.currency) {
+            currencySelect.value = selected.dataset.currency;
+        }
+    };
+
+    serviceTypeSelect?.addEventListener('change', () => {
+        renderSystemServices();
+        if (systemServiceSelect) {
+            systemServiceSelect.value = '';
+        }
+    });
+    systemServiceSelect?.addEventListener('change', applySystemService);
+    renderSystemServices();
 
     const computeDueDate = () => {
         if (!startDateInput?.value || !billingCycleSelect) {

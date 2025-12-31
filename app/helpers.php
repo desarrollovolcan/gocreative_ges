@@ -438,3 +438,20 @@ function can_access_route(Database $db, string $route, ?array $user): bool
     $permissions = role_permissions($db, $roleId);
     return in_array($key, $permissions, true);
 }
+
+function create_notification(Database $db, ?int $companyId, string $title, string $message, string $type = 'info'): void
+{
+    if (!$companyId) {
+        return;
+    }
+    $db->execute(
+        'INSERT INTO notifications (company_id, title, message, type, created_at, updated_at)
+         VALUES (:company_id, :title, :message, :type, NOW(), NOW())',
+        [
+            'company_id' => $companyId,
+            'title' => $title,
+            'message' => $message,
+            'type' => $type,
+        ]
+    );
+}

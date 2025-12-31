@@ -88,6 +88,13 @@ class ClientsController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ];
         $clientId = $this->clients->create($data);
+        create_notification(
+            $this->db,
+            $companyId,
+            'Nuevo cliente',
+            'Se creó el cliente "' . $name . '".',
+            'success'
+        );
         audit($this->db, Auth::user()['id'], 'create', 'clients');
         flash('success', 'Cliente creado correctamente.');
         $this->redirect('index.php?route=clients/edit&id=' . $clientId);

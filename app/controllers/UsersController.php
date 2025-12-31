@@ -85,6 +85,15 @@ class UsersController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         $this->syncUserCompanies($userId, $companyIds);
+        foreach ($companyIds as $assignedCompanyId) {
+            create_notification(
+                $this->db,
+                (int)$assignedCompanyId,
+                'Nuevo usuario',
+                'Se creó el usuario "' . $name . '".',
+                'success'
+            );
+        }
         audit($this->db, Auth::user()['id'], 'create', 'users');
         flash('success', 'Usuario creado correctamente.');
         $this->redirect('index.php?route=users');

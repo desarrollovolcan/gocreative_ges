@@ -66,6 +66,7 @@ class QuotesController extends Controller
         $subtotal = trim($_POST['subtotal'] ?? '');
         $impuestos = trim($_POST['impuestos'] ?? '');
         $total = trim($_POST['total'] ?? '');
+        $numero = trim($_POST['numero'] ?? '');
         $clientId = (int)($_POST['client_id'] ?? 0);
         $client = $this->db->fetch(
             'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
@@ -81,7 +82,7 @@ class QuotesController extends Controller
             'client_id' => $clientId,
             'system_service_id' => $serviceId !== '' ? $serviceId : null,
             'project_id' => $projectId !== '' ? $projectId : null,
-            'numero' => trim($_POST['numero'] ?? ''),
+            'numero' => $numero,
             'fecha_emision' => $issueDate !== '' ? $issueDate : date('Y-m-d'),
             'estado' => $_POST['estado'] ?? 'pendiente',
             'subtotal' => $subtotal !== '' ? $subtotal : 0,
@@ -109,6 +110,13 @@ class QuotesController extends Controller
             ]);
         }
 
+        create_notification(
+            $this->db,
+            $companyId,
+            'Nueva cotización',
+            'Se creó la cotización ' . ($numero !== '' ? $numero : '#' . $quoteId) . '.',
+            'success'
+        );
         audit($this->db, Auth::user()['id'], 'create', 'quotes', $quoteId);
         flash('success', 'Cotización creada correctamente.');
         $this->redirect('index.php?route=quotes');

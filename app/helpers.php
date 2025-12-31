@@ -278,6 +278,7 @@ function render_template_vars(string $html, array $context = []): string
         'fecha_eliminacion' => $context['fecha_eliminacion'] ?? '',
         'link_pago' => $context['link_pago'] ?? '',
         'numero_factura' => $context['numero_factura'] ?? '',
+        'detalle_factura' => $context['detalle_factura'] ?? '',
         'monto_pagado' => $context['monto_pagado'] ?? '',
         'saldo_pendiente' => $context['saldo_pendiente'] ?? '',
         'fecha_pago' => $context['fecha_pago'] ?? '',
@@ -290,6 +291,77 @@ function render_template_vars(string $html, array $context = []): string
     }
 
     return $html;
+}
+
+function build_flow_signature(array $params, string $secretKey): string
+{
+    ksort($params);
+    $pairs = [];
+    foreach ($params as $key => $value) {
+        $pairs[] = $key . '=' . $value;
+    }
+    return hash_hmac('sha256', implode('&', $pairs), $secretKey);
+}
+
+function create_flow_payment_link(array $config, array $payload): ?string
+{
+    $apiKey = trim((string)($config['api_key'] ?? ''));
+    $secretKey = trim((string)($config['secret_key'] ?? ''));
+    $baseUrl = trim((string)($config['base_url'] ?? ''));
+    $returnUrl = trim((string)($config['return_url'] ?? ''));
+    $confirmationUrl = trim((string)($config['confirmation_url'] ?? ''));
+
+    if ($apiKey === '' || $secretKey === '' || $baseUrl === '' || $returnUrl === '' || $confirmationUrl === '') {
+        return null;
+    }
+
+    $params = [
+        'apiKey' => $apiKey,
+        'commerceOrder' => (string)($payload['commerce_order'] ?? ''),
+        'subject' => (string)($payload['subject'] ?? ''),
+        'currency' => (string)($payload['currency'] ?? 'CLP'),
+        'amount' => (string)($payload['amount'] ?? ''),
+        'email' => (string)($payload['email'] ?? ''),
+        'urlReturn' => $returnUrl,
+        'urlConfirmation' => $confirmationUrl,
+    ];
+
+    if ($params['commerceOrder'] === '' || $params['subject'] === '' || $params['amount'] === '' || $params['email'] === '') {
+        return null;
+    }
+
+    $params['s'] = build_flow_signature($params, $secretKey);
+
+    $endpoint = rtrim($baseUrl, '/') . '/api/payment/create';
+    $response = null;
+    $curl = curl_init($endpoint);
+    if ($curl === false) {
+        return null;
+    }
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 15);
+    $response = curl_exec($curl);
+    if ($response === false) {
+        log_message('error', 'Flow payment error: ' . curl_error($curl));
+        curl_close($curl);
+        return null;
+    }
+    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+    if ($status < 200 || $status >= 300) {
+        log_message('error', 'Flow payment error: HTTP ' . $status . ' - ' . $response);
+        return null;
+    }
+
+    $data = json_decode($response, true);
+    if (!is_array($data) || empty($data['url']) || empty($data['token'])) {
+        log_message('error', 'Flow payment error: respuesta inválida ' . $response);
+        return null;
+    }
+
+    return $data['url'] . '?token=' . $data['token'];
 }
 
 function permission_catalog(): array

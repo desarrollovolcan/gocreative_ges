@@ -198,13 +198,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Pagos pendientes</span>
                                 </a>
                             </li>
-                            <?php if ($hasCompany && $hasPermission('online_payments_config_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=maintainers/online-payments" class="side-nav-link">
-                                        <span class="menu-text">Configuración Flow</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
                         </ul>
                     </div>
                 </li>
@@ -276,21 +269,9 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                             <?php endif; ?>
                             <?php if ($hasPermission('companies_view')): ?>
                                 <li class="side-nav-item">
-                                    <a data-bs-toggle="collapse" href="#sidebarMaintainersCompanies" aria-expanded="false" aria-controls="sidebarMaintainersCompanies" class="side-nav-link">
-                                        <span class="menu-text">Empresa</span>
-                                        <span class="menu-arrow"></span>
+                                    <a href="index.php?route=companies" class="side-nav-link">
+                                        <span class="menu-text">Empresas</span>
                                     </a>
-                                    <div class="collapse" id="sidebarMaintainersCompanies">
-                                        <ul class="sub-menu">
-                                            <?php if ($hasPermission('companies_edit')): ?>
-                                                <li class="side-nav-item">
-                                                    <a href="index.php?route=companies/create" class="side-nav-link">
-                                                        <span class="menu-text">Crear empresa</span>
-                                                    </a>
-                                                </li>
-                                            <?php endif; ?>
-                                        </ul>
-                                    </div>
                                 </li>
                             <?php endif; ?>
                             <?php if ($hasCompany && $hasPermission('settings_view')): ?>
@@ -298,15 +279,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <a href="index.php?route=settings" class="side-nav-link">
                                         <span class="menu-text">Configuraciones</span>
                                     </a>
-                                    <div class="collapse" id="sidebarMaintainersCompanies">
-                                        <ul class="sub-menu">
-                                            <li class="side-nav-item">
-                                                <a href="index.php?route=companies/create" class="side-nav-link">
-                                                    <span class="menu-text">Crear empresa</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
                                 </li>
                             <?php endif; ?>
                             <?php if ($hasCompany && $hasPermission('email_config_view')): ?>
@@ -323,11 +295,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     </a>
                                 </li>
                             <?php endif; ?>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=maintainers/email-config" class="side-nav-link">
-                                    <span class="menu-text">Configuración de correo</span>
-                                </a>
-                            </li>
                         </ul>
                     </div>
                 </li>

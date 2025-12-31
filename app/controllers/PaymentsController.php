@@ -6,11 +6,6 @@ class PaymentsController extends Controller
     {
         $this->requireLogin();
         $companyId = current_company_id();
-        $settings = new SettingsModel($this->db);
-        $flowConfig = $settings->get('flow_payment_config', []);
-        if (!is_array($flowConfig)) {
-            $flowConfig = [];
-        }
         $invoices = $this->db->fetchAll(
             'SELECT invoices.id,
                     MAX(invoices.numero) as numero,
@@ -35,7 +30,6 @@ class PaymentsController extends Controller
             'title' => 'Botones de pago',
             'pageTitle' => 'Botones de pago',
             'invoices' => $invoices,
-            'flowConfig' => $flowConfig,
         ]);
     }
 

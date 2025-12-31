@@ -2,6 +2,11 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4 class="card-title mb-0">Factura <?php echo e($invoice['numero']); ?></h4>
         <div class="d-flex gap-2 align-items-center">
+            <form method="post" action="index.php?route=invoices/send-email" class="d-inline">
+                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                <input type="hidden" name="invoice_id" value="<?php echo (int)$invoice['id']; ?>">
+                <button type="submit" class="btn btn-outline-success btn-sm">Enviar factura por correo</button>
+            </form>
             <a href="index.php?route=invoices/details&id=<?php echo $invoice['id']; ?>" class="btn btn-outline-primary btn-sm">Ver factura</a>
             <span class="badge bg-<?php echo $invoice['estado'] === 'pagada' ? 'success' : ($invoice['estado'] === 'vencida' ? 'danger' : 'warning'); ?>-subtle text-<?php echo $invoice['estado'] === 'pagada' ? 'success' : ($invoice['estado'] === 'vencida' ? 'danger' : 'warning'); ?>">
                 <?php echo e($invoice['estado']); ?>

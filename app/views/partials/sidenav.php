@@ -166,14 +166,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccess('settings')): ?>
-                <li class="side-nav-item">
-                    <a href="index.php?route=settings" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="settings"></i></span>
-                        <span class="menu-text">Configuración</span>
-                    </a>
-                </li>
-            <?php endif; ?>
             <?php if ($canAccess('maintainers')): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarMaintainers" aria-expanded="false" aria-controls="sidebarMaintainers" class="side-nav-link">

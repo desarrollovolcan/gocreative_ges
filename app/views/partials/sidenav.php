@@ -34,13 +34,28 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
         <?php
         $isAdmin = ($currentUser['role'] ?? '') === 'admin';
         $hasCompany = !empty($currentCompany['id']);
-        $canAccess = static function (string $key) use ($permissions, $isAdmin): bool {
-            return $isAdmin || in_array($key, $permissions ?? [], true);
+        $hasPermission = static function (string $key) use ($permissions, $isAdmin): bool {
+            if ($isAdmin) {
+                return true;
+            }
+            if (in_array($key, $permissions ?? [], true)) {
+                return true;
+            }
+            $legacyKey = permission_legacy_key_for($key);
+            return $legacyKey ? in_array($legacyKey, $permissions ?? [], true) : false;
+        };
+        $canAccessAny = static function (array $keys) use ($hasPermission): bool {
+            foreach ($keys as $key) {
+                if ($hasPermission($key)) {
+                    return true;
+                }
+            }
+            return false;
         };
         ?>
         <ul class="side-nav">
             <li class="side-nav-title mt-2">Menú</li>
-            <?php if ($hasCompany && $canAccess('dashboard')): ?>
+            <?php if ($hasCompany && $hasPermission('dashboard_view')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=dashboard" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="circle-gauge"></i></span>
@@ -48,7 +63,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccess('crm')): ?>
+            <?php if ($hasCompany && $hasPermission('crm_view')): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrm" aria-expanded="false" aria-controls="sidebarCrm" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="handshake"></i></span>
@@ -71,7 +86,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </div>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccess('clients')): ?>
+            <?php if ($hasCompany && $hasPermission('clients_view')): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarClients" aria-expanded="false" aria-controls="sidebarClients" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="users"></i></span>
@@ -85,7 +100,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Listado</span>
                                 </a>
                             </li>
-                            <?php if ($canAccess('tickets')): ?>
+                            <?php if ($hasPermission('tickets_view')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=tickets" class="side-nav-link">
                                         <span class="menu-text">Tickets</span>
@@ -96,7 +111,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </div>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccess('projects')): ?>
+            <?php if ($hasCompany && $hasPermission('projects_view')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=projects" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="folder"></i></span>
@@ -104,7 +119,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccess('services')): ?>
+            <?php if ($hasCompany && $canAccessAny(['services_view', 'services_edit', 'system_services_view', 'system_services_edit', 'service_types_view', 'service_types_edit'])): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarServices" aria-expanded="false" aria-controls="sidebarServices" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="server"></i></span>
@@ -118,17 +133,21 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Listado servicios</span>
                                 </a>
                             </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=services/create" class="side-nav-link">
-                                    <span class="menu-text">Asignar servicio a cliente</span>
-                                </a>
-                            </li>
-                            <?php if ($canAccess('maintainers')): ?>
+                            <?php if ($hasPermission('services_edit')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=services/create" class="side-nav-link">
+                                        <span class="menu-text">Asignar servicio a cliente</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('system_services_edit')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=maintainers/services/create" class="side-nav-link">
                                         <span class="menu-text">Crear servicio</span>
                                     </a>
                                 </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('service_types_edit')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=maintainers/service-types/create" class="side-nav-link">
                                         <span class="menu-text">Crear tipo de servicio</span>
@@ -139,7 +158,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </div>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccess('quotes')): ?>
+            <?php if ($hasCompany && $hasPermission('quotes_view')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=quotes" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="clipboard-list"></i></span>
@@ -147,7 +166,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccess('invoices')): ?>
+            <?php if ($hasCompany && $hasPermission('invoices_view')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=invoices" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="file-text"></i></span>
@@ -155,7 +174,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccess('email_templates')): ?>
+            <?php if ($hasCompany && $hasPermission('email_templates_view')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=email-templates" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="mail"></i></span>
@@ -163,7 +182,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccess('email_queue')): ?>
+            <?php if ($hasCompany && $hasPermission('email_queue_view')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=email-queue" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="send"></i></span>
@@ -171,7 +190,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccess('maintainers')): ?>
+            <?php if ($canAccessAny(['users_view', 'roles_view', 'users_companies_view', 'users_permissions_view', 'companies_view', 'settings_view', 'email_config_view', 'system_services_view', 'service_types_view'])): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarMaintainers" aria-expanded="false" aria-controls="sidebarMaintainers" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="database"></i></span>
@@ -180,7 +199,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                     <div class="collapse" id="sidebarMaintainers">
                         <ul class="sub-menu">
-                            <?php if ($canAccess('users')): ?>
+                            <?php if ($canAccessAny(['users_view', 'users_edit', 'roles_view', 'users_companies_view', 'users_permissions_view'])): ?>
                                 <li class="side-nav-item">
                                     <a data-bs-toggle="collapse" href="#sidebarMaintainersUsers" aria-expanded="false" aria-controls="sidebarMaintainersUsers" class="side-nav-link">
                                         <span class="menu-text">Usuarios</span>
@@ -188,26 +207,28 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     </a>
                                     <div class="collapse" id="sidebarMaintainersUsers">
                                         <ul class="sub-menu">
-                                            <li class="side-nav-item">
-                                                <a href="index.php?route=users" class="side-nav-link">
-                                                    <span class="menu-text">Listado usuarios</span>
-                                                </a>
-                                            </li>
-                                            <?php if ($canAccess('users_permissions')): ?>
+                                            <?php if ($hasPermission('users_view')): ?>
+                                                <li class="side-nav-item">
+                                                    <a href="index.php?route=users" class="side-nav-link">
+                                                        <span class="menu-text">Listado usuarios</span>
+                                                    </a>
+                                                </li>
+                                            <?php endif; ?>
+                                            <?php if ($hasPermission('users_permissions_view')): ?>
                                                 <li class="side-nav-item">
                                                     <a href="index.php?route=users/permissions" class="side-nav-link">
                                                         <span class="menu-text">Roles y permisos</span>
                                                     </a>
                                                 </li>
                                             <?php endif; ?>
-                                            <?php if ($canAccess('roles')): ?>
+                                            <?php if ($hasPermission('roles_view')): ?>
                                                 <li class="side-nav-item">
                                                     <a href="index.php?route=roles" class="side-nav-link">
                                                         <span class="menu-text">Roles</span>
                                                     </a>
                                                 </li>
                                             <?php endif; ?>
-                                            <?php if ($canAccess('users_companies')): ?>
+                                            <?php if ($hasPermission('users_companies_view')): ?>
                                                 <li class="side-nav-item">
                                                     <a href="index.php?route=users/assign-company" class="side-nav-link">
                                                         <span class="menu-text">Asignar empresa</span>
@@ -218,7 +239,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     </div>
                                 </li>
                             <?php endif; ?>
-                            <?php if ($canAccess('companies')): ?>
+                            <?php if ($hasPermission('companies_view')): ?>
                                 <li class="side-nav-item">
                                     <a data-bs-toggle="collapse" href="#sidebarMaintainersCompanies" aria-expanded="false" aria-controls="sidebarMaintainersCompanies" class="side-nav-link">
                                         <span class="menu-text">Empresa</span>
@@ -226,16 +247,18 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     </a>
                                     <div class="collapse" id="sidebarMaintainersCompanies">
                                         <ul class="sub-menu">
-                                            <li class="side-nav-item">
-                                                <a href="index.php?route=companies/create" class="side-nav-link">
-                                                    <span class="menu-text">Crear empresa</span>
-                                                </a>
-                                            </li>
+                                            <?php if ($hasPermission('companies_edit')): ?>
+                                                <li class="side-nav-item">
+                                                    <a href="index.php?route=companies/create" class="side-nav-link">
+                                                        <span class="menu-text">Crear empresa</span>
+                                                    </a>
+                                                </li>
+                                            <?php endif; ?>
                                         </ul>
                                     </div>
                                 </li>
                             <?php endif; ?>
-                            <?php if ($hasCompany && $canAccess('settings')): ?>
+                            <?php if ($hasCompany && $hasPermission('settings_view')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=settings" class="side-nav-link">
                                         <span class="menu-text">Configuraciones</span>
@@ -251,7 +274,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     </div>
                                 </li>
                             <?php endif; ?>
-                            <?php if ($hasCompany): ?>
+                            <?php if ($hasCompany && $hasPermission('email_config_view')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=maintainers/email-config" class="side-nav-link">
                                         <span class="menu-text">Configuración de correo</span>

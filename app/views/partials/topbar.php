@@ -8,7 +8,18 @@ $userAvatar = $currentUser['avatar_path'] ?? '';
 $userInitials = trim((string)($currentUser['name'] ?? 'U'));
 $userInitials = $userInitials !== '' ? strtoupper(mb_substr($userInitials, 0, 1)) : 'U';
 $isAdmin = ($currentUser['role'] ?? '') === 'admin';
-$canSwitchCompany = $isAdmin || in_array('company_switch', $permissions ?? [], true);
+$hasPermission = static function (string $key) use ($permissions, $isAdmin): bool {
+    if ($isAdmin) {
+        return true;
+    }
+    if (in_array($key, $permissions ?? [], true)) {
+        return true;
+    }
+    $legacyKey = permission_legacy_key_for($key);
+    return $legacyKey ? in_array($legacyKey, $permissions ?? [], true) : false;
+};
+$canSwitchCompany = $hasPermission('company_switch_view');
+$canViewSettings = $hasPermission('settings_view');
 $userCompanies = $canSwitchCompany ? user_company_ids($db, $currentUser) : [];
 $hasMultipleCompanies = count($userCompanies) > 1;
 $portalBaseUrl = rtrim($config['app']['base_url'] ?? '', '/');
@@ -118,9 +129,11 @@ $portalLoginUrl = $portalBaseUrl !== '' ? $portalBaseUrl . '/' . $portalLoginPat
                         <a href="index.php?route=dashboard" class="dropdown-item">
                             <i class="ti ti-layout-dashboard me-2"></i> Dashboard
                         </a>
-                        <a href="index.php?route=settings" class="dropdown-item">
-                            <i class="ti ti-settings me-2"></i> Configuración
-                        </a>
+                        <?php if ($canViewSettings): ?>
+                            <a href="index.php?route=settings" class="dropdown-item">
+                                <i class="ti ti-settings me-2"></i> Configuración
+                            </a>
+                        <?php endif; ?>
                         <?php if ($canSwitchCompany && $hasMultipleCompanies): ?>
                             <a href="index.php?route=auth/switch-company" class="dropdown-item">
                                 <i class="ti ti-building me-2"></i> Cambiar empresa

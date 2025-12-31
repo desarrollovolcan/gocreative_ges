@@ -535,32 +535,32 @@
 
                                         <div class="col-md-6">
                                             <label for="leadName" class="form-label">Lead Name</label>
-                                            <input type="text" class="form-control" id="leadName" placeholder="Enter lead name" required>
+                                            <input type="text" class="form-control" id="leadName" name="lead_name" placeholder="Enter lead name" autocomplete="name" data-crm-key="contact_name" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="companyName" class="form-label">Company</label>
-                                            <input type="text" class="form-control" id="companyName" placeholder="Enter company name" required>
+                                            <input type="text" class="form-control" id="companyName" name="company" placeholder="Enter company name" autocomplete="organization" data-crm-key="company" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+                                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" autocomplete="email" inputmode="email" data-crm-key="email" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="phone" class="form-label">Phone</label>
-                                            <input type="tel" class="form-control" id="phone" placeholder="+1 234-567-8910">
+                                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="+1 234-567-8910" autocomplete="tel" inputmode="tel" data-crm-key="phone">
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="amount" class="form-label">Amount (USD)</label>
-                                            <input type="number" class="form-control" id="amount" placeholder="e.g. 50000">
+                                            <input type="number" class="form-control" id="amount" name="amount" placeholder="e.g. 50000" inputmode="decimal">
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="Leadstatus" class="form-label">Status</label>
-                                            <select class="form-select" id="Leadstatus">
+                                            <select class="form-select" id="Leadstatus" name="status">
                                                 <option value="">Select status</option>
                                                 <option>In Progress</option>
                                                 <option>Proposal Sent</option>
@@ -573,7 +573,7 @@
 
                                         <div class="col-md-6">
                                             <label for="assignedTo" class="form-label">Assign To</label>
-                                            <select class="form-select" id="assignedTo">
+                                            <select class="form-select" id="assignedTo" name="assigned_to">
                                                 <option value="">Select user</option>
                                                 <option value="1">Emily Carter</option>
                                                 <option value="2">Rohan Iyer</option>
@@ -585,9 +585,9 @@
                                     </div>
                                 </div>
 
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Save Lead</button>
+                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
+                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Save Lead</button>
                                 </div>
                             </form>
 
@@ -616,6 +616,7 @@
 
     <!-- Custom table -->
     <script src="assets/js/pages/custom-table.js"></script>
+    <script src="assets/js/pages/crm-forms.js"></script>
 
 </body>
 

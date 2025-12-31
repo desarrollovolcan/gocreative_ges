@@ -167,7 +167,14 @@ class ProjectsController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
-        $this->projects->create($data);
+        $projectId = $this->projects->create($data);
+        create_notification(
+            $this->db,
+            $companyId,
+            'Nuevo proyecto',
+            'Se creó el proyecto "' . $data['name'] . '".',
+            'success'
+        );
         audit($this->db, Auth::user()['id'], 'create', 'projects');
         flash('success', 'Proyecto creado correctamente.');
         $this->redirect('index.php?route=projects');

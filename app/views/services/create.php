@@ -145,6 +145,40 @@
     </div>
 </div>
 
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title mb-0">Servicios de catálogo</h4>
+    </div>
+    <div class="card-body">
+        <?php if (empty($systemServices)): ?>
+            <p class="text-muted mb-0">No hay servicios de catálogo registrados.</p>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th class="text-end">Costo</th>
+                            <th>Moneda</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($systemServices as $systemService): ?>
+                            <tr>
+                                <td><?php echo e($systemService['name']); ?></td>
+                                <td><?php echo e($systemService['type_name']); ?></td>
+                                <td class="text-end"><?php echo e(format_currency((float)($systemService['cost'] ?? 0))); ?></td>
+                                <td><?php echo e($systemService['currency'] ?? 'CLP'); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
 <script>
     const billingCycleSelect = document.querySelector('[data-billing-cycle]');
     const startDateInput = document.querySelector('[data-start-date]');

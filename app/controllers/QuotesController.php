@@ -39,12 +39,7 @@ class QuotesController extends Controller
             $this->redirect('index.php?route=auth/switch-company');
         }
         $clients = $this->clients->active($companyId);
-        try {
-            $services = $this->services->popularHostingAndDomain($companyId, 10);
-        } catch (PDOException $e) {
-            log_message('error', 'Failed to load system services for quotes: ' . $e->getMessage());
-            $services = [];
-        }
+        $services = $this->services->allWithType($companyId);
         $projects = $this->db->fetchAll(
             'SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL AND projects.company_id = :company_id ORDER BY projects.id DESC',
             ['company_id' => $companyId]
@@ -193,12 +188,7 @@ class QuotesController extends Controller
         }
         $items = (new QuoteItemsModel($this->db))->byQuote($id);
         $clients = $this->clients->active($companyId);
-        try {
-            $services = $this->services->popularHostingAndDomain($companyId, 10);
-        } catch (PDOException $e) {
-            log_message('error', 'Failed to load system services for quotes edit: ' . $e->getMessage());
-            $services = [];
-        }
+        $services = $this->services->allWithType($companyId);
         $projects = $this->db->fetchAll(
             'SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL AND projects.company_id = :company_id ORDER BY projects.id DESC',
             ['company_id' => $companyId]

@@ -81,9 +81,9 @@
                             <div class="d-flex align-items-center gap-2">
                                 <select class="form-select form-select-sm py-1" data-service-item-select>
                                     <option value="">Selecciona servicio</option>
-                                    <?php foreach ($services as $service): ?>
+                                    <?php foreach ($catalogServices as $service): ?>
                                         <option value="<?php echo $service['id']; ?>" data-service-price="<?php echo e($service['cost'] ?? 0); ?>">
-                                            <?php echo e($service['name']); ?>
+                                            <?php echo e($service['name']); ?> (<?php echo e($service['type_name']); ?>)
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

@@ -5,6 +5,7 @@ class InvoicesController extends Controller
     private InvoicesModel $invoices;
     private ClientsModel $clients;
     private ServicesModel $services;
+    private SystemServicesModel $systemServices;
 
     public function __construct(array $config, Database $db)
     {
@@ -12,6 +13,7 @@ class InvoicesController extends Controller
         $this->invoices = new InvoicesModel($db);
         $this->clients = new ClientsModel($db);
         $this->services = new ServicesModel($db);
+        $this->systemServices = new SystemServicesModel($db);
     }
 
     public function index(): void
@@ -30,7 +32,7 @@ class InvoicesController extends Controller
         $this->requireLogin();
         $companyId = current_company_id();
         $clients = $this->clients->active($companyId);
-        $services = $this->services->active($companyId);
+        $catalogServices = $this->systemServices->allWithType($companyId);
         $projects = $this->db->fetchAll(
             'SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL AND projects.company_id = :company_id ORDER BY projects.id DESC',
             ['company_id' => $companyId]
@@ -54,7 +56,7 @@ class InvoicesController extends Controller
             'title' => 'Nueva Factura',
             'pageTitle' => 'Nueva Factura',
             'clients' => $clients,
-            'services' => $services,
+            'catalogServices' => $catalogServices,
             'projects' => $projects,
             'number' => $number,
             'invoiceDefaults' => $invoiceDefaults,
@@ -145,7 +147,7 @@ class InvoicesController extends Controller
         $itemsModel = new InvoiceItemsModel($this->db);
         $items = $itemsModel->byInvoice($id);
         $clients = $this->clients->active($companyId);
-        $services = $this->services->active($companyId);
+        $catalogServices = $this->systemServices->allWithType($companyId);
         $projects = $this->db->fetchAll(
             'SELECT projects.*, clients.name as client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.deleted_at IS NULL AND projects.company_id = :company_id ORDER BY projects.id DESC',
             ['company_id' => $companyId]
@@ -158,7 +160,7 @@ class InvoicesController extends Controller
             'invoice' => $invoice,
             'items' => $items,
             'clients' => $clients,
-            'services' => $services,
+            'catalogServices' => $catalogServices,
             'projects' => $projects,
             'invoiceDefaults' => $invoiceDefaults,
         ]);

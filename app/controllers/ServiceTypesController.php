@@ -36,9 +36,11 @@ class ServiceTypesController extends Controller
             flash('error', 'Selecciona una empresa.');
             $this->redirect('index.php?route=auth/switch-company');
         }
+        $types = $this->serviceTypes->all('company_id = :company_id', ['company_id' => $companyId]);
         $this->render('maintainers/service-types/create', [
             'title' => 'Nuevo tipo de servicio',
             'pageTitle' => 'Nuevo tipo de servicio',
+            'types' => $types,
         ]);
     }
 

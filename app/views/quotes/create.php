@@ -65,7 +65,7 @@ $defaultIssueDate = date('Y-m-d');
                                     <option value="">Selecciona servicio</option>
                                     <?php foreach ($services as $service): ?>
                                         <option value="<?php echo $service['id']; ?>" data-service-price="<?php echo e($service['cost'] ?? 0); ?>">
-                                            <?php echo e($service['name']); ?> (<?php echo e($service['type_name']); ?>)
+                                            <?php echo e($service['name']); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

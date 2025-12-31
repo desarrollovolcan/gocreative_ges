@@ -618,22 +618,22 @@
 
                                         <div class="col-md-6">
                                             <label for="dealName" class="form-label">Deal Name</label>
-                                            <input type="text" class="form-control" id="dealName" placeholder="Enter deal name" required>
+                                            <input type="text" class="form-control" id="dealName" name="deal_name" placeholder="Enter deal name" autocomplete="off" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="companyName" class="form-label">Company</label>
-                                            <input type="text" class="form-control" id="companyName" placeholder="Enter company name" required>
+                                            <input type="text" class="form-control" id="companyName" name="company" placeholder="Enter company name" autocomplete="organization" data-crm-key="company" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="amount" class="form-label">Amount (USD)</label>
-                                            <input type="number" class="form-control" id="amount" placeholder="e.g. 100000" required>
+                                            <input type="number" class="form-control" id="amount" name="amount" placeholder="e.g. 100000" inputmode="decimal" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="stage" class="form-label">Stage</label>
-                                            <select class="form-select" id="stage" required>
+                                            <select class="form-select" id="stage" name="stage" required>
                                                 <option value="">Select stage</option>
                                                 <option value="Qualification">Qualification</option>
                                                 <option value="Proposal Sent">Proposal Sent</option>
@@ -645,20 +645,20 @@
 
                                         <div class="col-md-6">
                                             <label for="probability" class="form-label">Probability (%)</label>
-                                            <input type="number" class="form-control" id="probability" min="0" max="100" placeholder="e.g. 75" required>
+                                            <input type="number" class="form-control" id="probability" name="probability" min="0" max="100" placeholder="e.g. 75" inputmode="decimal" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="closingDate" class="form-label">Expected Closing Date</label>
-                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="closingDate" required>
+                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="closingDate" name="closing_date" required>
                                         </div>
 
                                     </div>
                                 </div>
 
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Save Deal</button>
+                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
+                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Save Deal</button>
                                 </div>
                             </form>
 
@@ -688,6 +688,7 @@
 
     <!-- Custom table -->
     <script src="assets/js/pages/custom-table.js"></script>
+    <script src="assets/js/pages/crm-forms.js"></script>
 
 </body>
 

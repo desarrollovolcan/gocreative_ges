@@ -437,27 +437,27 @@
 
                                         <div class="col-md-6">
                                             <label for="customerName" class="form-label">Customer Name</label>
-                                            <input type="text" class="form-control" id="customerName" placeholder="Enter full name" required>
+                                            <input type="text" class="form-control" id="customerName" name="customer_name" placeholder="Enter full name" autocomplete="name" data-crm-key="contact_name" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="email" class="form-label">Email Address</label>
-                                            <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+                                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" autocomplete="email" inputmode="email" data-crm-key="email" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="phone" class="form-label">Phone Number</label>
-                                            <input type="text" class="form-control" id="phone" placeholder="e.g. +1 234 567 8900" required>
+                                            <input type="text" class="form-control" id="phone" name="phone" placeholder="e.g. +1 234 567 8900" autocomplete="tel" inputmode="tel" data-crm-key="phone" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="company" class="form-label">Company</label>
-                                            <input type="text" class="form-control" id="company" placeholder="Company name">
+                                            <input type="text" class="form-control" id="company" name="company" placeholder="Company name" autocomplete="organization" data-crm-key="company">
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="country" class="form-label">Country</label>
-                                            <select class="form-select" id="country" required>
+                                            <select class="form-select" id="country" name="country" required>
                                                 <option value="">Select country</option>
                                                 <option value="US">United States</option>
                                                 <option value="UK">United Kingdom</option>
@@ -473,7 +473,7 @@
 
                                         <div class="col-md-6">
                                             <label for="customerType" class="form-label">Customer Type</label>
-                                            <select class="form-select" id="customerType" required>
+                                            <select class="form-select" id="customerType" name="customer_type" required>
                                                 <option value="">Select type</option>
                                                 <option value="Lead">Lead</option>
                                                 <option value="Prospect">Prospect</option>
@@ -483,7 +483,7 @@
 
                                         <div class="col-md-6">
                                             <label for="Accostatus" class="form-label">Account Status</label>
-                                            <select class="form-select" id="Accostatus" required>
+                                            <select class="form-select" id="Accostatus" name="account_status" required>
                                                 <option value="">Select status</option>
                                                 <option value="Active">Active</option>
                                                 <option value="Verification Pending">Verification Pending</option>
@@ -494,15 +494,15 @@
 
                                         <div class="col-md-6">
                                             <label for="joinedDate" class="form-label">Joined Date</label>
-                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="joinedDate" required>
+                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="joinedDate" name="joined_date" required>
                                         </div>
 
                                     </div>
                                 </div>
 
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Add Customer</button>
+                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
+                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Add Customer</button>
                                 </div>
                             </form>
 
@@ -530,7 +530,8 @@
     <?php include('partials/footer-scripts.php'); ?>
 
     <!-- Custom table -->
-	<script src="assets/js/pages/custom-table.js"></script>
+    <script src="assets/js/pages/custom-table.js"></script>
+    <script src="assets/js/pages/crm-forms.js"></script>
 
 </body>
 

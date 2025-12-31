@@ -566,27 +566,27 @@
 
                                         <div class="col-md-6">
                                             <label for="proposalID" class="form-label">Proposal ID</label>
-                                            <input type="text" class="form-control" id="proposalID" placeholder="Enter proposal ID (e.g. #PS008120)" required>
+                                            <input type="text" class="form-control" id="proposalID" name="proposal_id" placeholder="Enter proposal ID (e.g. #PS008120)" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="proposalSubject" class="form-label">Subject</label>
-                                            <input type="text" class="form-control" id="proposalSubject" placeholder="Enter proposal subject" required>
+                                            <input type="text" class="form-control" id="proposalSubject" name="proposal_subject" placeholder="Enter proposal subject" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="clientName" class="form-label">Send To (Client)</label>
-                                            <input type="text" class="form-control" id="clientName" placeholder="Enter client name" required>
+                                            <input type="text" class="form-control" id="clientName" name="client_name" placeholder="Enter client name" autocomplete="name" data-crm-key="contact_name" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="proposalValue" class="form-label">Value (USD)</label>
-                                            <input type="number" class="form-control" id="proposalValue" placeholder="e.g. 15000" required>
+                                            <input type="number" class="form-control" id="proposalValue" name="proposal_value" placeholder="e.g. 15000" inputmode="decimal" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="proposalStatus" class="form-label">Status</label>
-                                            <select class="form-select" id="proposalStatus" required>
+                                            <select class="form-select" id="proposalStatus" name="status" required>
                                                 <option value="">Select status</option>
                                                 <option value="Approved">Approved</option>
                                                 <option value="Pending">Pending</option>
@@ -598,25 +598,25 @@
 
                                         <div class="col-md-6">
                                             <label for="proposalTags" class="form-label">Tags</label>
-                                            <input type="text" class="form-control" id="proposalTags" placeholder="e.g. Marketing, Development, Design">
+                                            <input type="text" class="form-control" id="proposalTags" name="tags" placeholder="e.g. Marketing, Development, Design">
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="createdDate" class="form-label">Created Date</label>
-                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="createdDate" required>
+                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="createdDate" name="created_date" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="openTill" class="form-label">Open Till</label>
-                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="openTill" required>
+                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="openTill" name="open_till" required>
                                         </div>
 
                                     </div>
                                 </div>
 
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Save Proposal</button>
+                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
+                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Save Proposal</button>
                                 </div>
                             </form>
 
@@ -647,6 +647,7 @@
 
     <!-- Custom table -->
     <script src="assets/js/pages/custom-table.js"></script>
+    <script src="assets/js/pages/crm-forms.js"></script>
 
 </body>
 

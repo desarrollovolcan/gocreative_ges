@@ -155,7 +155,9 @@
     const serviceCostInput = document.querySelector('input[name="cost"]');
     const currencySelect = document.querySelector('select[name="currency"]');
     const systemServices = <?php echo json_encode($systemServices ?? []); ?>;
+    const selectedSystemServiceId = <?php echo json_encode($selectedSystemServiceId ?? null); ?>;
     let serviceDueDateTouched = Boolean(serviceDueDateInput?.value);
+    let selectedSystemServiceApplied = false;
 
     const renderSystemServices = () => {
         if (!systemServiceSelect || !serviceTypeSelect) {
@@ -174,6 +176,10 @@
                     option.dataset.currency = service.currency;
                     systemServiceSelect.appendChild(option);
                 });
+        }
+        if (selectedSystemServiceId && !selectedSystemServiceApplied) {
+            systemServiceSelect.value = String(selectedSystemServiceId);
+            selectedSystemServiceApplied = true;
         }
     };
 

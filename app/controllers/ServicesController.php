@@ -168,6 +168,18 @@ class ServicesController extends Controller
                 break;
             }
         }
+        $selectedSystemServiceId = null;
+        if ($selectedServiceTypeId !== null && !empty($service['name'])) {
+            foreach ($systemServices as $systemService) {
+                if ((int)($systemService['service_type_id'] ?? 0) !== $selectedServiceTypeId) {
+                    continue;
+                }
+                if (strcasecmp(trim($systemService['name'] ?? ''), trim($service['name'] ?? '')) === 0) {
+                    $selectedSystemServiceId = (int)$systemService['id'];
+                    break;
+                }
+            }
+        }
         $this->render('services/edit', [
             'title' => 'Editar Servicio',
             'pageTitle' => 'Editar Servicio',
@@ -176,6 +188,7 @@ class ServicesController extends Controller
             'serviceTypes' => $serviceTypes,
             'systemServices' => $systemServices,
             'selectedServiceTypeId' => $selectedServiceTypeId,
+            'selectedSystemServiceId' => $selectedSystemServiceId,
         ]);
     }
 

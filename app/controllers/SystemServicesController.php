@@ -39,10 +39,12 @@ class SystemServicesController extends Controller
             $this->redirect('index.php?route=auth/switch-company');
         }
         $types = $this->serviceTypes->all('company_id = :company_id', ['company_id' => $companyId]);
+        $services = $this->services->allWithType($companyId);
         $this->render('maintainers/services/create', [
             'title' => 'Nuevo servicio',
             'pageTitle' => 'Nuevo servicio',
             'types' => $types,
+            'services' => $services,
         ]);
     }
 

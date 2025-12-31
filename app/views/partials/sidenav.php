@@ -120,10 +120,15 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                             </li>
                             <li class="side-nav-item">
                                 <a href="index.php?route=services/create" class="side-nav-link">
-                                    <span class="menu-text">Crear servicio</span>
+                                    <span class="menu-text">Asignar servicio a cliente</span>
                                 </a>
                             </li>
                             <?php if ($canAccess('maintainers')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=maintainers/services/create" class="side-nav-link">
+                                        <span class="menu-text">Crear servicio</span>
+                                    </a>
+                                </li>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=maintainers/service-types/create" class="side-nav-link">
                                         <span class="menu-text">Crear tipo de servicio</span>

@@ -20,17 +20,6 @@
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Servicio origen</label>
-                    <select name="service_id" class="form-select">
-                        <option value="">Sin servicio</option>
-                        <?php foreach ($services as $service): ?>
-                            <option value="<?php echo $service['id']; ?>" <?php echo (int)($selectedServiceId ?? 0) === (int)$service['id'] ? 'selected' : ''; ?>>
-                                <?php echo e($service['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-4 mb-3">
                     <label class="form-label">Proyecto origen</label>
                     <select name="project_id" class="form-select">
                         <option value="">Sin proyecto</option>
@@ -65,6 +54,9 @@
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Fecha vencimiento</label>
                     <input type="date" name="fecha_vencimiento" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+                    <div class="mt-2">
+                        <span class="badge" data-due-indicator>Sin fecha</span>
+                    </div>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Estado</label>
@@ -75,28 +67,6 @@
                         <option value="anulada">Anulada</option>
                     </select>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">Subtotal</label>
-                    <input type="number" step="0.01" name="subtotal" class="form-control" value="0" data-subtotal>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">Impuestos</label>
-                    <input type="number" step="0.01" name="impuestos" class="form-control" value="0" data-impuestos readonly>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">Total</label>
-                    <input type="number" step="0.01" name="total" class="form-control" value="0" data-total readonly>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">Impuesto (%)</label>
-                    <input type="number" step="0.01" name="tax_rate" class="form-control" value="<?php echo e($invoiceDefaults['tax_rate'] ?? 0); ?>" data-tax-rate>
-                </div>
-                <div class="col-md-3 mb-3 d-flex align-items-center">
-                    <div class="form-check mt-3">
-                        <input class="form-check-input" type="checkbox" name="apply_tax_display" id="apply_tax_display" <?php echo !empty($invoiceDefaults['apply_tax']) ? 'checked' : ''; ?> data-apply-tax>
-                        <label class="form-check-label" for="apply_tax_display">Aplicar impuesto</label>
-                    </div>
-                </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Notas</label>
                     <textarea name="notas" class="form-control" rows="3"></textarea>
@@ -106,7 +76,20 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Items de factura</h5>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" data-add-item>Agregar item</button>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-add-manual-item>Agregar item manual</button>
+                            <div class="d-flex gap-2 align-items-center">
+                                <select class="form-select form-select-sm" data-service-item-select>
+                                    <option value="">Selecciona servicio</option>
+                                    <?php foreach ($services as $service): ?>
+                                        <option value="<?php echo $service['id']; ?>" data-service-price="<?php echo e($service['cost'] ?? 0); ?>">
+                                            <?php echo e($service['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-add-service-item>Agregar servicio</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -140,6 +123,30 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Impuesto (%)</label>
+                    <input type="number" step="0.01" name="tax_rate" class="form-control" value="<?php echo e($invoiceDefaults['tax_rate'] ?? 0); ?>" data-tax-rate>
+                </div>
+                <div class="col-md-3 mb-3 d-flex align-items-center">
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" name="apply_tax_display" id="apply_tax_display" <?php echo !empty($invoiceDefaults['apply_tax']) ? 'checked' : ''; ?> data-apply-tax>
+                        <label class="form-check-label" for="apply_tax_display">Aplicar impuesto</label>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Subtotal</label>
+                    <input type="number" step="0.01" name="subtotal" class="form-control" value="0" data-subtotal readonly>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Impuestos</label>
+                    <input type="number" step="0.01" name="impuestos" class="form-control" value="0" data-impuestos readonly>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Total</label>
+                    <input type="number" step="0.01" name="total" class="form-control" value="0" data-total readonly>
+                </div>
+            </div>
             <div class="d-flex justify-content-end gap-2">
                 <a href="index.php?route=invoices" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Guardar</button>
@@ -154,9 +161,13 @@
     const totalInput = document.querySelector('[data-total]');
     const taxRateInput = document.querySelector('[data-tax-rate]');
     const applyTaxCheckbox = document.querySelector('[data-apply-tax]');
-    const addItemButton = document.querySelector('[data-add-item]');
+    const addManualItemButton = document.querySelector('[data-add-manual-item]');
+    const addServiceItemButton = document.querySelector('[data-add-service-item]');
+    const serviceItemSelect = document.querySelector('[data-service-item-select]');
     const projectSelect = document.querySelector('select[name="project_id"]');
     const clientSelect = document.querySelector('select[name="client_id"]');
+    const dueDateInput = document.querySelector('input[name="fecha_vencimiento"]');
+    const dueIndicator = document.querySelector('[data-due-indicator]');
 
     const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
@@ -205,12 +216,12 @@
     };
 
     document.addEventListener('input', (event) => {
-        if (event.target?.matches('[data-item-qty], [data-item-price]')) {
+        if (event.target?.matches('[data-item-qty], [data-item-price], [data-item-tax-rate]')) {
             updateFromItems();
         }
     });
 
-    addItemButton?.addEventListener('click', () => {
+    const addItemRow = ({ description = '', price = 0 } = {}) => {
         const rows = document.querySelectorAll('[data-item-row]');
         const index = rows.length;
         const row = document.createElement('div');
@@ -219,13 +230,13 @@
         const defaultTaxRate = Number(taxRateInput?.value || 0);
         row.innerHTML = `
             <div class="col-md-3">
-                <input type="text" name="items[${index}][descripcion]" class="form-control" placeholder="Descripción" data-item-description>
+                <input type="text" name="items[${index}][descripcion]" class="form-control" placeholder="Descripción" data-item-description value="${description}">
             </div>
             <div class="col-md-2">
                 <input type="number" name="items[${index}][cantidad]" class="form-control" value="1" data-item-qty>
             </div>
             <div class="col-md-2">
-                <input type="number" name="items[${index}][precio_unitario]" class="form-control" value="0" data-item-price>
+                <input type="number" name="items[${index}][precio_unitario]" class="form-control" value="${formatNumber(price).toFixed(2)}" data-item-price>
             </div>
             <div class="col-md-2">
                 <input type="number" name="items[${index}][impuesto_pct]" class="form-control" value="${defaultTaxRate}" data-item-tax-rate>
@@ -238,9 +249,24 @@
             </div>
         `;
         rows[rows.length - 1]?.after(row);
+        updateFromItems();
+    };
+
+    addManualItemButton?.addEventListener('click', () => {
+        addItemRow();
     });
-    subtotalInput?.addEventListener('input', updateTotals);
-    taxRateInput?.addEventListener('input', updateTotals);
+
+    addServiceItemButton?.addEventListener('click', () => {
+        const selected = serviceItemSelect?.selectedOptions?.[0];
+        if (!selected || !selected.value) {
+            return;
+        }
+        addItemRow({
+            description: selected.textContent?.trim() || '',
+            price: Number(selected.dataset.servicePrice || 0),
+        });
+        serviceItemSelect.value = '';
+    });
 
     const fillFromProject = () => {
         const selected = projectSelect?.selectedOptions?.[0];
@@ -289,9 +315,40 @@
         updateFromItems();
     });
 
+    const updateDueIndicator = () => {
+        if (!dueDateInput || !dueIndicator) {
+            return;
+        }
+        const dueDate = new Date(dueDateInput.value);
+        if (Number.isNaN(dueDate.getTime())) {
+            dueIndicator.textContent = 'Sin fecha';
+            dueIndicator.className = 'badge';
+            return;
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        dueDate.setHours(0, 0, 0, 0);
+        const diffDays = Math.round((dueDate - today) / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) {
+            dueIndicator.textContent = `Vencida hace ${Math.abs(diffDays)} días`;
+            dueIndicator.className = 'badge bg-danger';
+            return;
+        }
+        if (diffDays <= 10) {
+            dueIndicator.textContent = `Vence en ${diffDays} días`;
+            dueIndicator.className = 'badge bg-warning text-dark';
+            return;
+        }
+        dueIndicator.textContent = `Vence en ${diffDays} días`;
+        dueIndicator.className = 'badge bg-success';
+    };
+
+    dueDateInput?.addEventListener('change', updateDueIndicator);
+
     <?php if (!empty($selectedProjectId)): ?>
     fillFromProject();
     <?php endif; ?>
 
     updateFromItems();
+    updateDueIndicator();
 </script>

@@ -7,6 +7,9 @@
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="id" value="<?php echo (int)($role['id'] ?? 0); ?>">
             <div class="mb-3">
+                <?php echo render_id_badge($role['id'] ?? null); ?>
+            </div>
+            <div class="mb-3">
                 <label class="form-label">Nombre del rol</label>
                 <input type="text" name="name" class="form-control" value="<?php echo e($role['name'] ?? ''); ?>" required>
             </div>

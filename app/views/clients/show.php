@@ -2,7 +2,11 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="mb-2"><?php echo e($client['name'] ?? ''); ?></h5>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <h5 class="mb-0"><?php echo e($client['name'] ?? ''); ?></h5>
+                    <?php echo render_id_badge($client['id'] ?? null); ?>
+                </div>
+                <p class="mb-1"><strong>ID:</strong> <?php echo render_id_badge($client['id'] ?? null); ?></p>
                 <p class="mb-1"><strong>Email:</strong> <?php echo e($client['email'] ?? '-'); ?></p>
                 <p class="mb-1"><strong>Teléfono:</strong> <?php echo e($client['phone'] ?? '-'); ?></p>
                 <p class="mb-1"><strong>Contacto:</strong> <?php echo e($client['contact'] ?? '-'); ?></p>
@@ -46,7 +50,10 @@
                     <?php foreach ($services as $service): ?>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <a href="index.php?route=services/show&id=<?php echo (int)$service['id']; ?>" class="link-reset">
-                                <?php echo e($service['name']); ?>
+                                <div class="d-flex flex-column gap-1">
+                                    <?php echo render_id_badge($service['id'] ?? null); ?>
+                                    <span><?php echo e($service['name']); ?></span>
+                                </div>
                             </a>
                             <span class="badge bg-info-subtle text-info"><?php echo e($service['service_type']); ?></span>
                         </li>
@@ -63,7 +70,10 @@
                     <?php foreach ($invoices as $invoice): ?>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <a href="index.php?route=invoices/show&id=<?php echo (int)$invoice['id']; ?>" class="link-reset">
-                                <?php echo e($invoice['numero']); ?>
+                                <div class="d-flex flex-column gap-1">
+                                    <?php echo render_id_badge($invoice['id'] ?? null); ?>
+                                    <span><?php echo e($invoice['numero']); ?></span>
+                                </div>
                             </a>
                             <span class="badge bg-secondary-subtle text-secondary"><?php echo e($invoice['estado']); ?></span>
                         </li>

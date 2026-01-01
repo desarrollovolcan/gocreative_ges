@@ -11,6 +11,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Brief</th>
                         <th>Cliente</th>
                         <th>Servicio</th>
@@ -27,6 +28,7 @@
                     <?php else: ?>
                         <?php foreach ($briefs as $brief): ?>
                             <tr>
+                                <td class="text-muted"><?php echo render_id_badge($brief['id'] ?? null); ?></td>
                                 <td><?php echo e($brief['title']); ?></td>
                                 <td><?php echo e($brief['client_name'] ?? ''); ?></td>
                                 <td><?php echo e($brief['service_summary'] ?? ''); ?></td>

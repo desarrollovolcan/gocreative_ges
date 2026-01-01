@@ -1,6 +1,9 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h4 class="card-title mb-0">Cotización <?php echo e($quote['numero']); ?></h4>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <h4 class="card-title mb-0">Cotización <?php echo e($quote['numero']); ?></h4>
+            <?php echo render_id_badge($quote['id'] ?? null); ?>
+        </div>
         <div class="d-flex gap-2">
             <a href="index.php?route=quotes/print&id=<?php echo $quote['id']; ?>" class="btn btn-outline-primary btn-sm" target="_blank">Imprimir</a>
             <a href="index.php?route=quotes" class="btn btn-light btn-sm">Volver</a>
@@ -9,6 +12,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-6">
+                <p><strong>ID:</strong> <?php echo render_id_badge($quote['id'] ?? null); ?></p>
                 <p><strong>Cliente:</strong> <?php echo e($client['name'] ?? ''); ?></p>
                 <p><strong>Emisión:</strong> <?php echo e($quote['fecha_emision']); ?></p>
                 <p><strong>Estado:</strong> <?php echo e($quote['estado']); ?></p>

@@ -1,7 +1,10 @@
 <div class="card">
     <div class="card-header">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <h4 class="card-title mb-0"><?php echo e($project['name']); ?></h4>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <h4 class="card-title mb-0"><?php echo e($project['name']); ?></h4>
+                <?php echo render_id_badge($project['id'] ?? null); ?>
+            </div>
             <div class="d-flex flex-wrap gap-2">
                 <a href="index.php?route=quotes/create&project_id=<?php echo (int)$project['id']; ?>" class="btn btn-outline-primary btn-sm">Nueva cotización</a>
                 <a href="index.php?route=invoices/create&project_id=<?php echo (int)$project['id']; ?>" class="btn btn-outline-success btn-sm">Crear factura</a>
@@ -11,6 +14,9 @@
     </div>
     <div class="card-body">
         <p class="text-muted"><?php echo e($project['description']); ?></p>
+        <div class="row mb-2">
+            <div class="col-md-4"><strong>ID:</strong> <?php echo render_id_badge($project['id'] ?? null); ?></div>
+        </div>
         <div class="row">
             <div class="col-md-4"><strong>Estado:</strong> <?php echo e($project['status']); ?></div>
             <div class="col-md-4"><strong>Inicio:</strong> <?php echo e($project['start_date']); ?></div>
@@ -38,7 +44,10 @@
                     <ul class="list-group">
                         <?php foreach ($invoices as $invoice): ?>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <?php echo e($invoice['numero']); ?>
+                                <div class="d-flex flex-column gap-1">
+                                    <?php echo render_id_badge($invoice['id'] ?? null); ?>
+                                    <span><?php echo e($invoice['numero']); ?></span>
+                                </div>
                                 <span class="badge bg-secondary-subtle text-secondary"><?php echo e($invoice['estado']); ?></span>
                             </li>
                         <?php endforeach; ?>
@@ -60,7 +69,10 @@
                     <ul class="list-group">
                         <?php foreach ($quotes as $quote): ?>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <?php echo e($quote['numero']); ?>
+                                <div class="d-flex flex-column gap-1">
+                                    <?php echo render_id_badge($quote['id'] ?? null); ?>
+                                    <span><?php echo e($quote['numero']); ?></span>
+                                </div>
                                 <span class="badge bg-info-subtle text-info"><?php echo e($quote['estado']); ?></span>
                             </li>
                         <?php endforeach; ?>
@@ -84,7 +96,10 @@
                         <ul class="list-group">
                             <?php foreach (array_slice($services, 0, 3) as $service): ?>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <?php echo e($service['name']); ?>
+                                    <div class="d-flex flex-column gap-1">
+                                        <?php echo render_id_badge($service['id'] ?? null); ?>
+                                        <span><?php echo e($service['name']); ?></span>
+                                    </div>
                                     <span class="badge bg-light text-dark"><?php echo e($service['status']); ?></span>
                                 </li>
                             <?php endforeach; ?>
@@ -99,7 +114,10 @@
                         <ul class="list-group">
                             <?php foreach (array_slice($tickets, 0, 3) as $ticket): ?>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    #<?php echo e($ticket['id']); ?> <?php echo e($ticket['subject']); ?>
+                                    <div class="d-flex flex-column gap-1">
+                                        <?php echo render_id_badge($ticket['id'] ?? null); ?>
+                                        <span><?php echo e($ticket['subject']); ?></span>
+                                    </div>
                                     <span class="badge bg-warning-subtle text-warning"><?php echo e($ticket['status']); ?></span>
                                 </li>
                             <?php endforeach; ?>
@@ -193,6 +211,9 @@ $remainingProgress = max(0, 100 - $overallProgress);
                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                     <input type="hidden" name="project_id" value="<?php echo (int)$project['id']; ?>">
                                     <input type="hidden" name="task_id" value="<?php echo (int)$task['id']; ?>">
+                                    <div class="col-12">
+                                        <?php echo render_id_badge($task['id'] ?? null, 'Tarea'); ?>
+                                    </div>
                                     <div class="col-lg-4">
                                         <input type="text" name="title" class="form-control" value="<?php echo e($task['title']); ?>" required>
                                     </div>

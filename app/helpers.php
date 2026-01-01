@@ -90,6 +90,22 @@ function format_date(?string $date, string $format = 'd/m/Y'): string
     return $dateTime->format($format);
 }
 
+function render_id_badge(null|int|string $id, string $label = 'ID'): string
+{
+    if ($id === null || $id === '') {
+        return '<span class="badge bg-light text-muted">ID no disponible</span>';
+    }
+
+    $value = is_numeric($id) ? (int)$id : (string)$id;
+    $idText = '#' . e((string)$value);
+
+    return sprintf(
+        '<span class="badge bg-light text-body fw-semibold" title="Identificador del registro">%s %s</span>',
+        e($label),
+        $idText
+    );
+}
+
 function log_message(string $level, string $message): void
 {
     $logFile = __DIR__ . '/../storage/logs/app.log';

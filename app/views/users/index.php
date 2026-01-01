@@ -11,6 +11,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Nombre</th>
                         <th>Email</th>
                         <th>Rol</th>
@@ -20,6 +21,7 @@
                 <tbody>
                     <?php foreach ($users as $user): ?>
                         <tr>
+                            <td class="text-muted"><?php echo render_id_badge($user['id'] ?? null); ?></td>
                             <td><?php echo e($user['name']); ?></td>
                             <td><?php echo e($user['email']); ?></td>
                             <td><?php echo e($user['role']); ?></td>

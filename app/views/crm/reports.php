@@ -41,6 +41,7 @@
                         <table class="table align-middle mb-0">
                             <thead>
                                 <tr>
+                                    <th>ID</th>
                                     <th>Cliente</th>
                                     <th>Oportunidad</th>
                                     <th>Responsable</th>
@@ -62,6 +63,7 @@
                                         };
                                         ?>
                                         <tr>
+                                            <td class="text-muted"><?php echo render_id_badge($activity['id'] ?? null); ?></td>
                                             <td><?php echo e($activity['client_name'] ?? '-'); ?></td>
                                             <td><?php echo e($activity['numero'] ?? 'Cotización'); ?></td>
                                             <td>Equipo comercial</td>
@@ -71,7 +73,7 @@
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="5" class="text-muted text-center">No hay oportunidades registradas en el rango seleccionado.</td>
+                                        <td colspan="6" class="text-muted text-center">No hay oportunidades registradas en el rango seleccionado.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>

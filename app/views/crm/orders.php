@@ -11,6 +11,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Orden</th>
                         <th>Cliente</th>
                         <th>Brief</th>
@@ -27,6 +28,7 @@
                     <?php else: ?>
                         <?php foreach ($orders as $order): ?>
                             <tr>
+                                <td class="text-muted"><?php echo render_id_badge($order['id'] ?? null); ?></td>
                                 <td><?php echo e($order['order_number']); ?></td>
                                 <td><?php echo e($order['client_name'] ?? ''); ?></td>
                                 <td><?php echo e($order['brief_title'] ?? '-'); ?></td>

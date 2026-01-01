@@ -3,6 +3,9 @@
         <form method="post" action="index.php?route=projects/update" id="project-edit-form">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="id" value="<?php echo $project['id']; ?>">
+            <div class="mb-3">
+                <?php echo render_id_badge($project['id'] ?? null); ?>
+            </div>
             <div class="accordion" id="projectEditAccordion">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="projectEditHeadingInfo">

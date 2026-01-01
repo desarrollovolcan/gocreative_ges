@@ -2,7 +2,11 @@
     <div class="col-lg-4">
         <div class="card h-100">
             <div class="card-body">
-                <h5 class="card-title mb-3">Detalle del ticket</h5>
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <h5 class="card-title mb-0">Detalle del ticket</h5>
+                    <?php echo render_id_badge($ticket['id'] ?? null); ?>
+                </div>
+                <p class="mb-1"><strong>ID:</strong> <?php echo render_id_badge($ticket['id'] ?? null); ?></p>
                 <p class="mb-1">
                     <strong>Cliente:</strong>
                     <a href="index.php?route=clients/show&id=<?php echo (int)($ticket['client_id'] ?? 0); ?>" class="link-reset">

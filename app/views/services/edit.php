@@ -3,6 +3,9 @@
         <form method="post" action="index.php?route=services/update" id="service-edit-form">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="id" value="<?php echo $service['id'] ?? ''; ?>">
+            <div class="mb-3">
+                <?php echo render_id_badge($service['id'] ?? null); ?>
+            </div>
             <div class="accordion" id="serviceEditAccordion">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="serviceEditHeadingInfo">

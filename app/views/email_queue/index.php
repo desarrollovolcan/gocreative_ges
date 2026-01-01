@@ -8,6 +8,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Cliente</th>
                         <th>Asunto</th>
                         <th>Tipo</th>
@@ -34,6 +35,7 @@
                         }
                         ?>
                         <tr>
+                            <td class="text-muted"><?php echo render_id_badge($email['id'] ?? null); ?></td>
                             <td><?php echo e($email['client_name'] ?? ''); ?></td>
                             <td><?php echo e($email['subject']); ?></td>
                             <td><?php echo e($email['type']); ?></td>

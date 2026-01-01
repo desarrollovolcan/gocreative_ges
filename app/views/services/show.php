@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h4 class="card-title mb-0"><?php echo e($service['name']); ?></h4>
+        <h4 class="card-title mb-0"><?php echo e($service['name']); ?> <span class="text-muted fw-normal fs-6">#<?php echo (int)$service['id']; ?></span></h4>
         <?php
         $status = $service['status'] ?? 'activo';
         $statusColor = match ($status) {

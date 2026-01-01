@@ -20,6 +20,7 @@
                     <table class="table table-sm table-hover mb-0">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Tipo</th>
                                 <th>Vence</th>
@@ -42,6 +43,7 @@
                                         };
                                     ?>
                                     <tr>
+                                        <td class="text-muted">#<?php echo (int)($service['id'] ?? 0); ?></td>
                                         <td><?php echo e($service['name'] ?? ''); ?></td>
                                         <td><?php echo e($service['service_type'] ?? ''); ?></td>
                                         <td><?php echo e(format_date($service['due_date'] ?? '')); ?></td>
@@ -70,6 +72,7 @@
                     <table class="table table-sm table-hover mb-0">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Estado</th>
                                 <th>Entrega</th>
@@ -82,6 +85,7 @@
                             <?php else: ?>
                                 <?php foreach ($projects as $project): ?>
                                     <tr>
+                                        <td class="text-muted">#<?php echo (int)($project['id'] ?? 0); ?></td>
                                         <td><?php echo e($project['name'] ?? ''); ?></td>
                                         <td><?php echo e($project['status'] ?? ''); ?></td>
                                         <td><?php echo e(format_date($project['due_date'] ?? '')); ?></td>
@@ -109,6 +113,7 @@
                     <table class="table table-sm table-hover mb-0">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Fecha</th>
                                 <th>Estado</th>
                                 <th class="text-end">Monto</th>
@@ -121,6 +126,7 @@
                             <?php else: ?>
                                 <?php foreach ($renewals as $renewal): ?>
                                     <tr>
+                                        <td class="text-muted">#<?php echo (int)($renewal['id'] ?? 0); ?></td>
                                         <td><?php echo e(format_date($renewal['renewal_date'] ?? '')); ?></td>
                                         <td><?php echo e(str_replace('_', ' ', $renewal['status'] ?? '')); ?></td>
                                         <td class="text-end"><?php echo e(format_currency((float)($renewal['amount'] ?? 0))); ?></td>
@@ -148,6 +154,7 @@
                     <table class="table table-sm table-hover mb-0">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Asunto</th>
                                 <th>Estado</th>
                                 <th>Prioridad</th>
@@ -160,6 +167,7 @@
                             <?php else: ?>
                                 <?php foreach ($tickets as $ticket): ?>
                                     <tr>
+                                        <td class="text-muted">#<?php echo (int)($ticket['id'] ?? 0); ?></td>
                                         <td><?php echo e($ticket['subject'] ?? ''); ?></td>
                                         <td><?php echo e($ticket['status'] ?? ''); ?></td>
                                         <td><?php echo e($ticket['priority'] ?? ''); ?></td>
@@ -185,7 +193,7 @@
                     <table class="table table-sm table-hover mb-0">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>ID</th>
                                 <th>Estado</th>
                                 <th class="text-end">Total</th>
                                 <th>Emisión</th>
@@ -198,7 +206,7 @@
                             <?php else: ?>
                                 <?php foreach ($invoices as $invoice): ?>
                                     <tr>
-                                        <td><?php echo e($invoice['numero'] ?? $invoice['id']); ?></td>
+                                        <td class="text-muted">#<?php echo (int)($invoice['id'] ?? 0); ?></td>
                                         <td><?php echo e($invoice['estado'] ?? ''); ?></td>
                                         <td class="text-end"><?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></td>
                                         <td><?php echo e(format_date($invoice['fecha_emision'] ?? '')); ?></td>

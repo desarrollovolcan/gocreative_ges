@@ -11,6 +11,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Cliente</th>
                         <th>Servicio</th>
                         <th>Fecha renovación</th>
@@ -28,6 +29,7 @@
                     <?php else: ?>
                         <?php foreach ($renewals as $renewal): ?>
                             <tr>
+                                <td class="text-muted">#<?php echo (int)$renewal['id']; ?></td>
                                 <td><?php echo e($renewal['client_name'] ?? ''); ?></td>
                                 <td><?php echo e($renewal['service_name'] ?? '-'); ?></td>
                                 <td><?php echo e(format_date($renewal['renewal_date'])); ?></td>

@@ -7,7 +7,7 @@
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="serviceEditHeadingInfo">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#serviceEditInfo" aria-expanded="true" aria-controls="serviceEditInfo">
-                            Cliente y servicio
+                            Cliente y servicio <span class="text-muted ms-2">#<?php echo (int)($service['id'] ?? 0); ?></span>
                         </button>
                     </h2>
                     <div id="serviceEditInfo" class="accordion-collapse collapse show" aria-labelledby="serviceEditHeadingInfo" data-bs-parent="#serviceEditAccordion">

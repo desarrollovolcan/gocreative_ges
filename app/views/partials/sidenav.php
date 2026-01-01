@@ -206,6 +206,11 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Listado</span>
                                 </a>
                             </li>
+                            <li class="side-nav-item">
+                                <a href="index.php?route=clients/history" class="side-nav-link">
+                                    <span class="menu-text">Historial de clientes</span>
+                                </a>
+                            </li>
                             <?php if ($hasPermission('tickets_view')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=tickets" class="side-nav-link">

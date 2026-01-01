@@ -12,6 +12,7 @@ class CrmController extends Controller
     public function __construct(array $config, Database $db)
     {
         parent::__construct($config, $db);
+        $this->db = $db;
         $this->clients = new ClientsModel($db);
         $this->briefs = new CommercialBriefsModel($db);
         $this->orders = new SalesOrdersModel($db);

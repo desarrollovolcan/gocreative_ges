@@ -19,8 +19,100 @@
         <div class="content-page">
 
             <div class="container-fluid">
-                
+
                 <?php $subtitle = "CRM"; $title = "Customers"; include('partials/page-title.php'); ?>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="collapse" id="addCustomerForm">
+                            <div class="card mb-3">
+                                <div class="card-header border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1">Add New Customer</h5>
+                                            <p class="text-muted mb-0">Capture the customer details para agregarlo al CRM.</p>
+                                        </div>
+                                        <button type="button" class="btn btn-light btn-icon" data-bs-toggle="collapse" data-bs-target="#addCustomerForm" aria-controls="addCustomerForm" aria-expanded="true">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <form id="addCustomerFormBody">
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="customerName" class="form-label">Customer Name</label>
+                                                <input type="text" class="form-control" id="customerName" name="customer_name" placeholder="Enter full name" autocomplete="name" data-crm-key="contact_name" required>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="email" class="form-label">Email Address</label>
+                                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" autocomplete="email" inputmode="email" data-crm-key="email" required>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="phone" class="form-label">Phone Number</label>
+                                                <input type="text" class="form-control" id="phone" name="phone" placeholder="e.g. +1 234 567 8900" autocomplete="tel" inputmode="tel" data-crm-key="phone" required>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="company" class="form-label">Company</label>
+                                                <input type="text" class="form-control" id="company" name="company" placeholder="Company name" autocomplete="organization" data-crm-key="company">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="country" class="form-label">Country</label>
+                                                <select class="form-select" id="country" name="country" required>
+                                                    <option value="">Select country</option>
+                                                    <option value="US">United States</option>
+                                                    <option value="UK">United Kingdom</option>
+                                                    <option value="IN">India</option>
+                                                    <option value="CA">Canada</option>
+                                                    <option value="DE">Germany</option>
+                                                    <option value="FR">France</option>
+                                                    <option value="JP">Japan</option>
+                                                    <option value="BR">Brazil</option>
+                                                    <option value="EG">Egypt</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="customerType" class="form-label">Customer Type</label>
+                                                <select class="form-select" id="customerType" name="customer_type" required>
+                                                    <option value="">Select type</option>
+                                                    <option value="Lead">Lead</option>
+                                                    <option value="Prospect">Prospect</option>
+                                                    <option value="Client">Client</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="Accostatus" class="form-label">Account Status</label>
+                                                <select class="form-select" id="Accostatus" name="account_status" required>
+                                                    <option value="">Select status</option>
+                                                    <option value="Active">Active</option>
+                                                    <option value="Verification Pending">Verification Pending</option>
+                                                    <option value="Inactive">Inactive</option>
+                                                    <option value="Blocked">Blocked</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="joinedDate" class="form-label">Joined Date</label>
+                                                <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="joinedDate" name="joined_date" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-footer d-flex flex-column flex-sm-row gap-2">
+                                        <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-toggle="collapse" data-bs-target="#addCustomerForm" aria-controls="addCustomerForm" aria-expanded="true">Cancel</button>
+                                        <button type="submit" class="btn btn-primary w-100 w-sm-auto">Add Customer</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="row">
                     <div class="col-12">
@@ -32,7 +124,7 @@
                                         <i data-lucide="search" class="app-search-icon text-muted"></i>
                                     </div>
 
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+                                    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCustomerForm" aria-expanded="false" aria-controls="addCustomerForm">
                                         <i class="ti ti-plus me-1"></i> New Customer
                                     </button>
                                     <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
@@ -420,95 +512,6 @@
                         </div>
                     </div><!-- end col -->
                 </div><!-- end row -->
-
-                <!-- Add Customer Modal -->
-                <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="addCustomerModalLabel">Add New Customer</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-
-                            <form id="addCustomerForm">
-                                <div class="modal-body">
-                                    <div class="row g-3">
-
-                                        <div class="col-md-6">
-                                            <label for="customerName" class="form-label">Customer Name</label>
-                                            <input type="text" class="form-control" id="customerName" name="customer_name" placeholder="Enter full name" autocomplete="name" data-crm-key="contact_name" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="email" class="form-label">Email Address</label>
-                                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" autocomplete="email" inputmode="email" data-crm-key="email" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="phone" class="form-label">Phone Number</label>
-                                            <input type="text" class="form-control" id="phone" name="phone" placeholder="e.g. +1 234 567 8900" autocomplete="tel" inputmode="tel" data-crm-key="phone" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="company" class="form-label">Company</label>
-                                            <input type="text" class="form-control" id="company" name="company" placeholder="Company name" autocomplete="organization" data-crm-key="company">
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="country" class="form-label">Country</label>
-                                            <select class="form-select" id="country" name="country" required>
-                                                <option value="">Select country</option>
-                                                <option value="US">United States</option>
-                                                <option value="UK">United Kingdom</option>
-                                                <option value="IN">India</option>
-                                                <option value="CA">Canada</option>
-                                                <option value="DE">Germany</option>
-                                                <option value="FR">France</option>
-                                                <option value="JP">Japan</option>
-                                                <option value="BR">Brazil</option>
-                                                <option value="EG">Egypt</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="customerType" class="form-label">Customer Type</label>
-                                            <select class="form-select" id="customerType" name="customer_type" required>
-                                                <option value="">Select type</option>
-                                                <option value="Lead">Lead</option>
-                                                <option value="Prospect">Prospect</option>
-                                                <option value="Client">Client</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="Accostatus" class="form-label">Account Status</label>
-                                            <select class="form-select" id="Accostatus" name="account_status" required>
-                                                <option value="">Select status</option>
-                                                <option value="Active">Active</option>
-                                                <option value="Verification Pending">Verification Pending</option>
-                                                <option value="Inactive">Inactive</option>
-                                                <option value="Blocked">Blocked</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="joinedDate" class="form-label">Joined Date</label>
-                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="joinedDate" name="joined_date" required>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Add Customer</button>
-                                </div>
-                            </form>
-
-                        </div>
-                    </div>
-                </div>
 
 
             </div>

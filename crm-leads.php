@@ -22,6 +22,78 @@
 
                 <?php $subtitle = "CRM"; $title = "Leads"; include('partials/page-title.php'); ?>
 
+                <div class="row">
+                    <div class="col-12">
+                        <div class="collapse" id="addLeadForm">
+                            <div class="card mb-3">
+                                <div class="card-header border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1">Add New Lead</h5>
+                                            <p class="text-muted mb-0">Completa los datos para registrar un nuevo lead.</p>
+                                        </div>
+                                        <button type="button" class="btn btn-light btn-icon" data-bs-toggle="collapse" data-bs-target="#addLeadForm" aria-controls="addLeadForm" aria-expanded="true">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <form id="leadForm">
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="leadName" class="form-label">Lead Name</label>
+                                                <input type="text" class="form-control" id="leadName" name="lead_name" placeholder="Enter lead name" autocomplete="name" data-crm-key="contact_name" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="companyName" class="form-label">Company</label>
+                                                <input type="text" class="form-control" id="companyName" name="company" placeholder="Enter company name" autocomplete="organization" data-crm-key="company" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="email" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" autocomplete="email" inputmode="email" data-crm-key="email" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="phone" class="form-label">Phone</label>
+                                                <input type="tel" class="form-control" id="phone" name="phone" placeholder="+1 234-567-8910" autocomplete="tel" inputmode="tel" data-crm-key="phone">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="amount" class="form-label">Amount (USD)</label>
+                                                <input type="number" class="form-control" id="amount" name="amount" placeholder="e.g. 50000" inputmode="decimal">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="Leadstatus" class="form-label">Status</label>
+                                                <select class="form-select" id="Leadstatus" name="status">
+                                                    <option value="">Select status</option>
+                                                    <option>In Progress</option>
+                                                    <option>Proposal Sent</option>
+                                                    <option>Follow Up</option>
+                                                    <option>Pending</option>
+                                                    <option>Negotiation</option>
+                                                    <option>Rejected</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="assignedTo" class="form-label">Assign To</label>
+                                                <select class="form-select" id="assignedTo" name="assigned_to">
+                                                    <option value="">Select user</option>
+                                                    <option value="1">Emily Carter</option>
+                                                    <option value="2">Rohan Iyer</option>
+                                                    <option value="3">Sara Kim</option>
+                                                    <option value="4">Kevin Nguyen</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex flex-column flex-sm-row gap-2">
+                                        <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-toggle="collapse" data-bs-target="#addLeadForm" aria-controls="addLeadForm" aria-expanded="true">Cancel</button>
+                                        <button type="submit" class="btn btn-primary w-100 w-sm-auto">Save Lead</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-1 mb-1">
 
                     <div class="col">
@@ -80,7 +152,7 @@
                                         <input data-table-search type="search" class="form-control" placeholder="Search leads...">
                                         <i data-lucide="search" class="app-search-icon text-muted"></i>
                                     </div>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLeadModal"><i class="ti ti-plus me-1"></i> New Leads</button>
+                                    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addLeadForm" aria-expanded="false" aria-controls="addLeadForm"><i class="ti ti-plus me-1"></i> New Leads</button>
                                     <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
                                 </div>
 
@@ -518,82 +590,6 @@
                         </div> <!-- end card-->
                     </div> <!-- end col-->
                 </div> <!-- end row-->
-
-                <!-- Add New Lead Modal -->
-                <div class="modal fade" id="addLeadModal" tabindex="-1" aria-labelledby="addLeadModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="addLeadModalLabel">Add New Lead</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-
-                            <form id="leadForm">
-                                <div class="modal-body">
-                                    <div class="row g-3">
-
-                                        <div class="col-md-6">
-                                            <label for="leadName" class="form-label">Lead Name</label>
-                                            <input type="text" class="form-control" id="leadName" name="lead_name" placeholder="Enter lead name" autocomplete="name" data-crm-key="contact_name" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="companyName" class="form-label">Company</label>
-                                            <input type="text" class="form-control" id="companyName" name="company" placeholder="Enter company name" autocomplete="organization" data-crm-key="company" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" autocomplete="email" inputmode="email" data-crm-key="email" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="phone" class="form-label">Phone</label>
-                                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="+1 234-567-8910" autocomplete="tel" inputmode="tel" data-crm-key="phone">
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="amount" class="form-label">Amount (USD)</label>
-                                            <input type="number" class="form-control" id="amount" name="amount" placeholder="e.g. 50000" inputmode="decimal">
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="Leadstatus" class="form-label">Status</label>
-                                            <select class="form-select" id="Leadstatus" name="status">
-                                                <option value="">Select status</option>
-                                                <option>In Progress</option>
-                                                <option>Proposal Sent</option>
-                                                <option>Follow Up</option>
-                                                <option>Pending</option>
-                                                <option>Negotiation</option>
-                                                <option>Rejected</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="assignedTo" class="form-label">Assign To</label>
-                                            <select class="form-select" id="assignedTo" name="assigned_to">
-                                                <option value="">Select user</option>
-                                                <option value="1">Emily Carter</option>
-                                                <option value="2">Rohan Iyer</option>
-                                                <option value="3">Sara Kim</option>
-                                                <option value="4">Kevin Nguyen</option>
-                                            </select>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Save Lead</button>
-                                </div>
-                            </form>
-
-                        </div>
-                    </div>
-                </div>
 
             </div>
             <!-- container -->

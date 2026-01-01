@@ -24,6 +24,66 @@
 
                 <div class="row">
                     <div class="col-12">
+                        <div class="collapse" id="createRenewalForm">
+                            <div class="card mb-3">
+                                <div class="card-header border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1">Nueva Renovación</h5>
+                                            <p class="text-muted mb-0">Completa la información para registrar una nueva renovación.</p>
+                                        </div>
+                                        <button type="button" class="btn btn-light btn-icon" data-bs-toggle="collapse" data-bs-target="#createRenewalForm" aria-controls="createRenewalForm" aria-expanded="true">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <form>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="renewalClient">Cliente</label>
+                                                <input type="text" class="form-control" id="renewalClient" placeholder="Nombre del cliente">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="renewalService">Servicio</label>
+                                                <input type="text" class="form-control" id="renewalService" placeholder="Servicio vigente">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="renewalAmount">Monto de renovación</label>
+                                                <input type="number" class="form-control" id="renewalAmount" placeholder="Ej. 450000">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="renewalStatus">Estado</label>
+                                                <select class="form-select" id="renewalStatus">
+                                                    <option value="">Seleccionar estado</option>
+                                                    <option>Pendiente</option>
+                                                    <option>En negociación</option>
+                                                    <option>Renovado</option>
+                                                    <option>No renovado</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="renewalDate">Fecha</label>
+                                                <input type="date" class="form-control" id="renewalDate">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label" for="renewalNotes">Notas</label>
+                                                <textarea class="form-control" id="renewalNotes" rows="3" placeholder="Condiciones, alertas, responsables"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex flex-column flex-sm-row gap-2">
+                                        <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-toggle="collapse" data-bs-target="#createRenewalForm" aria-controls="createRenewalForm" aria-expanded="true">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar Renovación</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
                         <div data-table data-table-rows-per-page="8" class="card">
                             <div class="card-header border-light justify-content-between">
                                 <div class="d-flex gap-2">
@@ -31,7 +91,7 @@
                                         <input data-table-search type="search" class="form-control" placeholder="Buscar renovación...">
                                         <i data-lucide="search" class="app-search-icon text-muted"></i>
                                     </div>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRenewalModal"><i class="ti ti-plus me-1"></i> Nueva Renovación</button>
+                                    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#createRenewalForm" aria-expanded="false" aria-controls="createRenewalForm"><i class="ti ti-plus me-1"></i> Nueva Renovación</button>
                                     <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
                                 </div>
 
@@ -125,53 +185,6 @@
                                     <div data-table-pagination></div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal fade" id="createRenewalModal" tabindex="-1" aria-labelledby="createRenewalModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="createRenewalModalLabel">Nueva Renovación</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <form>
-                                <div class="modal-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="renewalClient">Cliente</label>
-                                            <input type="text" class="form-control" id="renewalClient" placeholder="Nombre del cliente">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="renewalService">Servicio</label>
-                                            <input type="text" class="form-control" id="renewalService" placeholder="Servicio vigente">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="renewalAmount">Monto de renovación</label>
-                                            <input type="number" class="form-control" id="renewalAmount" placeholder="Ej. 450000">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="renewalStatus">Estado</label>
-                                            <select class="form-select" id="renewalStatus">
-                                                <option value="">Seleccionar estado</option>
-                                                <option>Pendiente</option>
-                                                <option>En negociación</option>
-                                                <option>Renovado</option>
-                                                <option>No renovado</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label" for="renewalNotes">Notas</label>
-                                            <textarea class="form-control" id="renewalNotes" rows="3" placeholder="Condiciones, alertas, responsables"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar Renovación</button>
-                                </div>
-                            </form>
                         </div>
                     </div>
                 </div>

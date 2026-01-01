@@ -51,8 +51,8 @@
                 <a href="index.php?route=products" class="btn btn-soft-secondary btn-sm">Ver inventario</a>
             </div>
             <div class="card-body">
-                <?php if ($isPos && empty($posSession)): ?>
-                    <div class="alert alert-warning">Abre una caja para habilitar el punto de venta.</div>
+                <?php if ($isPos && (empty($posReady) || empty($posSession))): ?>
+                    <div class="alert alert-warning">Abre una caja para habilitar el punto de venta. Si ves este mensaje, verifica que las migraciones de BD estén aplicadas.</div>
                 <?php endif; ?>
                 <form method="post" action="index.php?route=sales/store" id="sale-form">
                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
@@ -155,8 +155,8 @@
                             </div>
                         </div>
                         <div class="col-12 d-flex align-items-center gap-2">
-                            <button type="submit" class="btn btn-primary" <?php echo ($isPos && empty($posSession)) ? 'disabled' : ''; ?>><?php echo $isPos ? 'Cobrar venta' : 'Guardar venta'; ?></button>
-                            <button type="button" class="btn btn-outline-secondary" id="mark-hold" <?php echo ($isPos && empty($posSession)) ? 'disabled' : ''; ?>>Marcar en espera</button>
+                            <button type="submit" class="btn btn-primary" <?php echo ($isPos && (empty($posSession) || empty($posReady))) ? 'disabled' : ''; ?>><?php echo $isPos ? 'Cobrar venta' : 'Guardar venta'; ?></button>
+                            <button type="button" class="btn btn-outline-secondary" id="mark-hold" <?php echo ($isPos && (empty($posSession) || empty($posReady))) ? 'disabled' : ''; ?>>Marcar en espera</button>
                             <a href="index.php?route=<?php echo $isPos ? 'pos' : 'sales'; ?>" class="btn btn-light ms-2">Cancelar</a>
                         </div>
                     </div>

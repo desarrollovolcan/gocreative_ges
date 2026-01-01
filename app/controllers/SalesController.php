@@ -64,10 +64,15 @@ class SalesController extends Controller
         $services = $this->services->active($companyId);
         $session = null;
         $sessionTotals = [];
+        $posReady = $this->posTablesReady();
         if ($isPos) {
-            $session = $this->posSessions->activeForUser($companyId, (int)(Auth::user()['id'] ?? 0));
-            if ($session) {
-                $sessionTotals = $this->salePayments->totalsBySession((int)$session['id']);
+            if ($posReady) {
+                $session = $this->posSessions->activeForUser($companyId, (int)(Auth::user()['id'] ?? 0));
+                if ($session) {
+                    $sessionTotals = $this->salePayments->totalsBySession((int)$session['id']);
+                }
+            } else {
+                flash('error', 'Faltan tablas/columnas para el POS. Ejecuta la actualización de base de datos.');
             }
         }
 
@@ -81,6 +86,7 @@ class SalesController extends Controller
             'isPos' => $isPos,
             'posSession' => $session,
             'sessionTotals' => $sessionTotals,
+            'posReady' => $posReady,
         ]);
     }
 
@@ -106,6 +112,10 @@ class SalesController extends Controller
         $isPos = ($_POST['channel'] ?? '') === 'pos';
         $posSessionId = null;
         if ($isPos) {
+            if (!$this->posTablesReady()) {
+                flash('error', 'El POS no está disponible hasta aplicar las migraciones de BD.');
+                $this->redirect('index.php?route=pos');
+            }
             $session = $this->posSessions->activeForUser($companyId, $userId);
             if (!$session) {
                 flash('error', 'Debes abrir una caja de POS antes de registrar ventas.');
@@ -161,14 +171,16 @@ class SalesController extends Controller
                 ]);
                 $this->products->adjustStock($item['product']['id'], -$item['quantity']);
             }
-            $paymentMethod = $_POST['payment_method'] ?? 'efectivo';
-            $this->salePayments->create([
-                'sale_id' => $saleId,
-                'method' => $paymentMethod,
-                'amount' => $total,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            ]);
+            if ($this->salePaymentsEnabled()) {
+                $paymentMethod = $_POST['payment_method'] ?? 'efectivo';
+                $this->salePayments->create([
+                    'sale_id' => $saleId,
+                    'method' => $paymentMethod,
+                    'amount' => $total,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
 
             audit($this->db, Auth::user()['id'], 'create', 'sales', $saleId);
             $pdo->commit();
@@ -248,6 +260,10 @@ class SalesController extends Controller
         verify_csrf();
         $companyId = $this->requireCompany();
         $userId = (int)(Auth::user()['id'] ?? 0);
+        if (!$this->posTablesReady()) {
+            flash('error', 'El POS no está disponible hasta aplicar las migraciones de BD.');
+            $this->redirect('index.php?route=pos');
+        }
         $amount = max(0, (float)($_POST['opening_amount'] ?? 0));
         $current = $this->posSessions->activeForUser($companyId, $userId);
         if ($current) {
@@ -265,6 +281,10 @@ class SalesController extends Controller
         verify_csrf();
         $companyId = $this->requireCompany();
         $userId = (int)(Auth::user()['id'] ?? 0);
+        if (!$this->posTablesReady()) {
+            flash('error', 'El POS no está disponible hasta aplicar las migraciones de BD.');
+            $this->redirect('index.php?route=pos');
+        }
         $amount = max(0, (float)($_POST['closing_amount'] ?? 0));
         $session = $this->posSessions->activeForUser($companyId, $userId);
         if (!$session) {
@@ -274,5 +294,45 @@ class SalesController extends Controller
         $this->posSessions->closeSession((int)$session['id'], $amount);
         flash('success', 'Caja cerrada correctamente.');
         $this->redirect('index.php?route=pos');
+    }
+
+    private function tableExists(string $table): bool
+    {
+        $row = $this->db->fetch(
+            'SELECT COUNT(*) AS total FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table',
+            ['table' => $table]
+        );
+        return (int)($row['total'] ?? 0) > 0;
+    }
+
+    private function columnExists(string $table, string $column): bool
+    {
+        $row = $this->db->fetch(
+            'SELECT COUNT(*) AS total FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column',
+            ['table' => $table, 'column' => $column]
+        );
+        return (int)($row['total'] ?? 0) > 0;
+    }
+
+    private function posTablesReady(): bool
+    {
+        static $ready = null;
+        if ($ready !== null) {
+            return $ready;
+        }
+        $ready = $this->tableExists('pos_sessions')
+            && $this->tableExists('sale_payments')
+            && $this->columnExists('sales', 'pos_session_id');
+        return $ready;
+    }
+
+    private function salePaymentsEnabled(): bool
+    {
+        static $available = null;
+        if ($available !== null) {
+            return $available;
+        }
+        $available = $this->tableExists('sale_payments');
+        return $available;
     }
 }

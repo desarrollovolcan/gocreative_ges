@@ -1,8 +1,23 @@
 <?php $isPos = $isPos ?? false; ?>
 <?php if ($isPos): ?>
-    <div class="row mb-3">
+    <style>
+        .pos-compact .card-header,
+        .pos-compact .card-body {
+            padding: 0.75rem 1rem;
+        }
+        .pos-compact .list-group-item {
+            padding: 0.5rem 0.75rem;
+        }
+        .pos-compact .table-sm> :not(caption)>*>* {
+            padding: 0.4rem 0.5rem;
+        }
+        .pos-compact .tab-pane {
+            width: 100%;
+        }
+    </style>
+    <div class="row mb-3 pos-compact">
         <div class="col-12">
-            <div class="card" style="min-height: 140px;">
+            <div class="card" style="min-height: 120px;">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">Caja POS</h5>
                     <?php if (!empty($posSession)): ?>
@@ -29,10 +44,10 @@
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
-                            <form method="post" action="index.php?route=pos/close" class="d-flex flex-wrap align-items-center gap-2 ms-auto flex-sm-nowrap">
+                            <form method="post" action="index.php?route=pos/close" class="d-flex align-items-center gap-2 ms-auto flex-wrap flex-sm-nowrap">
                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                <input type="number" step="0.01" min="0" name="closing_amount" class="form-control" placeholder="Monto cierre" required>
-                                <button class="btn btn-danger">Cerrar caja</button>
+                                <input type="number" step="0.01" min="0" name="closing_amount" class="form-control" placeholder="Monto cierre" required style="min-width: 140px;">
+                                <button class="btn btn-danger text-nowrap">Cerrar caja</button>
                             </form>
                         </div>
                     <?php else: ?>
@@ -50,8 +65,8 @@
         </div>
     </div>
 <?php endif; ?>
-<div class="row align-items-stretch">
-    <div class="col-12 col-xl-8 mb-3 mb-xl-0">
+<div class="row align-items-stretch gy-3 pos-compact">
+    <div class="col-12 col-xl-8">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
@@ -173,11 +188,11 @@
             </div>
             <div class="card-body p-0 d-flex flex-column">
                 <div class="tab-content flex-grow-1 d-flex">
-                    <div class="tab-pane fade show active d-flex flex-column" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
+                    <div class="tab-pane fade show active d-flex flex-column w-100" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
                         <div class="p-2">
                             <input type="text" class="form-control form-control-sm w-100" id="search-products" placeholder="Buscar producto">
                         </div>
-                        <div class="list-group list-group-flush flex-grow-1 overflow-auto">
+                        <div class="list-group list-group-flush flex-grow-1 overflow-auto w-100">
                             <?php foreach ($products as $product): ?>
                                 <button type="button"
                                         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product w-100"
@@ -196,11 +211,11 @@
                             <?php endforeach; ?>
                         </div>
                     </div>
-                    <div class="tab-pane fade d-flex flex-column" id="pane-services" role="tabpanel" aria-labelledby="tab-services">
+                    <div class="tab-pane fade d-flex flex-column w-100" id="pane-services" role="tabpanel" aria-labelledby="tab-services">
                         <div class="p-2">
                             <input type="text" class="form-control form-control-sm w-100" id="search-services" placeholder="Buscar servicio">
                         </div>
-                        <div class="list-group list-group-flush flex-grow-1 overflow-auto">
+                        <div class="list-group list-group-flush flex-grow-1 overflow-auto w-100">
                             <?php foreach ($services as $service): ?>
                                 <button type="button"
                                         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-service w-100"

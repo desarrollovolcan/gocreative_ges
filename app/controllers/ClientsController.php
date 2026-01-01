@@ -240,142 +240,149 @@ class ClientsController extends Controller
 
         $activities = [];
         if ($client) {
-            try {
-                $projects = $this->db->fetchAll(
-                    str_replace('{table}', 'projects', 'SELECT projects.id, projects.name, projects.status, projects.created_at, projects.updated_at, clients.name as client_name
+            $sources = [
+                [
+                    'table' => 'projects',
+                    'sql' => 'SELECT projects.id, projects.name, projects.status, projects.created_at, projects.updated_at, clients.name as client_name
                      FROM projects
                      JOIN clients ON projects.client_id = clients.id
                      WHERE projects.company_id = :company_id AND projects.deleted_at IS NULL' . $filterClause . '
                      ORDER BY projects.id DESC
-                     LIMIT 50'),
-                    array_merge(['company_id' => $companyId], $filterParams)
-                );
-                foreach ($projects as $project) {
-                    $projectId = (int)($project['id'] ?? 0);
-                    $activities[] = [
-                        'type' => 'Proyecto',
-                        'title' => $project['name'] ?? '',
-                        'status' => $project['status'] ?? '',
-                        'client' => $project['client_name'] ?? '',
-                        'date' => $project['updated_at'] ?? $project['created_at'] ?? '',
-                        'url' => 'index.php?route=projects/show&id=' . $projectId,
-                        'actions' => [
-                            ['label' => 'Ver', 'url' => 'index.php?route=projects/show&id=' . $projectId],
-                            ['label' => 'Editar', 'url' => 'index.php?route=projects/edit&id=' . $projectId],
-                        ],
-                    ];
-                }
-
-                $services = $this->db->fetchAll(
-                    str_replace('{table}', 'services', 'SELECT services.id, services.name, services.service_type, services.status, services.created_at, services.updated_at, clients.name as client_name
+                     LIMIT 50',
+                    'map' => static function (array $row): array {
+                        $projectId = (int)($row['id'] ?? 0);
+                        return [
+                            'type' => 'Proyecto',
+                            'title' => $row['name'] ?? '',
+                            'status' => $row['status'] ?? '',
+                            'client' => $row['client_name'] ?? '',
+                            'date' => $row['updated_at'] ?? $row['created_at'] ?? '',
+                            'url' => 'index.php?route=projects/show&id=' . $projectId,
+                            'actions' => [
+                                ['label' => 'Ver', 'url' => 'index.php?route=projects/show&id=' . $projectId],
+                                ['label' => 'Editar', 'url' => 'index.php?route=projects/edit&id=' . $projectId],
+                            ],
+                        ];
+                    },
+                ],
+                [
+                    'table' => 'services',
+                    'sql' => 'SELECT services.id, services.name, services.service_type, services.status, services.created_at, services.updated_at, clients.name as client_name
                      FROM services
                      JOIN clients ON services.client_id = clients.id
                      WHERE services.company_id = :company_id AND services.deleted_at IS NULL' . $filterClause . '
                      ORDER BY services.id DESC
-                     LIMIT 50'),
-                    array_merge(['company_id' => $companyId], $filterParams)
-                );
-                foreach ($services as $service) {
-                    $serviceId = (int)($service['id'] ?? 0);
-                    $activities[] = [
-                        'type' => 'Servicio',
-                        'title' => $service['name'] ?? '',
-                        'status' => $service['status'] ?? '',
-                        'client' => $service['client_name'] ?? '',
-                        'date' => $service['updated_at'] ?? $service['created_at'] ?? '',
-                        'url' => 'index.php?route=services/show&id=' . $serviceId,
-                        'meta' => $service['service_type'] ?? '',
-                        'actions' => [
-                            ['label' => 'Ver', 'url' => 'index.php?route=services/show&id=' . $serviceId],
-                            ['label' => 'Editar', 'url' => 'index.php?route=services/edit&id=' . $serviceId],
-                        ],
-                    ];
-                }
-
-                $tickets = $this->db->fetchAll(
-                    str_replace('{table}', 'support_tickets', 'SELECT support_tickets.id, support_tickets.subject, support_tickets.status, support_tickets.priority, support_tickets.created_at, support_tickets.updated_at, clients.name as client_name
+                     LIMIT 50',
+                    'map' => static function (array $row): array {
+                        $serviceId = (int)($row['id'] ?? 0);
+                        return [
+                            'type' => 'Servicio',
+                            'title' => $row['name'] ?? '',
+                            'status' => $row['status'] ?? '',
+                            'client' => $row['client_name'] ?? '',
+                            'date' => $row['updated_at'] ?? $row['created_at'] ?? '',
+                            'url' => 'index.php?route=services/show&id=' . $serviceId,
+                            'meta' => $row['service_type'] ?? '',
+                            'actions' => [
+                                ['label' => 'Ver', 'url' => 'index.php?route=services/show&id=' . $serviceId],
+                                ['label' => 'Editar', 'url' => 'index.php?route=services/edit&id=' . $serviceId],
+                            ],
+                        ];
+                    },
+                ],
+                [
+                    'table' => 'support_tickets',
+                    'sql' => 'SELECT support_tickets.id, support_tickets.subject, support_tickets.status, support_tickets.priority, support_tickets.created_at, support_tickets.updated_at, clients.name as client_name
                      FROM support_tickets
                      JOIN clients ON support_tickets.client_id = clients.id
                      WHERE support_tickets.company_id = :company_id AND support_tickets.deleted_at IS NULL' . $filterClause . '
                      ORDER BY support_tickets.id DESC
-                     LIMIT 50'),
-                    array_merge(['company_id' => $companyId], $filterParams)
-                );
-                foreach ($tickets as $ticket) {
-                    $ticketId = (int)($ticket['id'] ?? 0);
-                    $activities[] = [
-                        'type' => 'Ticket',
-                        'title' => $ticket['subject'] ?? '',
-                        'status' => $ticket['status'] ?? '',
-                        'client' => $ticket['client_name'] ?? '',
-                        'date' => $ticket['updated_at'] ?? $ticket['created_at'] ?? '',
-                        'url' => 'index.php?route=tickets/show&id=' . $ticketId,
-                        'meta' => $ticket['priority'] ?? '',
-                        'actions' => [
-                            ['label' => 'Ver', 'url' => 'index.php?route=tickets/show&id=' . $ticketId],
-                            ['label' => 'Editar', 'url' => 'index.php?route=tickets/edit&id=' . $ticketId],
-                        ],
-                    ];
-                }
-
-                $invoices = $this->db->fetchAll(
-                    str_replace('{table}', 'invoices', 'SELECT invoices.id, invoices.numero, invoices.estado, invoices.fecha_emision, invoices.created_at, clients.name as client_name
+                     LIMIT 50',
+                    'map' => static function (array $row): array {
+                        $ticketId = (int)($row['id'] ?? 0);
+                        return [
+                            'type' => 'Ticket',
+                            'title' => $row['subject'] ?? '',
+                            'status' => $row['status'] ?? '',
+                            'client' => $row['client_name'] ?? '',
+                            'date' => $row['updated_at'] ?? $row['created_at'] ?? '',
+                            'url' => 'index.php?route=tickets/show&id=' . $ticketId,
+                            'meta' => $row['priority'] ?? '',
+                            'actions' => [
+                                ['label' => 'Ver', 'url' => 'index.php?route=tickets/show&id=' . $ticketId],
+                                ['label' => 'Editar', 'url' => 'index.php?route=tickets/edit&id=' . $ticketId],
+                            ],
+                        ];
+                    },
+                ],
+                [
+                    'table' => 'invoices',
+                    'sql' => 'SELECT invoices.id, invoices.numero, invoices.estado, invoices.fecha_emision, invoices.created_at, clients.name as client_name
                      FROM invoices
                      JOIN clients ON invoices.client_id = clients.id
                      WHERE invoices.company_id = :company_id AND invoices.deleted_at IS NULL' . $filterClause . '
                      ORDER BY invoices.id DESC
-                     LIMIT 50'),
-                    array_merge(['company_id' => $companyId], $filterParams)
-                );
-                foreach ($invoices as $invoice) {
-                    $invoiceId = (int)($invoice['id'] ?? 0);
-                    $activities[] = [
-                        'type' => 'Factura',
-                        'title' => 'Factura #' . ($invoice['numero'] ?? $invoice['id'] ?? ''),
-                        'status' => $invoice['estado'] ?? '',
-                        'client' => $invoice['client_name'] ?? '',
-                        'date' => $invoice['created_at'] ?? $invoice['fecha_emision'] ?? '',
-                        'url' => 'index.php?route=invoices/show&id=' . $invoiceId,
-                        'actions' => [
-                            ['label' => 'Ver', 'url' => 'index.php?route=invoices/show&id=' . $invoiceId],
-                            ['label' => 'Editar', 'url' => 'index.php?route=invoices/edit&id=' . $invoiceId],
-                        ],
-                    ];
-                }
-
-                $renewals = $this->db->fetchAll(
-                    str_replace('{table}', 'service_renewals', 'SELECT service_renewals.id, service_renewals.renewal_date, service_renewals.status, service_renewals.amount, service_renewals.currency, service_renewals.created_at, clients.name as client_name
+                     LIMIT 50',
+                    'map' => static function (array $row): array {
+                        $invoiceId = (int)($row['id'] ?? 0);
+                        return [
+                            'type' => 'Factura',
+                            'title' => 'Factura #' . ($row['numero'] ?? $row['id'] ?? ''),
+                            'status' => $row['estado'] ?? '',
+                            'client' => $row['client_name'] ?? '',
+                            'date' => $row['created_at'] ?? $row['fecha_emision'] ?? '',
+                            'url' => 'index.php?route=invoices/show&id=' . $invoiceId,
+                            'actions' => [
+                                ['label' => 'Ver', 'url' => 'index.php?route=invoices/show&id=' . $invoiceId],
+                                ['label' => 'Editar', 'url' => 'index.php?route=invoices/edit&id=' . $invoiceId],
+                            ],
+                        ];
+                    },
+                ],
+                [
+                    'table' => 'service_renewals',
+                    'sql' => 'SELECT service_renewals.id, service_renewals.renewal_date, service_renewals.status, service_renewals.amount, service_renewals.currency, service_renewals.created_at, clients.name as client_name
                      FROM service_renewals
                      JOIN clients ON service_renewals.client_id = clients.id
                      WHERE service_renewals.company_id = :company_id AND service_renewals.deleted_at IS NULL' . $filterClause . '
                      ORDER BY service_renewals.renewal_date DESC, service_renewals.id DESC
-                     LIMIT 50'),
-                    array_merge(['company_id' => $companyId], $filterParams)
-                );
-                foreach ($renewals as $renewal) {
-                    $renewalId = (int)($renewal['id'] ?? 0);
-                    $activities[] = [
-                        'type' => 'Renovación',
-                        'title' => 'Renovación programada',
-                        'status' => $renewal['status'] ?? '',
-                        'client' => $renewal['client_name'] ?? '',
-                        'date' => $renewal['created_at'] ?? ($renewal['renewal_date'] . ' 00:00:00'),
-                        'meta' => format_currency((float)($renewal['amount'] ?? 0)) . ' ' . ($renewal['currency'] ?? ''),
-                        'url' => 'index.php?route=crm/renewals',
-                        'actions' => [
-                            ['label' => 'Ver', 'url' => 'index.php?route=crm/renewals'],
-                            ['label' => 'Editar', 'url' => 'index.php?route=crm/renewals&focus=' . $renewalId],
-                        ],
-                    ];
-                }
+                     LIMIT 50',
+                    'map' => static function (array $row): array {
+                        $renewalId = (int)($row['id'] ?? 0);
+                        return [
+                            'type' => 'Renovación',
+                            'title' => 'Renovación programada',
+                            'status' => $row['status'] ?? '',
+                            'client' => $row['client_name'] ?? '',
+                            'date' => $row['created_at'] ?? ($row['renewal_date'] . ' 00:00:00'),
+                            'meta' => format_currency((float)($row['amount'] ?? 0)) . ' ' . ($row['currency'] ?? ''),
+                            'url' => 'index.php?route=crm/renewals',
+                            'actions' => [
+                                ['label' => 'Ver', 'url' => 'index.php?route=crm/renewals'],
+                                ['label' => 'Editar', 'url' => 'index.php?route=crm/renewals&focus=' . $renewalId],
+                            ],
+                        ];
+                    },
+                ],
+            ];
 
-                usort($activities, static function (array $a, array $b): int {
-                    return strtotime((string)($b['date'] ?? '')) <=> strtotime((string)($a['date'] ?? ''));
-                });
-            } catch (Throwable $e) {
-                log_message('error', 'Failed to load client history: ' . $e->getMessage());
-                flash('error', 'No se pudo cargar el historial del cliente. Inténtalo nuevamente.');
+            foreach ($sources as $source) {
+                try {
+                    $rows = $this->db->fetchAll(
+                        str_replace('{table}', $source['table'], $source['sql']),
+                        array_merge(['company_id' => $companyId], $filterParams)
+                    );
+                    foreach ($rows as $row) {
+                        $activities[] = $source['map']($row);
+                    }
+                } catch (Throwable $e) {
+                    log_message('error', 'Failed to load client history for ' . $source['table'] . ': ' . $e->getMessage());
+                }
             }
+
+            usort($activities, static function (array $a, array $b): int {
+                return strtotime((string)($b['date'] ?? '')) <=> strtotime((string)($a['date'] ?? ''));
+            });
         }
 
         $this->render('clients/history', [

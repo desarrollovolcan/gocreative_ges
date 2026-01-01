@@ -470,6 +470,20 @@ function permission_catalog(): array
             'view_key' => 'sales_view',
             'edit_key' => 'sales_edit',
         ],
+        'product_families' => [
+            'label' => 'Familias de producto',
+            'routes' => ['maintainers/product-families'],
+            'legacy_key' => 'product_families',
+            'view_key' => 'product_families_view',
+            'edit_key' => 'product_families_edit',
+        ],
+        'product_subfamilies' => [
+            'label' => 'Subfamilias de producto',
+            'routes' => ['maintainers/product-subfamilies'],
+            'legacy_key' => 'product_subfamilies',
+            'view_key' => 'product_subfamilies_view',
+            'edit_key' => 'product_subfamilies_edit',
+        ],
         'services' => [
             'label' => 'Servicios (clientes)',
             'routes' => ['services'],

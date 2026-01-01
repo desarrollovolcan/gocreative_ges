@@ -1,4 +1,43 @@
 <?php $isPos = $isPos ?? false; ?>
+<?php if ($isPos): ?>
+    <div class="row mb-3">
+        <div class="col-12 col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Caja POS</h5>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($posSession)): ?>
+                        <p class="mb-1"><strong>Estado:</strong> Abierta</p>
+                        <p class="mb-1"><strong>Apertura:</strong> <?php echo format_currency((float)($posSession['opening_amount'] ?? 0)); ?></p>
+                        <p class="mb-1"><strong>Recaudado:</strong> <?php echo format_currency(array_sum($sessionTotals)); ?></p>
+                        <?php if (!empty($sessionTotals)): ?>
+                            <ul class="list-unstyled small">
+                                <?php foreach ($sessionTotals as $method => $total): ?>
+                                    <li><?php echo e(ucfirst($method)); ?>: <?php echo format_currency((float)$total); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                        <form method="post" action="index.php?route=pos/close" class="d-flex gap-2">
+                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                            <input type="number" step="0.01" min="0" name="closing_amount" class="form-control" placeholder="Monto cierre" required>
+                            <button class="btn btn-danger">Cerrar caja</button>
+                        </form>
+                    <?php else: ?>
+                        <form method="post" action="index.php?route=pos/open">
+                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                            <div class="mb-2">
+                                <label class="form-label">Monto inicial</label>
+                                <input type="number" name="opening_amount" step="0.01" min="0" class="form-control" required>
+                            </div>
+                            <button class="btn btn-primary w-100">Abrir caja</button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -12,6 +51,9 @@
                 <a href="index.php?route=products" class="btn btn-soft-secondary btn-sm">Ver inventario</a>
             </div>
             <div class="card-body">
+                <?php if ($isPos && empty($posSession)): ?>
+                    <div class="alert alert-warning">Abre una caja para habilitar el punto de venta.</div>
+                <?php endif; ?>
                 <form method="post" action="index.php?route=sales/store" id="sale-form">
                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                     <input type="hidden" name="channel" value="<?php echo $isPos ? 'pos' : 'venta'; ?>">
@@ -98,6 +140,14 @@
                                     <span>Impuestos</span>
                                     <input type="number" name="tax" id="sale-tax" class="form-control form-control-sm w-auto" style="width: 140px;" step="0.01" min="0" value="0">
                                 </div>
+                                <div class="d-flex justify-content-between w-100 align-items-center">
+                                    <span>Forma de pago</span>
+                                    <select name="payment_method" class="form-select form-select-sm w-auto" style="width: 160px;">
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="tarjeta">Tarjeta</option>
+                                        <option value="transferencia">Transferencia</option>
+                                    </select>
+                                </div>
                                 <div class="d-flex justify-content-between w-100">
                                     <span>Total</span>
                                     <strong id="sale-total"><?php echo format_currency(0); ?></strong>
@@ -105,8 +155,8 @@
                             </div>
                         </div>
                         <div class="col-12 d-flex align-items-center gap-2">
-                            <button type="submit" class="btn btn-primary"><?php echo $isPos ? 'Cobrar venta' : 'Guardar venta'; ?></button>
-                            <button type="button" class="btn btn-outline-secondary" id="mark-hold">Marcar en espera</button>
+                            <button type="submit" class="btn btn-primary" <?php echo ($isPos && empty($posSession)) ? 'disabled' : ''; ?>><?php echo $isPos ? 'Cobrar venta' : 'Guardar venta'; ?></button>
+                            <button type="button" class="btn btn-outline-secondary" id="mark-hold" <?php echo ($isPos && empty($posSession)) ? 'disabled' : ''; ?>>Marcar en espera</button>
                             <a href="index.php?route=<?php echo $isPos ? 'pos' : 'sales'; ?>" class="btn btn-light ms-2">Cancelar</a>
                         </div>
                     </div>

@@ -261,6 +261,20 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     </a>
                                 </li>
                             <?php endif; ?>
+                            <?php if ($hasPermission('product_families_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=maintainers/product-families" class="side-nav-link">
+                                        <span class="menu-text">Familias</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('product_subfamilies_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=maintainers/product-subfamilies" class="side-nav-link">
+                                        <span class="menu-text">Subfamilias</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                             <?php if ($hasPermission('sales_view')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=sales" class="side-nav-link">

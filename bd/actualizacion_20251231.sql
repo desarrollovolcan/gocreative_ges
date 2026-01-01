@@ -149,10 +149,32 @@ CREATE TABLE IF NOT EXISTS suppliers (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
+CREATE TABLE IF NOT EXISTS product_families (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS product_subfamilies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    family_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (family_id) REFERENCES product_families(id)
+);
+
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_id INT NOT NULL,
     supplier_id INT NULL,
+    family_id INT NULL,
+    subfamily_id INT NULL,
     name VARCHAR(150) NOT NULL,
     sku VARCHAR(100) NULL,
     description TEXT NULL,
@@ -199,10 +221,26 @@ CREATE TABLE IF NOT EXISTS purchase_items (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
+CREATE TABLE IF NOT EXISTS pos_sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    user_id INT NOT NULL,
+    opening_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    closing_amount DECIMAL(12,2) NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'abierto',
+    opened_at DATETIME NOT NULL,
+    closed_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS sales (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_id INT NOT NULL,
     client_id INT NULL,
+    pos_session_id INT NULL,
     channel VARCHAR(20) NOT NULL DEFAULT 'venta',
     numero VARCHAR(50) NOT NULL,
     sale_date DATE NOT NULL,
@@ -215,7 +253,8 @@ CREATE TABLE IF NOT EXISTS sales (
     updated_at DATETIME NOT NULL,
     deleted_at DATETIME NULL,
     FOREIGN KEY (company_id) REFERENCES companies(id),
-    FOREIGN KEY (client_id) REFERENCES clients(id)
+    FOREIGN KEY (client_id) REFERENCES clients(id),
+    FOREIGN KEY (pos_session_id) REFERENCES pos_sessions(id)
 );
 
 CREATE TABLE IF NOT EXISTS sale_items (
@@ -229,6 +268,16 @@ CREATE TABLE IF NOT EXISTS sale_items (
     updated_at DATETIME NOT NULL,
     FOREIGN KEY (sale_id) REFERENCES sales(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE IF NOT EXISTS sale_payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sale_id INT NOT NULL,
+    method VARCHAR(50) NOT NULL,
+    amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (sale_id) REFERENCES sales(id)
 );
 
 SET @idx_products_company := (
@@ -253,9 +302,9 @@ SET @family_exists := (
     SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE()
       AND TABLE_NAME = 'products'
-      AND COLUMN_NAME = 'family'
+      AND COLUMN_NAME = 'family_id'
 );
-SET @sql := IF(@family_exists = 0, 'ALTER TABLE products ADD COLUMN family VARCHAR(100) NULL AFTER supplier_id;', 'SELECT 1;');
+SET @sql := IF(@family_exists = 0, 'ALTER TABLE products ADD COLUMN family_id INT NULL AFTER supplier_id;', 'SELECT 1;');
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
@@ -264,9 +313,9 @@ SET @subfamily_exists := (
     SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE()
       AND TABLE_NAME = 'products'
-      AND COLUMN_NAME = 'subfamily'
+      AND COLUMN_NAME = 'subfamily_id'
 );
-SET @sql := IF(@subfamily_exists = 0, 'ALTER TABLE products ADD COLUMN subfamily VARCHAR(100) NULL AFTER family;', 'SELECT 1;');
+SET @sql := IF(@subfamily_exists = 0, 'ALTER TABLE products ADD COLUMN subfamily_id INT NULL AFTER family_id;', 'SELECT 1;');
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
@@ -285,6 +334,33 @@ SET @idx_sales_company := (
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND INDEX_NAME = 'idx_sales_company'
 );
 SET @sql := IF(@idx_sales_company = 0, 'CREATE INDEX idx_sales_company ON sales(company_id);', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @idx_product_families_company := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_families' AND INDEX_NAME = 'idx_product_families_company'
+);
+SET @sql := IF(@idx_product_families_company = 0, 'CREATE INDEX idx_product_families_company ON product_families(company_id);', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @idx_product_subfamilies_company := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_subfamilies' AND INDEX_NAME = 'idx_product_subfamilies_company'
+);
+SET @sql := IF(@idx_product_subfamilies_company = 0, 'CREATE INDEX idx_product_subfamilies_company ON product_subfamilies(company_id);', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @idx_pos_sessions_company_user := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'pos_sessions' AND INDEX_NAME = 'idx_pos_sessions_company_user'
+);
+SET @sql := IF(@idx_pos_sessions_company_user = 0, 'CREATE INDEX idx_pos_sessions_company_user ON pos_sessions(company_id, user_id);', 'SELECT 1;');
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;

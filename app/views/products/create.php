@@ -16,7 +16,7 @@
                             <label class="form-label">SKU</label>
                             <input type="text" name="sku" class="form-control" placeholder="Opcional">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Proveedor</label>
                             <select name="supplier_id" class="form-select">
                                 <option value="">Sin proveedor</option>
@@ -27,13 +27,25 @@
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">Familia</label>
-                            <input type="text" name="family" class="form-control" placeholder="Familia">
+                            <select name="family_id" id="family-select" class="form-select">
+                                <option value="">Sin familia</option>
+                                <?php foreach ($families as $family): ?>
+                                    <option value="<?php echo (int)$family['id']; ?>"><?php echo e($family['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">Subfamilia</label>
-                            <input type="text" name="subfamily" class="form-control" placeholder="Subfamilia">
+                            <select name="subfamily_id" id="subfamily-select" class="form-select">
+                                <option value="">Sin subfamilia</option>
+                                <?php foreach ($subfamilies as $subfamily): ?>
+                                    <option value="<?php echo (int)$subfamily['id']; ?>" data-family="<?php echo (int)$subfamily['family_id']; ?>">
+                                        <?php echo e($subfamily['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Precio venta</label>
@@ -72,3 +84,26 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function() {
+        const familySelect = document.getElementById('family-select');
+        const subfamilySelect = document.getElementById('subfamily-select');
+        function filterSubfamilies() {
+            const familyId = familySelect.value;
+            Array.from(subfamilySelect.options).forEach((option) => {
+                if (!option.value) {
+                    option.hidden = false;
+                    return;
+                }
+                const belongs = option.dataset.family === familyId || familyId === '';
+                option.hidden = !belongs;
+            });
+            if (familyId && subfamilySelect.selectedOptions[0]?.hidden) {
+                subfamilySelect.value = '';
+            }
+        }
+        familySelect?.addEventListener('change', filterSubfamilies);
+        filterSubfamilies();
+    })();
+</script>

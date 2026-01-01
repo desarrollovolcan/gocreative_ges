@@ -6,6 +6,8 @@ class SalesController extends Controller
     private SaleItemsModel $saleItems;
     private ProductsModel $products;
     private ClientsModel $clients;
+    private PosSessionsModel $posSessions;
+    private SalePaymentsModel $salePayments;
 
     public function __construct(array $config, Database $db)
     {
@@ -14,6 +16,8 @@ class SalesController extends Controller
         $this->saleItems = new SaleItemsModel($db);
         $this->products = new ProductsModel($db);
         $this->clients = new ClientsModel($db);
+        $this->posSessions = new PosSessionsModel($db);
+        $this->salePayments = new SalePaymentsModel($db);
     }
 
     private function requireCompany(): int
@@ -55,6 +59,14 @@ class SalesController extends Controller
         $companyId = $this->requireCompany();
         $products = $this->products->active($companyId);
         $clients = $this->clients->active($companyId);
+        $session = null;
+        $sessionTotals = [];
+        if ($isPos) {
+            $session = $this->posSessions->activeForUser($companyId, (int)(Auth::user()['id'] ?? 0));
+            if ($session) {
+                $sessionTotals = $this->salePayments->totalsBySession((int)$session['id']);
+            }
+        }
 
         $this->render('sales/create', [
             'title' => $isPos ? 'Punto de venta' : 'Registrar venta',
@@ -63,6 +75,8 @@ class SalesController extends Controller
             'clients' => $clients,
             'today' => date('Y-m-d'),
             'isPos' => $isPos,
+            'posSession' => $session,
+            'sessionTotals' => $sessionTotals,
         ]);
     }
 
@@ -71,6 +85,7 @@ class SalesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $companyId = $this->requireCompany();
+        $userId = (int)(Auth::user()['id'] ?? 0);
         $clientId = (int)($_POST['client_id'] ?? 0);
         $client = null;
         if ($clientId > 0) {
@@ -85,6 +100,15 @@ class SalesController extends Controller
         }
 
         $isPos = ($_POST['channel'] ?? '') === 'pos';
+        $posSessionId = null;
+        if ($isPos) {
+            $session = $this->posSessions->activeForUser($companyId, $userId);
+            if (!$session) {
+                flash('error', 'Debes abrir una caja de POS antes de registrar ventas.');
+                $this->redirect('index.php?route=pos');
+            }
+            $posSessionId = (int)$session['id'];
+        }
         $items = $this->collectItems($companyId, $isPos);
         if (empty($items)) {
             flash('error', 'Agrega al menos un producto a la venta.');
@@ -108,6 +132,7 @@ class SalesController extends Controller
             $saleId = $this->sales->create([
                 'company_id' => $companyId,
                 'client_id' => $clientId ?: null,
+                'pos_session_id' => $posSessionId,
                 'channel' => $isPos ? 'pos' : 'venta',
                 'numero' => $numero,
                 'sale_date' => trim($_POST['sale_date'] ?? date('Y-m-d')),
@@ -132,6 +157,14 @@ class SalesController extends Controller
                 ]);
                 $this->products->adjustStock($item['product']['id'], -$item['quantity']);
             }
+            $paymentMethod = $_POST['payment_method'] ?? 'efectivo';
+            $this->salePayments->create([
+                'sale_id' => $saleId,
+                'method' => $paymentMethod,
+                'amount' => $total,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
 
             audit($this->db, Auth::user()['id'], 'create', 'sales', $saleId);
             $pdo->commit();
@@ -203,5 +236,39 @@ class SalesController extends Controller
         }
 
         return $items;
+    }
+
+    public function openSession(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $userId = (int)(Auth::user()['id'] ?? 0);
+        $amount = max(0, (float)($_POST['opening_amount'] ?? 0));
+        $current = $this->posSessions->activeForUser($companyId, $userId);
+        if ($current) {
+            flash('error', 'Ya tienes una sesión abierta.');
+            $this->redirect('index.php?route=pos');
+        }
+        $this->posSessions->openSession($companyId, $userId, $amount);
+        flash('success', 'Caja abierta correctamente.');
+        $this->redirect('index.php?route=pos');
+    }
+
+    public function closeSession(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $userId = (int)(Auth::user()['id'] ?? 0);
+        $amount = max(0, (float)($_POST['closing_amount'] ?? 0));
+        $session = $this->posSessions->activeForUser($companyId, $userId);
+        if (!$session) {
+            flash('error', 'No hay una sesión abierta.');
+            $this->redirect('index.php?route=pos');
+        }
+        $this->posSessions->closeSession((int)$session['id'], $amount);
+        flash('success', 'Caja cerrada correctamente.');
+        $this->redirect('index.php?route=pos');
     }
 }

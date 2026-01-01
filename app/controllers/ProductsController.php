@@ -4,12 +4,16 @@ class ProductsController extends Controller
 {
     private ProductsModel $products;
     private SuppliersModel $suppliers;
+    private ProductFamiliesModel $families;
+    private ProductSubfamiliesModel $subfamilies;
 
     public function __construct(array $config, Database $db)
     {
         parent::__construct($config, $db);
         $this->products = new ProductsModel($db);
         $this->suppliers = new SuppliersModel($db);
+        $this->families = new ProductFamiliesModel($db);
+        $this->subfamilies = new ProductSubfamiliesModel($db);
     }
 
     private function requireCompany(): int
@@ -40,11 +44,15 @@ class ProductsController extends Controller
         $this->requireLogin();
         $companyId = $this->requireCompany();
         $suppliers = $this->suppliers->active($companyId);
+        $families = $this->families->active($companyId);
+        $subfamilies = $this->subfamilies->active($companyId);
 
         $this->render('products/create', [
             'title' => 'Nuevo producto',
             'pageTitle' => 'Nuevo producto',
             'suppliers' => $suppliers,
+            'families' => $families,
+            'subfamilies' => $subfamilies,
         ]);
     }
 
@@ -66,12 +74,35 @@ class ProductsController extends Controller
                 $this->redirect('index.php?route=products/create');
             }
         }
+        $familyId = !empty($_POST['family_id']) ? (int)$_POST['family_id'] : null;
+        $subfamilyId = !empty($_POST['subfamily_id']) ? (int)$_POST['subfamily_id'] : null;
+        if ($familyId) {
+            $family = $this->families->findForCompany($familyId, $companyId);
+            if (!$family) {
+                flash('error', 'Familia no válida.');
+                $this->redirect('index.php?route=products/create');
+            }
+        }
+        if ($subfamilyId) {
+            $subfamily = $this->subfamilies->findForCompany($subfamilyId, $companyId);
+            if (!$subfamily) {
+                flash('error', 'Subfamilia no válida.');
+                $this->redirect('index.php?route=products/create');
+            }
+            if ($familyId && (int)$subfamily['family_id'] !== $familyId) {
+                flash('error', 'La subfamilia no pertenece a la familia seleccionada.');
+                $this->redirect('index.php?route=products/create');
+            }
+            if (!$familyId) {
+                $familyId = (int)$subfamily['family_id'];
+            }
+        }
 
         $this->products->create([
             'company_id' => $companyId,
             'supplier_id' => $supplierId,
-            'family' => trim($_POST['family'] ?? ''),
-            'subfamily' => trim($_POST['subfamily'] ?? ''),
+            'family_id' => $familyId,
+            'subfamily_id' => $subfamilyId,
             'name' => $name,
             'sku' => trim($_POST['sku'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
@@ -99,12 +130,16 @@ class ProductsController extends Controller
             $this->redirect('index.php?route=products');
         }
         $suppliers = $this->suppliers->active($companyId);
+        $families = $this->families->active($companyId);
+        $subfamilies = $this->subfamilies->active($companyId);
 
         $this->render('products/edit', [
             'title' => 'Editar producto',
             'pageTitle' => 'Editar producto',
             'product' => $product,
             'suppliers' => $suppliers,
+            'families' => $families,
+            'subfamilies' => $subfamilies,
         ]);
     }
 
@@ -132,11 +167,34 @@ class ProductsController extends Controller
                 $this->redirect('index.php?route=products/edit&id=' . $id);
             }
         }
+        $familyId = !empty($_POST['family_id']) ? (int)$_POST['family_id'] : null;
+        $subfamilyId = !empty($_POST['subfamily_id']) ? (int)$_POST['subfamily_id'] : null;
+        if ($familyId) {
+            $family = $this->families->findForCompany($familyId, $companyId);
+            if (!$family) {
+                flash('error', 'Familia no válida.');
+                $this->redirect('index.php?route=products/edit&id=' . $id);
+            }
+        }
+        if ($subfamilyId) {
+            $subfamily = $this->subfamilies->findForCompany($subfamilyId, $companyId);
+            if (!$subfamily) {
+                flash('error', 'Subfamilia no válida.');
+                $this->redirect('index.php?route=products/edit&id=' . $id);
+            }
+            if ($familyId && (int)$subfamily['family_id'] !== $familyId) {
+                flash('error', 'La subfamilia no pertenece a la familia seleccionada.');
+                $this->redirect('index.php?route=products/edit&id=' . $id);
+            }
+            if (!$familyId) {
+                $familyId = (int)$subfamily['family_id'];
+            }
+        }
 
         $this->products->update($id, [
             'supplier_id' => $supplierId,
-            'family' => trim($_POST['family'] ?? ''),
-            'subfamily' => trim($_POST['subfamily'] ?? ''),
+            'family_id' => $familyId,
+            'subfamily_id' => $subfamilyId,
             'name' => $name,
             'sku' => trim($_POST['sku'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),

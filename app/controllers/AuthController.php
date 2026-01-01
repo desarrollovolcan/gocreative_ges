@@ -10,6 +10,7 @@ class AuthController extends Controller
             'pageTitle' => 'Acceso Administrador',
             'hidePortalHeader' => true,
             'companies' => $companies,
+            'hasCompanies' => !empty($companies),
         ]);
     }
 

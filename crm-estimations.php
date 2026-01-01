@@ -22,6 +22,76 @@
 
                 <?php $subtitle = "CRM"; $title = "Estimations"; include('partials/page-title.php'); ?>
 
+                <div class="row">
+                    <div class="col-12">
+                        <div class="collapse" id="createEstimationForm">
+                            <div class="card mb-3">
+                                <div class="card-header border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1">Create New Estimation</h5>
+                                            <p class="text-muted mb-0">Ingresa los datos de la estimación sin abrir un modal.</p>
+                                        </div>
+                                        <button type="button" class="btn btn-light btn-icon" data-bs-toggle="collapse" data-bs-target="#createEstimationForm" aria-controls="createEstimationForm" aria-expanded="true">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <form id="createEstimationFormBody">
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="estimationTitle" class="form-label">Project Name</label>
+                                                <input type="text" class="form-control" id="estimationTitle" name="project_name" placeholder="Enter project name" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="clientName" class="form-label">Client</label>
+                                                <input type="text" class="form-control" id="clientName" name="client_name" placeholder="Enter client name" autocomplete="name" data-crm-key="contact_name" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="estimatedValue" class="form-label">Estimated Value (USD)</label>
+                                                <input type="number" class="form-control" id="estimatedValue" name="estimated_value" placeholder="e.g. 25000" inputmode="decimal" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="estimator" class="form-label">Estimated By</label>
+                                                <input type="text" class="form-control" id="estimator" name="estimated_by" placeholder="Enter team member name" autocomplete="name" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="estimationStatus" class="form-label">Status</label>
+                                                <select class="form-select" id="estimationStatus" name="status" required>
+                                                    <option value="">Select status</option>
+                                                    <option value="Approved">Approved</option>
+                                                    <option value="In Review">In Review</option>
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Declined">Declined</option>
+                                                    <option value="Sent">Sent</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="estimationTags" class="form-label">Tags</label>
+                                                <input type="text" class="form-control" id="estimationTags" name="tags" placeholder="e.g. CRM, Mobile, API">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="createdDate" class="form-label">Created Date</label>
+                                                <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="createdDate" name="created_date" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="expectedCloseDate" class="form-label">Expected Close</label>
+                                                <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="expectedCloseDate" name="expected_close_date" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-footer d-flex flex-column flex-sm-row gap-2">
+                                        <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-toggle="collapse" data-bs-target="#createEstimationForm" aria-controls="createEstimationForm" aria-expanded="true">Cancel</button>
+                                        <button type="submit" class="btn btn-primary w-100 w-sm-auto">Save Estimation</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1 g-2">
 
                     <!-- Total Estimations Widget -->
@@ -100,7 +170,7 @@
                                         <input data-table-search type="search" class="form-control" placeholder="Search deals...">
                                         <i data-lucide="search" class="app-search-icon text-muted"></i>
                                     </div>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEstimationModal">
+                                    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#createEstimationForm" aria-expanded="false" aria-controls="createEstimationForm">
                                         <i class="ti ti-plus me-1"></i> New Estimation
                                     </button>
                                     <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
@@ -559,82 +629,6 @@
                         </div> <!-- end card-->
                     </div> <!-- end col-->
                 </div> <!-- end row-->
-
-
-                <!-- Create Estimation Modal -->
-                <div class="modal fade" id="createEstimationModal" tabindex="-1" aria-labelledby="createEstimationModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="createEstimationModalLabel">Create New Estimation</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-
-                            <form id="createEstimationForm">
-                                <div class="modal-body">
-                                    <div class="row g-3">
-
-                                        <div class="col-md-6">
-                                            <label for="estimationTitle" class="form-label">Project Name</label>
-                                            <input type="text" class="form-control" id="estimationTitle" name="project_name" placeholder="Enter project name" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="clientName" class="form-label">Client</label>
-                                            <input type="text" class="form-control" id="clientName" name="client_name" placeholder="Enter client name" autocomplete="name" data-crm-key="contact_name" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="estimatedValue" class="form-label">Estimated Value (USD)</label>
-                                            <input type="number" class="form-control" id="estimatedValue" name="estimated_value" placeholder="e.g. 25000" inputmode="decimal" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="estimator" class="form-label">Estimated By</label>
-                                            <input type="text" class="form-control" id="estimator" name="estimated_by" placeholder="Enter team member name" autocomplete="name" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="estimationStatus" class="form-label">Status</label>
-                                            <select class="form-select" id="estimationStatus" name="status" required>
-                                                <option value="">Select status</option>
-                                                <option value="Approved">Approved</option>
-                                                <option value="In Review">In Review</option>
-                                                <option value="Pending">Pending</option>
-                                                <option value="Declined">Declined</option>
-                                                <option value="Sent">Sent</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="estimationTags" class="form-label">Tags</label>
-                                            <input type="text" class="form-control" id="estimationTags" name="tags" placeholder="e.g. CRM, Mobile, API">
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="createdDate" class="form-label">Created Date</label>
-                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="createdDate" name="created_date" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="expectedCloseDate" class="form-label">Expected Close</label>
-                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="expectedCloseDate" name="expected_close_date" required>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Save Estimation</button>
-                                </div>
-                            </form>
-
-                        </div>
-                    </div>
-                </div>
-
 
 
             </div>

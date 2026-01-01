@@ -59,19 +59,53 @@ class SalesController extends Controller
     {
         $this->requireLogin();
         $companyId = $this->requireCompany();
-        $products = $this->products->active($companyId);
-        $clients = $this->clients->active($companyId);
-        $services = $this->services->active($companyId);
+        $products = [];
+        $clients = [];
+        $services = [];
+        $loadErrors = [];
+        try {
+            $products = $this->products->active($companyId);
+        } catch (Throwable $e) {
+            log_message('error', 'POS: failed to load products - ' . $e->getMessage());
+            $loadErrors[] = 'productos';
+        }
+        try {
+            $clients = $this->clients->active($companyId);
+        } catch (Throwable $e) {
+            log_message('error', 'POS: failed to load clients - ' . $e->getMessage());
+            $loadErrors[] = 'clientes';
+        }
+        try {
+            $services = $this->services->active($companyId);
+        } catch (Throwable $e) {
+            log_message('error', 'POS: failed to load services - ' . $e->getMessage());
+            $loadErrors[] = 'servicios';
+        }
+        if (!empty($loadErrors)) {
+            flash(
+                'error',
+                'No pudimos cargar ' . implode(', ', $loadErrors) . '. Verifica la conexión a la base de datos y que las migraciones estén aplicadas.'
+            );
+        }
         $session = null;
         $sessionTotals = [];
-        $posReady = $this->posTablesReady();
+        $posReady = $this->posTablesReady() && empty($loadErrors);
         $recentSessionSales = [];
         if ($isPos) {
             if ($posReady) {
-                $session = $this->posSessions->activeForUser($companyId, (int)(Auth::user()['id'] ?? 0));
-                if ($session) {
-                    $sessionTotals = $this->salePayments->totalsBySession((int)$session['id']);
-                    $recentSessionSales = $this->sales->recentBySession((int)$session['id'], $companyId);
+                try {
+                    $session = $this->posSessions->activeForUser($companyId, (int)(Auth::user()['id'] ?? 0));
+                    if ($session) {
+                        $sessionTotals = $this->salePayments->totalsBySession((int)$session['id']);
+                        $recentSessionSales = $this->sales->recentBySession((int)$session['id'], $companyId);
+                    }
+                } catch (Throwable $e) {
+                    log_message('error', 'POS: failed to load session data - ' . $e->getMessage());
+                    $posReady = false;
+                    $session = null;
+                    $sessionTotals = [];
+                    $recentSessionSales = [];
+                    flash('error', 'No pudimos cargar la caja del POS. Verifica las migraciones y permisos de base de datos.');
                 }
             } else {
                 flash('error', 'Faltan tablas/columnas para el POS. Ejecuta la actualización de base de datos.');
@@ -347,20 +381,33 @@ class SalesController extends Controller
 
     private function tableExists(string $table): bool
     {
-        $row = $this->db->fetch(
-            'SELECT COUNT(*) AS total FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table',
-            ['table' => $table]
-        );
-        return (int)($row['total'] ?? 0) > 0;
+        try {
+            $row = $this->db->fetch(
+                'SELECT COUNT(*) AS total FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table',
+                ['table' => $table]
+            );
+            return (int)($row['total'] ?? 0) > 0;
+        } catch (Throwable $e) {
+            log_message('error', sprintf('tableExists check failed for %s: %s', $table, $e->getMessage()));
+            return false;
+        }
     }
 
     private function columnExists(string $table, string $column): bool
     {
-        $row = $this->db->fetch(
-            'SELECT COUNT(*) AS total FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column',
-            ['table' => $table, 'column' => $column]
-        );
-        return (int)($row['total'] ?? 0) > 0;
+        try {
+            $row = $this->db->fetch(
+                'SELECT COUNT(*) AS total FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column',
+                ['table' => $table, 'column' => $column]
+            );
+            return (int)($row['total'] ?? 0) > 0;
+        } catch (Throwable $e) {
+            log_message(
+                'error',
+                sprintf('columnExists check failed for %s.%s: %s', $table, $column, $e->getMessage())
+            );
+            return false;
+        }
     }
 
     private function posTablesReady(): bool

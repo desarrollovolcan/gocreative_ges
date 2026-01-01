@@ -59,6 +59,8 @@
                                         data-currency="<?php echo e($renewal['currency']); ?>"
                                         data-reminder="<?php echo e($renewal['reminder_days']); ?>"
                                         data-notes="<?php echo e($renewal['notes']); ?>"
+                                        data-client="<?php echo e($renewal['client_name'] ?? ''); ?>"
+                                        data-service="<?php echo e($renewal['service_name'] ?? '-'); ?>"
                                     >
                                         Editar
                                     </button>
@@ -185,6 +187,14 @@
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">
+                            <label class="form-label">Cliente</label>
+                            <input type="text" class="form-control" id="renewal-edit-client" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Servicio</label>
+                            <input type="text" class="form-control" id="renewal-edit-service" readonly>
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label" for="renewal-edit-date">Fecha renovación</label>
                             <input type="date" class="form-control" name="renewal_date" id="renewal-edit-date" required>
                         </div>
@@ -242,6 +252,8 @@ document.addEventListener('DOMContentLoaded', function () {
         var currency = button.getAttribute('data-currency') || 'CLP';
         var reminder = button.getAttribute('data-reminder') || '15';
         var notes = button.getAttribute('data-notes') || '';
+        var client = button.getAttribute('data-client') || '';
+        var service = button.getAttribute('data-service') || '';
 
         document.getElementById('renewal-edit-id').value = id;
         document.getElementById('renewal-edit-date').value = date;
@@ -250,6 +262,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('renewal-edit-currency').value = currency;
         document.getElementById('renewal-edit-reminder').value = reminder;
         document.getElementById('renewal-edit-notes').value = notes;
+        document.getElementById('renewal-edit-client').value = client;
+        document.getElementById('renewal-edit-service').value = service;
     });
 });
 </script>

@@ -22,6 +22,75 @@
 
                 <?php $subtitle = "CRM"; $title = "Proposals"; include('partials/page-title.php'); ?>
 
+                <div class="row">
+                    <div class="col-12">
+                        <div class="collapse" id="createProposalForm">
+                            <div class="card mb-3">
+                                <div class="card-header border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1">Create New Proposal</h5>
+                                            <p class="text-muted mb-0">Completa la propuesta de forma rápida sin abrir modales.</p>
+                                        </div>
+                                        <button type="button" class="btn btn-light btn-icon" data-bs-toggle="collapse" data-bs-target="#createProposalForm" aria-controls="createProposalForm" aria-expanded="true">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <form id="createProposalFormBody">
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="proposalID" class="form-label">Proposal ID</label>
+                                                <input type="text" class="form-control" id="proposalID" name="proposal_id" placeholder="Enter proposal ID (e.g. #PS008120)" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="proposalSubject" class="form-label">Subject</label>
+                                                <input type="text" class="form-control" id="proposalSubject" name="proposal_subject" placeholder="Enter proposal subject" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="clientName" class="form-label">Send To (Client)</label>
+                                                <input type="text" class="form-control" id="clientName" name="client_name" placeholder="Enter client name" autocomplete="name" data-crm-key="contact_name" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="proposalValue" class="form-label">Value (USD)</label>
+                                                <input type="number" class="form-control" id="proposalValue" name="proposal_value" placeholder="e.g. 15000" inputmode="decimal" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="proposalStatus" class="form-label">Status</label>
+                                                <select class="form-select" id="proposalStatus" name="status" required>
+                                                    <option value="">Select status</option>
+                                                    <option value="Approved">Approved</option>
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Declined">Declined</option>
+                                                    <option value="Sent">Sent</option>
+                                                    <option value="In Review">In Review</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="proposalTags" class="form-label">Tags</label>
+                                                <input type="text" class="form-control" id="proposalTags" name="tags" placeholder="e.g. Marketing, Development, Design">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="createdDate" class="form-label">Created Date</label>
+                                                <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="createdDate" name="created_date" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="openTill" class="form-label">Open Till</label>
+                                                <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="openTill" name="open_till" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex flex-column flex-sm-row gap-2">
+                                        <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-toggle="collapse" data-bs-target="#createProposalForm" aria-controls="createProposalForm" aria-expanded="true">Cancel</button>
+                                        <button type="submit" class="btn btn-primary w-100 w-sm-auto">Save Proposal</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1 g-2">
 
                     <!-- Total Proposals Widget -->
@@ -101,7 +170,7 @@
                                         <input data-table-search type="search" class="form-control" placeholder="Search proposal...">
                                         <i data-lucide="search" class="app-search-icon text-muted"></i>
                                     </div>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProposalModal">
+                                    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#createProposalForm" aria-expanded="false" aria-controls="createProposalForm">
                                         <i class="ti ti-plus me-1"></i> New Proposal
                                     </button>
                                     <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
@@ -548,83 +617,6 @@
                         </div> <!-- end card-->
                     </div> <!-- end col-->
                 </div> <!-- end row-->
-
-
-                <!-- Create Campaign Modal -->
-                <div class="modal fade" id="createProposalModal" tabindex="-1" aria-labelledby="createProposalModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="createProposalModalLabel">Create New Proposal</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-
-                            <form id="createProposalForm">
-                                <div class="modal-body">
-                                    <div class="row g-3">
-
-                                        <div class="col-md-6">
-                                            <label for="proposalID" class="form-label">Proposal ID</label>
-                                            <input type="text" class="form-control" id="proposalID" name="proposal_id" placeholder="Enter proposal ID (e.g. #PS008120)" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="proposalSubject" class="form-label">Subject</label>
-                                            <input type="text" class="form-control" id="proposalSubject" name="proposal_subject" placeholder="Enter proposal subject" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="clientName" class="form-label">Send To (Client)</label>
-                                            <input type="text" class="form-control" id="clientName" name="client_name" placeholder="Enter client name" autocomplete="name" data-crm-key="contact_name" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="proposalValue" class="form-label">Value (USD)</label>
-                                            <input type="number" class="form-control" id="proposalValue" name="proposal_value" placeholder="e.g. 15000" inputmode="decimal" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="proposalStatus" class="form-label">Status</label>
-                                            <select class="form-select" id="proposalStatus" name="status" required>
-                                                <option value="">Select status</option>
-                                                <option value="Approved">Approved</option>
-                                                <option value="Pending">Pending</option>
-                                                <option value="Declined">Declined</option>
-                                                <option value="Sent">Sent</option>
-                                                <option value="In Review">In Review</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="proposalTags" class="form-label">Tags</label>
-                                            <input type="text" class="form-control" id="proposalTags" name="tags" placeholder="e.g. Marketing, Development, Design">
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="createdDate" class="form-label">Created Date</label>
-                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="createdDate" name="created_date" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="openTill" class="form-label">Open Till</label>
-                                            <input type="date" class="form-control" data-provider="flatpickr" data-date-format="d M, Y" id="openTill" name="open_till" required>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Save Proposal</button>
-                                </div>
-                            </form>
-
-                        </div>
-                    </div>
-                </div>
-
-
 
             </div>
             <!-- container -->

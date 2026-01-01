@@ -2,7 +2,7 @@
 <?php if ($isPos): ?>
     <div class="row mb-3">
         <div class="col-12">
-            <div class="card">
+            <div class="card" style="min-height: 140px;">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">Caja POS</h5>
                     <?php if (!empty($posSession)): ?>
@@ -21,7 +21,7 @@
                                 <div class="fw-semibold"><?php echo format_currency(array_sum($sessionTotals)); ?></div>
                             </div>
                             <?php if (!empty($sessionTotals)): ?>
-                                <div class="d-flex flex-wrap gap-3 small">
+                                <div class="d-flex flex-wrap gap-2 small">
                                     <?php foreach ($sessionTotals as $method => $total): ?>
                                         <span class="d-inline-flex align-items-center gap-1 badge bg-light text-body border">
                                             <?php echo e(ucfirst($method)); ?>: <?php echo format_currency((float)$total); ?>
@@ -29,7 +29,7 @@
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
-                            <form method="post" action="index.php?route=pos/close" class="d-flex gap-2 ms-auto flex-wrap align-items-center">
+                            <form method="post" action="index.php?route=pos/close" class="d-flex flex-wrap align-items-center gap-2 ms-auto flex-sm-nowrap">
                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                 <input type="number" step="0.01" min="0" name="closing_amount" class="form-control" placeholder="Monto cierre" required>
                                 <button class="btn btn-danger">Cerrar caja</button>
@@ -50,9 +50,9 @@
         </div>
     </div>
 <?php endif; ?>
-<div class="row">
-    <div class="col-12 col-xl-8">
-        <div class="card">
+<div class="row align-items-stretch">
+    <div class="col-12 col-xl-8 mb-3 mb-xl-0">
+        <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
                     <h4 class="card-title mb-0"><?php echo $isPos ? 'Punto de venta' : 'Nueva venta'; ?></h4>
@@ -175,12 +175,12 @@
                 <div class="tab-content flex-grow-1 d-flex">
                     <div class="tab-pane fade show active d-flex flex-column" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
                         <div class="p-2">
-                            <input type="text" class="form-control form-control-sm" id="search-products" placeholder="Buscar producto">
+                            <input type="text" class="form-control form-control-sm w-100" id="search-products" placeholder="Buscar producto">
                         </div>
                         <div class="list-group list-group-flush flex-grow-1 overflow-auto">
                             <?php foreach ($products as $product): ?>
                                 <button type="button"
-                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product"
+                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product w-100"
                                         data-product-id="<?php echo (int)$product['id']; ?>"
                                         data-price="<?php echo e((float)($product['price'] ?? 0)); ?>"
                                         data-name="<?php echo e(strtolower($product['name'] ?? '')); ?>"
@@ -198,12 +198,12 @@
                     </div>
                     <div class="tab-pane fade d-flex flex-column" id="pane-services" role="tabpanel" aria-labelledby="tab-services">
                         <div class="p-2">
-                            <input type="text" class="form-control form-control-sm" id="search-services" placeholder="Buscar servicio">
+                            <input type="text" class="form-control form-control-sm w-100" id="search-services" placeholder="Buscar servicio">
                         </div>
                         <div class="list-group list-group-flush flex-grow-1 overflow-auto">
                             <?php foreach ($services as $service): ?>
                                 <button type="button"
-                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-service"
+                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-service w-100"
                                         data-service-id="<?php echo (int)$service['id']; ?>"
                                         data-price="<?php echo e((float)($service['cost'] ?? 0)); ?>"
                                         data-name="<?php echo e(strtolower($service['name'] ?? '')); ?>"
@@ -219,6 +219,53 @@
         </div>
     </div>
 </div>
+<?php if ($isPos): ?>
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="card-title mb-0">Historial de ventas (sesión activa)</h5>
+                        <small class="text-muted">Ventas recientes vinculadas a la caja abierta.</small>
+                    </div>
+                    <a href="index.php?route=sales" class="btn btn-soft-secondary btn-sm">Ver todas</a>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($recentSessionSales)): ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Cliente</th>
+                                        <th>Fecha</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($recentSessionSales as $sale): ?>
+                                        <tr>
+                                            <td class="fw-semibold"><?php echo e($sale['numero']); ?></td>
+                                            <td><?php echo e($sale['client_name'] ?? 'Consumidor final'); ?></td>
+                                            <td><?php echo e(date('d/m/Y', strtotime((string)$sale['sale_date']))); ?></td>
+                                            <td class="text-end"><?php echo format_currency((float)($sale['total'] ?? 0)); ?></td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-body border text-capitalize"><?php echo e(str_replace('_', ' ', $sale['status'] ?? '')); ?></span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">Aún no hay ventas registradas en esta sesión.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
 
 <script>
     (function() {

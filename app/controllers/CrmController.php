@@ -577,7 +577,7 @@ class CrmController extends Controller
         }
 
         $service = $this->db->fetch(
-            'SELECT id FROM services WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            'SELECT id, billing_cycle FROM services WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
             ['id' => $serviceId, 'company_id' => $companyId]
         );
 
@@ -585,15 +585,37 @@ class CrmController extends Controller
             return;
         }
 
+        $billingCycle = $service['billing_cycle'] ?? 'anual';
+        $renewalDateTime = DateTime::createFromFormat('Y-m-d', $renewalDate) ?: new DateTime($renewalDate);
+        $newDueDate = clone $renewalDateTime;
+
+        switch ($billingCycle) {
+            case 'mensual':
+                $newDueDate->modify('+1 month');
+                break;
+            case 'anual':
+                $newDueDate->modify('+1 year');
+                break;
+            case 'trimestral':
+                $newDueDate->modify('+3 months');
+                break;
+            case 'semestral':
+                $newDueDate->modify('+6 months');
+                break;
+            default:
+                $newDueDate->modify('+1 year');
+        }
+
         $this->db->execute(
             'UPDATE services
-             SET due_date = :renewal_date,
-                 delete_date = :renewal_date,
+             SET due_date = :due_date,
+                 delete_date = :delete_date,
                  status = :status,
                  updated_at = NOW()
              WHERE id = :id AND company_id = :company_id',
             [
-                'renewal_date' => $renewalDate,
+                'due_date' => $newDueDate->format('Y-m-d'),
+                'delete_date' => $newDueDate->format('Y-m-d'),
                 'status' => 'renovado',
                 'id' => $serviceId,
                 'company_id' => $companyId,

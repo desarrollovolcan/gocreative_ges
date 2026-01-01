@@ -27,11 +27,11 @@ $nextTask = $upcomingTasks[0] ?? null;
     <div class="wrapper">
         <div class="content-page">
             <div class="content">
-                <div class="container-fluid py-4 px-xxl-5 px-lg-4 px-3">
+                <div class="container-xxl py-4 px-3 px-lg-4">
                     <div class="card border-0 shadow-sm mb-3 position-relative overflow-hidden">
                         <div class="card-body p-4">
-                            <div class="row g-3 align-items-center">
-                                <div class="col-lg-8 d-flex align-items-center gap-3">
+                            <div class="row g-3 align-items-center justify-content-between">
+                                <div class="col-lg-7 d-flex align-items-center gap-3">
                                     <div class="bg-light border rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 64px; height: 64px;">
                                         <span class="fw-semibold text-primary fs-4 lh-1"><?php echo e($clientInitial); ?></span>
                                     </div>
@@ -41,14 +41,14 @@ $nextTask = $upcomingTasks[0] ?? null;
                                         <p class="text-muted mb-0">Vista corporativa clara para seguir facturación, proyectos y soporte en un solo lugar.</p>
                                     </div>
                                 </div>
-                                <div class="col-lg-4 d-flex flex-wrap justify-content-lg-end gap-2">
+                                <div class="col-lg-5 d-flex flex-wrap justify-content-lg-end justify-content-start gap-2">
                                     <a class="btn btn-soft-primary" href="#facturacion">Facturación</a>
                                     <a class="btn btn-soft-success" href="#soporte">Soporte</a>
                                     <a class="btn btn-soft-warning text-dark" href="#perfil">Perfil</a>
                                     <a class="btn btn-outline-secondary" href="index.php?route=clients/portal/logout">Cerrar sesión</a>
                                 </div>
                             </div>
-                            <div class="d-flex flex-wrap gap-2 mt-2">
+                            <div class="d-flex flex-wrap gap-2 mt-3">
                                 <a class="btn btn-outline-secondary" href="#perfil">Perfil</a>
                                 <a class="btn btn-soft-primary" href="#resumen">Resumen</a>
                                 <a class="btn btn-outline-danger" href="index.php?route=clients/portal/logout">Cerrar sesión</a>

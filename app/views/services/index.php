@@ -24,8 +24,16 @@
                             <td><?php echo e($service['service_type']); ?></td>
                             <td><?php echo e($service['due_date']); ?></td>
                             <td>
-                                <span class="badge bg-<?php echo $service['status'] === 'activo' ? 'success' : 'secondary'; ?>-subtle text-<?php echo $service['status'] === 'activo' ? 'success' : 'secondary'; ?>">
-                                    <?php echo e($service['status']); ?>
+                                <?php
+                                $status = $service['status'] ?? 'activo';
+                                $statusColor = match ($status) {
+                                    'activo' => 'success',
+                                    'vencido' => 'danger',
+                                    default => 'secondary',
+                                };
+                                ?>
+                                <span class="badge bg-<?php echo $statusColor; ?>-subtle text-<?php echo $statusColor; ?>">
+                                    <?php echo e($status); ?>
                                 </span>
                             </td>
                             <td class="text-end">

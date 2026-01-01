@@ -24,6 +24,62 @@
 
                 <div class="row">
                     <div class="col-12">
+                        <div class="collapse" id="createBriefForm">
+                            <div class="card mb-3">
+                                <div class="card-header border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1">Nuevo Brief Comercial</h5>
+                                            <p class="text-muted mb-0">Completa el brief para registrar una nueva oportunidad.</p>
+                                        </div>
+                                        <button type="button" class="btn btn-light btn-icon" data-bs-toggle="collapse" data-bs-target="#createBriefForm" aria-controls="createBriefForm" aria-expanded="true">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <form>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="briefClient">Cliente</label>
+                                                <input type="text" class="form-control" id="briefClient" placeholder="Nombre del cliente">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="briefService">Servicio solicitado</label>
+                                                <input type="text" class="form-control" id="briefService" placeholder="Ej. Branding, Ads">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="briefBudget">Presupuesto estimado</label>
+                                                <input type="number" class="form-control" id="briefBudget" placeholder="Ej. 1500000">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="briefStatus">Estado</label>
+                                                <select class="form-select" id="briefStatus">
+                                                    <option value="">Seleccionar estado</option>
+                                                    <option>Nuevo</option>
+                                                    <option>En revisión</option>
+                                                    <option>Aprobado</option>
+                                                    <option>Descartado</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label" for="briefNotes">Necesidades del cliente</label>
+                                                <textarea class="form-control" id="briefNotes" rows="3" placeholder="Contexto, objetivos, requerimientos"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex flex-column flex-sm-row gap-2">
+                                        <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-toggle="collapse" data-bs-target="#createBriefForm" aria-controls="createBriefForm" aria-expanded="true">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar Brief</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
                         <div data-table data-table-rows-per-page="8" class="card">
                             <div class="card-header border-light justify-content-between">
                                 <div class="d-flex gap-2">
@@ -31,7 +87,7 @@
                                         <input data-table-search type="search" class="form-control" placeholder="Buscar brief...">
                                         <i data-lucide="search" class="app-search-icon text-muted"></i>
                                     </div>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBriefModal"><i class="ti ti-plus me-1"></i> Nuevo Brief</button>
+                                    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#createBriefForm" aria-expanded="false" aria-controls="createBriefForm"><i class="ti ti-plus me-1"></i> Nuevo Brief</button>
                                     <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
                                 </div>
 
@@ -125,53 +181,6 @@
                                     <div data-table-pagination></div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal fade" id="createBriefModal" tabindex="-1" aria-labelledby="createBriefModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="createBriefModalLabel">Nuevo Brief Comercial</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <form>
-                                <div class="modal-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="briefClient">Cliente</label>
-                                            <input type="text" class="form-control" id="briefClient" placeholder="Nombre del cliente">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="briefService">Servicio solicitado</label>
-                                            <input type="text" class="form-control" id="briefService" placeholder="Ej. Branding, Ads">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="briefBudget">Presupuesto estimado</label>
-                                            <input type="number" class="form-control" id="briefBudget" placeholder="Ej. 1500000">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="briefStatus">Estado</label>
-                                            <select class="form-select" id="briefStatus">
-                                                <option value="">Seleccionar estado</option>
-                                                <option>Nuevo</option>
-                                                <option>En revisión</option>
-                                                <option>Aprobado</option>
-                                                <option>Descartado</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label" for="briefNotes">Necesidades del cliente</label>
-                                            <textarea class="form-control" id="briefNotes" rows="3" placeholder="Contexto, objetivos, requerimientos"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar Brief</button>
-                                </div>
-                            </form>
                         </div>
                     </div>
                 </div>

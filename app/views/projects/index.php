@@ -47,7 +47,6 @@
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Cliente</th>
-                        <th>Mandante</th>
                         <th>Estado</th>
                         <th>Entrega</th>
                         <th class="text-end">Acciones</th>
@@ -67,23 +66,29 @@
                             <td class="text-muted"><?php echo render_id_badge($projectId); ?></td>
                             <td><?php echo e($projectName); ?></td>
                             <td><?php echo e($projectClientName); ?></td>
-                            <td><?php echo e($project['mandante_name'] ?? '-'); ?></td>
                             <td><span class="badge bg-secondary-subtle text-secondary"><?php echo e($projectStatus); ?></span></td>
                             <td><?php echo e($projectDeliveryDate); ?></td>
                             <td class="text-end">
                                 <?php if ($projectId !== null): ?>
-                                    <div class="action-buttons">
-                                        <a href="index.php?route=projects/show&id=<?php echo (int)$projectId; ?>" class="btn btn-light btn-sm">Ver</a>
-                                        <a href="index.php?route=projects/show&id=<?php echo (int)$projectId; ?>#tareas" class="btn btn-outline-secondary btn-sm">Ver tareas</a>
-                                        <?php if ($projectClientId !== null): ?>
-                                            <a href="index.php?route=invoices/create&project_id=<?php echo (int)$projectId; ?>&client_id=<?php echo (int)$projectClientId; ?>" class="btn btn-outline-primary btn-sm">Crear factura</a>
-                                        <?php endif; ?>
-                                        <a href="index.php?route=projects/edit&id=<?php echo (int)$projectId; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
-                                        <form method="post" action="index.php?route=projects/delete">
-                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$projectId; ?>">
-                                            <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                        </form>
+                                    <div class="dropdown actions-dropdown">
+                                        <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Acciones
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a href="index.php?route=projects/show&id=<?php echo (int)$projectId; ?>" class="dropdown-item">Ver</a></li>
+                                            <li><a href="index.php?route=projects/show&id=<?php echo (int)$projectId; ?>#tareas" class="dropdown-item">Ver tareas</a></li>
+                                            <?php if ($projectClientId !== null): ?>
+                                                <li><a href="index.php?route=invoices/create&project_id=<?php echo (int)$projectId; ?>&client_id=<?php echo (int)$projectClientId; ?>" class="dropdown-item">Crear factura</a></li>
+                                            <?php endif; ?>
+                                            <li><a href="index.php?route=projects/edit&id=<?php echo (int)$projectId; ?>" class="dropdown-item">Editar</a></li>
+                                            <li>
+                                                <form method="post" action="index.php?route=projects/delete" onsubmit="return confirm('¿Eliminar este proyecto?');">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                    <input type="hidden" name="id" value="<?php echo (int)$projectId; ?>">
+                                                    <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                                </form>
+                                            </li>
+                                        </ul>
                                     </div>
                                 <?php endif; ?>
                             </td>

@@ -121,22 +121,33 @@
                             <td><?php echo e($payment['metodo']); ?></td>
                             <td><?php echo e($payment['referencia']); ?></td>
                             <td class="text-end">
-                                <div class="action-buttons">
-                                    <button class="btn btn-soft-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#paymentEdit<?php echo $payment['id']; ?>" aria-expanded="false">
-                                        Editar
+                                <div class="dropdown actions-dropdown">
+                                    <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Acciones
                                     </button>
-                                    <form method="post" action="index.php?route=invoices/payments/send-receipt">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="payment_id" value="<?php echo $payment['id']; ?>">
-                                        <input type="hidden" name="invoice_id" value="<?php echo $invoice['id']; ?>">
-                                        <button type="submit" class="btn btn-soft-success btn-sm">Enviar comprobante</button>
-                                    </form>
-                                    <form method="post" action="index.php?route=invoices/payments/delete" onsubmit="return confirm('¿Eliminar este pago?');">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="payment_id" value="<?php echo $payment['id']; ?>">
-                                        <input type="hidden" name="invoice_id" value="<?php echo $invoice['id']; ?>">
-                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                    </form>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <button class="dropdown-item dropdown-item-button" type="button" data-bs-toggle="collapse" data-bs-target="#paymentEdit<?php echo $payment['id']; ?>" aria-expanded="false">
+                                                Editar
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <form method="post" action="index.php?route=invoices/payments/send-receipt">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="payment_id" value="<?php echo $payment['id']; ?>">
+                                                <input type="hidden" name="invoice_id" value="<?php echo $invoice['id']; ?>">
+                                                <button type="submit" class="dropdown-item dropdown-item-button">Enviar comprobante</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="post" action="index.php?route=invoices/payments/delete" onsubmit="return confirm('¿Eliminar este pago?');">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="payment_id" value="<?php echo $payment['id']; ?>">
+                                                <input type="hidden" name="invoice_id" value="<?php echo $invoice['id']; ?>">
+                                                <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                            </form>
+                                        </li>
+                                    </ul>
                                 </div>
                             </td>
                         </tr>

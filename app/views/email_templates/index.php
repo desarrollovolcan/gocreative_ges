@@ -29,13 +29,20 @@
                             <td><?php echo e($template['subject']); ?></td>
                             <td><?php echo e($template['type']); ?></td>
                             <td class="text-end">
-                                <div class="action-buttons">
-                                    <a href="index.php?route=email-templates/edit&id=<?php echo $template['id']; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
-                                    <form method="post" action="index.php?route=email-templates/delete">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="id" value="<?php echo $template['id']; ?>">
-                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                    </form>
+                                <div class="dropdown actions-dropdown">
+                                    <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Acciones
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a href="index.php?route=email-templates/edit&id=<?php echo $template['id']; ?>" class="dropdown-item">Editar</a></li>
+                                        <li>
+                                            <form method="post" action="index.php?route=email-templates/delete" onsubmit="return confirm('¿Eliminar esta plantilla?');">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="id" value="<?php echo $template['id']; ?>">
+                                                <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                            </form>
+                                        </li>
+                                    </ul>
                                 </div>
                             </td>
                         </tr>

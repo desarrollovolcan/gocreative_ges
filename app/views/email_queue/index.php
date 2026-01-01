@@ -72,12 +72,19 @@
                             <td><?php echo e($email['scheduled_at']); ?></td>
                             <td class="text-end">
                                 <?php if ($email['status'] !== 'sent'): ?>
-                                    <div class="action-buttons">
-                                        <form method="post" action="index.php?route=email-queue/send">
-                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$email['id']; ?>">
-                                            <button type="submit" class="btn btn-outline-primary btn-sm">Enviar ahora</button>
-                                        </form>
+                                    <div class="dropdown actions-dropdown">
+                                        <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Acciones
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <form method="post" action="index.php?route=email-queue/send">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                    <input type="hidden" name="id" value="<?php echo (int)$email['id']; ?>">
+                                                    <button type="submit" class="dropdown-item dropdown-item-button">Enviar ahora</button>
+                                                </form>
+                                            </li>
+                                        </ul>
                                     </div>
                                 <?php else: ?>
                                     <span class="text-muted">Enviado</span>

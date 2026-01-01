@@ -168,21 +168,16 @@ body {
     padding: 0.85rem 1rem;
 }
 
-.action-buttons {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.35rem;
-    flex-wrap: nowrap;
-}
-
-.action-buttons form {
-    display: inline-flex;
+.actions-dropdown form {
     margin: 0;
 }
 
-.action-buttons .btn {
-    white-space: nowrap;
+.dropdown-item-button {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    padding: 0.35rem 1rem;
 }
 
 .dashboard-compact .stat-value {

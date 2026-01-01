@@ -41,11 +41,18 @@
                                     </span>
                                 </td>
                                 <td class="text-end">
-                                    <div class="action-buttons">
-                                        <a class="btn btn-soft-primary btn-sm" href="<?php echo e($detailUrl); ?>" target="_blank">Ver factura</a>
-                                        <button class="btn btn-outline-secondary btn-sm" type="button" data-copy-link="<?php echo e($detailUrl); ?>">
-                                            Copiar link
+                                    <div class="dropdown actions-dropdown">
+                                        <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Acciones
                                         </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="<?php echo e($detailUrl); ?>" target="_blank">Ver factura</a></li>
+                                            <li>
+                                                <button class="dropdown-item dropdown-item-button" type="button" data-copy-link="<?php echo e($detailUrl); ?>">
+                                                    Copiar link
+                                                </button>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </td>
                             </tr>

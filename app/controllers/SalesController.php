@@ -65,11 +65,13 @@ class SalesController extends Controller
         $session = null;
         $sessionTotals = [];
         $posReady = $this->posTablesReady();
+        $recentSessionSales = [];
         if ($isPos) {
             if ($posReady) {
                 $session = $this->posSessions->activeForUser($companyId, (int)(Auth::user()['id'] ?? 0));
                 if ($session) {
                     $sessionTotals = $this->salePayments->totalsBySession((int)$session['id']);
+                    $recentSessionSales = $this->sales->recentBySession((int)$session['id'], $companyId);
                 }
             } else {
                 flash('error', 'Faltan tablas/columnas para el POS. Ejecuta la actualización de base de datos.');
@@ -87,6 +89,7 @@ class SalesController extends Controller
             'posSession' => $session,
             'sessionTotals' => $sessionTotals,
             'posReady' => $posReady,
+            'recentSessionSales' => $recentSessionSales,
         ]);
     }
 

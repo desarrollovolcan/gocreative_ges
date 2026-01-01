@@ -283,6 +283,26 @@ class SalesController extends Controller
         return $items;
     }
 
+    public function delete(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $id = (int)($_POST['sale_id'] ?? 0);
+        if ($id <= 0) {
+            $this->redirect('index.php?route=pos');
+        }
+        $sale = $this->sales->findForCompany($id, $companyId);
+        if (!$sale) {
+            flash('error', 'Venta no encontrada.');
+            $this->redirect('index.php?route=pos');
+        }
+        $this->sales->softDelete($id, $companyId);
+        flash('success', 'Venta eliminada correctamente.');
+        $redirect = ($_POST['origin'] ?? '') === 'pos' ? 'index.php?route=pos' : 'index.php?route=sales';
+        $this->redirect($redirect);
+    }
+
     public function openSession(): void
     {
         $this->requireLogin();

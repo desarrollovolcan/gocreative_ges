@@ -385,4 +385,107 @@ class CrmController extends Controller
         flash('success', 'Renovación registrada correctamente.');
         $this->redirect('index.php?route=crm/renewals');
     }
+
+    public function approveRenewal(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        $id = (int)($_POST['id'] ?? 0);
+        $renewal = $this->db->fetch(
+            'SELECT id FROM service_renewals WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$renewal) {
+            flash('error', 'Renovación no encontrada para esta empresa.');
+            $this->redirect('index.php?route=crm/renewals');
+        }
+        $this->db->execute(
+            'UPDATE service_renewals SET status = :status, updated_at = NOW() WHERE id = :id AND company_id = :company_id',
+            ['status' => 'renovado', 'id' => $id, 'company_id' => $companyId]
+        );
+        audit($this->db, Auth::user()['id'], 'update', 'service_renewals', $id);
+        flash('success', 'Renovación aprobada correctamente.');
+        $this->redirect('index.php?route=crm/renewals');
+    }
+
+    public function updateRenewal(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        $id = (int)($_POST['id'] ?? 0);
+        $renewal = $this->db->fetch(
+            'SELECT * FROM service_renewals WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$renewal) {
+            flash('error', 'Renovación no encontrada para esta empresa.');
+            $this->redirect('index.php?route=crm/renewals');
+        }
+
+        $status = $_POST['status'] ?? 'pendiente';
+        $allowedStatuses = ['pendiente', 'en_negociacion', 'renovado', 'no_renovado'];
+        if (!in_array($status, $allowedStatuses, true)) {
+            $status = 'pendiente';
+        }
+
+        $data = [
+            'renewal_date' => $_POST['renewal_date'] !== '' ? $_POST['renewal_date'] : $renewal['renewal_date'],
+            'status' => $status,
+            'amount' => (float)($_POST['amount'] ?? $renewal['amount']),
+            'currency' => $_POST['currency'] ?? $renewal['currency'],
+            'reminder_days' => (int)($_POST['reminder_days'] ?? $renewal['reminder_days']),
+            'notes' => trim($_POST['notes'] ?? $renewal['notes']),
+        ];
+
+        if ($data['amount'] <= 0) {
+            flash('error', 'Ingresa un monto válido para la renovación.');
+            $this->redirect('index.php?route=crm/renewals');
+        }
+
+        $this->db->execute(
+            'UPDATE service_renewals
+             SET renewal_date = :renewal_date, status = :status, amount = :amount, currency = :currency, reminder_days = :reminder_days, notes = :notes, updated_at = NOW()
+             WHERE id = :id AND company_id = :company_id',
+            [
+                'renewal_date' => $data['renewal_date'],
+                'status' => $data['status'],
+                'amount' => $data['amount'],
+                'currency' => $data['currency'],
+                'reminder_days' => $data['reminder_days'],
+                'notes' => $data['notes'],
+                'id' => $id,
+                'company_id' => $companyId,
+            ]
+        );
+
+        audit($this->db, Auth::user()['id'], 'update', 'service_renewals', $id);
+        flash('success', 'Renovación actualizada correctamente.');
+        $this->redirect('index.php?route=crm/renewals');
+    }
+
+    public function deleteRenewal(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        $id = (int)($_POST['id'] ?? 0);
+        $renewal = $this->db->fetch(
+            'SELECT id FROM service_renewals WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$renewal) {
+            flash('error', 'Renovación no encontrada para esta empresa.');
+            $this->redirect('index.php?route=crm/renewals');
+        }
+
+        $this->db->execute(
+            'UPDATE service_renewals SET deleted_at = NOW(), updated_at = NOW() WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        audit($this->db, Auth::user()['id'], 'delete', 'service_renewals', $id);
+        flash('success', 'Renovación eliminada correctamente.');
+        $this->redirect('index.php?route=crm/renewals');
+    }
 }

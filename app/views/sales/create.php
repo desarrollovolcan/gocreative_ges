@@ -21,6 +21,23 @@
         .pos-compact .card.h-100 {
             height: 100%;
         }
+        .pos-compact .pos-equal-col {
+            display: flex;
+        }
+        .pos-compact .pos-equal-col > .card {
+            flex: 1 1 auto;
+            height: 100%;
+        }
+        .pos-compact .tab-pane .list-group-item-action > span:first-child {
+            display: inline-flex;
+            align-items: flex-start;
+            gap: 6px;
+            width: 100%;
+            text-align: left;
+        }
+        .pos-compact .tab-pane .list-group-item-action .badge {
+            flex-shrink: 0;
+        }
     </style>
     <div class="row mb-3 pos-compact">
         <div class="col-12">
@@ -73,7 +90,7 @@
     </div>
 <?php endif; ?>
 <div class="row align-items-stretch gy-3 pos-compact">
-    <div class="col-12 col-xl-8">
+    <div class="col-12 col-xl-8 pos-equal-col">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
@@ -181,7 +198,7 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-xl-4">
+    <div class="col-12 col-xl-4 pos-equal-col">
         <div class="card h-100">
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" role="tablist">
@@ -207,7 +224,7 @@
                                         data-price="<?php echo e((float)($product['price'] ?? 0)); ?>"
                                         data-name="<?php echo e(strtolower($product['name'] ?? '')); ?>"
                                         data-label="<?php echo e($product['name']); ?>">
-                                    <span>
+                                    <span class="flex-grow-1">
                                         <?php echo e($product['name']); ?>
                                         <?php if (!empty($product['sku'])): ?>
                                             <small class="text-muted ms-1">(#<?php echo e($product['sku']); ?>)</small>
@@ -230,7 +247,7 @@
                                         data-price="<?php echo e((float)($service['cost'] ?? 0)); ?>"
                                         data-name="<?php echo e(strtolower($service['name'] ?? '')); ?>"
                                         data-label="<?php echo e($service['name']); ?>">
-                                    <span><?php echo e($service['name']); ?></span>
+                                    <span class="flex-grow-1"><?php echo e($service['name']); ?></span>
                                     <span class="badge bg-light text-body"><?php echo format_currency((float)($service['cost'] ?? 0)); ?></span>
                                 </button>
                             <?php endforeach; ?>

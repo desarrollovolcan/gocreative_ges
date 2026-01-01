@@ -143,6 +143,40 @@
     </div>
 </div>
 
+<?php if (!empty($renewals)): ?>
+<div class="card mt-3">
+    <div class="card-header">
+        <h4 class="card-title mb-0">Historial de renovaciones</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th class="text-end">Monto</th>
+                        <th>Moneda</th>
+                        <th>Notas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($renewals as $renewal): ?>
+                        <tr>
+                            <td><?php echo e(format_date($renewal['renewal_date'])); ?></td>
+                            <td><?php echo e(str_replace('_', ' ', $renewal['status'] ?? '')); ?></td>
+                            <td class="text-end"><?php echo e(format_currency((float)($renewal['amount'] ?? 0))); ?></td>
+                            <td><?php echo e($renewal['currency'] ?? ''); ?></td>
+                            <td><?php echo e($renewal['notes'] ?? ''); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <script>
     const serviceBillingCycleSelect = document.querySelector('[data-billing-cycle]');
     const serviceStartDateInput = document.querySelector('[data-start-date]');

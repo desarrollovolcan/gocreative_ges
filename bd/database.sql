@@ -422,14 +422,16 @@ CREATE TABLE sales (
 CREATE TABLE sale_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     sale_id INT NOT NULL,
-    product_id INT NOT NULL,
+    product_id INT NULL,
+    service_id INT NULL,
     quantity INT NOT NULL DEFAULT 0,
     unit_price DECIMAL(12,2) NOT NULL DEFAULT 0,
     subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     FOREIGN KEY (sale_id) REFERENCES sales(id),
-    FOREIGN KEY (product_id) REFERENCES products(id)
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (service_id) REFERENCES services(id)
 );
 
 CREATE TABLE sale_payments (

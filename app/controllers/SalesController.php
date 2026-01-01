@@ -162,14 +162,17 @@ class SalesController extends Controller
             foreach ($items as $item) {
                 $this->saleItems->create([
                     'sale_id' => $saleId,
-                    'product_id' => $item['product']['id'],
+                    'product_id' => $item['product']['id'] ?? null,
+                    'service_id' => $item['service']['id'] ?? null,
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'subtotal' => $item['subtotal'],
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
-                $this->products->adjustStock($item['product']['id'], -$item['quantity']);
+                if (!empty($item['product']['id'])) {
+                    $this->products->adjustStock($item['product']['id'], -$item['quantity']);
+                }
             }
             if ($this->salePaymentsEnabled()) {
                 $paymentMethod = $_POST['payment_method'] ?? 'efectivo';
@@ -224,31 +227,54 @@ class SalesController extends Controller
     private function collectItems(int $companyId, bool $isPos): array
     {
         $productIds = $_POST['product_id'] ?? [];
+        $serviceIds = $_POST['service_id'] ?? [];
         $quantities = $_POST['quantity'] ?? [];
         $unitPrices = $_POST['unit_price'] ?? [];
+        $types = $_POST['item_type'] ?? [];
         $items = [];
 
-        foreach ($productIds as $index => $productId) {
-            $productId = (int)$productId;
+        $max = max(count($productIds), count($serviceIds), count($quantities));
+        for ($index = 0; $index < $max; $index++) {
+            $type = $types[$index] ?? 'product';
+            $productId = (int)($productIds[$index] ?? 0);
+            $serviceId = (int)($serviceIds[$index] ?? 0);
             $quantity = max(0, (int)($quantities[$index] ?? 0));
             $unitPrice = max(0.0, (float)($unitPrices[$index] ?? 0));
-            if ($productId <= 0 || $quantity <= 0) {
+            if ($quantity <= 0) {
                 continue;
             }
-            $product = $this->products->findForCompany($productId, $companyId);
-            if (!$product) {
+            if ($type === 'service' && $serviceId > 0) {
+                $service = $this->services->find($serviceId);
+                if (!$service || (int)$service['company_id'] !== $companyId) {
+                    continue;
+                }
+                $price = $unitPrice > 0 ? $unitPrice : (float)($service['cost'] ?? 0);
+                $items[] = [
+                    'product' => null,
+                    'service' => $service,
+                    'quantity' => $quantity,
+                    'unit_price' => $price,
+                    'subtotal' => $quantity * $price,
+                ];
                 continue;
             }
-            if ((int)$product['stock'] < $quantity) {
-                flash('error', sprintf('Stock insuficiente para %s. Disponible: %d', $product['name'], (int)$product['stock']));
-                $this->redirect($isPos ? 'index.php?route=pos' : 'index.php?route=sales/create');
+            if ($productId > 0) {
+                $product = $this->products->findForCompany($productId, $companyId);
+                if (!$product) {
+                    continue;
+                }
+                if ((int)$product['stock'] < $quantity) {
+                    flash('error', sprintf('Stock insuficiente para %s. Disponible: %d', $product['name'], (int)$product['stock']));
+                    $this->redirect($isPos ? 'index.php?route=pos' : 'index.php?route=sales/create');
+                }
+                $items[] = [
+                    'product' => $product,
+                    'service' => null,
+                    'quantity' => $quantity,
+                    'unit_price' => $unitPrice > 0 ? $unitPrice : (float)($product['price'] ?? 0),
+                    'subtotal' => $quantity * ($unitPrice > 0 ? $unitPrice : (float)($product['price'] ?? 0)),
+                ];
             }
-            $items[] = [
-                'product' => $product,
-                'quantity' => $quantity,
-                'unit_price' => $unitPrice > 0 ? $unitPrice : (float)($product['price'] ?? 0),
-                'subtotal' => $quantity * ($unitPrice > 0 ? $unitPrice : (float)($product['price'] ?? 0)),
-            ];
         }
 
         return $items;

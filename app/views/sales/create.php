@@ -92,12 +92,12 @@
                             </datalist>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Productos</label>
+                            <label class="form-label">Productos / Servicios</label>
                             <div class="table-responsive">
                                 <table class="table table-sm align-middle" id="sale-items-table">
                                     <thead>
                                         <tr>
-                                            <th style="width: 40%;">Producto</th>
+                                            <th style="width: 40%;">Item</th>
                                             <th style="width: 15%;">Cantidad</th>
                                             <th style="width: 20%;">Precio</th>
                                             <th class="text-end" style="width: 20%;">Subtotal</th>
@@ -106,6 +106,8 @@
                                     </thead>
                                     <tbody>
                                         <tr class="item-row">
+                                            <input type="hidden" name="item_type[]" value="product" class="item-type">
+                                            <input type="hidden" name="service_id[]" value="" class="service-id">
                                             <td>
                                                 <select name="product_id[]" class="form-select form-select-sm product-select">
                                                     <option value="">Selecciona</option>
@@ -167,39 +169,56 @@
     <div class="col-12 col-xl-4">
         <div class="card h-100">
             <div class="card-header">
-                <h5 class="card-title mb-0">Productos disponibles</h5>
+                <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab-products" data-bs-toggle="tab" data-bs-target="#pane-products" type="button" role="tab">Productos</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-services" data-bs-toggle="tab" data-bs-target="#pane-services" type="button" role="tab">Servicios</button>
+                    </li>
+                </ul>
             </div>
             <div class="card-body p-0">
-                <div class="list-group list-group-flush" style="max-height: 280px; overflow-y: auto;">
-                    <?php foreach ($products as $product): ?>
-                        <button type="button"
-                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product"
-                                data-product-id="<?php echo (int)$product['id']; ?>"
-                                data-price="<?php echo e((float)($product['price'] ?? 0)); ?>">
-                            <span>
-                                <?php echo e($product['name']); ?>
-                                <?php if (!empty($product['sku'])): ?>
-                                    <small class="text-muted ms-1">(#<?php echo e($product['sku']); ?>)</small>
-                                <?php endif; ?>
-                            </span>
-                            <span class="badge bg-light text-body"><?php echo format_currency((float)($product['price'] ?? 0)); ?></span>
-                        </button>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-        <div class="card mt-3">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Servicios</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush" style="max-height: 180px; overflow-y: auto;">
-                    <?php foreach ($services as $service): ?>
-                        <div class="list-group-item d-flex justify-content-between">
-                            <span><?php echo e($service['name']); ?></span>
-                            <span class="badge bg-light text-body"><?php echo format_currency((float)($service['cost'] ?? 0)); ?></span>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
+                        <div class="p-2">
+                            <input type="text" class="form-control form-control-sm mb-2" id="search-products" placeholder="Buscar producto">
                         </div>
-                    <?php endforeach; ?>
+                        <div class="list-group list-group-flush" style="max-height: 250px; overflow-y: auto;">
+                            <?php foreach ($products as $product): ?>
+                                <button type="button"
+                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product"
+                                        data-product-id="<?php echo (int)$product['id']; ?>"
+                                        data-price="<?php echo e((float)($product['price'] ?? 0)); ?>"
+                                        data-name="<?php echo e(strtolower($product['name'] ?? '')); ?>">
+                                    <span>
+                                        <?php echo e($product['name']); ?>
+                                        <?php if (!empty($product['sku'])): ?>
+                                            <small class="text-muted ms-1">(#<?php echo e($product['sku']); ?>)</small>
+                                        <?php endif; ?>
+                                    </span>
+                                    <span class="badge bg-light text-body"><?php echo format_currency((float)($product['price'] ?? 0)); ?></span>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pane-services" role="tabpanel" aria-labelledby="tab-services">
+                        <div class="p-2">
+                            <input type="text" class="form-control form-control-sm mb-2" id="search-services" placeholder="Buscar servicio">
+                        </div>
+                        <div class="list-group list-group-flush" style="max-height: 250px; overflow-y: auto;">
+                            <?php foreach ($services as $service): ?>
+                                <button type="button"
+                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-service"
+                                        data-service-id="<?php echo (int)$service['id']; ?>"
+                                        data-price="<?php echo e((float)($service['cost'] ?? 0)); ?>"
+                                        data-name="<?php echo e(strtolower($service['name'] ?? '')); ?>">
+                                    <span><?php echo e($service['name']); ?></span>
+                                    <span class="badge bg-light text-body"><?php echo format_currency((float)($service['cost'] ?? 0)); ?></span>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -217,6 +236,9 @@
         const statusSelect = document.querySelector('select[name=\"status\"]');
         const holdButton = document.getElementById('mark-hold');
         const productSelectors = document.querySelectorAll('.add-product');
+        const serviceSelectors = document.querySelectorAll('.add-service');
+        const searchProducts = document.getElementById('search-products');
+        const searchServices = document.getElementById('search-services');
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(amount || 0);
@@ -243,6 +265,8 @@
                 input.value = input.classList.contains('quantity-input') ? '1' : '0';
             });
             clone.querySelector('.product-select').selectedIndex = 0;
+            clone.querySelector('.item-type').value = 'product';
+            clone.querySelector('.service-id').value = '';
             clone.querySelector('.item-subtotal').innerText = formatCurrency(0);
             tableBody.appendChild(clone);
             return clone;
@@ -311,10 +335,41 @@
                 }
                 const rowSelect = targetRow.querySelector('.product-select');
                 rowSelect.value = productId;
+                targetRow.querySelector('.item-type').value = 'product';
+                targetRow.querySelector('.service-id').value = '';
                 targetRow.querySelector('.price-input').value = price;
                 recalc();
             });
         });
+        const serviceSelectors = document.querySelectorAll('.add-service');
+        serviceSelectors.forEach((button) => {
+            button.addEventListener('click', () => {
+                const serviceId = button.dataset.serviceId;
+                const price = button.dataset.price || 0;
+                let targetRow = tableBody.querySelector('.item-row');
+                const select = targetRow.querySelector('.product-select');
+                const hasSelection = select.value || targetRow.querySelector('.service-id').value;
+                if (hasSelection) {
+                    targetRow = addRow();
+                }
+                targetRow.querySelector('.product-select').value = '';
+                targetRow.querySelector('.service-id').value = serviceId;
+                targetRow.querySelector('.item-type').value = 'service';
+                targetRow.querySelector('.price-input').value = price;
+                recalc();
+            });
+        });
+        const searchProducts = document.getElementById('search-products');
+        const searchServices = document.getElementById('search-services');
+        function filterList(input, elements) {
+            const term = (input?.value || '').toLowerCase();
+            elements.forEach((el) => {
+                const name = (el.dataset.name || '').toLowerCase();
+                el.style.display = name.includes(term) ? '' : 'none';
+            });
+        }
+        searchProducts?.addEventListener('input', () => filterList(searchProducts, productSelectors));
+        searchServices?.addEventListener('input', () => filterList(searchServices, serviceSelectors));
         recalc();
     })();
 </script>

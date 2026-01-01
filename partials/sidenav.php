@@ -322,6 +322,11 @@
                             </a>
                         </li>
                         <li class="side-nav-item">
+                            <a href="crm-briefs.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-briefs">Briefs Comerciales</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
                             <a href="crm-pipeline.php" class="side-nav-link">
                                 <span class="menu-text" data-lang="crm-pipeline">Pipeline</span>
                             </a>
@@ -342,6 +347,114 @@
                             </a>
                         </li>
                         <li class="side-nav-item">
+                            <a href="crm-orders.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-orders">Órdenes de Venta</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-customers.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-customers">Customers</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-renewals.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-renewals">Renovaciones</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-activities.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-activities">Activities</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-title" data-lang="crm-flow-title">Flujo CRM</li>
+
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarProspeccion" aria-expanded="false" aria-controls="sidebarProspeccion" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="radar"></i></span>
+                    <span class="menu-text" data-lang="crm-prospeccion">Prospección</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarProspeccion">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="crm-leads.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-leads">Leads</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-briefs.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-briefs">Briefs Comerciales</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-campaign.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-campaign">Campaign</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-contacts.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-contacts">Contacts</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarVentas" aria-expanded="false" aria-controls="sidebarVentas" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="shopping-cart"></i></span>
+                    <span class="menu-text" data-lang="crm-ventas">Ventas</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarVentas">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="crm-opportunities.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-opportunities">Opportunities</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-deals.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-deals">Deals</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-pipeline.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-pipeline">Pipeline</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-proposals.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-proposals">Proposals</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-estimations.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-estimations">Estimations</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-orders.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-orders">Órdenes de Venta</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarPostventa" aria-expanded="false" aria-controls="sidebarPostventa" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="handshake"></i></span>
+                    <span class="menu-text" data-lang="crm-postventa">Postventa</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarPostventa">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
                             <a href="crm-customers.php" class="side-nav-link">
                                 <span class="menu-text" data-lang="crm-customers">Customers</span>
                             </a>
@@ -349,6 +462,21 @@
                         <li class="side-nav-item">
                             <a href="crm-activities.php" class="side-nav-link">
                                 <span class="menu-text" data-lang="crm-activities">Activities</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="tickets-list.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-service-desk">Service Desk</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-renewals.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-renewals">Renovaciones</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-reports.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-reports">Reports &amp; Insights</span>
                             </a>
                         </li>
                     </ul>

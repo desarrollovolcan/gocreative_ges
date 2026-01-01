@@ -24,6 +24,62 @@
 
                 <div class="row">
                     <div class="col-12">
+                        <div class="collapse" id="createOrderForm">
+                            <div class="card mb-3">
+                                <div class="card-header border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1">Nueva Orden de Venta</h5>
+                                            <p class="text-muted mb-0">Completa el formulario para registrar una nueva orden.</p>
+                                        </div>
+                                        <button type="button" class="btn btn-light btn-icon" data-bs-toggle="collapse" data-bs-target="#createOrderForm" aria-controls="createOrderForm" aria-expanded="true">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <form>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="orderClient">Cliente</label>
+                                                <input type="text" class="form-control" id="orderClient" placeholder="Nombre del cliente">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="orderService">Servicio</label>
+                                                <input type="text" class="form-control" id="orderService" placeholder="Servicio contratado">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="orderTotal">Total</label>
+                                                <input type="number" class="form-control" id="orderTotal" placeholder="Ej. 1200000">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="orderStatus">Estado</label>
+                                                <select class="form-select" id="orderStatus">
+                                                    <option value="">Seleccionar estado</option>
+                                                    <option>Pendiente</option>
+                                                    <option>Confirmada</option>
+                                                    <option>En ejecución</option>
+                                                    <option>Finalizada</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label" for="orderNotes">Notas</label>
+                                                <textarea class="form-control" id="orderNotes" rows="3" placeholder="Condiciones, alcance, hitos"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex flex-column flex-sm-row gap-2">
+                                        <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-toggle="collapse" data-bs-target="#createOrderForm" aria-controls="createOrderForm" aria-expanded="true">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar Orden</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
                         <div data-table data-table-rows-per-page="8" class="card">
                             <div class="card-header border-light justify-content-between">
                                 <div class="d-flex gap-2">
@@ -31,7 +87,7 @@
                                         <input data-table-search type="search" class="form-control" placeholder="Buscar orden...">
                                         <i data-lucide="search" class="app-search-icon text-muted"></i>
                                     </div>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createOrderModal"><i class="ti ti-plus me-1"></i> Nueva Orden</button>
+                                    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#createOrderForm" aria-expanded="false" aria-controls="createOrderForm"><i class="ti ti-plus me-1"></i> Nueva Orden</button>
                                     <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
                                 </div>
 
@@ -125,53 +181,6 @@
                                     <div data-table-pagination></div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal fade" id="createOrderModal" tabindex="-1" aria-labelledby="createOrderModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="createOrderModalLabel">Nueva Orden de Venta</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <form>
-                                <div class="modal-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="orderClient">Cliente</label>
-                                            <input type="text" class="form-control" id="orderClient" placeholder="Nombre del cliente">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="orderService">Servicio</label>
-                                            <input type="text" class="form-control" id="orderService" placeholder="Servicio contratado">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="orderTotal">Total</label>
-                                            <input type="number" class="form-control" id="orderTotal" placeholder="Ej. 1200000">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="orderStatus">Estado</label>
-                                            <select class="form-select" id="orderStatus">
-                                                <option value="">Seleccionar estado</option>
-                                                <option>Pendiente</option>
-                                                <option>Confirmada</option>
-                                                <option>En ejecución</option>
-                                                <option>Finalizada</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label" for="orderNotes">Notas</label>
-                                            <textarea class="form-control" id="orderNotes" rows="3" placeholder="Condiciones, alcance, hitos"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar Orden</button>
-                                </div>
-                            </form>
                         </div>
                     </div>
                 </div>

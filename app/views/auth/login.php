@@ -1,5 +1,6 @@
 <?php
 $loginLogoSrc = login_logo_src($companySettings ?? []);
+$hasCompanies = !empty($hasCompanies ?? $companies ?? []);
 ?>
 
 <div class="auth-box p-0 w-100">
@@ -48,29 +49,35 @@ $loginLogoSrc = login_logo_src($companySettings ?? []);
                                 <div class="alert alert-danger text-start mt-3"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
                             <?php endif; ?>
 
+                            <?php if (!$hasCompanies): ?>
+                                <div class="alert alert-warning text-start mt-3">No hay empresas activas configuradas. Contacta al administrador para continuar.</div>
+                            <?php endif; ?>
+
                             <form class="mt-4" method="post" action="login.php">
                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                <div class="app-search w-100 input-group rounded-pill mb-3">
-                                    <select name="company_id" class="form-select py-2" required>
-                                        <option value="">Selecciona empresa</option>
-                                        <?php foreach (($companies ?? []) as $company): ?>
-                                            <option value="<?php echo e((string)$company['id']); ?>"><?php echo e($company['name']); ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="text-muted small text-start mb-3">Selecciona la empresa donde administrarás la cuenta.</div>
-                                <div class="app-search w-100 input-group rounded-pill mb-3">
-                                    <input type="email" name="email" class="form-control py-2" placeholder="Correo administrador" required>
-                                    <i data-lucide="circle-user" class="app-search-icon text-muted"></i>
-                                </div>
-                                <div class="app-search w-100 input-group rounded-pill mb-2">
-                                    <input type="password" name="password" class="form-control py-2" placeholder="Contraseña" required data-password-field>
-                                    <button class="btn btn-outline-secondary" type="button" data-toggle-password>Mostrar</button>
-                                    <i data-lucide="key-round" class="app-search-icon text-muted"></i>
-                                </div>
-                                <div class="d-grid gap-2 mt-3">
-                                    <button type="submit" class="btn btn-primary fw-semibold">Ingresar</button>
-                                </div>
+                                <fieldset <?php echo $hasCompanies ? '' : 'disabled'; ?>>
+                                    <div class="app-search w-100 input-group rounded-pill mb-3">
+                                        <select name="company_id" class="form-select py-2" required>
+                                            <option value="">Selecciona empresa</option>
+                                            <?php foreach (($companies ?? []) as $company): ?>
+                                                <option value="<?php echo e((string)$company['id']); ?>"><?php echo e($company['name']); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="text-muted small text-start mb-3">Selecciona la empresa donde administrarás la cuenta.</div>
+                                    <div class="app-search w-100 input-group rounded-pill mb-3">
+                                        <input type="email" name="email" class="form-control py-2" placeholder="Correo administrador" autocomplete="username" required>
+                                        <i data-lucide="circle-user" class="app-search-icon text-muted"></i>
+                                    </div>
+                                    <div class="app-search w-100 input-group rounded-pill mb-2">
+                                        <input type="password" name="password" class="form-control py-2" placeholder="Contraseña" autocomplete="current-password" required data-password-field>
+                                        <button class="btn btn-outline-secondary" type="button" data-toggle-password>Mostrar</button>
+                                        <i data-lucide="key-round" class="app-search-icon text-muted"></i>
+                                    </div>
+                                    <div class="d-grid gap-2 mt-3">
+                                        <button type="submit" class="btn btn-primary fw-semibold">Ingresar</button>
+                                    </div>
+                                </fieldset>
                             </form>
                         </div>
                     </div>

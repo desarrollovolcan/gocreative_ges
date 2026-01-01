@@ -70,6 +70,26 @@ function format_currency(float $amount, ?int $decimals = null): string
     return $symbol . number_format($amount, $precision, $decimalSeparator, $thousandsSeparator);
 }
 
+function format_date(?string $date, string $format = 'd/m/Y'): string
+{
+    if (empty($date)) {
+        return '';
+    }
+
+    $dateTime = DateTime::createFromFormat('Y-m-d', $date)
+        ?: DateTime::createFromFormat('Y-m-d H:i:s', $date);
+
+    if (!$dateTime) {
+        try {
+            $dateTime = new DateTime($date);
+        } catch (Exception $e) {
+            return (string)$date;
+        }
+    }
+
+    return $dateTime->format($format);
+}
+
 function log_message(string $level, string $message): void
 {
     $logFile = __DIR__ . '/../storage/logs/app.log';

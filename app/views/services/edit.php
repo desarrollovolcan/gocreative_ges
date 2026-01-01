@@ -7,7 +7,7 @@
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="serviceEditHeadingInfo">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#serviceEditInfo" aria-expanded="true" aria-controls="serviceEditInfo">
-                            Cliente y servicio
+                            Cliente y servicio <span class="text-muted ms-2">#<?php echo (int)($service['id'] ?? 0); ?></span>
                         </button>
                     </h2>
                     <div id="serviceEditInfo" class="accordion-collapse collapse show" aria-labelledby="serviceEditHeadingInfo" data-bs-parent="#serviceEditAccordion">
@@ -142,6 +142,40 @@
         </form>
     </div>
 </div>
+
+<?php if (!empty($renewals)): ?>
+<div class="card mt-3">
+    <div class="card-header">
+        <h4 class="card-title mb-0">Historial de renovaciones</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th class="text-end">Monto</th>
+                        <th>Moneda</th>
+                        <th>Notas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($renewals as $renewal): ?>
+                        <tr>
+                            <td><?php echo e(format_date($renewal['renewal_date'])); ?></td>
+                            <td><?php echo e(str_replace('_', ' ', $renewal['status'] ?? '')); ?></td>
+                            <td class="text-end"><?php echo e(format_currency((float)($renewal['amount'] ?? 0))); ?></td>
+                            <td><?php echo e($renewal['currency'] ?? ''); ?></td>
+                            <td><?php echo e($renewal['notes'] ?? ''); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <script>
     const serviceBillingCycleSelect = document.querySelector('[data-billing-cycle]');

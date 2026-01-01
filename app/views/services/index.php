@@ -8,6 +8,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Servicio</th>
                         <th>Cliente</th>
                         <th>Tipo</th>
@@ -19,13 +20,23 @@
                 <tbody>
                     <?php foreach ($services as $service): ?>
                         <tr>
+                            <td class="text-muted">#<?php echo (int)$service['id']; ?></td>
                             <td><?php echo e($service['name']); ?></td>
                             <td><?php echo e($service['client_name']); ?></td>
                             <td><?php echo e($service['service_type']); ?></td>
-                            <td><?php echo e($service['due_date']); ?></td>
+                            <td><?php echo e(format_date($service['due_date'])); ?></td>
                             <td>
-                                <span class="badge bg-<?php echo $service['status'] === 'activo' ? 'success' : 'secondary'; ?>-subtle text-<?php echo $service['status'] === 'activo' ? 'success' : 'secondary'; ?>">
-                                    <?php echo e($service['status']); ?>
+                                <?php
+                                $status = $service['status'] ?? 'activo';
+                                $statusColor = match ($status) {
+                                    'activo' => 'success',
+                                    'vencido' => 'danger',
+                                    'renovado' => 'primary',
+                                    default => 'secondary',
+                                };
+                                ?>
+                                <span class="badge bg-<?php echo $statusColor; ?>-subtle text-<?php echo $statusColor; ?>">
+                                    <?php echo e($status); ?>
                                 </span>
                             </td>
                             <td class="text-end">

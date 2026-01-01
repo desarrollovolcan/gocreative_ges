@@ -1,15 +1,25 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h4 class="card-title mb-0"><?php echo e($service['name']); ?></h4>
-        <span class="badge bg-<?php echo $service['status'] === 'activo' ? 'success' : 'secondary'; ?>-subtle text-<?php echo $service['status'] === 'activo' ? 'success' : 'secondary'; ?>">
-            <?php echo e($service['status']); ?>
+        <h4 class="card-title mb-0"><?php echo e($service['name']); ?> <span class="text-muted fw-normal fs-6">#<?php echo (int)$service['id']; ?></span></h4>
+        <?php
+        $status = $service['status'] ?? 'activo';
+        $statusColor = match ($status) {
+            'activo' => 'success',
+            'vencido' => 'danger',
+            'renovado' => 'primary',
+            default => 'secondary',
+        };
+        ?>
+        <span class="badge bg-<?php echo $statusColor; ?>-subtle text-<?php echo $statusColor; ?>">
+            <?php echo e($status); ?>
         </span>
     </div>
     <div class="card-body">
         <p><strong>Cliente:</strong> <?php echo e($client['name'] ?? ''); ?></p>
         <p><strong>Tipo:</strong> <?php echo e($service['service_type']); ?></p>
         <p><strong>Costo:</strong> <?php echo e(format_currency((float)($service['cost'] ?? 0))); ?></p>
-        <p><strong>Vencimiento:</strong> <?php echo e($service['due_date']); ?></p>
+        <p><strong>Vencimiento:</strong> <?php echo e(format_date($service['due_date'])); ?></p>
+        <p><strong>Eliminación:</strong> <?php echo e(format_date($service['delete_date'])); ?></p>
         <p><strong>Auto facturar:</strong> <?php echo $service['auto_invoice'] ? 'Sí' : 'No'; ?></p>
         <p><strong>Auto correo:</strong> <?php echo $service['auto_email'] ? 'Sí' : 'No'; ?></p>
         <div class="d-flex flex-wrap gap-2 mt-3">
@@ -33,3 +43,35 @@
         </ul>
     </div>
 </div>
+
+<?php if (!empty($renewals)): ?>
+<div class="card mt-3">
+    <div class="card-header"><h4 class="card-title mb-0">Historial de renovaciones</h4></div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th class="text-end">Monto</th>
+                        <th>Moneda</th>
+                        <th>Notas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($renewals as $renewal): ?>
+                        <tr>
+                            <td><?php echo e(format_date($renewal['renewal_date'])); ?></td>
+                            <td><?php echo e(str_replace('_', ' ', $renewal['status'] ?? '')); ?></td>
+                            <td class="text-end"><?php echo e(format_currency((float)($renewal['amount'] ?? 0))); ?></td>
+                            <td><?php echo e($renewal['currency'] ?? ''); ?></td>
+                            <td><?php echo e($renewal['notes'] ?? ''); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php endif; ?>

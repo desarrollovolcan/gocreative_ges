@@ -4,6 +4,19 @@ class SalesModel extends Model
 {
     protected string $table = 'sales';
 
+    public function recentBySession(int $sessionId, int $companyId, int $limit = 10): array
+    {
+        return $this->db->fetchAll(
+            'SELECT s.id, s.numero, s.sale_date, s.total, s.status, c.name AS client_name
+             FROM sales s
+             LEFT JOIN clients c ON s.client_id = c.id
+             WHERE s.company_id = :company_id AND s.pos_session_id = :session_id AND s.deleted_at IS NULL
+             ORDER BY s.sale_date DESC, s.id DESC
+             LIMIT ' . (int)$limit,
+            ['company_id' => $companyId, 'session_id' => $sessionId]
+        );
+    }
+
     public function listWithRelations(int $companyId): array
     {
         return $this->db->fetchAll(
@@ -25,6 +38,14 @@ class SalesModel extends Model
              WHERE s.id = :id AND s.company_id = :company_id AND s.deleted_at IS NULL',
             ['id' => $id, 'company_id' => $companyId]
         );
+    }
+
+    public function softDelete(int $id, int $companyId): bool
+    {
+        return $this->db->execute(
+            'UPDATE sales SET deleted_at = NOW() WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        ) > 0;
     }
 
     public function nextNumber(string $prefix, int $companyId): string

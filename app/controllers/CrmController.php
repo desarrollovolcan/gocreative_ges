@@ -8,7 +8,6 @@ class CrmController extends Controller
     private ServiceRenewalsModel $renewals;
     private ServicesModel $services;
     private EmailQueueModel $queue;
-    private Database $db;
 
     public function __construct(array $config, Database $db)
     {
@@ -586,7 +585,14 @@ class CrmController extends Controller
         }
 
         $billingCycle = $service['billing_cycle'] ?? 'anual';
-        $renewalDateTime = DateTime::createFromFormat('Y-m-d', $renewalDate) ?: new DateTime($renewalDate);
+        $renewalDateTime = DateTime::createFromFormat('Y-m-d', $renewalDate);
+        if ($renewalDateTime === false) {
+            try {
+                $renewalDateTime = new DateTime($renewalDate);
+            } catch (Exception $e) {
+                return;
+            }
+        }
         $newDueDate = clone $renewalDateTime;
 
         switch ($billingCycle) {

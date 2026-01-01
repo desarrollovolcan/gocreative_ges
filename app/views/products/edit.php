@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-lg-8">
+    <div class="col-12">
         <div class="card">
             <div class="card-header">
                 <h4 class="card-title mb-0">Editar producto</h4>
@@ -27,6 +27,14 @@
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Familia</label>
+                            <input type="text" name="family" class="form-control" value="<?php echo e($product['family'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Subfamilia</label>
+                            <input type="text" name="subfamily" class="form-control" value="<?php echo e($product['subfamily'] ?? ''); ?>">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Precio venta</label>

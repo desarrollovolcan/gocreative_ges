@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-lg-6">
+    <div class="col-12 col-lg-6 col-xl-5">
         <div class="card">
             <div class="card-header">
                 <h4 class="card-title mb-0">Editar proveedor</h4>

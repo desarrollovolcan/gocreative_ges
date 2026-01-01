@@ -29,6 +29,7 @@
                             'pagado' => 'success',
                             'pendiente' => 'warning',
                             'borrador' => 'secondary',
+                            'en_espera' => 'info',
                             default => 'info',
                         };
                         $channel = $sale['channel'] ?? 'venta';

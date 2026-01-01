@@ -11,6 +11,8 @@
                         <th>ID</th>
                         <th>Producto</th>
                         <th>SKU</th>
+                        <th>Familia</th>
+                        <th>Subfamilia</th>
                         <th>Proveedor</th>
                         <th class="text-end">Precio</th>
                         <th class="text-end">Stock</th>
@@ -32,6 +34,8 @@
                             <td class="text-muted"><?php echo render_id_badge($product['id'] ?? null); ?></td>
                             <td><?php echo e($product['name'] ?? ''); ?></td>
                             <td><?php echo e($product['sku'] ?? ''); ?></td>
+                            <td><?php echo e($product['family'] ?? ''); ?></td>
+                            <td><?php echo e($product['subfamily'] ?? ''); ?></td>
                             <td><?php echo e($product['supplier_name'] ?? ''); ?></td>
                             <td class="text-end"><?php echo e(format_currency((float)($product['price'] ?? 0), 0)); ?></td>
                             <td class="text-end">

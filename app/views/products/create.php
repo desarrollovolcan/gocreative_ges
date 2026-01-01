@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-lg-8">
+    <div class="col-12">
         <div class="card">
             <div class="card-header">
                 <h4 class="card-title mb-0">Datos del producto</h4>
@@ -26,6 +26,14 @@
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Familia</label>
+                            <input type="text" name="family" class="form-control" placeholder="Familia">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Subfamilia</label>
+                            <input type="text" name="subfamily" class="form-control" placeholder="Subfamilia">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Precio venta</label>

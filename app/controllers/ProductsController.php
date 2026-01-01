@@ -70,6 +70,8 @@ class ProductsController extends Controller
         $this->products->create([
             'company_id' => $companyId,
             'supplier_id' => $supplierId,
+            'family' => trim($_POST['family'] ?? ''),
+            'subfamily' => trim($_POST['subfamily'] ?? ''),
             'name' => $name,
             'sku' => trim($_POST['sku'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
@@ -133,6 +135,8 @@ class ProductsController extends Controller
 
         $this->products->update($id, [
             'supplier_id' => $supplierId,
+            'family' => trim($_POST['family'] ?? ''),
+            'subfamily' => trim($_POST['subfamily'] ?? ''),
             'name' => $name,
             'sku' => trim($_POST['sku'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),

@@ -1,6 +1,6 @@
 <?php $isPos = $isPos ?? false; ?>
 <div class="row">
-    <div class="col-lg-8">
+    <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
@@ -35,7 +35,19 @@
                                 <option value="pagado" selected>Pagado</option>
                                 <option value="pendiente">Pendiente</option>
                                 <option value="borrador">Borrador</option>
+                                <option value="en_espera">En espera</option>
                             </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Buscar por código/sku</label>
+                            <input type="text" id="sku-search" class="form-control" placeholder="Escribe el código del producto" list="sku-options">
+                            <datalist id="sku-options">
+                                <?php foreach ($products as $product): ?>
+                                    <?php if (!empty($product['sku'])): ?>
+                                        <option value="<?php echo e($product['sku']); ?>"><?php echo e($product['name']); ?></option>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </datalist>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Productos</label>
@@ -56,7 +68,7 @@
                                                 <select name="product_id[]" class="form-select form-select-sm product-select">
                                                     <option value="">Selecciona</option>
                                                     <?php foreach ($products as $product): ?>
-                                                        <option value="<?php echo (int)$product['id']; ?>" data-price="<?php echo e((float)($product['price'] ?? 0)); ?>" data-stock="<?php echo (int)($product['stock'] ?? 0); ?>">
+                                                        <option value="<?php echo (int)$product['id']; ?>" data-price="<?php echo e((float)($product['price'] ?? 0)); ?>" data-stock="<?php echo (int)($product['stock'] ?? 0); ?>" data-sku="<?php echo e($product['sku'] ?? ''); ?>">
                                                             <?php echo e($product['name']); ?> (Stock: <?php echo (int)($product['stock'] ?? 0); ?>)
                                                         </option>
                                                     <?php endforeach; ?>
@@ -92,8 +104,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 d-flex align-items-center gap-2">
                             <button type="submit" class="btn btn-primary"><?php echo $isPos ? 'Cobrar venta' : 'Guardar venta'; ?></button>
+                            <button type="button" class="btn btn-outline-secondary" id="mark-hold">Marcar en espera</button>
                             <a href="index.php?route=<?php echo $isPos ? 'pos' : 'sales'; ?>" class="btn btn-light ms-2">Cancelar</a>
                         </div>
                     </div>
@@ -110,6 +123,9 @@
         const subtotalDisplay = document.getElementById('sale-subtotal');
         const totalDisplay = document.getElementById('sale-total');
         const taxInput = document.getElementById('sale-tax');
+        const skuInput = document.getElementById('sku-search');
+        const statusSelect = document.querySelector('select[name=\"status\"]');
+        const holdButton = document.getElementById('mark-hold');
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(amount || 0);
@@ -142,7 +158,8 @@
 
         tableBody.addEventListener('change', (event) => {
             if (event.target.classList.contains('product-select')) {
-                const price = event.target.selectedOptions[0]?.dataset.price || 0;
+                const selected = event.target.selectedOptions[0];
+                const price = selected?.dataset.price || 0;
                 const row = event.target.closest('.item-row');
                 row.querySelector('.price-input').value = price;
             }
@@ -167,6 +184,29 @@
 
         addButton?.addEventListener('click', addRow);
         taxInput?.addEventListener('input', recalc);
+        skuInput?.addEventListener('change', () => {
+            const skuValue = skuInput.value.trim();
+            if (!skuValue) return;
+            const firstRow = tableBody.querySelector('.item-row');
+            const select = firstRow.querySelector('.product-select');
+            let matched = false;
+            select.querySelectorAll('option').forEach((option) => {
+                if ((option.dataset.sku || '').toLowerCase() === skuValue.toLowerCase()) {
+                    option.selected = true;
+                    const price = option.dataset.price || 0;
+                    firstRow.querySelector('.price-input').value = price;
+                    matched = true;
+                }
+            });
+            if (matched) {
+                recalc();
+            }
+        });
+        holdButton?.addEventListener('click', () => {
+            if (statusSelect) {
+                statusSelect.value = 'en_espera';
+            }
+        });
         recalc();
     })();
 </script>

@@ -96,6 +96,11 @@ class SalesController extends Controller
         $subtotal = array_sum(array_map(static fn(array $item) => $item['subtotal'], $items));
         $tax = max(0, (float)($_POST['tax'] ?? 0));
         $total = $subtotal + $tax;
+        $status = $_POST['status'] ?? ($isPos ? 'pagado' : 'pendiente');
+        $allowedStatus = ['pagado', 'pendiente', 'borrador', 'en_espera'];
+        if (!in_array($status, $allowedStatus, true)) {
+            $status = 'pagado';
+        }
 
         $pdo = $this->db->pdo();
         try {
@@ -106,7 +111,7 @@ class SalesController extends Controller
                 'channel' => $isPos ? 'pos' : 'venta',
                 'numero' => $numero,
                 'sale_date' => trim($_POST['sale_date'] ?? date('Y-m-d')),
-                'status' => $_POST['status'] ?? 'pagado',
+                'status' => $status,
                 'subtotal' => $subtotal,
                 'tax' => $tax,
                 'total' => $total,

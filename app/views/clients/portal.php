@@ -12,15 +12,28 @@ $openTickets = count($supportTickets ?? []);
 $pendingCount = count($pendingInvoices ?? []);
 $paymentsCount = count($payments ?? []);
 $activeSupportTicketId = (int)($activeSupportTicketId ?? 0);
+$portalLogo = login_logo_src(app_config('company', []));
 ?>
 
 <body>
-    <div class="wrapper">
-        <div class="content-page">
+    <div class="wrapper bg-light">
+        <div class="content-page bg-light">
             <div class="content">
-                <div class="container-fluid">
+                <div class="container-xxl py-3">
 
-                    <?php $subtitle = "Portal"; $title = "Panel del Cliente"; include('partials/page-title.php'); ?>
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="<?php echo e($portalLogo); ?>" alt="Logo" height="32">
+                            <div>
+                                <h5 class="mb-0">Portal Cliente</h5>
+                                <p class="text-muted mb-0 fs-sm">Información de actividades y pagos</p>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-semibold"><?php echo e($client['name'] ?? ''); ?></div>
+                            <div class="text-muted fs-sm">Cliente</div>
+                        </div>
+                    </div>
 
                     <?php if (!empty($success)): ?>
                         <div class="alert alert-success"><?php echo e($success); ?></div>
@@ -29,7 +42,7 @@ $activeSupportTicketId = (int)($activeSupportTicketId ?? 0);
                         <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
                     <?php endif; ?>
 
-                    <div class="card border-0 shadow-sm mb-3">
+                    <div class="card border-0 shadow-sm mb-3 rounded-4">
                         <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
                             <div>
                                 <p class="text-muted mb-1">Bienvenido/a</p>
@@ -48,7 +61,7 @@ $activeSupportTicketId = (int)($activeSupportTicketId ?? 0);
 
                     <div class="row g-3">
                         <div class="col-lg-3">
-                            <div class="card border-0 shadow-sm">
+                            <div class="card border-0 shadow-sm rounded-4">
                                 <div class="card-body p-0">
                                     <div class="collapse d-lg-block" id="portalSidebar">
                                         <div class="list-group list-group-flush">

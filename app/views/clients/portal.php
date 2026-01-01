@@ -27,21 +27,42 @@ $nextTask = $upcomingTasks[0] ?? null;
         <div class="content-page">
             <div class="content">
                 <div class="container-xl py-4">
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="bg-white border rounded-circle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
-                                    <img src="<?php echo e($portalLogo); ?>" alt="Logo" height="32">
+                    <div class="card border-0 shadow-sm mb-3 position-relative overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="row g-3 align-items-center">
+                                <div class="col-lg-8 d-flex align-items-center gap-3">
+                                    <div class="bg-white border rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 64px; height: 64px;">
+                                        <img src="<?php echo e($portalLogo); ?>" alt="Logo" height="32">
+                                    </div>
+                                    <div>
+                                        <p class="text-muted mb-1 text-uppercase fs-xs">Portal del cliente</p>
+                                        <h4 class="mb-1 fw-semibold">Hola, <?php echo e($client['name'] ?? 'Cliente'); ?></h4>
+                                        <p class="text-muted mb-0">Vista corporativa clara para seguir facturación, proyectos y soporte en un solo lugar.</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="text-muted mb-1 text-uppercase fs-xs">Portal del cliente</p>
-                                    <h4 class="mb-1 fw-semibold"><?php echo e($client['name'] ?? 'Cliente'); ?></h4>
-                                    <p class="text-muted mb-0">Tu espacio para seguir facturas, proyectos y soporte.</p>
+                                <div class="col-lg-4 d-flex flex-wrap justify-content-lg-end gap-2">
+                                    <a class="btn btn-primary" href="#facturacion">Facturación</a>
+                                    <a class="btn btn-success" href="#soporte">Soporte</a>
+                                    <a class="btn btn-warning text-white" href="#perfil">Perfil</a>
+                                    <a class="btn btn-outline-secondary" href="index.php?route=clients/portalLogout">Cerrar sesión</a>
                                 </div>
                             </div>
                             <div class="d-flex flex-wrap gap-2">
                                 <a class="btn btn-outline-secondary" href="#perfil">Perfil</a>
                                 <a class="btn btn-primary" href="index.php?route=clients/portalLogout">Cerrar sesión</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body py-3">
+                            <div class="nav nav-pills flex-nowrap overflow-auto gap-2">
+                                <a class="btn btn-soft-primary" href="#resumen">Resumen</a>
+                                <a class="btn btn-soft-success" href="#facturacion">Facturas</a>
+                                <a class="btn btn-soft-info" href="#pagos">Pagos</a>
+                                <a class="btn btn-soft-warning text-dark" href="#proyectos">Proyectos</a>
+                                <a class="btn btn-soft-secondary" href="#soporte">Soporte</a>
+                                <a class="btn btn-soft-dark" href="#perfil">Cuenta</a>
                             </div>
                         </div>
                     </div>
@@ -53,11 +74,14 @@ $nextTask = $upcomingTasks[0] ?? null;
                         <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
                     <?php endif; ?>
 
-                    <div class="row g-3 mb-4">
-                        <div class="col-xxl-3 col-md-6">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3 mb-4" id="resumen">
+                        <div class="col">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body">
-                                    <p class="text-muted fs-xs mb-1 text-uppercase">Facturas pendientes</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <p class="text-muted fs-xs mb-0 text-uppercase">Facturas pendientes</p>
+                                        <span class="badge bg-warning-subtle text-warning"><?php echo $pendingCount; ?></span>
+                                    </div>
                                     <h3 class="fw-semibold mb-1"><?php echo e(format_currency((float)($pendingTotal ?? 0))); ?></h3>
                                     <p class="text-muted mb-0"><?php echo $pendingCount; ?> documento(s)</p>
                                     <?php if ($nextInvoice): ?>
@@ -66,10 +90,13 @@ $nextTask = $upcomingTasks[0] ?? null;
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-3 col-md-6">
+                        <div class="col">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body">
-                                    <p class="text-muted fs-xs mb-1 text-uppercase">Pagos registrados</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <p class="text-muted fs-xs mb-0 text-uppercase">Pagos registrados</p>
+                                        <span class="badge bg-success-subtle text-success"><?php echo $paymentsCount; ?></span>
+                                    </div>
                                     <h3 class="fw-semibold mb-1"><?php echo e(format_currency((float)($paidTotal ?? 0))); ?></h3>
                                     <p class="text-muted mb-0"><?php echo $paymentsCount; ?> pago(s)</p>
                                     <?php if ($latestPayment): ?>
@@ -78,10 +105,13 @@ $nextTask = $upcomingTasks[0] ?? null;
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-3 col-md-6">
+                        <div class="col">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body">
-                                    <p class="text-muted fs-xs mb-1 text-uppercase">Proyectos</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <p class="text-muted fs-xs mb-0 text-uppercase">Proyectos</p>
+                                        <span class="badge bg-info-subtle text-info"><?php echo $projectsCount; ?></span>
+                                    </div>
                                     <h3 class="fw-semibold mb-1"><?php echo $projectsCount; ?></h3>
                                     <p class="text-muted mb-0"><?php echo count($projectTasks ?? []); ?> tareas totales</p>
                                     <?php if ($nextTask): ?>
@@ -90,19 +120,22 @@ $nextTask = $upcomingTasks[0] ?? null;
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-3 col-md-6">
+                        <div class="col">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body">
-                                    <p class="text-muted fs-xs mb-1 text-uppercase">Soporte</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <p class="text-muted fs-xs mb-0 text-uppercase">Soporte</p>
+                                        <span class="badge bg-primary-subtle text-primary"><?php echo $openTickets; ?></span>
+                                    </div>
                                     <h3 class="fw-semibold mb-1"><?php echo $openTickets; ?> ticket(s)</h3>
-                                    <p class="text-muted mb-0">Revisa tus solicitudes y responde mensajes.</p>
+                                    <p class="text-muted mb-0">Seguimiento de solicitudes y mensajes activos.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-4">
-                        <div class="col-lg-7" id="facturacion">
+                    <div class="row g-3 mb-4 align-items-stretch" id="facturacion">
+                        <div class="col-lg-7">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-header border-0">
                                     <div class="d-flex align-items-center justify-content-between">
@@ -112,7 +145,7 @@ $nextTask = $upcomingTasks[0] ?? null;
                                 </div>
                                 <div class="card-body">
                                     <?php if (!empty($pendingInvoices)): ?>
-                                        <div class="table-responsive">
+                                        <div class="table-responsive d-none d-lg-block">
                                             <table class="table table-centered align-middle mb-0">
                                                 <thead class="table-light">
                                                     <tr>
@@ -138,6 +171,25 @@ $nextTask = $upcomingTasks[0] ?? null;
                                                 </tbody>
                                             </table>
                                         </div>
+                                        <div class="d-lg-none">
+                                            <div class="list-group list-group-flush">
+                                                <?php foreach (array_slice($pendingInvoices, 0, 6) as $invoice): ?>
+                                                    <div class="list-group-item px-0">
+                                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                                            <div class="fw-semibold">#<?php echo e($invoice['numero'] ?? $invoice['id']); ?></div>
+                                                            <span class="badge bg-warning-subtle text-warning text-capitalize"><?php echo e($invoice['estado'] ?? 'pendiente'); ?></span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div class="text-muted fs-xs">Vence: <?php echo e($invoice['fecha_vencimiento'] ?? '-'); ?></div>
+                                                            <div class="fw-semibold"><?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></div>
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            <a class="btn btn-outline-primary btn-sm w-100" href="index.php?route=clients/portal/invoice&id=<?php echo (int)($invoice['id'] ?? 0); ?>&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>">Ver detalle</a>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
                                     <?php else: ?>
                                         <div class="text-muted">No tienes facturas pendientes.</div>
                                     <?php endif; ?>
@@ -157,14 +209,16 @@ $nextTask = $upcomingTasks[0] ?? null;
                                     <?php if (!empty($payments)): ?>
                                         <div class="list-group list-group-flush">
                                             <?php foreach (array_slice($payments, 0, 6) as $payment): ?>
-                                                <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
-                                                    <div>
-                                                        <div class="fw-semibold">Pago <?php echo e($payment['invoice_number'] ?? '#'); ?></div>
-                                                        <div class="text-muted fs-xs"><?php echo e($payment['fecha_pago'] ?? '-'); ?></div>
-                                                    </div>
-                                                    <div class="text-end">
-                                                        <div class="fw-semibold"><?php echo e(format_currency((float)($payment['monto'] ?? 0))); ?></div>
-                                                        <span class="badge bg-success-subtle text-success text-capitalize"><?php echo e($payment['invoice_status'] ?? 'pagado'); ?></span>
+                                                <div class="list-group-item px-0">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <div class="fw-semibold">Pago <?php echo e($payment['invoice_number'] ?? '#'); ?></div>
+                                                            <div class="text-muted fs-xs"><?php echo e($payment['fecha_pago'] ?? '-'); ?></div>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <div class="fw-semibold"><?php echo e(format_currency((float)($payment['monto'] ?? 0))); ?></div>
+                                                            <span class="badge bg-success-subtle text-success text-capitalize"><?php echo e($payment['invoice_status'] ?? 'pagado'); ?></span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>
@@ -188,7 +242,7 @@ $nextTask = $upcomingTasks[0] ?? null;
                                 </div>
                                 <div class="card-body">
                                     <?php if (!empty($projectsOverview)): ?>
-                                        <div class="table-responsive">
+                                        <div class="table-responsive d-none d-lg-block">
                                             <table class="table table-centered align-middle mb-0">
                                                 <thead class="table-light">
                                                     <tr>
@@ -223,6 +277,33 @@ $nextTask = $upcomingTasks[0] ?? null;
                                                     <?php endforeach; ?>
                                                 </tbody>
                                             </table>
+                                        </div>
+                                        <div class="d-lg-none">
+                                            <div class="list-group list-group-flush">
+                                                <?php foreach ($projectsOverview as $project): ?>
+                                                    <?php
+                                                    $tasksTotal = (int)($project['tasks_total'] ?? 0);
+                                                    $tasksCompleted = (int)($project['tasks_completed'] ?? 0);
+                                                    $progress = $tasksTotal > 0 ? (int)round(($tasksCompleted / max(1, $tasksTotal)) * 100) : 0;
+                                                    ?>
+                                                    <div class="list-group-item px-0">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <div class="fw-semibold"><?php echo e($project['name'] ?? 'Proyecto'); ?></div>
+                                                                <div class="text-muted fs-xs text-capitalize"><?php echo e($project['status'] ?? 'en progreso'); ?></div>
+                                                            </div>
+                                                            <span class="badge bg-primary-subtle text-primary"><?php echo $progress; ?>%</span>
+                                                        </div>
+                                                        <div class="progress mt-2" style="height: 6px;">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $progress; ?>%;" aria-valuenow="<?php echo $progress; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between text-muted fs-xxs mt-2">
+                                                            <span><?php echo $tasksCompleted; ?> de <?php echo $tasksTotal; ?> tareas</span>
+                                                            <span><?php echo e($project['last_activity'] ?? 'Sin actividad'); ?></span>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
                                         </div>
                                     <?php else: ?>
                                         <div class="text-muted">Aún no hay proyectos registrados.</div>

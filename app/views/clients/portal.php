@@ -27,8 +27,8 @@ $nextTask = $upcomingTasks[0] ?? null;
     <div class="wrapper">
         <div class="content-page">
             <div class="content">
-                <div class="container-xxl py-4 px-3 px-lg-4">
-                    <div class="card border-0 shadow-sm mb-3 position-relative overflow-hidden">
+                <div class="container-fluid py-4 px-3 px-md-4 px-lg-5">
+                    <div class="card border-0 shadow-sm mb-3 position-relative overflow-hidden rounded-4">
                         <div class="card-body p-4">
                             <div class="row g-3 align-items-center justify-content-between">
                                 <div class="col-lg-7 d-flex align-items-center gap-3">
@@ -56,7 +56,7 @@ $nextTask = $upcomingTasks[0] ?? null;
                         </div>
                     </div>
 
-                    <div class="card border-0 shadow-sm mb-4">
+                    <div class="card border-0 shadow-sm mb-4 rounded-4">
                         <div class="card-body py-3">
                             <div class="nav nav-pills flex-nowrap overflow-auto gap-2">
                                 <a class="btn btn-soft-primary" href="#resumen">Resumen</a>
@@ -69,9 +69,9 @@ $nextTask = $upcomingTasks[0] ?? null;
                         </div>
                     </div>
 
-                    <div class="row align-items-start">
-                        <div class="col-lg-3 mb-3">
-                            <div class="card border-0 shadow-sm">
+                    <div class="row align-items-start gx-3">
+                        <div class="col-lg-3 col-xl-2 mb-3">
+                            <div class="card border-0 shadow-sm h-100 position-sticky" style="top: 90px;">
                                 <div class="card-body">
                                     <h6 class="text-uppercase text-muted fs-xs mb-3">Menú</h6>
                                     <div class="nav flex-column gap-2">

@@ -29,12 +29,14 @@
                             <td><?php echo e($template['subject']); ?></td>
                             <td><?php echo e($template['type']); ?></td>
                             <td class="text-end">
-                                <a href="index.php?route=email-templates/edit&id=<?php echo $template['id']; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
-                                <form method="post" action="index.php?route=email-templates/delete" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $template['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                </form>
+                                <div class="action-buttons">
+                                    <a href="index.php?route=email-templates/edit&id=<?php echo $template['id']; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
+                                    <form method="post" action="index.php?route=email-templates/delete">
+                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                        <input type="hidden" name="id" value="<?php echo $template['id']; ?>">
+                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

@@ -17,12 +17,14 @@
                         <tr>
                             <td><?php echo e($type['name']); ?></td>
                             <td class="text-end">
-                                <a href="index.php?route=maintainers/service-types/edit&id=<?php echo $type['id']; ?>" class="btn btn-light btn-sm">Editar</a>
-                                <form method="post" action="index.php?route=maintainers/service-types/delete" class="d-inline" onsubmit="return confirm('¿Eliminar este tipo?');">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $type['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                </form>
+                                <div class="action-buttons">
+                                    <a href="index.php?route=maintainers/service-types/edit&id=<?php echo $type['id']; ?>" class="btn btn-light btn-sm">Editar</a>
+                                    <form method="post" action="index.php?route=maintainers/service-types/delete" onsubmit="return confirm('¿Eliminar este tipo?');">
+                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                        <input type="hidden" name="id" value="<?php echo $type['id']; ?>">
+                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

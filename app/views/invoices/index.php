@@ -60,21 +60,23 @@
                                 </span>
                             </td>
                             <td class="text-end">
-                                <?php if (($invoice['estado'] ?? '') !== 'pagada'): ?>
-                                    <form method="post" action="index.php?route=invoices/flow-payment" class="d-inline">
+                                <div class="action-buttons">
+                                    <?php if (($invoice['estado'] ?? '') !== 'pagada'): ?>
+                                        <form method="post" action="index.php?route=invoices/flow-payment">
+                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                            <input type="hidden" name="invoice_id" value="<?php echo (int)$invoice['id']; ?>">
+                                            <button type="submit" class="btn btn-soft-success btn-sm">Crear pago Flow</button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <a href="index.php?route=invoices/show&id=<?php echo $invoice['id']; ?>" class="btn btn-light btn-sm">Ver</a>
+                                    <a href="index.php?route=invoices/edit&id=<?php echo $invoice['id']; ?>" class="btn btn-outline-secondary btn-sm">Editar</a>
+                                    <a href="index.php?route=invoices/details&id=<?php echo $invoice['id']; ?>" class="btn btn-outline-primary btn-sm">Ver factura</a>
+                                    <form method="post" action="index.php?route=invoices/delete">
                                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="invoice_id" value="<?php echo (int)$invoice['id']; ?>">
-                                        <button type="submit" class="btn btn-soft-success btn-sm">Crear pago Flow</button>
+                                        <input type="hidden" name="id" value="<?php echo $invoice['id']; ?>">
+                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
                                     </form>
-                                <?php endif; ?>
-                                <a href="index.php?route=invoices/show&id=<?php echo $invoice['id']; ?>" class="btn btn-light btn-sm">Ver</a>
-                                <a href="index.php?route=invoices/edit&id=<?php echo $invoice['id']; ?>" class="btn btn-outline-secondary btn-sm">Editar</a>
-                                <a href="index.php?route=invoices/details&id=<?php echo $invoice['id']; ?>" class="btn btn-outline-primary btn-sm">Ver factura</a>
-                                <form method="post" action="index.php?route=invoices/delete" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $invoice['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                </form>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

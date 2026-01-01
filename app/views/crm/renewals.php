@@ -42,43 +42,45 @@
                                 <td class="text-end"><?php echo e(format_currency((float)($renewal['amount'] ?? 0))); ?></td>
                                 <td class="text-end"><?php echo (int)($renewal['reminder_days'] ?? 0); ?> días</td>
                                 <td class="text-end">
-                                    <?php if (($renewal['status'] ?? '') !== 'renovado'): ?>
-                                        <form method="post" action="index.php?route=crm/renewals/approve" class="d-inline">
+                                    <div class="action-buttons">
+                                        <?php if (($renewal['status'] ?? '') !== 'renovado'): ?>
+                                            <form method="post" action="index.php?route=crm/renewals/approve">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
+                                                <button type="submit" class="btn btn-soft-success btn-sm" onclick="return confirm('¿Aprobar esta renovación?');">Aprobar</button>
+                                            </form>
+                                        <?php endif; ?>
+                                        <button
+                                            type="button"
+                                            class="btn btn-soft-primary btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#renewalModal"
+                                            data-mode="edit"
+                                            data-id="<?php echo (int)$renewal['id']; ?>"
+                                            data-date="<?php echo e($renewal['renewal_date']); ?>"
+                                            data-status="<?php echo e($renewal['status']); ?>"
+                                            data-amount="<?php echo e($renewal['amount']); ?>"
+                                            data-currency="<?php echo e($renewal['currency']); ?>"
+                                            data-reminder="<?php echo e($renewal['reminder_days']); ?>"
+                                            data-notes="<?php echo e($renewal['notes']); ?>"
+                                            data-client-id="<?php echo (int)$renewal['client_id']; ?>"
+                                            data-service-id="<?php echo (int)($renewal['service_id'] ?? 0); ?>"
+                                        >
+                                            Editar
+                                        </button>
+                                        <?php if (($renewal['status'] ?? '') === 'renovado'): ?>
+                                            <form method="post" action="index.php?route=crm/renewals/send-email">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
+                                                <button type="submit" class="btn btn-soft-info btn-sm" onclick="return confirm('¿Enviar correo de renovación exitosa?');">Enviar correo</button>
+                                            </form>
+                                        <?php endif; ?>
+                                        <form method="post" action="index.php?route=crm/renewals/delete" onsubmit="return confirm('¿Eliminar esta renovación?');">
                                             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                             <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
-                                            <button type="submit" class="btn btn-soft-success btn-sm" onclick="return confirm('¿Aprobar esta renovación?');">Aprobar</button>
+                                            <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
                                         </form>
-                                    <?php endif; ?>
-                                    <button
-                                        type="button"
-                                        class="btn btn-soft-primary btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#renewalModal"
-                                        data-mode="edit"
-                                        data-id="<?php echo (int)$renewal['id']; ?>"
-                                        data-date="<?php echo e($renewal['renewal_date']); ?>"
-                                        data-status="<?php echo e($renewal['status']); ?>"
-                                        data-amount="<?php echo e($renewal['amount']); ?>"
-                                        data-currency="<?php echo e($renewal['currency']); ?>"
-                                        data-reminder="<?php echo e($renewal['reminder_days']); ?>"
-                                        data-notes="<?php echo e($renewal['notes']); ?>"
-                                        data-client-id="<?php echo (int)$renewal['client_id']; ?>"
-                                        data-service-id="<?php echo (int)($renewal['service_id'] ?? 0); ?>"
-                                    >
-                                        Editar
-                                    </button>
-                                    <?php if (($renewal['status'] ?? '') === 'renovado'): ?>
-                                        <form method="post" action="index.php?route=crm/renewals/send-email" class="d-inline">
-                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
-                                            <button type="submit" class="btn btn-soft-info btn-sm" onclick="return confirm('¿Enviar correo de renovación exitosa?');">Enviar correo</button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <form method="post" action="index.php?route=crm/renewals/delete" class="d-inline" onsubmit="return confirm('¿Eliminar esta renovación?');">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
-                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                    </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

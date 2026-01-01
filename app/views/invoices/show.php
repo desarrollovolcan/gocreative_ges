@@ -121,21 +121,23 @@
                             <td><?php echo e($payment['metodo']); ?></td>
                             <td><?php echo e($payment['referencia']); ?></td>
                             <td class="text-end">
-                                <button class="btn btn-soft-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#paymentEdit<?php echo $payment['id']; ?>" aria-expanded="false">
-                                    Editar
-                                </button>
-                                <form method="post" action="index.php?route=invoices/payments/send-receipt" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="payment_id" value="<?php echo $payment['id']; ?>">
-                                    <input type="hidden" name="invoice_id" value="<?php echo $invoice['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-success btn-sm">Enviar comprobante</button>
-                                </form>
-                                <form method="post" action="index.php?route=invoices/payments/delete" class="d-inline" onsubmit="return confirm('¿Eliminar este pago?');">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="payment_id" value="<?php echo $payment['id']; ?>">
-                                    <input type="hidden" name="invoice_id" value="<?php echo $invoice['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                </form>
+                                <div class="action-buttons">
+                                    <button class="btn btn-soft-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#paymentEdit<?php echo $payment['id']; ?>" aria-expanded="false">
+                                        Editar
+                                    </button>
+                                    <form method="post" action="index.php?route=invoices/payments/send-receipt">
+                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                        <input type="hidden" name="payment_id" value="<?php echo $payment['id']; ?>">
+                                        <input type="hidden" name="invoice_id" value="<?php echo $invoice['id']; ?>">
+                                        <button type="submit" class="btn btn-soft-success btn-sm">Enviar comprobante</button>
+                                    </form>
+                                    <form method="post" action="index.php?route=invoices/payments/delete" onsubmit="return confirm('¿Eliminar este pago?');">
+                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                        <input type="hidden" name="payment_id" value="<?php echo $payment['id']; ?>">
+                                        <input type="hidden" name="invoice_id" value="<?php echo $invoice['id']; ?>">
+                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         <tr class="collapse" id="paymentEdit<?php echo $payment['id']; ?>">

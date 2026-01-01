@@ -39,7 +39,7 @@
     </div>
 <?php endif; ?>
 <div class="row">
-    <div class="col-12">
+    <div class="col-12 col-xl-8">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
@@ -164,6 +164,46 @@
             </div>
         </div>
     </div>
+    <div class="col-12 col-xl-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Productos disponibles</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" style="max-height: 280px; overflow-y: auto;">
+                    <?php foreach ($products as $product): ?>
+                        <button type="button"
+                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product"
+                                data-product-id="<?php echo (int)$product['id']; ?>"
+                                data-price="<?php echo e((float)($product['price'] ?? 0)); ?>">
+                            <span>
+                                <?php echo e($product['name']); ?>
+                                <?php if (!empty($product['sku'])): ?>
+                                    <small class="text-muted ms-1">(#<?php echo e($product['sku']); ?>)</small>
+                                <?php endif; ?>
+                            </span>
+                            <span class="badge bg-light text-body"><?php echo format_currency((float)($product['price'] ?? 0)); ?></span>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Servicios</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" style="max-height: 180px; overflow-y: auto;">
+                    <?php foreach ($services as $service): ?>
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span><?php echo e($service['name']); ?></span>
+                            <span class="badge bg-light text-body"><?php echo format_currency((float)($service['cost'] ?? 0)); ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -176,6 +216,7 @@
         const skuInput = document.getElementById('sku-search');
         const statusSelect = document.querySelector('select[name=\"status\"]');
         const holdButton = document.getElementById('mark-hold');
+        const productSelectors = document.querySelectorAll('.add-product');
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(amount || 0);
@@ -204,6 +245,7 @@
             clone.querySelector('.product-select').selectedIndex = 0;
             clone.querySelector('.item-subtotal').innerText = formatCurrency(0);
             tableBody.appendChild(clone);
+            return clone;
         }
 
         tableBody.addEventListener('change', (event) => {
@@ -256,6 +298,22 @@
             if (statusSelect) {
                 statusSelect.value = 'en_espera';
             }
+        });
+        productSelectors.forEach((button) => {
+            button.addEventListener('click', () => {
+                const productId = button.dataset.productId;
+                const price = button.dataset.price || 0;
+                let targetRow = tableBody.querySelector('.item-row');
+                const select = targetRow.querySelector('.product-select');
+                const hasSelection = select.value;
+                if (hasSelection) {
+                    targetRow = addRow();
+                }
+                const rowSelect = targetRow.querySelector('.product-select');
+                rowSelect.value = productId;
+                targetRow.querySelector('.price-input').value = price;
+                recalc();
+            });
         });
         recalc();
     })();

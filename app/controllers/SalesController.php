@@ -8,6 +8,7 @@ class SalesController extends Controller
     private ClientsModel $clients;
     private PosSessionsModel $posSessions;
     private SalePaymentsModel $salePayments;
+    private ServicesModel $services;
 
     public function __construct(array $config, Database $db)
     {
@@ -18,6 +19,7 @@ class SalesController extends Controller
         $this->clients = new ClientsModel($db);
         $this->posSessions = new PosSessionsModel($db);
         $this->salePayments = new SalePaymentsModel($db);
+        $this->services = new ServicesModel($db);
     }
 
     private function requireCompany(): int
@@ -59,6 +61,7 @@ class SalesController extends Controller
         $companyId = $this->requireCompany();
         $products = $this->products->active($companyId);
         $clients = $this->clients->active($companyId);
+        $services = $this->services->active($companyId);
         $session = null;
         $sessionTotals = [];
         if ($isPos) {
@@ -73,6 +76,7 @@ class SalesController extends Controller
             'pageTitle' => $isPos ? 'Punto de venta' : 'Registrar venta',
             'products' => $products,
             'clients' => $clients,
+            'services' => $services,
             'today' => date('Y-m-d'),
             'isPos' => $isPos,
             'posSession' => $session,

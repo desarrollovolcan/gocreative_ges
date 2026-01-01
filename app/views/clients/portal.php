@@ -13,30 +13,44 @@ $pendingCount = count($pendingInvoices ?? []);
 $paymentsCount = count($payments ?? []);
 $activeSupportTicketId = (int)($activeSupportTicketId ?? 0);
 $portalLogo = login_logo_src(app_config('company', []));
+$nextInvoice = $pendingInvoices[0] ?? null;
+$latestPayment = $payments[0] ?? null;
+$nextTask = $upcomingTasks[0] ?? null;
 ?>
 
-<body class="bg-light">
-    <div class="wrapper bg-light">
-        <div class="content-page bg-light">
+<body class="bg-body-tertiary">
+    <div class="wrapper">
+        <div class="content-page">
             <div class="content">
-                <div class="container-xl py-3">
-
-                    <div class="mx-auto" style="max-width: 1200px;">
-                        <div class="card border-0 shadow-sm mb-3 rounded-4">
-                            <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
-                                <div class="d-flex align-items-center gap-3">
-                                    <img src="<?php echo e($portalLogo); ?>" alt="Logo" height="32">
-                                    <div>
-                                        <h5 class="mb-0">Portal Cliente</h5>
-                                        <p class="text-muted mb-0 fs-sm">Información de actividades y pagos</p>
+                <div class="container-xl py-4">
+                    <div class="card border-0 shadow-sm mb-3 rounded-4 overflow-hidden">
+                        <div class="card-body p-4 position-relative" style="background: linear-gradient(135deg, #0d6efd 0%, #1e293b 100%);">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                                <div class="d-flex gap-3 align-items-start">
+                                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                                        <img src="<?php echo e($portalLogo); ?>" alt="Logo" height="32">
+                                    </div>
+                                    <div class="text-white">
+                                        <p class="mb-1 text-white-50 text-uppercase fw-semibold fs-xs">Portal del cliente</p>
+                                        <h3 class="mb-1 fw-semibold"><?php echo e($client['name'] ?? 'Cliente'); ?></h3>
+                                        <p class="mb-0 text-white-50">Panel en formato de control para que sigas tus proyectos, pagos y soporte.</p>
                                     </div>
                                 </div>
-                                <div class="text-end">
-                                    <div class="fw-semibold"><?php echo e($client['name'] ?? ''); ?></div>
-                                    <div class="text-muted fs-sm">Cliente</div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a class="btn btn-outline-light" href="#cuenta"><i class="ti ti-user"></i> Mis datos</a>
+                                    <a class="btn btn-light" href="index.php?route=clients/portalLogout"><i class="ti ti-logout"></i> Cerrar sesión</a>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a class="badge bg-white text-primary px-3 py-2" href="#resumen"><i class="ti ti-dashboard"></i> Dashboard</a>
+                                    <a class="badge bg-white text-primary px-3 py-2" href="#facturacion"><i class="ti ti-receipt"></i> Facturación</a>
+                                    <a class="badge bg-white text-primary px-3 py-2" href="#proyectos"><i class="ti ti-briefcase"></i> Proyectos</a>
+                                    <a class="badge bg-white text-primary px-3 py-2" href="#soporte"><i class="ti ti-lifebuoy"></i> Soporte</a>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
                     <?php if (!empty($success)): ?>
                         <div class="alert alert-success"><?php echo e($success); ?></div>
@@ -45,202 +59,171 @@ $portalLogo = login_logo_src(app_config('company', []));
                         <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
                     <?php endif; ?>
 
-                        <div class="card border-0 shadow-sm mb-3 rounded-4">
-                            <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
-                                <div>
-                                    <p class="text-muted mb-1">Bienvenido/a</p>
-                                    <h3 class="fw-semibold mb-1"><?php echo e($client['name'] ?? 'Portal Cliente'); ?></h3>
-                                    <p class="text-muted mb-0">Tu panel minimalista para ver proyectos, pagos y soporte.</p>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button class="btn btn-outline-primary d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#portalSidebar" aria-controls="portalSidebar" aria-expanded="false">
-                                        <i class="ti ti-layout-sidebar"></i> Menú
-                                    </button>
-                                    <a class="btn btn-light" href="#perfil">Perfil</a>
-                                    <a class="btn btn-primary" href="index.php?route=clients/portalLogout">Cerrar sesión</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-lg-3">
-                                <div class="card border-0 shadow-sm rounded-4">
-                                    <div class="card-body p-0">
-                                        <div class="collapse d-lg-block" id="portalSidebar">
-                                            <div class="list-group list-group-flush">
-                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#resumen">
-                                                    <i class="ti ti-dashboard text-primary"></i><span>Resumen</span>
-                                                </a>
-                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#proyectos">
-                                                    <i class="ti ti-briefcase text-primary"></i><span>Proyectos</span>
-                                                </a>
-                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#tareas">
-                                                    <i class="ti ti-list-check text-primary"></i><span>Tareas</span>
-                                                </a>
-                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#facturacion">
-                                                    <i class="ti ti-receipt text-primary"></i><span>Facturación</span>
-                                                </a>
-                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#pagos">
-                                                    <i class="ti ti-credit-card text-primary"></i><span>Pagos</span>
-                                                </a>
-                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#soporte">
-                                                    <i class="ti ti-help-circle text-primary"></i><span>Soporte</span>
-                                                </a>
-                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#perfil">
-                                                    <i class="ti ti-user text-primary"></i><span>Perfil</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-9">
-
-                    <div class="row g-2 mb-3" id="resumen">
-                        <div class="col-xxl-2 col-md-4 col-6">
+                    <div class="row g-3 mb-3" id="resumen">
+                        <div class="col-xxl-3 col-md-6">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-muted fs-xs">Facturas pendientes</span>
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span class="text-muted fs-xs text-uppercase">Facturas pendientes</span>
                                         <span class="badge bg-warning-subtle text-warning"><?php echo $pendingCount; ?></span>
                                     </div>
-                                    <h4 class="fw-semibold mb-0"><?php echo e(format_currency((float)($pendingTotal ?? 0))); ?></h4>
+                                    <h3 class="fw-semibold mb-2"><?php echo e(format_currency((float)($pendingTotal ?? 0))); ?></h3>
+                                    <p class="text-muted fs-sm mb-0">
+                                        <?php if ($nextInvoice): ?>
+                                            Próxima: <?php echo e($nextInvoice['fecha_vencimiento'] ?? '-'); ?> · #<?php echo e($nextInvoice['numero'] ?? $nextInvoice['id'] ?? ''); ?>
+                                        <?php else: ?>
+                                            Estás al día, no tienes pendientes.
+                                        <?php endif; ?>
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-2 col-md-4 col-6">
+                        <div class="col-xxl-3 col-md-6">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-muted fs-xs">Pagos realizados</span>
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span class="text-muted fs-xs text-uppercase">Pagos registrados</span>
                                         <span class="badge bg-success-subtle text-success"><?php echo $paymentsCount; ?></span>
                                     </div>
-                                    <h4 class="fw-semibold mb-0"><?php echo e(format_currency((float)($paidTotal ?? 0))); ?></h4>
+                                    <h3 class="fw-semibold mb-2"><?php echo e(format_currency((float)($paidTotal ?? 0))); ?></h3>
+                                    <p class="text-muted fs-sm mb-0">
+                                        <?php if ($latestPayment): ?>
+                                            Último pago: <?php echo e($latestPayment['fecha_pago'] ?? '-'); ?> · <?php echo e(format_currency((float)($latestPayment['monto'] ?? 0))); ?>
+                                        <?php else: ?>
+                                            Aún no registramos pagos.
+                                        <?php endif; ?>
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-2 col-md-4 col-6">
+                        <div class="col-xxl-3 col-md-6">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-muted fs-xs">Tareas activas</span>
-                                        <span class="badge bg-info-subtle text-info"><?php echo count($upcomingTasks); ?></span>
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span class="text-muted fs-xs text-uppercase">Proyectos activos</span>
+                                        <span class="badge bg-primary-subtle text-primary"><?php echo $projectsCount; ?></span>
                                     </div>
-                                    <h4 class="fw-semibold mb-0"><?php echo count($projectTasks ?? []); ?></h4>
+                                    <h3 class="fw-semibold mb-2"><?php echo count($projectTasks ?? []); ?> tareas</h3>
+                                    <p class="text-muted fs-sm mb-0">
+                                        <?php if ($nextTask): ?>
+                                            Próximo entregable: <?php echo e($nextTask['title'] ?? $nextTask['name'] ?? 'Tarea'); ?>
+                                        <?php else: ?>
+                                            Sin tareas pendientes por ahora.
+                                        <?php endif; ?>
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-2 col-md-4 col-6">
+                        <div class="col-xxl-3 col-md-6">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-muted fs-xs">Tickets soporte</span>
-                                        <span class="badge bg-secondary-subtle text-secondary"><?php echo $openTickets; ?></span>
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span class="text-muted fs-xs text-uppercase">Soporte</span>
+                                        <span class="badge bg-info-subtle text-info"><?php echo $openTickets; ?></span>
                                     </div>
-                                    <h4 class="fw-semibold mb-0"><?php echo $openTickets; ?></h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-4 col-md-8 col-12">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <p class="text-muted fs-xs mb-1">Próxima entrega</p>
-                                        <h5 class="fw-semibold mb-0">
-                                            <?php
-                                            $nextTask = $upcomingTasks[0] ?? null;
-                                            echo $nextTask ? e($nextTask['title'] ?? $nextTask['name'] ?? 'Tarea') : 'Sin tareas pendientes';
-                                            ?>
-                                        </h5>
-                                    </div>
-                                    <a href="#tareas" class="btn btn-primary btn-sm">Ver tareas</a>
+                                    <h3 class="fw-semibold mb-2"><?php echo $openTickets; ?> tickets</h3>
+                                    <p class="text-muted fs-sm mb-0">Accede a tus conversaciones y crea nuevas solicitudes.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3" id="proyectos">
-                        <div class="col-xl-7">
+                    <div class="row g-3 mb-3">
+                        <div class="col-xl-8">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-header border-0 d-flex align-items-center justify-content-between">
                                     <div>
-                                        <p class="text-muted mb-0 fs-xs">Proyectos y avance</p>
-                                        <h5 class="mb-0">Estado de proyectos</h5>
+                                        <p class="text-muted mb-0 fs-xs text-uppercase">Panel rápido</p>
+                                        <h5 class="mb-0">Opciones relevantes</h5>
                                     </div>
-                                    <span class="badge bg-primary-subtle text-primary"><?php echo $projectsCount; ?> proyectos</span>
+                                    <span class="badge bg-primary-subtle text-primary">Atajos</span>
                                 </div>
                                 <div class="card-body">
-                                    <?php if (!empty($projectsOverview)): ?>
-                                        <div class="table-responsive">
-                                            <table class="table table-centered align-middle mb-0">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>Proyecto</th>
-                                                        <th>Progreso</th>
-                                                        <th>Última actividad</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach ($projectsOverview as $project): ?>
-                                                        <?php
-                                                        $tasksTotal = (int)($project['tasks_total'] ?? 0);
-                                                        $tasksCompleted = (int)($project['tasks_completed'] ?? 0);
-                                                        $progress = $tasksTotal > 0 ? (int)round(($tasksCompleted / max(1, $tasksTotal)) * 100) : 0;
-                                                        ?>
-                                                        <tr>
-                                                            <td>
-                                                                <div class="fw-semibold"><?php echo e($project['name'] ?? 'Proyecto'); ?></div>
-                                                                <div class="text-muted fs-xs"><?php echo e($project['status'] ?? 'en progreso'); ?></div>
-                                                            </td>
-                                                            <td style="width: 40%;">
-                                                                <div class="d-flex align-items-center">
-                                                                    <div class="progress flex-grow-1 me-2" style="height: 6px;">
-                                                                        <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $progress; ?>%;" aria-valuenow="<?php echo $progress; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                    <span class="fw-semibold fs-xs"><?php echo $progress; ?>%</span>
-                                                                </div>
-                                                                <div class="text-muted fs-xxs mt-1"><?php echo $tasksCompleted; ?> de <?php echo $tasksTotal; ?> tareas completadas</div>
-                                                            </td>
-                                                            <td>
-                                                                <span class="text-muted fs-sm"><?php echo e($project['last_activity'] ?? 'Sin actividad'); ?></span>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                </tbody>
-                                            </table>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded-3 border d-flex align-items-center gap-3">
+                                                <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                    <i class="ti ti-receipt fs-4"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">Revisar facturación</h6>
+                                                    <p class="text-muted fs-sm mb-2">Descubre tus documentos y estados de pago.</p>
+                                                    <div class="d-flex gap-2">
+                                                        <a class="btn btn-sm btn-primary" href="#facturacion">Ver facturas</a>
+                                                        <a class="btn btn-sm btn-outline-primary" href="#pagos">Pagos recientes</a>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    <?php else: ?>
-                                        <div class="text-muted">Aún no hay proyectos registrados.</div>
-                                    <?php endif; ?>
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded-3 border d-flex align-items-center gap-3">
+                                                <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                    <i class="ti ti-headset fs-4"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">Soporte y tickets</h6>
+                                                    <p class="text-muted fs-sm mb-2">Crea nuevas solicitudes o revisa respuestas.</p>
+                                                    <div class="d-flex gap-2">
+                                                        <a class="btn btn-sm btn-success" href="#soporte">Ir a soporte</a>
+                                                        <a class="btn btn-sm btn-outline-success" href="#soporte">Ver conversación</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded-3 border d-flex align-items-center gap-3">
+                                                <div class="bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                    <i class="ti ti-briefcase fs-4"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">Seguimiento de proyectos</h6>
+                                                    <p class="text-muted fs-sm mb-2">Revisa avances, tareas y próximas fechas.</p>
+                                                    <a class="btn btn-sm btn-info" href="#proyectos">Abrir proyectos</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded-3 border d-flex align-items-center gap-3">
+                                                <div class="bg-secondary-subtle text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                    <i class="ti ti-user-circle fs-4"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">Mi perfil</h6>
+                                                    <p class="text-muted fs-sm mb-2">Actualiza tus datos de contacto y notificaciones.</p>
+                                                    <a class="btn btn-sm btn-secondary" href="#cuenta">Ver perfil</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-5" id="tareas">
+                        <div class="col-xl-4" id="pagos">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-header border-0 d-flex align-items-center justify-content-between">
                                     <div>
-                                        <p class="text-muted mb-0 fs-xs">Planificación</p>
-                                        <h5 class="mb-0">Próximas tareas</h5>
+                                        <p class="text-muted mb-0 fs-xs text-uppercase">Actividad</p>
+                                        <h5 class="mb-0">Últimos movimientos</h5>
                                     </div>
-                                    <span class="badge bg-info-subtle text-info"><?php echo count($upcomingTasks); ?> abiertas</span>
+                                    <span class="badge bg-dark-subtle text-dark">Hoy</span>
                                 </div>
                                 <div class="card-body">
-                                    <?php if (!empty($upcomingTasks)): ?>
+                                    <?php if (!empty($activities)): ?>
                                         <div class="list-group list-group-flush">
-                                            <?php foreach (array_slice($upcomingTasks, 0, 6) as $task): ?>
+                                            <?php foreach (array_slice($activities, 0, 5) as $activity): ?>
                                                 <div class="list-group-item px-0">
-                                                    <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="d-flex justify-content-between align-items-center">
                                                         <div>
-                                                            <div class="fw-semibold"><?php echo e($task['title'] ?? $task['name'] ?? 'Tarea'); ?></div>
-                                                            <div class="text-muted fs-xs"><?php echo e($task['project_name'] ?? 'Proyecto'); ?></div>
+                                                            <div class="fw-semibold"><?php echo e($activity['title'] ?? $activity['name'] ?? 'Actividad'); ?></div>
+                                                            <div class="text-muted fs-xs"><?php echo e($activity['project_name'] ?? 'Proyecto'); ?></div>
                                                         </div>
-                                                        <span class="badge bg-secondary-subtle text-secondary"><?php echo !empty($task['due_date']) ? e($task['due_date']) : 'Sin fecha'; ?></span>
+                                                        <span class="badge bg-light text-muted"><?php echo e($activity['created_at'] ?? ''); ?></span>
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
                                     <?php else: ?>
-                                        <div class="text-muted">No hay tareas activas.</div>
+                                        <div class="text-muted">Aún no registramos actividad reciente.</div>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -252,10 +235,10 @@ $portalLogo = login_logo_src(app_config('company', []));
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-header border-0 d-flex align-items-center justify-content-between">
                                     <div>
-                                        <p class="text-muted mb-0 fs-xs">Facturación</p>
+                                        <p class="text-muted mb-0 fs-xs text-uppercase">Facturación</p>
                                         <h5 class="mb-0">Facturas pendientes</h5>
                                     </div>
-                                    <span class="badge bg-warning-subtle text-warning"><?php echo $pendingCount; ?> pendientes</span>
+                                    <span class="badge bg-warning-subtle text-warning"><?php echo $pendingCount; ?> abiertas</span>
                                 </div>
                                 <div class="card-body">
                                     <?php if (!empty($pendingInvoices)): ?>
@@ -264,21 +247,21 @@ $portalLogo = login_logo_src(app_config('company', []));
                                                 <thead class="table-light">
                                                     <tr>
                                                         <th>Número</th>
-                                                        <th>Vence</th>
+                                                        <th>Vencimiento</th>
                                                         <th>Total</th>
                                                         <th>Estado</th>
                                                         <th></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php foreach (array_slice($pendingInvoices, 0, 5) as $invoice): ?>
+                                                    <?php foreach (array_slice($pendingInvoices, 0, 6) as $invoice): ?>
                                                         <tr>
                                                             <td class="fw-semibold">#<?php echo e($invoice['numero'] ?? $invoice['id']); ?></td>
                                                             <td><?php echo e($invoice['fecha_vencimiento'] ?? '-'); ?></td>
                                                             <td><?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></td>
                                                             <td><span class="badge bg-warning-subtle text-warning text-capitalize"><?php echo e($invoice['estado'] ?? 'pendiente'); ?></span></td>
                                                             <td class="text-end">
-                                                                <a class="btn btn-outline-primary btn-sm" href="index.php?route=clients/portal/invoice&id=<?php echo (int)($invoice['id'] ?? 0); ?>&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>">Ver</a>
+                                                                <a class="btn btn-outline-primary btn-sm" href="index.php?route=clients/portal/invoice&id=<?php echo (int)($invoice['id'] ?? 0); ?>&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>">Ver detalle</a>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>
@@ -286,16 +269,16 @@ $portalLogo = login_logo_src(app_config('company', []));
                                             </table>
                                         </div>
                                     <?php else: ?>
-                                        <div class="text-muted">No hay facturas pendientes.</div>
+                                        <div class="text-muted">No hay facturas pendientes. ¡Buen trabajo!</div>
                                     <?php endif; ?>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-5" id="pagos">
+                        <div class="col-xl-5">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-header border-0 d-flex align-items-center justify-content-between">
                                     <div>
-                                        <p class="text-muted mb-0 fs-xs">Pagos</p>
+                                        <p class="text-muted mb-0 fs-xs text-uppercase">Pagos</p>
                                         <h5 class="mb-0">Pagos recientes</h5>
                                     </div>
                                     <span class="badge bg-success-subtle text-success"><?php echo $paymentsCount; ?> registros</span>
@@ -324,12 +307,98 @@ $portalLogo = login_logo_src(app_config('company', []));
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3" id="soporte">
+                    <div class="row g-3 mb-3" id="proyectos">
+                        <div class="col-xl-7">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header border-0 d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <p class="text-muted mb-0 fs-xs text-uppercase">Proyectos</p>
+                                        <h5 class="mb-0">Avance y estado</h5>
+                                    </div>
+                                    <span class="badge bg-primary-subtle text-primary"><?php echo $projectsCount; ?> proyectos</span>
+                                </div>
+                                <div class="card-body">
+                                    <?php if (!empty($projectsOverview)): ?>
+                                        <div class="table-responsive">
+                                            <table class="table table-centered align-middle mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Proyecto</th>
+                                                        <th>Progreso</th>
+                                                        <th>Última actividad</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($projectsOverview as $project): ?>
+                                                        <?php
+                                                        $tasksTotal = (int)($project['tasks_total'] ?? 0);
+                                                        $tasksCompleted = (int)($project['tasks_completed'] ?? 0);
+                                                        $progress = $tasksTotal > 0 ? (int)round(($tasksCompleted / max(1, $tasksTotal)) * 100) : 0;
+                                                        ?>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="fw-semibold"><?php echo e($project['name'] ?? 'Proyecto'); ?></div>
+                                                                <div class="text-muted fs-xs text-capitalize"><?php echo e($project['status'] ?? 'en progreso'); ?></div>
+                                                            </td>
+                                                            <td style="width: 40%;">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                                                        <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $progress; ?>%;" aria-valuenow="<?php echo $progress; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                    </div>
+                                                                    <span class="fw-semibold fs-xs"><?php echo $progress; ?>%</span>
+                                                                </div>
+                                                                <div class="text-muted fs-xxs mt-1"><?php echo $tasksCompleted; ?> de <?php echo $tasksTotal; ?> tareas</div>
+                                                            </td>
+                                                            <td><span class="text-muted fs-sm"><?php echo e($project['last_activity'] ?? 'Sin actividad'); ?></span></td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-muted">Aún no hay proyectos registrados.</div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-5" id="tareas">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header border-0 d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <p class="text-muted mb-0 fs-xs text-uppercase">Tareas</p>
+                                        <h5 class="mb-0">Próximas entregas</h5>
+                                    </div>
+                                    <span class="badge bg-info-subtle text-info"><?php echo count($upcomingTasks); ?> abiertas</span>
+                                </div>
+                                <div class="card-body">
+                                    <?php if (!empty($upcomingTasks)): ?>
+                                        <div class="list-group list-group-flush">
+                                            <?php foreach (array_slice($upcomingTasks, 0, 6) as $task): ?>
+                                                <div class="list-group-item px-0">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div>
+                                                            <div class="fw-semibold"><?php echo e($task['title'] ?? $task['name'] ?? 'Tarea'); ?></div>
+                                                            <div class="text-muted fs-xs"><?php echo e($task['project_name'] ?? 'Proyecto'); ?></div>
+                                                        </div>
+                                                        <span class="badge bg-secondary-subtle text-secondary"><?php echo !empty($task['due_date']) ? e($task['due_date']) : 'Sin fecha'; ?></span>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-muted">No hay tareas activas.</div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4" id="soporte">
                         <div class="col-xl-5">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-header border-0 d-flex align-items-center justify-content-between">
                                     <div>
-                                        <p class="text-muted mb-0 fs-xs">Soporte</p>
+                                        <p class="text-muted mb-0 fs-xs text-uppercase">Soporte</p>
                                         <h5 class="mb-0">Nuevo ticket</h5>
                                     </div>
                                 </div>
@@ -367,7 +436,7 @@ $portalLogo = login_logo_src(app_config('company', []));
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-header border-0 d-flex align-items-center justify-content-between">
                                     <div>
-                                        <p class="text-muted mb-0 fs-xs">Seguimiento</p>
+                                        <p class="text-muted mb-0 fs-xs text-uppercase">Seguimiento</p>
                                         <h5 class="mb-0">Mis tickets</h5>
                                     </div>
                                 </div>
@@ -437,11 +506,11 @@ $portalLogo = login_logo_src(app_config('company', []));
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-4" id="perfil">
+                    <div class="row g-3 mb-4" id="cuenta">
                         <div class="col-lg-12">
                             <div class="card border-0 shadow-sm">
                                 <div class="card-header border-0">
-                                    <p class="text-muted mb-0 fs-xs">Perfil</p>
+                                    <p class="text-muted mb-0 fs-xs text-uppercase">Cuenta</p>
                                     <h5 class="mb-0">Datos de contacto</h5>
                                 </div>
                                 <div class="card-body">
@@ -482,7 +551,6 @@ $portalLogo = login_logo_src(app_config('company', []));
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
             <?php include('partials/footer.php'); ?>

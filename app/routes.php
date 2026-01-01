@@ -41,6 +41,7 @@ return [
     'sales/create' => ['SalesController', 'create'],
     'sales/store' => ['SalesController', 'store'],
     'sales/show' => ['SalesController', 'show'],
+    'sales/delete' => ['SalesController', 'delete'],
     'pos' => ['SalesController', 'pos'],
     'pos/open' => ['SalesController', 'openSession'],
     'pos/close' => ['SalesController', 'closeSession'],

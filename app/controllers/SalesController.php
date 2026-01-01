@@ -65,11 +65,13 @@ class SalesController extends Controller
         $session = null;
         $sessionTotals = [];
         $posReady = $this->posTablesReady();
+        $recentSessionSales = [];
         if ($isPos) {
             if ($posReady) {
                 $session = $this->posSessions->activeForUser($companyId, (int)(Auth::user()['id'] ?? 0));
                 if ($session) {
                     $sessionTotals = $this->salePayments->totalsBySession((int)$session['id']);
+                    $recentSessionSales = $this->sales->recentBySession((int)$session['id'], $companyId);
                 }
             } else {
                 flash('error', 'Faltan tablas/columnas para el POS. Ejecuta la actualización de base de datos.');
@@ -87,6 +89,7 @@ class SalesController extends Controller
             'posSession' => $session,
             'sessionTotals' => $sessionTotals,
             'posReady' => $posReady,
+            'recentSessionSales' => $recentSessionSales,
         ]);
     }
 
@@ -278,6 +281,26 @@ class SalesController extends Controller
         }
 
         return $items;
+    }
+
+    public function delete(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $id = (int)($_POST['sale_id'] ?? 0);
+        if ($id <= 0) {
+            $this->redirect('index.php?route=pos');
+        }
+        $sale = $this->sales->findForCompany($id, $companyId);
+        if (!$sale) {
+            flash('error', 'Venta no encontrada.');
+            $this->redirect('index.php?route=pos');
+        }
+        $this->sales->softDelete($id, $companyId);
+        flash('success', 'Venta eliminada correctamente.');
+        $redirect = ($_POST['origin'] ?? '') === 'pos' ? 'index.php?route=pos' : 'index.php?route=sales';
+        $this->redirect($redirect);
     }
 
     public function openSession(): void

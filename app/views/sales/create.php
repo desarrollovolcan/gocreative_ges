@@ -1,8 +1,47 @@
 <?php $isPos = $isPos ?? false; ?>
 <?php if ($isPos): ?>
-    <div class="row mb-3">
+    <style>
+        .pos-compact .card-header,
+        .pos-compact .card-body {
+            padding: 0.75rem 1rem;
+        }
+        .pos-compact .list-group-item {
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+        }
+        .pos-compact .table-sm> :not(caption)>*>* {
+            padding: 0.4rem 0.5rem;
+        }
+        .pos-compact .tab-pane {
+            width: 100%;
+        }
+        .pos-compact .tab-content {
+            width: 100%;
+        }
+        .pos-compact .card.h-100 {
+            height: 100%;
+        }
+        .pos-compact .pos-equal-col {
+            display: flex;
+        }
+        .pos-compact .pos-equal-col > .card {
+            flex: 1 1 auto;
+            height: 100%;
+        }
+        .pos-compact .tab-pane .list-group-item-action > span:first-child {
+            display: inline-flex;
+            align-items: flex-start;
+            gap: 6px;
+            width: 100%;
+            text-align: left;
+        }
+        .pos-compact .tab-pane .list-group-item-action .badge {
+            flex-shrink: 0;
+        }
+    </style>
+    <div class="row mb-3 pos-compact">
         <div class="col-12">
-            <div class="card">
+            <div class="card" style="min-height: 120px;">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">Caja POS</h5>
                     <?php if (!empty($posSession)): ?>
@@ -21,7 +60,7 @@
                                 <div class="fw-semibold"><?php echo format_currency(array_sum($sessionTotals)); ?></div>
                             </div>
                             <?php if (!empty($sessionTotals)): ?>
-                                <div class="d-flex flex-wrap gap-3 small">
+                                <div class="d-flex flex-wrap gap-2 small">
                                     <?php foreach ($sessionTotals as $method => $total): ?>
                                         <span class="d-inline-flex align-items-center gap-1 badge bg-light text-body border">
                                             <?php echo e(ucfirst($method)); ?>: <?php echo format_currency((float)$total); ?>
@@ -29,10 +68,10 @@
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
-                            <form method="post" action="index.php?route=pos/close" class="d-flex gap-2 ms-auto flex-wrap align-items-center">
+                            <form method="post" action="index.php?route=pos/close" class="d-flex align-items-center gap-2 ms-auto flex-wrap flex-sm-nowrap">
                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                <input type="number" step="0.01" min="0" name="closing_amount" class="form-control" placeholder="Monto cierre" required>
-                                <button class="btn btn-danger">Cerrar caja</button>
+                                <input type="number" step="0.01" min="0" name="closing_amount" class="form-control" placeholder="Monto cierre" required style="min-width: 140px;">
+                                <button class="btn btn-danger text-nowrap">Cerrar caja</button>
                             </form>
                         </div>
                     <?php else: ?>
@@ -50,9 +89,9 @@
         </div>
     </div>
 <?php endif; ?>
-<div class="row">
-    <div class="col-12 col-xl-8">
-        <div class="card">
+<div class="row align-items-stretch gy-3 pos-compact">
+    <div class="col-12 col-xl-8 pos-equal-col">
+        <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
                     <h4 class="card-title mb-0"><?php echo $isPos ? 'Punto de venta' : 'Nueva venta'; ?></h4>
@@ -159,7 +198,7 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-xl-4">
+    <div class="col-12 col-xl-4 pos-equal-col">
         <div class="card h-100">
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" role="tablist">
@@ -173,19 +212,19 @@
             </div>
             <div class="card-body p-0 d-flex flex-column">
                 <div class="tab-content flex-grow-1 d-flex">
-                    <div class="tab-pane fade show active d-flex flex-column" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
+                    <div class="tab-pane fade show active d-flex flex-column w-100" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
                         <div class="p-2">
-                            <input type="text" class="form-control form-control-sm" id="search-products" placeholder="Buscar producto">
+                            <input type="text" class="form-control form-control-sm w-100" id="search-products" placeholder="Buscar producto">
                         </div>
-                        <div class="list-group list-group-flush flex-grow-1 overflow-auto">
+                        <div class="list-group list-group-flush flex-grow-1 overflow-auto w-100">
                             <?php foreach ($products as $product): ?>
                                 <button type="button"
-                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product"
+                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product w-100"
                                         data-product-id="<?php echo (int)$product['id']; ?>"
                                         data-price="<?php echo e((float)($product['price'] ?? 0)); ?>"
                                         data-name="<?php echo e(strtolower($product['name'] ?? '')); ?>"
                                         data-label="<?php echo e($product['name']); ?>">
-                                    <span>
+                                    <span class="flex-grow-1">
                                         <?php echo e($product['name']); ?>
                                         <?php if (!empty($product['sku'])): ?>
                                             <small class="text-muted ms-1">(#<?php echo e($product['sku']); ?>)</small>
@@ -196,19 +235,19 @@
                             <?php endforeach; ?>
                         </div>
                     </div>
-                    <div class="tab-pane fade d-flex flex-column" id="pane-services" role="tabpanel" aria-labelledby="tab-services">
+                    <div class="tab-pane fade d-flex flex-column w-100" id="pane-services" role="tabpanel" aria-labelledby="tab-services">
                         <div class="p-2">
-                            <input type="text" class="form-control form-control-sm" id="search-services" placeholder="Buscar servicio">
+                            <input type="text" class="form-control form-control-sm w-100" id="search-services" placeholder="Buscar servicio">
                         </div>
-                        <div class="list-group list-group-flush flex-grow-1 overflow-auto">
+                        <div class="list-group list-group-flush flex-grow-1 overflow-auto w-100">
                             <?php foreach ($services as $service): ?>
                                 <button type="button"
-                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-service"
+                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-service w-100"
                                         data-service-id="<?php echo (int)$service['id']; ?>"
                                         data-price="<?php echo e((float)($service['cost'] ?? 0)); ?>"
                                         data-name="<?php echo e(strtolower($service['name'] ?? '')); ?>"
                                         data-label="<?php echo e($service['name']); ?>">
-                                    <span><?php echo e($service['name']); ?></span>
+                                    <span class="flex-grow-1"><?php echo e($service['name']); ?></span>
                                     <span class="badge bg-light text-body"><?php echo format_currency((float)($service['cost'] ?? 0)); ?></span>
                                 </button>
                             <?php endforeach; ?>
@@ -219,6 +258,72 @@
         </div>
     </div>
 </div>
+<?php if ($isPos): ?>
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="card-title mb-0">Historial de ventas (sesión activa)</h5>
+                        <small class="text-muted">Ventas recientes vinculadas a la caja abierta.</small>
+                    </div>
+                    <a href="index.php?route=sales" class="btn btn-soft-secondary btn-sm">Ver todas</a>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($recentSessionSales)): ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Cliente</th>
+                                        <th>Fecha</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($recentSessionSales as $sale): ?>
+                                        <tr>
+                                            <td class="fw-semibold"><?php echo e($sale['numero']); ?></td>
+                                            <td><?php echo e($sale['client_name'] ?? 'Consumidor final'); ?></td>
+                                            <td><?php echo e(date('d/m/Y', strtotime((string)$sale['sale_date']))); ?></td>
+                                            <td class="text-end"><?php echo format_currency((float)($sale['total'] ?? 0)); ?></td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-body border text-capitalize"><?php echo e(str_replace('_', ' ', $sale['status'] ?? '')); ?></span>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="d-inline-flex align-items-center gap-1">
+                                                    <a href="index.php?route=sales/show&id=<?php echo (int)($sale['id'] ?? 0); ?>" class="btn btn-soft-primary btn-sm" title="Ver">
+                                                        <i class="ti ti-eye"></i>
+                                                    </a>
+                                                    <a href="index.php?route=sales/show&id=<?php echo (int)($sale['id'] ?? 0); ?>" class="btn btn-soft-secondary btn-sm" title="Editar">
+                                                        <i class="ti ti-pencil"></i>
+                                                    </a>
+                                                    <form action="index.php?route=sales/delete" method="post" class="d-inline">
+                                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                        <input type="hidden" name="sale_id" value="<?php echo (int)($sale['id'] ?? 0); ?>">
+                                                        <input type="hidden" name="origin" value="pos">
+                                                        <button type="submit" class="btn btn-soft-danger btn-sm" onclick="return confirm('¿Eliminar esta venta?');" title="Eliminar">
+                                                            <i class="ti ti-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">Aún no hay ventas registradas en esta sesión.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
 
 <script>
     (function() {

@@ -213,6 +213,76 @@ class ClientsController extends Controller
         ]);
     }
 
+    public function history(): void
+    {
+        $this->requireLogin();
+        $id = (int)($_GET['id'] ?? 0);
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $client = $this->db->fetch(
+            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=clients');
+        }
+
+        $services = $this->db->fetchAll(
+            'SELECT id, name, service_type, due_date, status, cost, currency
+             FROM services
+             WHERE client_id = :client_id AND company_id = :company_id AND deleted_at IS NULL
+             ORDER BY id DESC',
+            ['client_id' => $id, 'company_id' => $companyId]
+        );
+
+        $projects = $this->db->fetchAll(
+            'SELECT id, name, status, due_date, budget
+             FROM projects
+             WHERE client_id = :client_id AND company_id = :company_id AND deleted_at IS NULL
+             ORDER BY id DESC',
+            ['client_id' => $id, 'company_id' => $companyId]
+        );
+
+        $renewals = $this->db->fetchAll(
+            'SELECT id, renewal_date, status, amount, currency, notes
+             FROM service_renewals
+             WHERE client_id = :client_id AND company_id = :company_id AND deleted_at IS NULL
+             ORDER BY renewal_date DESC, id DESC',
+            ['client_id' => $id, 'company_id' => $companyId]
+        );
+
+        $tickets = $this->db->fetchAll(
+            'SELECT id, subject, status, priority, created_at
+             FROM support_tickets
+             WHERE client_id = :client_id AND company_id = :company_id AND deleted_at IS NULL
+             ORDER BY created_at DESC',
+            ['client_id' => $id, 'company_id' => $companyId]
+        );
+
+        $invoices = $this->db->fetchAll(
+            'SELECT id, numero, estado, total, fecha_emision
+             FROM invoices
+             WHERE client_id = :client_id AND company_id = :company_id AND deleted_at IS NULL
+             ORDER BY id DESC',
+            ['client_id' => $id, 'company_id' => $companyId]
+        );
+
+        $this->render('clients/history', [
+            'title' => 'Historial del Cliente',
+            'pageTitle' => 'Historial del Cliente',
+            'client' => $client,
+            'services' => $services,
+            'projects' => $projects,
+            'renewals' => $renewals,
+            'tickets' => $tickets,
+            'invoices' => $invoices,
+        ]);
+    }
+
     public function lookup(): void
     {
         $this->requireLogin();

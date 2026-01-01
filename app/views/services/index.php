@@ -40,18 +40,29 @@
                                 </span>
                             </td>
                             <td class="text-end">
-                                <a href="index.php?route=services/show&id=<?php echo $service['id']; ?>" class="btn btn-light btn-sm">Ver</a>
-                                <a href="index.php?route=services/edit&id=<?php echo $service['id']; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
-                                <form method="post" action="index.php?route=services/generate-invoice" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $service['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-success btn-sm">Facturar</button>
-                                </form>
-                                <form method="post" action="index.php?route=services/delete" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $service['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                </form>
+                                <div class="dropdown actions-dropdown">
+                                    <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Acciones
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a href="index.php?route=services/show&id=<?php echo $service['id']; ?>" class="dropdown-item">Ver</a></li>
+                                        <li><a href="index.php?route=services/edit&id=<?php echo $service['id']; ?>" class="dropdown-item">Editar</a></li>
+                                        <li>
+                                            <form method="post" action="index.php?route=services/generate-invoice">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="id" value="<?php echo $service['id']; ?>">
+                                                <button type="submit" class="dropdown-item dropdown-item-button">Facturar</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="post" action="index.php?route=services/delete" onsubmit="return confirm('¿Eliminar este servicio?');">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="id" value="<?php echo $service['id']; ?>">
+                                                <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

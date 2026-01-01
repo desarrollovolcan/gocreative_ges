@@ -30,12 +30,21 @@
                                 <td><?php echo e($role['name'] ?? ''); ?></td>
                                 <td><?php echo (int)($countByRole[$roleId] ?? 0); ?></td>
                                 <td class="text-end">
-                                    <a href="index.php?route=roles/edit&id=<?php echo $roleId; ?>" class="btn btn-light btn-sm">Editar</a>
-                                    <form method="post" action="index.php?route=roles/delete" class="d-inline" onsubmit="return confirm('¿Eliminar este rol?');">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="id" value="<?php echo $roleId; ?>">
-                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                    </form>
+                                    <div class="dropdown actions-dropdown">
+                                        <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Acciones
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a href="index.php?route=roles/edit&id=<?php echo $roleId; ?>" class="dropdown-item">Editar</a></li>
+                                            <li>
+                                                <form method="post" action="index.php?route=roles/delete" onsubmit="return confirm('¿Eliminar este rol?');">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                    <input type="hidden" name="id" value="<?php echo $roleId; ?>">
+                                                    <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

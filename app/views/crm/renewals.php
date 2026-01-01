@@ -42,43 +42,58 @@
                                 <td class="text-end"><?php echo e(format_currency((float)($renewal['amount'] ?? 0))); ?></td>
                                 <td class="text-end"><?php echo (int)($renewal['reminder_days'] ?? 0); ?> días</td>
                                 <td class="text-end">
-                                    <?php if (($renewal['status'] ?? '') !== 'renovado'): ?>
-                                        <form method="post" action="index.php?route=crm/renewals/approve" class="d-inline">
-                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
-                                            <button type="submit" class="btn btn-soft-success btn-sm" onclick="return confirm('¿Aprobar esta renovación?');">Aprobar</button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <button
-                                        type="button"
-                                        class="btn btn-soft-primary btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#renewalModal"
-                                        data-mode="edit"
-                                        data-id="<?php echo (int)$renewal['id']; ?>"
-                                        data-date="<?php echo e($renewal['renewal_date']); ?>"
-                                        data-status="<?php echo e($renewal['status']); ?>"
-                                        data-amount="<?php echo e($renewal['amount']); ?>"
-                                        data-currency="<?php echo e($renewal['currency']); ?>"
-                                        data-reminder="<?php echo e($renewal['reminder_days']); ?>"
-                                        data-notes="<?php echo e($renewal['notes']); ?>"
-                                        data-client-id="<?php echo (int)$renewal['client_id']; ?>"
-                                        data-service-id="<?php echo (int)($renewal['service_id'] ?? 0); ?>"
-                                    >
-                                        Editar
-                                    </button>
-                                    <?php if (($renewal['status'] ?? '') === 'renovado'): ?>
-                                        <form method="post" action="index.php?route=crm/renewals/send-email" class="d-inline">
-                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                            <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
-                                            <button type="submit" class="btn btn-soft-info btn-sm" onclick="return confirm('¿Enviar correo de renovación exitosa?');">Enviar correo</button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <form method="post" action="index.php?route=crm/renewals/delete" class="d-inline" onsubmit="return confirm('¿Eliminar esta renovación?');">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
-                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                    </form>
+                                    <div class="dropdown actions-dropdown">
+                                        <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Acciones
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <?php if (($renewal['status'] ?? '') !== 'renovado'): ?>
+                                                <li>
+                                                    <form method="post" action="index.php?route=crm/renewals/approve" onsubmit="return confirm('¿Aprobar esta renovación?');">
+                                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                        <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
+                                                        <button type="submit" class="dropdown-item dropdown-item-button">Aprobar</button>
+                                                    </form>
+                                                </li>
+                                            <?php endif; ?>
+                                            <li>
+                                                <button
+                                                    type="button"
+                                                    class="dropdown-item dropdown-item-button"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#renewalModal"
+                                                    data-mode="edit"
+                                                    data-id="<?php echo (int)$renewal['id']; ?>"
+                                                    data-date="<?php echo e($renewal['renewal_date']); ?>"
+                                                    data-status="<?php echo e($renewal['status']); ?>"
+                                                    data-amount="<?php echo e($renewal['amount']); ?>"
+                                                    data-currency="<?php echo e($renewal['currency']); ?>"
+                                                    data-reminder="<?php echo e($renewal['reminder_days']); ?>"
+                                                    data-notes="<?php echo e($renewal['notes']); ?>"
+                                                    data-client-id="<?php echo (int)$renewal['client_id']; ?>"
+                                                    data-service-id="<?php echo (int)($renewal['service_id'] ?? 0); ?>"
+                                                >
+                                                    Editar
+                                                </button>
+                                            </li>
+                                            <?php if (($renewal['status'] ?? '') === 'renovado'): ?>
+                                                <li>
+                                                    <form method="post" action="index.php?route=crm/renewals/send-email" onsubmit="return confirm('¿Enviar correo de renovación exitosa?');">
+                                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                        <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
+                                                        <button type="submit" class="dropdown-item dropdown-item-button">Enviar correo</button>
+                                                    </form>
+                                                </li>
+                                            <?php endif; ?>
+                                            <li>
+                                                <form method="post" action="index.php?route=crm/renewals/delete" onsubmit="return confirm('¿Eliminar esta renovación?');">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                    <input type="hidden" name="id" value="<?php echo (int)$renewal['id']; ?>">
+                                                    <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

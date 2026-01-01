@@ -168,6 +168,18 @@ body {
     padding: 0.85rem 1rem;
 }
 
+.actions-dropdown form {
+    margin: 0;
+}
+
+.dropdown-item-button {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    padding: 0.35rem 1rem;
+}
+
 .dashboard-compact .stat-value {
     font-size: 1.4rem;
 }

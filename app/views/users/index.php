@@ -26,12 +26,21 @@
                             <td><?php echo e($user['email']); ?></td>
                             <td><?php echo e($user['role']); ?></td>
                             <td class="text-end">
-                                <a href="index.php?route=users/edit&id=<?php echo $user['id']; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
-                                <form method="post" action="index.php?route=users/delete" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                </form>
+                                <div class="dropdown actions-dropdown">
+                                    <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Acciones
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a href="index.php?route=users/edit&id=<?php echo $user['id']; ?>" class="dropdown-item">Editar</a></li>
+                                        <li>
+                                            <form method="post" action="index.php?route=users/delete" onsubmit="return confirm('¿Eliminar este usuario?');">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
+                                                <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

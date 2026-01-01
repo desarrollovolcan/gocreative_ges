@@ -1,4 +1,9 @@
+# Local OS and IDE files
 /.DS_Store
+
+# Runtime artifacts
 storage/logs/*
+
+# Dependencies and local databases
 vendor/
 bd/

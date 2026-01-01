@@ -7,17 +7,16 @@
             </div>
         </div>
 
-        <form class="row g-2 align-items-end" method="get" action="index.php">
+        <form class="row g-3 align-items-end flex-lg-nowrap" method="get" action="index.php">
             <input type="hidden" name="route" value="clients/history">
-            <div class="col-12 col-md-5">
+            <div class="col-12 col-md-5 col-lg-4">
                 <label for="client-search" class="form-label fw-semibold small text-muted">Buscar cliente</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="ti ti-search"></i></span>
-                    <input type="search" id="client-search" class="form-control" placeholder="Ingresa nombre o RUT">
+                    <input type="search" id="client-search" class="form-control" placeholder="Ingresa nombre o RUT" autocomplete="off">
                 </div>
-                <small class="text-muted">Se filtra por nombre o RUT.</small>
             </div>
-            <div class="col-12 col-md-5">
+            <div class="col-12 col-md-5 col-lg-6">
                 <label for="client-select" class="form-label fw-semibold small text-muted">Selecciona cliente</label>
                 <select name="id" id="client-select" class="form-select" data-selected-id="<?php echo (int)$selectedClientId; ?>" required>
                     <option value="">Selecciona un cliente</option>
@@ -32,8 +31,9 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-12 col-md-2 d-grid">
-                <button type="submit" class="btn btn-primary">Buscar historial</button>
+            <div class="col-12 col-md-2 col-lg-2 d-grid">
+                <label class="form-label fw-semibold small text-muted invisible">Buscar</label>
+                <button type="submit" class="btn btn-primary w-100">Buscar historial</button>
             </div>
         </form>
     </div>
@@ -111,7 +111,20 @@
                                         </div>
                                     </div>
                                 </div>
-                                <?php if (!empty($activity['url'])): ?>
+                                <?php if (!empty($activity['actions'])): ?>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="dropdown actions-dropdown">
+                                            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Acciones
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <?php foreach ($activity['actions'] as $action): ?>
+                                                    <li><a class="dropdown-item" href="<?php echo e($action['url'] ?? '#'); ?>"><?php echo e($action['label'] ?? 'Ver'); ?></a></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                <?php elseif (!empty($activity['url'])): ?>
                                     <div class="d-flex align-items-center gap-2">
                                         <a href="<?php echo e($activity['url']); ?>" class="btn btn-outline-primary btn-sm">
                                             <i class="ti ti-arrow-up-right"></i> Abrir detalle

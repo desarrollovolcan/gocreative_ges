@@ -341,7 +341,6 @@
                 recalc();
             });
         });
-        const serviceSelectors = document.querySelectorAll('.add-service');
         serviceSelectors.forEach((button) => {
             button.addEventListener('click', () => {
                 const serviceId = button.dataset.serviceId;
@@ -359,8 +358,6 @@
                 recalc();
             });
         });
-        const searchProducts = document.getElementById('search-products');
-        const searchServices = document.getElementById('search-services');
         function filterList(input, elements) {
             const term = (input?.value || '').toLowerCase();
             elements.forEach((el) => {

@@ -16,6 +16,9 @@ $item = $items[0] ?? [
         <form method="post" action="index.php?route=quotes/update">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="id" value="<?php echo $quote['id']; ?>">
+            <div class="mb-3">
+                <?php echo render_id_badge($quote['id'] ?? null); ?>
+            </div>
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Número</label>

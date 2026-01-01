@@ -8,6 +8,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Razón social</th>
                         <th>Email</th>
                         <th>Teléfono</th>
@@ -18,6 +19,7 @@
                 <tbody>
                     <?php foreach ($clients as $client): ?>
                         <tr>
+                            <td class="text-muted"><?php echo render_id_badge($client['id'] ?? null); ?></td>
                             <td><?php echo e($client['name']); ?></td>
                             <td><?php echo e($client['email']); ?></td>
                             <td><?php echo e($client['phone']); ?></td>

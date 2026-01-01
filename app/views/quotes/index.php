@@ -8,6 +8,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Número</th>
                         <th>Cliente</th>
                         <th>Emisión</th>
@@ -19,6 +20,7 @@
                 <tbody>
                     <?php foreach ($quotes as $quote): ?>
                         <tr>
+                            <td class="text-muted"><?php echo render_id_badge($quote['id'] ?? null); ?></td>
                             <td><?php echo e($quote['numero']); ?></td>
                             <td><?php echo e($quote['client_name']); ?></td>
                             <td><?php echo e($quote['fecha_emision']); ?></td>

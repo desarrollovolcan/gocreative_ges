@@ -11,6 +11,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Número</th>
                         <th>Cliente</th>
                         <th>Emisión</th>
@@ -43,6 +44,7 @@
                         }
                         ?>
                         <tr>
+                            <td class="text-muted"><?php echo render_id_badge($invoice['id'] ?? null); ?></td>
                             <td><?php echo e($invoice['numero']); ?></td>
                             <td><?php echo e($invoice['client_name']); ?></td>
                             <td><?php echo e($invoice['fecha_emision']); ?></td>

@@ -6,6 +6,9 @@
         <form method="post" action="index.php?route=users/update" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
+            <div class="mb-3">
+                <?php echo render_id_badge($user['id'] ?? null); ?>
+            </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Nombre</label>

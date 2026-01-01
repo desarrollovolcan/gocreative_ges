@@ -1,6 +1,9 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h4 class="card-title mb-0">Factura <?php echo e($invoice['numero']); ?></h4>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <h4 class="card-title mb-0">Factura <?php echo e($invoice['numero']); ?></h4>
+            <?php echo render_id_badge($invoice['id'] ?? null); ?>
+        </div>
         <div class="d-flex gap-2 align-items-center">
             <form method="post" action="index.php?route=invoices/send-email" class="d-inline">
                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
@@ -16,6 +19,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-6">
+                <p><strong>ID:</strong> <?php echo render_id_badge($invoice['id'] ?? null); ?></p>
                 <p><strong>Cliente:</strong> <?php echo e($client['name'] ?? ''); ?></p>
                 <p><strong>Emisión:</strong> <?php echo e($invoice['fecha_emision']); ?></p>
                 <p><strong>Vencimiento:</strong> <?php echo e($invoice['fecha_vencimiento']); ?></p>

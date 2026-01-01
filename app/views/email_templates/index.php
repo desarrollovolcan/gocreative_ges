@@ -14,6 +14,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Nombre</th>
                         <th>Asunto</th>
                         <th>Tipo</th>
@@ -23,6 +24,7 @@
                 <tbody>
                     <?php foreach ($templates as $template): ?>
                         <tr>
+                            <td class="text-muted"><?php echo render_id_badge($template['id'] ?? null); ?></td>
                             <td><?php echo e($template['name']); ?></td>
                             <td><?php echo e($template['subject']); ?></td>
                             <td><?php echo e($template['type']); ?></td>

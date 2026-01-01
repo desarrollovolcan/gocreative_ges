@@ -9,6 +9,9 @@
         <form method="post" action="index.php?route=clients/update" id="client-edit-form" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="id" value="<?php echo $client['id']; ?>">
+            <div class="mb-3">
+                <?php echo render_id_badge($client['id'] ?? null); ?>
+            </div>
             <div class="accordion" id="clientEditAccordion">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="editHeadingCompany">

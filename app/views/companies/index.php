@@ -8,6 +8,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Nombre</th>
                         <th>RUT</th>
                         <th>Email</th>
@@ -19,6 +20,7 @@
                 <tbody>
                     <?php foreach (($companies ?? []) as $company): ?>
                         <tr>
+                            <td class="text-muted"><?php echo render_id_badge($company['id'] ?? null); ?></td>
                             <td><?php echo e($company['name'] ?? ''); ?></td>
                             <td><?php echo e($company['rut'] ?? ''); ?></td>
                             <td><?php echo e($company['email'] ?? ''); ?></td>

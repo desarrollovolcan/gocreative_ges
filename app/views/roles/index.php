@@ -16,6 +16,7 @@
                 <table class="table table-striped align-middle">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Rol</th>
                             <th>Usuarios asignados</th>
                             <th class="text-end">Acciones</th>
@@ -25,6 +26,7 @@
                         <?php foreach ($roles as $role): ?>
                             <?php $roleId = (int)($role['id'] ?? 0); ?>
                             <tr>
+                                <td class="text-muted"><?php echo render_id_badge($roleId); ?></td>
                                 <td><?php echo e($role['name'] ?? ''); ?></td>
                                 <td><?php echo (int)($countByRole[$roleId] ?? 0); ?></td>
                                 <td class="text-end">

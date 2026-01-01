@@ -44,6 +44,7 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Nombre</th>
                         <th>Cliente</th>
                         <th>Mandante</th>
@@ -63,6 +64,7 @@
                         $projectClientName = $project['client_name'] ?? '-';
                         ?>
                         <tr>
+                            <td class="text-muted"><?php echo render_id_badge($projectId); ?></td>
                             <td><?php echo e($projectName); ?></td>
                             <td><?php echo e($projectClientName); ?></td>
                             <td><?php echo e($project['mandante_name'] ?? '-'); ?></td>

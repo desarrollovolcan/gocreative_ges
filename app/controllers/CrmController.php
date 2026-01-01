@@ -21,9 +21,12 @@ class CrmController extends Controller
     public function hub(): void
     {
         $this->requireLogin();
+        $companyId = current_company_id();
+        $clients = $companyId ? $this->clients->active($companyId) : [];
         $this->render('crm/hub', [
             'title' => 'CRM Comercial',
             'pageTitle' => 'CRM Comercial',
+            'clients' => $clients,
         ]);
     }
 

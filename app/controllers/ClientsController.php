@@ -251,13 +251,18 @@ class ClientsController extends Controller
                     array_merge(['company_id' => $companyId], $filterParams)
                 );
                 foreach ($projects as $project) {
+                    $projectId = (int)($project['id'] ?? 0);
                     $activities[] = [
                         'type' => 'Proyecto',
                         'title' => $project['name'] ?? '',
                         'status' => $project['status'] ?? '',
                         'client' => $project['client_name'] ?? '',
                         'date' => $project['updated_at'] ?? $project['created_at'] ?? '',
-                        'url' => 'index.php?route=projects/show&id=' . (int)($project['id'] ?? 0),
+                        'url' => 'index.php?route=projects/show&id=' . $projectId,
+                        'actions' => [
+                            ['label' => 'Ver', 'url' => 'index.php?route=projects/show&id=' . $projectId],
+                            ['label' => 'Editar', 'url' => 'index.php?route=projects/edit&id=' . $projectId],
+                        ],
                     ];
                 }
 
@@ -271,14 +276,19 @@ class ClientsController extends Controller
                     array_merge(['company_id' => $companyId], $filterParams)
                 );
                 foreach ($services as $service) {
+                    $serviceId = (int)($service['id'] ?? 0);
                     $activities[] = [
                         'type' => 'Servicio',
                         'title' => $service['name'] ?? '',
                         'status' => $service['status'] ?? '',
                         'client' => $service['client_name'] ?? '',
                         'date' => $service['updated_at'] ?? $service['created_at'] ?? '',
-                        'url' => 'index.php?route=services/show&id=' . (int)($service['id'] ?? 0),
+                        'url' => 'index.php?route=services/show&id=' . $serviceId,
                         'meta' => $service['service_type'] ?? '',
+                        'actions' => [
+                            ['label' => 'Ver', 'url' => 'index.php?route=services/show&id=' . $serviceId],
+                            ['label' => 'Editar', 'url' => 'index.php?route=services/edit&id=' . $serviceId],
+                        ],
                     ];
                 }
 
@@ -292,14 +302,19 @@ class ClientsController extends Controller
                     array_merge(['company_id' => $companyId], $filterParams)
                 );
                 foreach ($tickets as $ticket) {
+                    $ticketId = (int)($ticket['id'] ?? 0);
                     $activities[] = [
                         'type' => 'Ticket',
                         'title' => $ticket['subject'] ?? '',
                         'status' => $ticket['status'] ?? '',
                         'client' => $ticket['client_name'] ?? '',
                         'date' => $ticket['updated_at'] ?? $ticket['created_at'] ?? '',
-                        'url' => 'index.php?route=tickets/show&id=' . (int)($ticket['id'] ?? 0),
+                        'url' => 'index.php?route=tickets/show&id=' . $ticketId,
                         'meta' => $ticket['priority'] ?? '',
+                        'actions' => [
+                            ['label' => 'Ver', 'url' => 'index.php?route=tickets/show&id=' . $ticketId],
+                            ['label' => 'Editar', 'url' => 'index.php?route=tickets/edit&id=' . $ticketId],
+                        ],
                     ];
                 }
 
@@ -313,13 +328,18 @@ class ClientsController extends Controller
                     array_merge(['company_id' => $companyId], $filterParams)
                 );
                 foreach ($invoices as $invoice) {
+                    $invoiceId = (int)($invoice['id'] ?? 0);
                     $activities[] = [
                         'type' => 'Factura',
                         'title' => 'Factura #' . ($invoice['numero'] ?? $invoice['id'] ?? ''),
                         'status' => $invoice['estado'] ?? '',
                         'client' => $invoice['client_name'] ?? '',
                         'date' => $invoice['created_at'] ?? $invoice['fecha_emision'] ?? '',
-                        'url' => 'index.php?route=invoices/show&id=' . (int)($invoice['id'] ?? 0),
+                        'url' => 'index.php?route=invoices/show&id=' . $invoiceId,
+                        'actions' => [
+                            ['label' => 'Ver', 'url' => 'index.php?route=invoices/show&id=' . $invoiceId],
+                            ['label' => 'Editar', 'url' => 'index.php?route=invoices/edit&id=' . $invoiceId],
+                        ],
                     ];
                 }
 
@@ -333,6 +353,7 @@ class ClientsController extends Controller
                     array_merge(['company_id' => $companyId], $filterParams)
                 );
                 foreach ($renewals as $renewal) {
+                    $renewalId = (int)($renewal['id'] ?? 0);
                     $activities[] = [
                         'type' => 'Renovación',
                         'title' => 'Renovación programada',
@@ -341,6 +362,10 @@ class ClientsController extends Controller
                         'date' => $renewal['created_at'] ?? ($renewal['renewal_date'] . ' 00:00:00'),
                         'meta' => format_currency((float)($renewal['amount'] ?? 0)) . ' ' . ($renewal['currency'] ?? ''),
                         'url' => 'index.php?route=crm/renewals',
+                        'actions' => [
+                            ['label' => 'Ver', 'url' => 'index.php?route=crm/renewals'],
+                            ['label' => 'Editar', 'url' => 'index.php?route=crm/renewals&focus=' . $renewalId],
+                        ],
                     ];
                 }
 

@@ -29,13 +29,15 @@
                                 </span>
                             </td>
                             <td class="text-end">
-                                <a href="index.php?route=clients/show&id=<?php echo $client['id']; ?>" class="btn btn-light btn-sm">Ver</a>
-                                <a href="index.php?route=clients/edit&id=<?php echo $client['id']; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
-                                <form method="post" action="index.php?route=clients/delete" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $client['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                </form>
+                                <div class="action-buttons">
+                                    <a href="index.php?route=clients/show&id=<?php echo $client['id']; ?>" class="btn btn-light btn-sm">Ver</a>
+                                    <a href="index.php?route=clients/edit&id=<?php echo $client['id']; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
+                                    <form method="post" action="index.php?route=clients/delete">
+                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                        <input type="hidden" name="id" value="<?php echo $client['id']; ?>">
+                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

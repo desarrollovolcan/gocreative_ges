@@ -18,7 +18,7 @@
                             <th class="text-end">Total</th>
                             <th class="text-end">Pendiente</th>
                             <th>Estado</th>
-                            <th>Acciones</th>
+                            <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,11 +40,13 @@
                                         <?php echo e(ucfirst($status)); ?>
                                     </span>
                                 </td>
-                                <td class="d-flex flex-wrap gap-2">
-                                    <a class="btn btn-soft-primary btn-sm" href="<?php echo e($detailUrl); ?>" target="_blank">Ver factura</a>
-                                    <button class="btn btn-outline-secondary btn-sm" type="button" data-copy-link="<?php echo e($detailUrl); ?>">
-                                        Copiar link
-                                    </button>
+                                <td class="text-end">
+                                    <div class="action-buttons">
+                                        <a class="btn btn-soft-primary btn-sm" href="<?php echo e($detailUrl); ?>" target="_blank">Ver factura</a>
+                                        <button class="btn btn-outline-secondary btn-sm" type="button" data-copy-link="<?php echo e($detailUrl); ?>">
+                                            Copiar link
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

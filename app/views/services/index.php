@@ -40,18 +40,20 @@
                                 </span>
                             </td>
                             <td class="text-end">
-                                <a href="index.php?route=services/show&id=<?php echo $service['id']; ?>" class="btn btn-light btn-sm">Ver</a>
-                                <a href="index.php?route=services/edit&id=<?php echo $service['id']; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
-                                <form method="post" action="index.php?route=services/generate-invoice" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $service['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-success btn-sm">Facturar</button>
-                                </form>
-                                <form method="post" action="index.php?route=services/delete" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $service['id']; ?>">
-                                    <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                </form>
+                                <div class="action-buttons">
+                                    <a href="index.php?route=services/show&id=<?php echo $service['id']; ?>" class="btn btn-light btn-sm">Ver</a>
+                                    <a href="index.php?route=services/edit&id=<?php echo $service['id']; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
+                                    <form method="post" action="index.php?route=services/generate-invoice">
+                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                        <input type="hidden" name="id" value="<?php echo $service['id']; ?>">
+                                        <button type="submit" class="btn btn-soft-success btn-sm">Facturar</button>
+                                    </form>
+                                    <form method="post" action="index.php?route=services/delete">
+                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                        <input type="hidden" name="id" value="<?php echo $service['id']; ?>">
+                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

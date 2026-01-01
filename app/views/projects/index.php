@@ -72,17 +72,19 @@
                             <td><?php echo e($projectDeliveryDate); ?></td>
                             <td class="text-end">
                                 <?php if ($projectId !== null): ?>
-                                    <a href="index.php?route=projects/show&id=<?php echo (int)$projectId; ?>" class="btn btn-light btn-sm">Ver</a>
-                                    <a href="index.php?route=projects/show&id=<?php echo (int)$projectId; ?>#tareas" class="btn btn-outline-secondary btn-sm">Ver tareas</a>
-                                    <?php if ($projectClientId !== null): ?>
-                                        <a href="index.php?route=invoices/create&project_id=<?php echo (int)$projectId; ?>&client_id=<?php echo (int)$projectClientId; ?>" class="btn btn-outline-primary btn-sm">Crear factura</a>
-                                    <?php endif; ?>
-                                    <a href="index.php?route=projects/edit&id=<?php echo (int)$projectId; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
-                                    <form method="post" action="index.php?route=projects/delete" class="d-inline">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="id" value="<?php echo (int)$projectId; ?>">
-                                        <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
-                                    </form>
+                                    <div class="action-buttons">
+                                        <a href="index.php?route=projects/show&id=<?php echo (int)$projectId; ?>" class="btn btn-light btn-sm">Ver</a>
+                                        <a href="index.php?route=projects/show&id=<?php echo (int)$projectId; ?>#tareas" class="btn btn-outline-secondary btn-sm">Ver tareas</a>
+                                        <?php if ($projectClientId !== null): ?>
+                                            <a href="index.php?route=invoices/create&project_id=<?php echo (int)$projectId; ?>&client_id=<?php echo (int)$projectClientId; ?>" class="btn btn-outline-primary btn-sm">Crear factura</a>
+                                        <?php endif; ?>
+                                        <a href="index.php?route=projects/edit&id=<?php echo (int)$projectId; ?>" class="btn btn-soft-primary btn-sm">Editar</a>
+                                        <form method="post" action="index.php?route=projects/delete">
+                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                            <input type="hidden" name="id" value="<?php echo (int)$projectId; ?>">
+                                            <button type="submit" class="btn btn-soft-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </div>
                                 <?php endif; ?>
                             </td>
                         </tr>

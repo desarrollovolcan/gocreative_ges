@@ -82,7 +82,9 @@
                                     <td><span class="badge bg-<?php echo $statusColor; ?>-subtle text-<?php echo $statusColor; ?>"><?php echo e($status !== '' ? $status : 'N/A'); ?></span></td>
                                     <td class="text-end">
                                         <?php if (!empty($activity['url'])): ?>
-                                            <a href="<?php echo e($activity['url']); ?>" class="btn btn-soft-primary btn-sm">Ver</a>
+                                            <div class="action-buttons">
+                                                <a href="<?php echo e($activity['url']); ?>" class="btn btn-soft-primary btn-sm">Ver</a>
+                                            </div>
                                         <?php endif; ?>
                                     </td>
                                 </tr>

@@ -16,7 +16,7 @@
                         <th>Estado</th>
                         <th>Días faltantes</th>
                         <th>Programado</th>
-                        <th>Acciones</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,13 +70,15 @@
                                 </span>
                             </td>
                             <td><?php echo e($email['scheduled_at']); ?></td>
-                            <td>
+                            <td class="text-end">
                                 <?php if ($email['status'] !== 'sent'): ?>
-                                    <form method="post" action="index.php?route=email-queue/send" class="d-inline">
-                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                        <input type="hidden" name="id" value="<?php echo (int)$email['id']; ?>">
-                                        <button type="submit" class="btn btn-outline-primary btn-sm">Enviar ahora</button>
-                                    </form>
+                                    <div class="action-buttons">
+                                        <form method="post" action="index.php?route=email-queue/send">
+                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                            <input type="hidden" name="id" value="<?php echo (int)$email['id']; ?>">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">Enviar ahora</button>
+                                        </form>
+                                    </div>
                                 <?php else: ?>
                                     <span class="text-muted">Enviado</span>
                                 <?php endif; ?>

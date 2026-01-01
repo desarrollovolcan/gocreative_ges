@@ -216,70 +216,145 @@ class ClientsController extends Controller
     public function history(): void
     {
         $this->requireLogin();
-        $id = (int)($_GET['id'] ?? 0);
+        $clientId = (int)($_GET['id'] ?? 0);
         $companyId = current_company_id();
         if (!$companyId) {
             flash('error', 'Selecciona una empresa.');
             $this->redirect('index.php?route=auth/switch-company');
         }
-        $client = $this->db->fetch(
-            'SELECT * FROM clients WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
-            ['id' => $id, 'company_id' => $companyId]
-        );
-        if (!$client) {
-            flash('error', 'Cliente no encontrado para esta empresa.');
-            $this->redirect('index.php?route=clients');
+        $clients = $this->clients->active($companyId);
+        $client = null;
+        if ($clientId > 0) {
+            $client = $this->db->fetch(
+                'SELECT * FROM clients WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+                ['id' => $clientId, 'company_id' => $companyId]
+            );
+            if (!$client) {
+                flash('error', 'Cliente no encontrado para esta empresa.');
+                $this->redirect('index.php?route=clients');
+            }
         }
 
-        $services = $this->db->fetchAll(
-            'SELECT id, name, service_type, due_date, status, cost, currency
-             FROM services
-             WHERE client_id = :client_id AND company_id = :company_id AND deleted_at IS NULL
-             ORDER BY id DESC',
-            ['client_id' => $id, 'company_id' => $companyId]
-        );
+        $filterClause = $clientId > 0 ? ' AND {table}.client_id = :client_id' : '';
+        $filterParams = $clientId > 0 ? ['client_id' => $clientId] : [];
 
-        $projects = $this->db->fetchAll(
-            'SELECT id, name, status, due_date, budget
-             FROM projects
-             WHERE client_id = :client_id AND company_id = :company_id AND deleted_at IS NULL
-             ORDER BY id DESC',
-            ['client_id' => $id, 'company_id' => $companyId]
-        );
+        $activities = [];
+        if ($client) {
+            $projects = $this->db->fetchAll(
+                str_replace('{table}', 'projects', 'SELECT projects.id, projects.name, projects.status, projects.created_at, projects.updated_at, clients.name as client_name
+                 FROM projects
+                 JOIN clients ON projects.client_id = clients.id
+                 WHERE projects.company_id = :company_id AND projects.deleted_at IS NULL' . $filterClause . '
+                 ORDER BY projects.id DESC
+                 LIMIT 50'),
+                array_merge(['company_id' => $companyId], $filterParams)
+            );
+            foreach ($projects as $project) {
+                $activities[] = [
+                    'type' => 'Proyecto',
+                    'title' => $project['name'] ?? '',
+                    'status' => $project['status'] ?? '',
+                    'client' => $project['client_name'] ?? '',
+                    'date' => $project['updated_at'] ?? $project['created_at'] ?? '',
+                    'url' => 'index.php?route=projects/show&id=' . (int)($project['id'] ?? 0),
+                ];
+            }
 
-        $renewals = $this->db->fetchAll(
-            'SELECT id, renewal_date, status, amount, currency, notes
-             FROM service_renewals
-             WHERE client_id = :client_id AND company_id = :company_id AND deleted_at IS NULL
-             ORDER BY renewal_date DESC, id DESC',
-            ['client_id' => $id, 'company_id' => $companyId]
-        );
+            $services = $this->db->fetchAll(
+                str_replace('{table}', 'services', 'SELECT services.id, services.name, services.service_type, services.status, services.created_at, services.updated_at, clients.name as client_name
+                 FROM services
+                 JOIN clients ON services.client_id = clients.id
+                 WHERE services.company_id = :company_id AND services.deleted_at IS NULL' . $filterClause . '
+                 ORDER BY services.id DESC
+                 LIMIT 50'),
+                array_merge(['company_id' => $companyId], $filterParams)
+            );
+            foreach ($services as $service) {
+                $activities[] = [
+                    'type' => 'Servicio',
+                    'title' => $service['name'] ?? '',
+                    'status' => $service['status'] ?? '',
+                    'client' => $service['client_name'] ?? '',
+                    'date' => $service['updated_at'] ?? $service['created_at'] ?? '',
+                    'url' => 'index.php?route=services/show&id=' . (int)($service['id'] ?? 0),
+                    'meta' => $service['service_type'] ?? '',
+                ];
+            }
 
-        $tickets = $this->db->fetchAll(
-            'SELECT id, subject, status, priority, created_at
-             FROM support_tickets
-             WHERE client_id = :client_id AND company_id = :company_id AND deleted_at IS NULL
-             ORDER BY created_at DESC',
-            ['client_id' => $id, 'company_id' => $companyId]
-        );
+            $tickets = $this->db->fetchAll(
+                str_replace('{table}', 'support_tickets', 'SELECT support_tickets.id, support_tickets.subject, support_tickets.status, support_tickets.priority, support_tickets.created_at, support_tickets.updated_at, clients.name as client_name
+                 FROM support_tickets
+                 JOIN clients ON support_tickets.client_id = clients.id
+                 WHERE support_tickets.company_id = :company_id AND support_tickets.deleted_at IS NULL' . $filterClause . '
+                 ORDER BY support_tickets.id DESC
+                 LIMIT 50'),
+                array_merge(['company_id' => $companyId], $filterParams)
+            );
+            foreach ($tickets as $ticket) {
+                $activities[] = [
+                    'type' => 'Ticket',
+                    'title' => $ticket['subject'] ?? '',
+                    'status' => $ticket['status'] ?? '',
+                    'client' => $ticket['client_name'] ?? '',
+                    'date' => $ticket['updated_at'] ?? $ticket['created_at'] ?? '',
+                    'url' => 'index.php?route=tickets/show&id=' . (int)($ticket['id'] ?? 0),
+                    'meta' => $ticket['priority'] ?? '',
+                ];
+            }
 
-        $invoices = $this->db->fetchAll(
-            'SELECT id, numero, estado, total, fecha_emision
-             FROM invoices
-             WHERE client_id = :client_id AND company_id = :company_id AND deleted_at IS NULL
-             ORDER BY id DESC',
-            ['client_id' => $id, 'company_id' => $companyId]
-        );
+            $invoices = $this->db->fetchAll(
+                str_replace('{table}', 'invoices', 'SELECT invoices.id, invoices.numero, invoices.estado, invoices.fecha_emision, invoices.created_at, clients.name as client_name
+                 FROM invoices
+                 JOIN clients ON invoices.client_id = clients.id
+                 WHERE invoices.company_id = :company_id AND invoices.deleted_at IS NULL' . $filterClause . '
+                 ORDER BY invoices.id DESC
+                 LIMIT 50'),
+                array_merge(['company_id' => $companyId], $filterParams)
+            );
+            foreach ($invoices as $invoice) {
+                $activities[] = [
+                    'type' => 'Factura',
+                    'title' => 'Factura #' . ($invoice['numero'] ?? $invoice['id'] ?? ''),
+                    'status' => $invoice['estado'] ?? '',
+                    'client' => $invoice['client_name'] ?? '',
+                    'date' => $invoice['created_at'] ?? $invoice['fecha_emision'] ?? '',
+                    'url' => 'index.php?route=invoices/show&id=' . (int)($invoice['id'] ?? 0),
+                ];
+            }
+
+            $renewals = $this->db->fetchAll(
+                str_replace('{table}', 'service_renewals', 'SELECT service_renewals.id, service_renewals.renewal_date, service_renewals.status, service_renewals.amount, service_renewals.currency, service_renewals.created_at, clients.name as client_name
+                 FROM service_renewals
+                 JOIN clients ON service_renewals.client_id = clients.id
+                 WHERE service_renewals.company_id = :company_id AND service_renewals.deleted_at IS NULL' . $filterClause . '
+                 ORDER BY service_renewals.renewal_date DESC, service_renewals.id DESC
+                 LIMIT 50'),
+                array_merge(['company_id' => $companyId], $filterParams)
+            );
+            foreach ($renewals as $renewal) {
+                $activities[] = [
+                    'type' => 'Renovación',
+                    'title' => 'Renovación programada',
+                    'status' => $renewal['status'] ?? '',
+                    'client' => $renewal['client_name'] ?? '',
+                    'date' => $renewal['created_at'] ?? ($renewal['renewal_date'] . ' 00:00:00'),
+                    'meta' => format_currency((float)($renewal['amount'] ?? 0)) . ' ' . ($renewal['currency'] ?? ''),
+                    'url' => 'index.php?route=crm/renewals',
+                ];
+            }
+
+            usort($activities, static function (array $a, array $b): int {
+                return strtotime((string)($b['date'] ?? '')) <=> strtotime((string)($a['date'] ?? ''));
+            });
+        }
 
         $this->render('clients/history', [
             'title' => 'Historial del Cliente',
             'pageTitle' => 'Historial del Cliente',
             'client' => $client,
-            'services' => $services,
-            'projects' => $projects,
-            'renewals' => $renewals,
-            'tickets' => $tickets,
-            'invoices' => $invoices,
+            'clients' => $clients,
+            'activities' => $activities,
+            'selectedClientId' => $clientId,
         ]);
     }
 

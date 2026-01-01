@@ -347,20 +347,33 @@ class SalesController extends Controller
 
     private function tableExists(string $table): bool
     {
-        $row = $this->db->fetch(
-            'SELECT COUNT(*) AS total FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table',
-            ['table' => $table]
-        );
-        return (int)($row['total'] ?? 0) > 0;
+        try {
+            $row = $this->db->fetch(
+                'SELECT COUNT(*) AS total FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table',
+                ['table' => $table]
+            );
+            return (int)($row['total'] ?? 0) > 0;
+        } catch (Throwable $e) {
+            log_message('error', sprintf('tableExists check failed for %s: %s', $table, $e->getMessage()));
+            return false;
+        }
     }
 
     private function columnExists(string $table, string $column): bool
     {
-        $row = $this->db->fetch(
-            'SELECT COUNT(*) AS total FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column',
-            ['table' => $table, 'column' => $column]
-        );
-        return (int)($row['total'] ?? 0) > 0;
+        try {
+            $row = $this->db->fetch(
+                'SELECT COUNT(*) AS total FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column',
+                ['table' => $table, 'column' => $column]
+            );
+            return (int)($row['total'] ?? 0) > 0;
+        } catch (Throwable $e) {
+            log_message(
+                'error',
+                sprintf('columnExists check failed for %s.%s: %s', $table, $column, $e->getMessage())
+            );
+            return false;
+        }
     }
 
     private function posTablesReady(): bool

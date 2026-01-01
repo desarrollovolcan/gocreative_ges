@@ -166,6 +166,10 @@ class ServicesController extends Controller
         if (!$service) {
             $this->redirect('index.php?route=services');
         }
+        $renewals = $this->db->fetchAll(
+            'SELECT * FROM service_renewals WHERE service_id = :service_id AND company_id = :company_id AND deleted_at IS NULL ORDER BY renewal_date DESC, id DESC',
+            ['service_id' => $id, 'company_id' => $companyId]
+        );
         $clients = $this->clients->active($companyId);
         $serviceTypes = $this->serviceTypes->all('company_id = :company_id', ['company_id' => $companyId]);
         $systemServices = $this->systemServices->allWithType($companyId);
@@ -197,6 +201,7 @@ class ServicesController extends Controller
             'systemServices' => $systemServices,
             'selectedServiceTypeId' => $selectedServiceTypeId,
             'selectedSystemServiceId' => $selectedSystemServiceId,
+            'renewals' => $renewals,
         ]);
     }
 
@@ -297,12 +302,17 @@ class ServicesController extends Controller
             'SELECT * FROM invoices WHERE service_id = :id AND company_id = :company_id ORDER BY id DESC',
             ['id' => $id, 'company_id' => $companyId]
         );
+        $renewals = $this->db->fetchAll(
+            'SELECT * FROM service_renewals WHERE service_id = :service_id AND company_id = :company_id AND deleted_at IS NULL ORDER BY renewal_date DESC, id DESC',
+            ['service_id' => $id, 'company_id' => $companyId]
+        );
         $this->render('services/show', [
             'title' => 'Detalle Servicio',
             'pageTitle' => 'Detalle Servicio',
             'service' => $service,
             'client' => $client,
             'invoices' => $invoices,
+            'renewals' => $renewals,
         ]);
     }
 

@@ -8,10 +8,12 @@ class CrmController extends Controller
     private ServiceRenewalsModel $renewals;
     private ServicesModel $services;
     private EmailQueueModel $queue;
+    private Database $db;
 
     public function __construct(array $config, Database $db)
     {
         parent::__construct($config, $db);
+        $this->db = $db;
         $this->clients = new ClientsModel($db);
         $this->briefs = new CommercialBriefsModel($db);
         $this->orders = new SalesOrdersModel($db);
@@ -406,6 +408,7 @@ class CrmController extends Controller
             'UPDATE service_renewals SET status = :status, updated_at = NOW() WHERE id = :id AND company_id = :company_id',
             ['status' => 'renovado', 'id' => $id, 'company_id' => $companyId]
         );
+        $this->applyRenewalToService($renewal['service_id'] ?? null, $renewal['renewal_date'] ?? null, $companyId);
         audit($this->db, Auth::user()['id'], 'update', 'service_renewals', $id);
         flash('success', 'Renovación aprobada correctamente.');
         $this->redirect('index.php?route=crm/renewals');
@@ -463,6 +466,9 @@ class CrmController extends Controller
         );
 
         audit($this->db, Auth::user()['id'], 'update', 'service_renewals', $id);
+        if ($data['status'] === 'renovado') {
+            $this->applyRenewalToService($renewal['service_id'] ?? null, $data['renewal_date'], $companyId);
+        }
         flash('success', 'Renovación actualizada correctamente.');
         $this->redirect('index.php?route=crm/renewals');
     }
@@ -562,5 +568,36 @@ class CrmController extends Controller
 
         flash('success', 'Correo de renovación exitosa en cola para envío.');
         $this->redirect('index.php?route=crm/renewals');
+    }
+
+    private function applyRenewalToService(?int $serviceId, ?string $renewalDate, int $companyId): void
+    {
+        if (!$serviceId || !$renewalDate) {
+            return;
+        }
+
+        $service = $this->db->fetch(
+            'SELECT id FROM services WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $serviceId, 'company_id' => $companyId]
+        );
+
+        if (!$service) {
+            return;
+        }
+
+        $this->db->execute(
+            'UPDATE services
+             SET due_date = :renewal_date,
+                 delete_date = :renewal_date,
+                 status = :status,
+                 updated_at = NOW()
+             WHERE id = :id AND company_id = :company_id',
+            [
+                'renewal_date' => $renewalDate,
+                'status' => 'renovado',
+                'id' => $serviceId,
+                'company_id' => $companyId,
+            ]
+        );
     }
 }

@@ -29,6 +29,7 @@
                                 $statusColor = match ($status) {
                                     'activo' => 'success',
                                     'vencido' => 'danger',
+                                    'renovado' => 'primary',
                                     default => 'secondary',
                                 };
                                 ?>

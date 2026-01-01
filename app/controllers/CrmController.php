@@ -7,6 +7,7 @@ class CrmController extends Controller
     private SalesOrdersModel $orders;
     private ServiceRenewalsModel $renewals;
     private ServicesModel $services;
+    private EmailQueueModel $queue;
 
     public function __construct(array $config, Database $db)
     {
@@ -16,6 +17,7 @@ class CrmController extends Controller
         $this->orders = new SalesOrdersModel($db);
         $this->renewals = new ServiceRenewalsModel($db);
         $this->services = new ServicesModel($db);
+        $this->queue = new EmailQueueModel($db);
     }
 
     public function hub(): void
@@ -486,6 +488,79 @@ class CrmController extends Controller
         );
         audit($this->db, Auth::user()['id'], 'delete', 'service_renewals', $id);
         flash('success', 'Renovación eliminada correctamente.');
+        $this->redirect('index.php?route=crm/renewals');
+    }
+
+    public function sendRenewalEmail(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        $id = (int)($_POST['id'] ?? 0);
+        $renewal = $this->db->fetch(
+            'SELECT service_renewals.*, clients.name as client_name, clients.email, clients.billing_email, services.name as service_name
+             FROM service_renewals
+             JOIN clients ON service_renewals.client_id = clients.id
+             LEFT JOIN services ON service_renewals.service_id = services.id
+             WHERE service_renewals.id = :id AND service_renewals.company_id = :company_id AND service_renewals.deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+
+        if (!$renewal) {
+            flash('error', 'Renovación no encontrada para esta empresa.');
+            $this->redirect('index.php?route=crm/renewals');
+        }
+
+        if (($renewal['status'] ?? '') !== 'renovado') {
+            flash('error', 'Solo se pueden notificar renovaciones marcadas como renovadas.');
+            $this->redirect('index.php?route=crm/renewals');
+        }
+
+        $email = $renewal['billing_email'] ?? $renewal['email'] ?? '';
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            flash('error', 'El cliente no tiene un correo válido para enviar la notificación.');
+            $this->redirect('index.php?route=crm/renewals');
+        }
+
+        $settings = new SettingsModel($this->db);
+        $company = $settings->get('company', []);
+        $context = [
+            'cliente_nombre' => $renewal['client_name'] ?? '',
+            'servicio_nombre' => $renewal['service_name'] ?? '',
+            'monto_total' => format_currency((float)($renewal['amount'] ?? 0)),
+            'fecha_renovacion' => format_date($renewal['renewal_date']),
+            'empresa_nombre' => $company['name'] ?? 'Go Creative',
+        ];
+
+        $template = $this->db->fetch(
+            'SELECT body_html FROM email_templates WHERE type = :type AND deleted_at IS NULL AND company_id = :company_id ORDER BY id DESC LIMIT 1',
+            ['type' => 'informativa', 'company_id' => $companyId]
+        );
+        $subject = 'Renovación exitosa de servicio';
+        $body = '';
+        if ($template) {
+            $body = render_template_vars($template['body_html'], $context);
+        } else {
+            $path = __DIR__ . '/../../storage/email_templates/informativa.html';
+            $fallback = is_file($path) ? file_get_contents($path) : '';
+            $body = render_template_vars($fallback, $context);
+        }
+
+        $this->queue->create([
+            'company_id' => $companyId,
+            'client_id' => $renewal['client_id'],
+            'template_id' => null,
+            'subject' => $subject,
+            'body_html' => $body,
+            'type' => 'informativa',
+            'status' => 'pending',
+            'scheduled_at' => date('Y-m-d H:i:s'),
+            'tries' => 0,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        flash('success', 'Correo de renovación exitosa en cola para envío.');
         $this->redirect('index.php?route=crm/renewals');
     }
 }

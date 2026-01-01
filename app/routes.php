@@ -45,6 +45,7 @@ return [
     'crm/renewals/approve' => ['CrmController', 'approveRenewal'],
     'crm/renewals/update' => ['CrmController', 'updateRenewal'],
     'crm/renewals/delete' => ['CrmController', 'deleteRenewal'],
+    'crm/renewals/send-email' => ['CrmController', 'sendRenewalEmail'],
     'services' => ['ServicesController', 'index'],
     'services/create' => ['ServicesController', 'create'],
     'services/store' => ['ServicesController', 'store'],

@@ -22,7 +22,7 @@
                             <td><?php echo e($service['name']); ?></td>
                             <td><?php echo e($service['client_name']); ?></td>
                             <td><?php echo e($service['service_type']); ?></td>
-                            <td><?php echo e($service['due_date']); ?></td>
+                            <td><?php echo e(format_date($service['due_date'])); ?></td>
                             <td>
                                 <?php
                                 $status = $service['status'] ?? 'activo';

@@ -4,7 +4,7 @@
             <h4 class="card-title mb-1">Renovaciones</h4>
             <p class="text-muted mb-0">Anticipa renovaciones y mantén el control de servicios activos.</p>
         </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#renewalModal">Nueva renovación</button>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#renewalModal" data-mode="create">Nueva renovación</button>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -23,14 +23,14 @@
                 <tbody>
                     <?php if (empty($renewals)): ?>
                         <tr>
-                            <td colspan="6" class="text-center text-muted">No hay renovaciones registradas.</td>
+                            <td colspan="7" class="text-center text-muted">No hay renovaciones registradas.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($renewals as $renewal): ?>
                             <tr>
                                 <td><?php echo e($renewal['client_name'] ?? ''); ?></td>
                                 <td><?php echo e($renewal['service_name'] ?? '-'); ?></td>
-                                <td><?php echo e($renewal['renewal_date']); ?></td>
+                                <td><?php echo e(format_date($renewal['renewal_date'])); ?></td>
                                 <td>
                                     <?php $status = $renewal['status'] ?? 'pendiente'; ?>
                                     <span class="badge bg-<?php echo $status === 'renovado' ? 'success' : ($status === 'no_renovado' ? 'danger' : ($status === 'en_negociacion' ? 'warning' : 'info')); ?>-subtle text-<?php echo $status === 'renovado' ? 'success' : ($status === 'no_renovado' ? 'danger' : ($status === 'en_negociacion' ? 'warning' : 'info')); ?>">
@@ -51,7 +51,8 @@
                                         type="button"
                                         class="btn btn-soft-primary btn-sm"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#renewalEditModal"
+                                        data-bs-target="#renewalModal"
+                                        data-mode="edit"
                                         data-id="<?php echo (int)$renewal['id']; ?>"
                                         data-date="<?php echo e($renewal['renewal_date']); ?>"
                                         data-status="<?php echo e($renewal['status']); ?>"
@@ -59,8 +60,8 @@
                                         data-currency="<?php echo e($renewal['currency']); ?>"
                                         data-reminder="<?php echo e($renewal['reminder_days']); ?>"
                                         data-notes="<?php echo e($renewal['notes']); ?>"
-                                        data-client="<?php echo e($renewal['client_name'] ?? ''); ?>"
-                                        data-service="<?php echo e($renewal['service_name'] ?? '-'); ?>"
+                                        data-client-id="<?php echo (int)$renewal['client_id']; ?>"
+                                        data-service-id="<?php echo (int)($renewal['service_id'] ?? 0); ?>"
                                     >
                                         Editar
                                     </button>
@@ -82,10 +83,11 @@
 <div class="modal fade" id="renewalModal" tabindex="-1" aria-labelledby="renewalModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form method="post" action="index.php?route=crm/renewals/store">
+            <form method="post" action="index.php?route=crm/renewals/store" id="renewal-form">
                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                <input type="hidden" name="id" id="renewal-id">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="renewalModalLabel">Nueva renovación</h5>
+                    <h5 class="modal-title" id="renewalModalLabel" data-renewal-modal-title>Nueva renovación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
@@ -121,7 +123,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" for="renewal-date">Fecha renovación</label>
-                            <input type="date" class="form-control" id="renewal-date" name="renewal_date" value="<?php echo date('Y-m-d'); ?>">
+                            <input type="date" class="form-control" id="renewal-date" name="renewal_date" value="<?php echo date('Y-m-d'); ?>" data-default-date="<?php echo date('Y-m-d'); ?>">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" for="renewal-amount">Monto (CLP)</label>
@@ -167,7 +169,7 @@
                 </div>
                 <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
                     <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar renovación</button>
+                    <button type="submit" class="btn btn-primary w-100 w-sm-auto" data-renewal-submit>Guardar renovación</button>
                 </div>
             </form>
         </div>
@@ -240,11 +242,53 @@
 <script src="assets/js/pages/crm-modal-forms.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var modal = document.getElementById('renewalEditModal');
-    if (!modal) return;
+    var modal = document.getElementById('renewalModal');
+    var form = document.getElementById('renewal-form');
+    if (!modal || !form) return;
+
+    var titleEl = modal.querySelector('[data-renewal-modal-title]');
+    var submitBtn = modal.querySelector('[data-renewal-submit]');
+    var clientSelect = document.getElementById('renewal-client');
+    var serviceSelect = document.getElementById('renewal-service');
+    var dateInput = document.getElementById('renewal-date');
+    var statusSelect = document.getElementById('renewal-status');
+    var amountInput = document.getElementById('renewal-amount');
+    var currencySelect = document.getElementById('renewal-currency');
+    var reminderInput = document.getElementById('renewal-reminder');
+    var notesInput = document.getElementById('renewal-notes');
+    var idInput = document.getElementById('renewal-id');
+
+    var defaultDate = dateInput ? dateInput.getAttribute('data-default-date') : '';
+
+    var resetForm = function () {
+        if (!form) return;
+        form.reset();
+        if (dateInput && defaultDate) {
+            dateInput.value = defaultDate;
+        }
+        if (form.action) {
+            form.action = 'index.php?route=crm/renewals/store';
+        }
+        if (idInput) {
+            idInput.value = '';
+        }
+        if (titleEl) {
+            titleEl.textContent = 'Nueva renovación';
+        }
+        if (submitBtn) {
+            submitBtn.textContent = 'Guardar renovación';
+        }
+    };
+
     modal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
-        if (!button) return;
+        var mode = button ? button.getAttribute('data-mode') : 'create';
+
+        if (!button || mode === 'create') {
+            resetForm();
+            return;
+        }
+
         var id = button.getAttribute('data-id') || '';
         var date = button.getAttribute('data-date') || '';
         var status = button.getAttribute('data-status') || 'pendiente';
@@ -252,18 +296,51 @@ document.addEventListener('DOMContentLoaded', function () {
         var currency = button.getAttribute('data-currency') || 'CLP';
         var reminder = button.getAttribute('data-reminder') || '15';
         var notes = button.getAttribute('data-notes') || '';
-        var client = button.getAttribute('data-client') || '';
-        var service = button.getAttribute('data-service') || '';
+        var clientId = button.getAttribute('data-client-id') || '';
+        var serviceId = button.getAttribute('data-service-id') || '';
 
-        document.getElementById('renewal-edit-id').value = id;
-        document.getElementById('renewal-edit-date').value = date;
-        document.getElementById('renewal-edit-status').value = status;
-        document.getElementById('renewal-edit-amount').value = amount;
-        document.getElementById('renewal-edit-currency').value = currency;
-        document.getElementById('renewal-edit-reminder').value = reminder;
-        document.getElementById('renewal-edit-notes').value = notes;
-        document.getElementById('renewal-edit-client').value = client;
-        document.getElementById('renewal-edit-service').value = service;
+        if (form.action) {
+            form.action = 'index.php?route=crm/renewals/update';
+        }
+        if (idInput) {
+            idInput.value = id;
+        }
+        if (titleEl) {
+            titleEl.textContent = 'Editar renovación';
+        }
+        if (submitBtn) {
+            submitBtn.textContent = 'Actualizar renovación';
+        }
+
+        if (clientSelect) {
+            clientSelect.value = clientId;
+            clientSelect.dispatchEvent(new Event('change'));
+        }
+        if (serviceSelect) {
+            serviceSelect.value = serviceId;
+        }
+        if (dateInput) {
+            dateInput.value = date;
+        }
+        if (statusSelect) {
+            statusSelect.value = status;
+        }
+        if (amountInput) {
+            amountInput.value = amount;
+        }
+        if (currencySelect) {
+            currencySelect.value = currency;
+        }
+        if (reminderInput) {
+            reminderInput.value = reminder;
+        }
+        if (notesInput) {
+            notesInput.value = notes;
+        }
+    });
+
+    modal.addEventListener('hidden.bs.modal', function () {
+        resetForm();
     });
 });
 </script>

@@ -23,7 +23,15 @@ class ServicesController extends Controller
     public function index(): void
     {
         $this->requireLogin();
-        $services = $this->services->active(current_company_id());
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+
+        $this->processExpiredServices($companyId);
+
+        $services = $this->services->active($companyId);
         $this->render('services/index', [
             'title' => 'Servicios',
             'pageTitle' => 'Servicios',
@@ -697,5 +705,62 @@ class ServicesController extends Controller
         );
 
         return $template ? (int)$template['id'] : null;
+    }
+
+    private function processExpiredServices(int $companyId): void
+    {
+        $expiredServices = $this->db->fetchAll(
+            'SELECT services.*
+             FROM services
+             WHERE services.company_id = :company_id
+               AND services.deleted_at IS NULL
+               AND services.due_date IS NOT NULL
+               AND services.due_date < CURDATE()',
+            ['company_id' => $companyId]
+        );
+
+        foreach ($expiredServices as $service) {
+            if (($service['status'] ?? '') !== 'vencido') {
+                $this->db->execute(
+                    'UPDATE services SET status = :status, updated_at = NOW() WHERE id = :id AND company_id = :company_id',
+                    [
+                        'status' => 'vencido',
+                        'id' => $service['id'],
+                        'company_id' => $companyId,
+                    ]
+                );
+            }
+
+            $existingRenewal = $this->db->fetch(
+                'SELECT id FROM service_renewals
+                 WHERE service_id = :service_id AND company_id = :company_id AND renewal_date = :renewal_date AND deleted_at IS NULL
+                 ORDER BY id DESC LIMIT 1',
+                [
+                    'service_id' => $service['id'],
+                    'company_id' => $companyId,
+                    'renewal_date' => $service['due_date'],
+                ]
+            );
+
+            if ($existingRenewal) {
+                continue;
+            }
+
+            $this->db->execute(
+                'INSERT INTO service_renewals (company_id, client_id, service_id, renewal_date, status, amount, currency, reminder_days, notes, created_at, updated_at)
+                 VALUES (:company_id, :client_id, :service_id, :renewal_date, :status, :amount, :currency, :reminder_days, :notes, NOW(), NOW())',
+                [
+                    'company_id' => $companyId,
+                    'client_id' => $service['client_id'],
+                    'service_id' => $service['id'],
+                    'renewal_date' => $service['due_date'],
+                    'status' => 'pendiente_de_aprobacion',
+                    'amount' => $service['cost'] ?? 0,
+                    'currency' => $service['currency'] ?? 'CLP',
+                    'reminder_days' => $service['notice_days_1'] ?? 15,
+                    'notes' => 'Renovación generada automáticamente por vencimiento.',
+                ]
+            );
+        }
     }
 }

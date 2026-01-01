@@ -44,12 +44,12 @@ $nextTask = $upcomingTasks[0] ?? null;
                                     <a class="btn btn-primary" href="#facturacion">Facturación</a>
                                     <a class="btn btn-success" href="#soporte">Soporte</a>
                                     <a class="btn btn-warning text-white" href="#perfil">Perfil</a>
-                                    <a class="btn btn-outline-secondary" href="index.php?route=clients/portalLogout">Cerrar sesión</a>
+                                    <a class="btn btn-outline-secondary" href="index.php?route=clients/portal/logout">Cerrar sesión</a>
                                 </div>
                             </div>
                             <div class="d-flex flex-wrap gap-2">
                                 <a class="btn btn-outline-secondary" href="#perfil">Perfil</a>
-                                <a class="btn btn-primary" href="index.php?route=clients/portalLogout">Cerrar sesión</a>
+                                <a class="btn btn-primary" href="index.php?route=clients/portal/logout">Cerrar sesión</a>
                             </div>
                         </div>
                     </div>
@@ -413,116 +413,56 @@ $nextTask = $upcomingTasks[0] ?? null;
                                                         <p class="text-muted fs-sm mb-0">Gestiona tus solicitudes y mensajes con el equipo.</p>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <div class="row g-3">
-                                                <div class="col-lg-6">
-                                                    <h6 class="fw-semibold mb-2">Últimas actividades</h6>
-                                                    <div class="list-group list-group-flush">
-                                                        <?php if (!empty($activities)): ?>
-                                                            <?php foreach (array_slice($activities, 0, 5) as $activity): ?>
-                                                                <div class="list-group-item px-0">
-                                                                    <div class="d-flex justify-content-between align-items-center">
-                                                                        <div>
-                                                                            <div class="fw-semibold"><?php echo e($activity['title'] ?? $activity['name'] ?? 'Actividad'); ?></div>
-                                                                            <div class="text-muted fs-xs"><?php echo e($activity['project_name'] ?? 'Proyecto'); ?></div>
-                                                                        </div>
-                                                                        <span class="badge bg-light text-muted"><?php echo e($activity['created_at'] ?? ''); ?></span>
-                                                                    </div>
-                                                                </div>
-                                                            <?php endforeach; ?>
-                                                        <?php else: ?>
-                                                            <div class="text-muted">Aún no registramos actividad reciente.</div>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <h6 class="fw-semibold mb-2">Próximas tareas</h6>
-                                                    <div class="list-group list-group-flush">
-                                                        <?php if (!empty($upcomingTasks)): ?>
-                                                            <?php foreach (array_slice($upcomingTasks, 0, 5) as $task): ?>
-                                                                <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
-                                                                    <div>
-                                                                        <div class="fw-semibold"><?php echo e($task['title'] ?? $task['name'] ?? 'Tarea'); ?></div>
-                                                                        <div class="text-muted fs-xs"><?php echo e($task['project_name'] ?? 'Proyecto'); ?></div>
-                                                                    </div>
-                                                                    <span class="badge bg-secondary-subtle text-secondary"><?php echo !empty($task['due_date']) ? e($task['due_date']) : 'Sin fecha'; ?></span>
-                                                                </div>
-                                                            <?php endforeach; ?>
-                                                        <?php else: ?>
-                                                            <div class="text-muted">No hay tareas activas.</div>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="tab-pane" id="tab-facturacion">
-                                            <div class="row g-3">
-                                                <div class="col-lg-7" id="facturacion">
-                                                    <h6 class="fw-semibold mb-2">Facturas pendientes</h6>
-                                                    <div class="card border-0 shadow-sm h-100">
-                                                        <div class="card-body">
-                                                            <?php if (!empty($pendingInvoices)): ?>
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-centered align-middle mb-0">
-                                                                        <thead class="table-light">
-                                                                            <tr>
-                                                                                <th>Número</th>
-                                                                                <th>Vencimiento</th>
-                                                                                <th>Total</th>
-                                                                                <th>Estado</th>
-                                                                                <th></th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            <?php foreach (array_slice($pendingInvoices, 0, 6) as $invoice): ?>
-                                                                                <tr>
-                                                                                    <td class="fw-semibold">#<?php echo e($invoice['numero'] ?? $invoice['id']); ?></td>
-                                                                                    <td><?php echo e($invoice['fecha_vencimiento'] ?? '-'); ?></td>
-                                                                                    <td><?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></td>
-                                                                                    <td><span class="badge bg-warning-subtle text-warning text-capitalize"><?php echo e($invoice['estado'] ?? 'pendiente'); ?></span></td>
-                                                                                    <td class="text-end">
-                                                                                        <a class="btn btn-outline-primary btn-sm" href="index.php?route=clients/portal/invoice&id=<?php echo (int)($invoice['id'] ?? 0); ?>&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>">Ver detalle</a>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            <?php endforeach; ?>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            <?php else: ?>
-                                                                <div class="text-muted">No hay facturas pendientes. ¡Buen trabajo!</div>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-5" id="pagos">
-                                                    <h6 class="fw-semibold mb-2">Pagos recientes</h6>
-                                                    <div class="card border-0 shadow-sm h-100">
-                                                        <div class="card-body">
-                                                            <?php if (!empty($payments)): ?>
-                                                                <div class="list-group list-group-flush">
-                                                                    <?php foreach (array_slice($payments, 0, 5) as $payment): ?>
-                                                                        <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                                <div class="row g-3 mt-3">
+                                                    <div class="col-lg-6">
+                                                        <h6 class="fw-semibold mb-2">Últimas actividades</h6>
+                                                        <div class="list-group list-group-flush">
+                                                            <?php if (!empty($activities)): ?>
+                                                                <?php foreach (array_slice($activities, 0, 5) as $activity): ?>
+                                                                    <div class="list-group-item px-0">
+                                                                        <div class="d-flex justify-content-between align-items-center">
                                                                             <div>
-                                                                                <div class="fw-semibold">Pago <?php echo e($payment['invoice_number'] ?? '#'); ?></div>
-                                                                                <div class="text-muted fs-xs"><?php echo e($payment['fecha_pago'] ?? '-'); ?></div>
+                                                                                <div class="fw-semibold"><?php echo e($activity['title'] ?? $activity['name'] ?? 'Actividad'); ?></div>
+                                                                                <div class="text-muted fs-xs"><?php echo e($activity['project_name'] ?? 'Proyecto'); ?></div>
                                                                             </div>
-                                                                            <div class="text-end">
-                                                                                <div class="fw-semibold"><?php echo e(format_currency((float)($payment['monto'] ?? 0))); ?></div>
-                                                                                <span class="badge bg-success-subtle text-success text-capitalize"><?php echo e($payment['invoice_status'] ?? 'pagado'); ?></span>
-                                                                            </div>
+                                                                            <span class="badge bg-light text-muted"><?php echo e($activity['created_at'] ?? ''); ?></span>
                                                                         </div>
-                                                                    <?php endforeach; ?>
-                                                                </div>
+                                                                    </div>
+                                                                <?php endforeach; ?>
                                                             <?php else: ?>
-                                                                <div class="text-muted">Aún no registramos pagos.</div>
+                                                                <div class="text-muted">Aún no registramos actividad reciente.</div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <h6 class="fw-semibold mb-2">Próximas tareas</h6>
+                                                        <div class="list-group list-group-flush">
+                                                            <?php if (!empty($upcomingTasks)): ?>
+                                                                <?php foreach (array_slice($upcomingTasks, 0, 5) as $task): ?>
+                                                                    <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                                                        <div>
+                                                                            <div class="fw-semibold"><?php echo e($task['title'] ?? $task['name'] ?? 'Tarea'); ?></div>
+                                                                            <div class="text-muted fs-xs"><?php echo e($task['project_name'] ?? 'Proyecto'); ?></div>
+                                                                        </div>
+                                                                        <span class="badge bg-secondary-subtle text-secondary"><?php echo !empty($task['due_date']) ? e($task['due_date']) : 'Sin fecha'; ?></span>
+                                                                    </div>
+                                                                <?php endforeach; ?>
+                                                            <?php else: ?>
+                                                                <div class="text-muted">No hay tareas activas.</div>
                                                             <?php endif; ?>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            <?php else: ?>
+                                                <div class="text-muted">Selecciona un ticket para ver su detalle.</div>
+                                            <?php endif; ?>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="card border-0 shadow-sm mb-4" id="perfil">
                         <div class="card-header border-0">

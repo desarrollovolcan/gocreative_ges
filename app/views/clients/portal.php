@@ -27,13 +27,13 @@ $nextTask = $upcomingTasks[0] ?? null;
     <div class="wrapper">
         <div class="content-page">
             <div class="content">
-                <div class="container-xl py-4">
+                <div class="container-fluid py-4 px-xxl-5 px-lg-4 px-3">
                     <div class="card border-0 shadow-sm mb-3 position-relative overflow-hidden">
                         <div class="card-body p-4">
                             <div class="row g-3 align-items-center">
                                 <div class="col-lg-8 d-flex align-items-center gap-3">
-                                    <div class="bg-white border rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 64px; height: 64px;">
-                                        <span class="fw-semibold text-primary fs-4"><?php echo e($clientInitial); ?></span>
+                                    <div class="bg-light border rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 64px; height: 64px;">
+                                        <span class="fw-semibold text-primary fs-4 lh-1"><?php echo e($clientInitial); ?></span>
                                     </div>
                                     <div>
                                         <p class="text-muted mb-1 text-uppercase fs-xs">Portal del cliente</p>
@@ -42,15 +42,16 @@ $nextTask = $upcomingTasks[0] ?? null;
                                     </div>
                                 </div>
                                 <div class="col-lg-4 d-flex flex-wrap justify-content-lg-end gap-2">
-                                    <a class="btn btn-primary" href="#facturacion">Facturación</a>
-                                    <a class="btn btn-success" href="#soporte">Soporte</a>
-                                    <a class="btn btn-warning text-white" href="#perfil">Perfil</a>
+                                    <a class="btn btn-soft-primary" href="#facturacion">Facturación</a>
+                                    <a class="btn btn-soft-success" href="#soporte">Soporte</a>
+                                    <a class="btn btn-soft-warning text-dark" href="#perfil">Perfil</a>
                                     <a class="btn btn-outline-secondary" href="index.php?route=clients/portal/logout">Cerrar sesión</a>
                                 </div>
                             </div>
-                            <div class="d-flex flex-wrap gap-2">
+                            <div class="d-flex flex-wrap gap-2 mt-2">
                                 <a class="btn btn-outline-secondary" href="#perfil">Perfil</a>
-                                <a class="btn btn-primary" href="index.php?route=clients/portal/logout">Cerrar sesión</a>
+                                <a class="btn btn-soft-primary" href="#resumen">Resumen</a>
+                                <a class="btn btn-outline-danger" href="index.php?route=clients/portal/logout">Cerrar sesión</a>
                             </div>
                         </div>
                     </div>
@@ -74,12 +75,12 @@ $nextTask = $upcomingTasks[0] ?? null;
                                 <div class="card-body">
                                     <h6 class="text-uppercase text-muted fs-xs mb-3">Menú</h6>
                                     <div class="nav flex-column gap-2">
-                                        <a class="btn btn-light text-start" href="#resumen">Resumen</a>
-                                        <a class="btn btn-light text-start" href="#facturacion">Facturación</a>
-                                        <a class="btn btn-light text-start" href="#pagos">Pagos</a>
-                                        <a class="btn btn-light text-start" href="#proyectos">Proyectos</a>
-                                        <a class="btn btn-light text-start" href="#soporte">Soporte</a>
-                                        <a class="btn btn-light text-start" href="#perfil">Perfil</a>
+                                        <a class="btn btn-soft-primary text-start" href="#resumen">Resumen</a>
+                                        <a class="btn btn-soft-success text-start" href="#facturacion">Facturación</a>
+                                        <a class="btn btn-soft-info text-start" href="#pagos">Pagos</a>
+                                        <a class="btn btn-soft-warning text-start text-dark" href="#proyectos">Proyectos</a>
+                                        <a class="btn btn-soft-secondary text-start" href="#soporte">Soporte</a>
+                                        <a class="btn btn-soft-dark text-start" href="#perfil">Perfil</a>
                                         <a class="btn btn-outline-danger text-start" href="index.php?route=clients/portal/logout">Cerrar sesión</a>
                                     </div>
                                 </div>

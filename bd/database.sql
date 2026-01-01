@@ -79,6 +79,40 @@ CREATE TABLE clients (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
+CREATE TABLE suppliers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    email VARCHAR(150) NULL,
+    phone VARCHAR(50) NULL,
+    address VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    supplier_id INT NULL,
+    family VARCHAR(100) NULL,
+    subfamily VARCHAR(100) NULL,
+    name VARCHAR(150) NOT NULL,
+    sku VARCHAR(100) NULL,
+    description TEXT NULL,
+    price DECIMAL(12,2) NOT NULL DEFAULT 0,
+    cost DECIMAL(12,2) NOT NULL DEFAULT 0,
+    stock INT NOT NULL DEFAULT 0,
+    stock_min INT NOT NULL DEFAULT 0,
+    status VARCHAR(20) NOT NULL DEFAULT 'activo',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+);
+
 CREATE TABLE projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_id INT NOT NULL,
@@ -296,6 +330,69 @@ CREATE TABLE payments (
     FOREIGN KEY (invoice_id) REFERENCES invoices(id)
 );
 
+CREATE TABLE purchases (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    supplier_id INT NOT NULL,
+    reference VARCHAR(100) NULL,
+    purchase_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pendiente',
+    subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    tax DECIMAL(12,2) NOT NULL DEFAULT 0,
+    total DECIMAL(12,2) NOT NULL DEFAULT 0,
+    notes TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+);
+
+CREATE TABLE purchase_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    purchase_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    unit_cost DECIMAL(12,2) NOT NULL DEFAULT 0,
+    subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (purchase_id) REFERENCES purchases(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE sales (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    client_id INT NULL,
+    channel VARCHAR(20) NOT NULL DEFAULT 'venta',
+    numero VARCHAR(50) NOT NULL,
+    sale_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pagado',
+    subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    tax DECIMAL(12,2) NOT NULL DEFAULT 0,
+    total DECIMAL(12,2) NOT NULL DEFAULT 0,
+    notes TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (client_id) REFERENCES clients(id)
+);
+
+CREATE TABLE sale_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sale_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    unit_price DECIMAL(12,2) NOT NULL DEFAULT 0,
+    subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (sale_id) REFERENCES sales(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
 CREATE TABLE email_templates (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_id INT NOT NULL,
@@ -444,6 +541,10 @@ CREATE INDEX idx_invoices_numero ON invoices(numero);
 CREATE INDEX idx_email_queue_status ON email_queue(status);
 CREATE UNIQUE INDEX idx_settings_key_company ON settings(company_id, `key`);
 CREATE UNIQUE INDEX idx_user_companies_unique ON user_companies(user_id, company_id);
+CREATE INDEX idx_products_company ON products(company_id);
+CREATE INDEX idx_products_supplier ON products(supplier_id);
+CREATE INDEX idx_purchases_company ON purchases(company_id);
+CREATE INDEX idx_sales_company ON sales(company_id);
 
 INSERT INTO roles (name, created_at, updated_at) VALUES
 ('admin', NOW(), NOW());

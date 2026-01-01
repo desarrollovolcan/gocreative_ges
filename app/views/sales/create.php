@@ -1,36 +1,48 @@
 <?php $isPos = $isPos ?? false; ?>
 <?php if ($isPos): ?>
     <div class="row mb-3">
-        <div class="col-12 col-lg-4">
+        <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">Caja POS</h5>
-                </div>
-                <div class="card-body">
                     <?php if (!empty($posSession)): ?>
-                        <p class="mb-1"><strong>Estado:</strong> Abierta</p>
-                        <p class="mb-1"><strong>Apertura:</strong> <?php echo format_currency((float)($posSession['opening_amount'] ?? 0)); ?></p>
-                        <p class="mb-1"><strong>Recaudado:</strong> <?php echo format_currency(array_sum($sessionTotals)); ?></p>
-                        <?php if (!empty($sessionTotals)): ?>
-                            <ul class="list-unstyled small">
-                                <?php foreach ($sessionTotals as $method => $total): ?>
-                                    <li><?php echo e(ucfirst($method)); ?>: <?php echo format_currency((float)$total); ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php endif; ?>
-                        <form method="post" action="index.php?route=pos/close" class="d-flex gap-2">
-                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                            <input type="number" step="0.01" min="0" name="closing_amount" class="form-control" placeholder="Monto cierre" required>
-                            <button class="btn btn-danger">Cerrar caja</button>
-                        </form>
+                        <span class="badge bg-success">Abierta</span>
+                    <?php endif; ?>
+                </div>
+                <div class="card-body py-3">
+                    <?php if (!empty($posSession)): ?>
+                        <div class="d-flex flex-wrap align-items-center gap-4">
+                            <div>
+                                <div class="text-muted small">Apertura</div>
+                                <div class="fw-semibold"><?php echo format_currency((float)($posSession['opening_amount'] ?? 0)); ?></div>
+                            </div>
+                            <div>
+                                <div class="text-muted small">Recaudado</div>
+                                <div class="fw-semibold"><?php echo format_currency(array_sum($sessionTotals)); ?></div>
+                            </div>
+                            <?php if (!empty($sessionTotals)): ?>
+                                <div class="d-flex flex-wrap gap-3 small">
+                                    <?php foreach ($sessionTotals as $method => $total): ?>
+                                        <span class="d-inline-flex align-items-center gap-1 badge bg-light text-body border">
+                                            <?php echo e(ucfirst($method)); ?>: <?php echo format_currency((float)$total); ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                            <form method="post" action="index.php?route=pos/close" class="d-flex gap-2 ms-auto flex-wrap align-items-center">
+                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                <input type="number" step="0.01" min="0" name="closing_amount" class="form-control" placeholder="Monto cierre" required>
+                                <button class="btn btn-danger">Cerrar caja</button>
+                            </form>
+                        </div>
                     <?php else: ?>
-                        <form method="post" action="index.php?route=pos/open">
+                        <form method="post" action="index.php?route=pos/open" class="d-flex flex-wrap align-items-center gap-3">
                             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                            <div class="mb-2">
-                                <label class="form-label">Monto inicial</label>
+                            <div>
+                                <label class="form-label mb-1">Monto inicial</label>
                                 <input type="number" name="opening_amount" step="0.01" min="0" class="form-control" required>
                             </div>
-                            <button class="btn btn-primary w-100">Abrir caja</button>
+                            <button class="btn btn-primary">Abrir caja</button>
                         </form>
                     <?php endif; ?>
                 </div>
@@ -80,54 +92,35 @@
                                 <option value="en_espera">En espera</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Buscar por código/sku</label>
-                            <input type="text" id="sku-search" class="form-control" placeholder="Escribe el código del producto" list="sku-options">
-                            <datalist id="sku-options">
-                                <?php foreach ($products as $product): ?>
-                                    <?php if (!empty($product['sku'])): ?>
-                                        <option value="<?php echo e($product['sku']); ?>"><?php echo e($product['name']); ?></option>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </datalist>
-                        </div>
                         <div class="col-12">
                             <label class="form-label">Productos / Servicios</label>
                             <div class="table-responsive">
                                 <table class="table table-sm align-middle" id="sale-items-table">
                                     <thead>
                                         <tr>
-                                            <th style="width: 40%;">Item</th>
+                                            <th style="width: 45%;">Item</th>
                                             <th style="width: 15%;">Cantidad</th>
                                             <th style="width: 20%;">Precio</th>
-                                            <th class="text-end" style="width: 20%;">Subtotal</th>
+                                            <th class="text-end" style="width: 15%;">Subtotal</th>
                                             <th style="width: 5%;"></th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr class="item-row">
-                                            <input type="hidden" name="item_type[]" value="product" class="item-type">
-                                            <input type="hidden" name="service_id[]" value="" class="service-id">
-                                            <td>
-                                                <select name="product_id[]" class="form-select form-select-sm product-select">
-                                                    <option value="">Selecciona</option>
-                                                    <?php foreach ($products as $product): ?>
-                                                        <option value="<?php echo (int)$product['id']; ?>" data-price="<?php echo e((float)($product['price'] ?? 0)); ?>" data-stock="<?php echo (int)($product['stock'] ?? 0); ?>" data-sku="<?php echo e($product['sku'] ?? ''); ?>">
-                                                            <?php echo e($product['name']); ?> (Stock: <?php echo (int)($product['stock'] ?? 0); ?>)
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </td>
-                                            <td><input type="number" name="quantity[]" class="form-control form-control-sm quantity-input" min="1" value="1"></td>
-                                            <td><input type="number" name="unit_price[]" class="form-control form-control-sm price-input" step="0.01" min="0" value="0"></td>
-                                            <td class="text-end item-subtotal fw-semibold">0</td>
-                                            <td><button type="button" class="btn btn-link text-danger p-0 remove-row">✕</button></td>
-                                        </tr>
-                                    </tbody>
+                                    <tbody id="sale-items-body"></tbody>
                                 </table>
                             </div>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="add-sale-item">Agregar producto</button>
                         </div>
+                        <template id="sale-item-template">
+                            <tr class="item-row">
+                                <input type="hidden" name="item_type[]" value="product" class="item-type">
+                                <input type="hidden" name="product_id[]" value="" class="product-id">
+                                <input type="hidden" name="service_id[]" value="" class="service-id">
+                                <td class="item-name fw-semibold text-wrap"></td>
+                                <td><input type="number" name="quantity[]" class="form-control form-control-sm quantity-input" min="1" value="1"></td>
+                                <td><input type="number" name="unit_price[]" class="form-control form-control-sm price-input" step="0.01" min="0" value="0"></td>
+                                <td class="text-end item-subtotal fw-semibold">0</td>
+                                <td><button type="button" class="btn btn-link text-danger p-0 remove-row" aria-label="Eliminar">✕</button></td>
+                            </tr>
+                        </template>
                         <div class="col-md-6">
                             <label class="form-label">Notas</label>
                             <textarea name="notes" class="form-control" rows="3" placeholder="Detalles adicionales o instrucciones"></textarea>
@@ -178,19 +171,20 @@
                     </li>
                 </ul>
             </div>
-            <div class="card-body p-0">
-                <div class="tab-content">
-                    <div class="tab-pane fade show active" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
+            <div class="card-body p-0 d-flex flex-column">
+                <div class="tab-content flex-grow-1 d-flex">
+                    <div class="tab-pane fade show active d-flex flex-column" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
                         <div class="p-2">
-                            <input type="text" class="form-control form-control-sm mb-2" id="search-products" placeholder="Buscar producto">
+                            <input type="text" class="form-control form-control-sm" id="search-products" placeholder="Buscar producto">
                         </div>
-                        <div class="list-group list-group-flush" style="max-height: 250px; overflow-y: auto;">
+                        <div class="list-group list-group-flush flex-grow-1 overflow-auto">
                             <?php foreach ($products as $product): ?>
                                 <button type="button"
                                         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product"
                                         data-product-id="<?php echo (int)$product['id']; ?>"
                                         data-price="<?php echo e((float)($product['price'] ?? 0)); ?>"
-                                        data-name="<?php echo e(strtolower($product['name'] ?? '')); ?>">
+                                        data-name="<?php echo e(strtolower($product['name'] ?? '')); ?>"
+                                        data-label="<?php echo e($product['name']); ?>">
                                     <span>
                                         <?php echo e($product['name']); ?>
                                         <?php if (!empty($product['sku'])): ?>
@@ -202,17 +196,18 @@
                             <?php endforeach; ?>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="pane-services" role="tabpanel" aria-labelledby="tab-services">
+                    <div class="tab-pane fade d-flex flex-column" id="pane-services" role="tabpanel" aria-labelledby="tab-services">
                         <div class="p-2">
-                            <input type="text" class="form-control form-control-sm mb-2" id="search-services" placeholder="Buscar servicio">
+                            <input type="text" class="form-control form-control-sm" id="search-services" placeholder="Buscar servicio">
                         </div>
-                        <div class="list-group list-group-flush" style="max-height: 250px; overflow-y: auto;">
+                        <div class="list-group list-group-flush flex-grow-1 overflow-auto">
                             <?php foreach ($services as $service): ?>
                                 <button type="button"
                                         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-service"
                                         data-service-id="<?php echo (int)$service['id']; ?>"
                                         data-price="<?php echo e((float)($service['cost'] ?? 0)); ?>"
-                                        data-name="<?php echo e(strtolower($service['name'] ?? '')); ?>">
+                                        data-name="<?php echo e(strtolower($service['name'] ?? '')); ?>"
+                                        data-label="<?php echo e($service['name']); ?>">
                                     <span><?php echo e($service['name']); ?></span>
                                     <span class="badge bg-light text-body"><?php echo format_currency((float)($service['cost'] ?? 0)); ?></span>
                                 </button>
@@ -227,12 +222,11 @@
 
 <script>
     (function() {
-        const tableBody = document.querySelector('#sale-items-table tbody');
-        const addButton = document.getElementById('add-sale-item');
+        const tableBody = document.getElementById('sale-items-body');
+        const rowTemplate = document.getElementById('sale-item-template');
         const subtotalDisplay = document.getElementById('sale-subtotal');
         const totalDisplay = document.getElementById('sale-total');
         const taxInput = document.getElementById('sale-tax');
-        const skuInput = document.getElementById('sku-search');
         const statusSelect = document.querySelector('select[name=\"status\"]');
         const holdButton = document.getElementById('mark-hold');
         const productSelectors = document.querySelectorAll('.add-product');
@@ -258,29 +252,20 @@
             totalDisplay.innerText = formatCurrency(subtotal + tax);
         }
 
-        function addRow() {
-            const template = tableBody.querySelector('.item-row');
-            const clone = template.cloneNode(true);
-            clone.querySelectorAll('input').forEach((input) => {
-                input.value = input.classList.contains('quantity-input') ? '1' : '0';
-            });
-            clone.querySelector('.product-select').selectedIndex = 0;
-            clone.querySelector('.item-type').value = 'product';
-            clone.querySelector('.service-id').value = '';
-            clone.querySelector('.item-subtotal').innerText = formatCurrency(0);
+        function addRow({ type, productId = '', serviceId = '', price = 0, name = '' }) {
+            if (!rowTemplate?.content) return null;
+            const clone = rowTemplate.content.cloneNode(true);
+            const row = clone.querySelector('.item-row');
+            row.querySelector('.item-type').value = type;
+            row.querySelector('.product-id').value = productId;
+            row.querySelector('.service-id').value = serviceId;
+            row.querySelector('.price-input').value = price;
+            row.querySelector('.item-name').innerText = name || 'Item';
+            row.querySelector('.quantity-input').value = 1;
             tableBody.appendChild(clone);
-            return clone;
-        }
-
-        tableBody.addEventListener('change', (event) => {
-            if (event.target.classList.contains('product-select')) {
-                const selected = event.target.selectedOptions[0];
-                const price = selected?.dataset.price || 0;
-                const row = event.target.closest('.item-row');
-                row.querySelector('.price-input').value = price;
-            }
             recalc();
-        });
+            return row;
+        }
 
         tableBody.addEventListener('input', (event) => {
             if (event.target.classList.contains('quantity-input') || event.target.classList.contains('price-input')) {
@@ -290,34 +275,12 @@
 
         tableBody.addEventListener('click', (event) => {
             if (event.target.classList.contains('remove-row')) {
-                const rows = tableBody.querySelectorAll('.item-row');
-                if (rows.length > 1) {
-                    event.target.closest('.item-row').remove();
-                    recalc();
-                }
-            }
-        });
-
-        addButton?.addEventListener('click', addRow);
-        taxInput?.addEventListener('input', recalc);
-        skuInput?.addEventListener('change', () => {
-            const skuValue = skuInput.value.trim();
-            if (!skuValue) return;
-            const firstRow = tableBody.querySelector('.item-row');
-            const select = firstRow.querySelector('.product-select');
-            let matched = false;
-            select.querySelectorAll('option').forEach((option) => {
-                if ((option.dataset.sku || '').toLowerCase() === skuValue.toLowerCase()) {
-                    option.selected = true;
-                    const price = option.dataset.price || 0;
-                    firstRow.querySelector('.price-input').value = price;
-                    matched = true;
-                }
-            });
-            if (matched) {
+                event.target.closest('.item-row')?.remove();
                 recalc();
             }
         });
+
+        taxInput?.addEventListener('input', recalc);
         holdButton?.addEventListener('click', () => {
             if (statusSelect) {
                 statusSelect.value = 'en_espera';
@@ -327,35 +290,28 @@
             button.addEventListener('click', () => {
                 const productId = button.dataset.productId;
                 const price = button.dataset.price || 0;
-                let targetRow = tableBody.querySelector('.item-row');
-                const select = targetRow.querySelector('.product-select');
-                const hasSelection = select.value;
-                if (hasSelection) {
-                    targetRow = addRow();
-                }
-                const rowSelect = targetRow.querySelector('.product-select');
-                rowSelect.value = productId;
-                targetRow.querySelector('.item-type').value = 'product';
-                targetRow.querySelector('.service-id').value = '';
-                targetRow.querySelector('.price-input').value = price;
-                recalc();
+                const name = button.dataset.label || button.innerText.trim();
+                addRow({
+                    type: 'product',
+                    productId,
+                    serviceId: '',
+                    price,
+                    name,
+                });
             });
         });
         serviceSelectors.forEach((button) => {
             button.addEventListener('click', () => {
                 const serviceId = button.dataset.serviceId;
                 const price = button.dataset.price || 0;
-                let targetRow = tableBody.querySelector('.item-row');
-                const select = targetRow.querySelector('.product-select');
-                const hasSelection = select.value || targetRow.querySelector('.service-id').value;
-                if (hasSelection) {
-                    targetRow = addRow();
-                }
-                targetRow.querySelector('.product-select').value = '';
-                targetRow.querySelector('.service-id').value = serviceId;
-                targetRow.querySelector('.item-type').value = 'service';
-                targetRow.querySelector('.price-input').value = price;
-                recalc();
+                const name = button.dataset.label || button.innerText.trim();
+                addRow({
+                    type: 'service',
+                    productId: '',
+                    serviceId,
+                    price,
+                    name,
+                });
             });
         });
         function filterList(input, elements) {

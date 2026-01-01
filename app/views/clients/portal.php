@@ -47,6 +47,10 @@ $nextTask = $upcomingTasks[0] ?? null;
                                     <a class="btn btn-outline-secondary" href="index.php?route=clients/portalLogout">Cerrar sesión</a>
                                 </div>
                             </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="btn btn-outline-secondary" href="#perfil">Perfil</a>
+                                <a class="btn btn-primary" href="index.php?route=clients/portalLogout">Cerrar sesión</a>
+                            </div>
                         </div>
                     </div>
 
@@ -200,6 +204,7 @@ $nextTask = $upcomingTasks[0] ?? null;
                                         <span class="badge bg-light text-muted"><?php echo $paymentsCount; ?></span>
                                     </div>
                                 </div>
+
                                 <div class="card-body">
                                     <?php if (!empty($payments)): ?>
                                         <div class="list-group list-group-flush">
@@ -404,46 +409,120 @@ $nextTask = $upcomingTasks[0] ?? null;
                                                             <h6 class="fw-semibold mb-1">#<?php echo (int)$activeSupportTicket['id']; ?> · <?php echo e($activeSupportTicket['subject'] ?? ''); ?></h6>
                                                             <div class="text-muted fs-xxs text-uppercase">Estado: <?php echo e(str_replace('_', ' ', $activeSupportTicket['status'] ?? 'abierto')); ?></div>
                                                         </div>
-                                                        <span class="badge bg-info-subtle text-info text-uppercase"><?php echo e($activeSupportTicket['priority'] ?? 'media'); ?></span>
+                                                        <h4 class="fw-semibold mb-1"><?php echo $openTickets; ?> tickets</h4>
+                                                        <p class="text-muted fs-sm mb-0">Gestiona tus solicitudes y mensajes con el equipo.</p>
                                                     </div>
-                                                    <div class="flex-grow-1 overflow-auto mb-3" style="max-height: 320px;">
-                                                        <?php if (!empty($supportMessages)): ?>
-                                                            <?php foreach ($supportMessages as $message): ?>
-                                                                <?php $isClient = ($message['sender_type'] ?? '') === 'client'; ?>
-                                                                <div class="d-flex mb-3 <?php echo $isClient ? 'justify-content-end' : 'justify-content-start'; ?>">
-                                                                    <div class="p-3 rounded-3 <?php echo $isClient ? 'bg-primary text-white' : 'bg-light'; ?>" style="max-width: 75%;">
-                                                                        <div class="fw-semibold mb-1"><?php echo e($message['sender_name'] ?? ($isClient ? 'Tú' : 'Soporte')); ?></div>
-                                                                        <div><?php echo nl2br(e($message['message'] ?? '')); ?></div>
-                                                                        <?php if (!empty($message['created_at'])): ?>
-                                                                            <div class="fs-xxs mt-2 <?php echo $isClient ? 'text-white-50' : 'text-muted'; ?>"><?php echo e($message['created_at']); ?></div>
-                                                                        <?php endif; ?>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-3">
+                                                <div class="col-lg-6">
+                                                    <h6 class="fw-semibold mb-2">Últimas actividades</h6>
+                                                    <div class="list-group list-group-flush">
+                                                        <?php if (!empty($activities)): ?>
+                                                            <?php foreach (array_slice($activities, 0, 5) as $activity): ?>
+                                                                <div class="list-group-item px-0">
+                                                                    <div class="d-flex justify-content-between align-items-center">
+                                                                        <div>
+                                                                            <div class="fw-semibold"><?php echo e($activity['title'] ?? $activity['name'] ?? 'Actividad'); ?></div>
+                                                                            <div class="text-muted fs-xs"><?php echo e($activity['project_name'] ?? 'Proyecto'); ?></div>
+                                                                        </div>
+                                                                        <span class="badge bg-light text-muted"><?php echo e($activity['created_at'] ?? ''); ?></span>
                                                                     </div>
                                                                 </div>
                                                             <?php endforeach; ?>
                                                         <?php else: ?>
-                                                            <div class="text-muted">Sin mensajes aún.</div>
+                                                            <div class="text-muted">Aún no registramos actividad reciente.</div>
                                                         <?php endif; ?>
                                                     </div>
-                                                    <form method="post" action="index.php?route=clients/portal/tickets/message&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>#soporte">
-                                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                        <input type="hidden" name="ticket_id" value="<?php echo $activeSupportTicketId; ?>">
-                                                        <div class="mb-2">
-                                                            <textarea name="message" class="form-control" rows="3" placeholder="Escribe tu mensaje..." required></textarea>
-                                                        </div>
-                                                        <div class="text-end">
-                                                            <button type="submit" class="btn btn-primary">Enviar mensaje</button>
-                                                        </div>
-                                                    </form>
                                                 </div>
-                                            <?php else: ?>
-                                                <div class="text-muted">Selecciona un ticket para ver el detalle.</div>
-                                            <?php endif; ?>
+                                                <div class="col-lg-6">
+                                                    <h6 class="fw-semibold mb-2">Próximas tareas</h6>
+                                                    <div class="list-group list-group-flush">
+                                                        <?php if (!empty($upcomingTasks)): ?>
+                                                            <?php foreach (array_slice($upcomingTasks, 0, 5) as $task): ?>
+                                                                <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                                                    <div>
+                                                                        <div class="fw-semibold"><?php echo e($task['title'] ?? $task['name'] ?? 'Tarea'); ?></div>
+                                                                        <div class="text-muted fs-xs"><?php echo e($task['project_name'] ?? 'Proyecto'); ?></div>
+                                                                    </div>
+                                                                    <span class="badge bg-secondary-subtle text-secondary"><?php echo !empty($task['due_date']) ? e($task['due_date']) : 'Sin fecha'; ?></span>
+                                                                </div>
+                                                            <?php endforeach; ?>
+                                                        <?php else: ?>
+                                                            <div class="text-muted">No hay tareas activas.</div>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
+                                        <div class="tab-pane" id="tab-facturacion">
+                                            <div class="row g-3">
+                                                <div class="col-lg-7" id="facturacion">
+                                                    <h6 class="fw-semibold mb-2">Facturas pendientes</h6>
+                                                    <div class="card border-0 shadow-sm h-100">
+                                                        <div class="card-body">
+                                                            <?php if (!empty($pendingInvoices)): ?>
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-centered align-middle mb-0">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <th>Número</th>
+                                                                                <th>Vencimiento</th>
+                                                                                <th>Total</th>
+                                                                                <th>Estado</th>
+                                                                                <th></th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <?php foreach (array_slice($pendingInvoices, 0, 6) as $invoice): ?>
+                                                                                <tr>
+                                                                                    <td class="fw-semibold">#<?php echo e($invoice['numero'] ?? $invoice['id']); ?></td>
+                                                                                    <td><?php echo e($invoice['fecha_vencimiento'] ?? '-'); ?></td>
+                                                                                    <td><?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></td>
+                                                                                    <td><span class="badge bg-warning-subtle text-warning text-capitalize"><?php echo e($invoice['estado'] ?? 'pendiente'); ?></span></td>
+                                                                                    <td class="text-end">
+                                                                                        <a class="btn btn-outline-primary btn-sm" href="index.php?route=clients/portal/invoice&id=<?php echo (int)($invoice['id'] ?? 0); ?>&token=<?php echo urlencode($client['portal_token'] ?? ''); ?>">Ver detalle</a>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            <?php endforeach; ?>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            <?php else: ?>
+                                                                <div class="text-muted">No hay facturas pendientes. ¡Buen trabajo!</div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-5" id="pagos">
+                                                    <h6 class="fw-semibold mb-2">Pagos recientes</h6>
+                                                    <div class="card border-0 shadow-sm h-100">
+                                                        <div class="card-body">
+                                                            <?php if (!empty($payments)): ?>
+                                                                <div class="list-group list-group-flush">
+                                                                    <?php foreach (array_slice($payments, 0, 5) as $payment): ?>
+                                                                        <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                                                                            <div>
+                                                                                <div class="fw-semibold">Pago <?php echo e($payment['invoice_number'] ?? '#'); ?></div>
+                                                                                <div class="text-muted fs-xs"><?php echo e($payment['fecha_pago'] ?? '-'); ?></div>
+                                                                            </div>
+                                                                            <div class="text-end">
+                                                                                <div class="fw-semibold"><?php echo e(format_currency((float)($payment['monto'] ?? 0))); ?></div>
+                                                                                <span class="badge bg-success-subtle text-success text-capitalize"><?php echo e($payment['invoice_status'] ?? 'pagado'); ?></span>
+                                                                            </div>
+                                                                        </div>
+                                                                    <?php endforeach; ?>
+                                                                </div>
+                                                            <?php else: ?>
+                                                                <div class="text-muted">Aún no registramos pagos.</div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
                     <div class="card border-0 shadow-sm mb-4" id="perfil">
                         <div class="card-header border-0">

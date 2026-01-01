@@ -15,25 +15,28 @@ $activeSupportTicketId = (int)($activeSupportTicketId ?? 0);
 $portalLogo = login_logo_src(app_config('company', []));
 ?>
 
-<body>
+<body class="bg-light">
     <div class="wrapper bg-light">
         <div class="content-page bg-light">
             <div class="content">
-                <div class="container-xxl py-3">
+                <div class="container-xl py-3">
 
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <img src="<?php echo e($portalLogo); ?>" alt="Logo" height="32">
-                            <div>
-                                <h5 class="mb-0">Portal Cliente</h5>
-                                <p class="text-muted mb-0 fs-sm">Información de actividades y pagos</p>
+                    <div class="mx-auto" style="max-width: 1200px;">
+                        <div class="card border-0 shadow-sm mb-3 rounded-4">
+                            <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="<?php echo e($portalLogo); ?>" alt="Logo" height="32">
+                                    <div>
+                                        <h5 class="mb-0">Portal Cliente</h5>
+                                        <p class="text-muted mb-0 fs-sm">Información de actividades y pagos</p>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-semibold"><?php echo e($client['name'] ?? ''); ?></div>
+                                    <div class="text-muted fs-sm">Cliente</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-end">
-                            <div class="fw-semibold"><?php echo e($client['name'] ?? ''); ?></div>
-                            <div class="text-muted fs-sm">Cliente</div>
-                        </div>
-                    </div>
 
                     <?php if (!empty($success)): ?>
                         <div class="alert alert-success"><?php echo e($success); ?></div>
@@ -42,56 +45,56 @@ $portalLogo = login_logo_src(app_config('company', []));
                         <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
                     <?php endif; ?>
 
-                    <div class="card border-0 shadow-sm mb-3 rounded-4">
-                        <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div>
-                                <p class="text-muted mb-1">Bienvenido/a</p>
-                                <h3 class="fw-semibold mb-1"><?php echo e($client['name'] ?? 'Portal Cliente'); ?></h3>
-                                <p class="text-muted mb-0">Tu panel minimalista para ver proyectos, pagos y soporte.</p>
-                            </div>
-                            <div class="d-flex flex-wrap gap-2">
-                                <button class="btn btn-outline-primary d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#portalSidebar" aria-controls="portalSidebar" aria-expanded="false">
-                                    <i class="ti ti-layout-sidebar"></i> Menú
-                                </button>
-                                <a class="btn btn-light" href="#perfil">Perfil</a>
-                                <a class="btn btn-primary" href="index.php?route=clients/portalLogout">Cerrar sesión</a>
+                        <div class="card border-0 shadow-sm mb-3 rounded-4">
+                            <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                <div>
+                                    <p class="text-muted mb-1">Bienvenido/a</p>
+                                    <h3 class="fw-semibold mb-1"><?php echo e($client['name'] ?? 'Portal Cliente'); ?></h3>
+                                    <p class="text-muted mb-0">Tu panel minimalista para ver proyectos, pagos y soporte.</p>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-outline-primary d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#portalSidebar" aria-controls="portalSidebar" aria-expanded="false">
+                                        <i class="ti ti-layout-sidebar"></i> Menú
+                                    </button>
+                                    <a class="btn btn-light" href="#perfil">Perfil</a>
+                                    <a class="btn btn-primary" href="index.php?route=clients/portalLogout">Cerrar sesión</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="row g-3">
-                        <div class="col-lg-3">
-                            <div class="card border-0 shadow-sm rounded-4">
-                                <div class="card-body p-0">
-                                    <div class="collapse d-lg-block" id="portalSidebar">
-                                        <div class="list-group list-group-flush">
-                                            <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#resumen">
-                                                <i class="ti ti-dashboard text-primary"></i><span>Resumen</span>
-                                            </a>
-                                            <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#proyectos">
-                                                <i class="ti ti-briefcase text-primary"></i><span>Proyectos</span>
-                                            </a>
-                                            <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#tareas">
-                                                <i class="ti ti-list-check text-primary"></i><span>Tareas</span>
-                                            </a>
-                                            <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#facturacion">
-                                                <i class="ti ti-receipt text-primary"></i><span>Facturación</span>
-                                            </a>
-                                            <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#pagos">
-                                                <i class="ti ti-credit-card text-primary"></i><span>Pagos</span>
-                                            </a>
-                                            <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#soporte">
-                                                <i class="ti ti-help-circle text-primary"></i><span>Soporte</span>
-                                            </a>
-                                            <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#perfil">
-                                                <i class="ti ti-user text-primary"></i><span>Perfil</span>
-                                            </a>
+                        <div class="row g-3">
+                            <div class="col-lg-3">
+                                <div class="card border-0 shadow-sm rounded-4">
+                                    <div class="card-body p-0">
+                                        <div class="collapse d-lg-block" id="portalSidebar">
+                                            <div class="list-group list-group-flush">
+                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#resumen">
+                                                    <i class="ti ti-dashboard text-primary"></i><span>Resumen</span>
+                                                </a>
+                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#proyectos">
+                                                    <i class="ti ti-briefcase text-primary"></i><span>Proyectos</span>
+                                                </a>
+                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#tareas">
+                                                    <i class="ti ti-list-check text-primary"></i><span>Tareas</span>
+                                                </a>
+                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#facturacion">
+                                                    <i class="ti ti-receipt text-primary"></i><span>Facturación</span>
+                                                </a>
+                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#pagos">
+                                                    <i class="ti ti-credit-card text-primary"></i><span>Pagos</span>
+                                                </a>
+                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#soporte">
+                                                    <i class="ti ti-help-circle text-primary"></i><span>Soporte</span>
+                                                </a>
+                                                <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="#perfil">
+                                                    <i class="ti ti-user text-primary"></i><span>Perfil</span>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-9">
+                            <div class="col-lg-9">
 
                     <div class="row g-2 mb-3" id="resumen">
                         <div class="col-xxl-2 col-md-4 col-6">

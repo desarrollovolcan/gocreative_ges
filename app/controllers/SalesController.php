@@ -59,19 +59,53 @@ class SalesController extends Controller
     {
         $this->requireLogin();
         $companyId = $this->requireCompany();
-        $products = $this->products->active($companyId);
-        $clients = $this->clients->active($companyId);
-        $services = $this->services->active($companyId);
+        $products = [];
+        $clients = [];
+        $services = [];
+        $loadErrors = [];
+        try {
+            $products = $this->products->active($companyId);
+        } catch (Throwable $e) {
+            log_message('error', 'POS: failed to load products - ' . $e->getMessage());
+            $loadErrors[] = 'productos';
+        }
+        try {
+            $clients = $this->clients->active($companyId);
+        } catch (Throwable $e) {
+            log_message('error', 'POS: failed to load clients - ' . $e->getMessage());
+            $loadErrors[] = 'clientes';
+        }
+        try {
+            $services = $this->services->active($companyId);
+        } catch (Throwable $e) {
+            log_message('error', 'POS: failed to load services - ' . $e->getMessage());
+            $loadErrors[] = 'servicios';
+        }
+        if (!empty($loadErrors)) {
+            flash(
+                'error',
+                'No pudimos cargar ' . implode(', ', $loadErrors) . '. Verifica la conexión a la base de datos y que las migraciones estén aplicadas.'
+            );
+        }
         $session = null;
         $sessionTotals = [];
-        $posReady = $this->posTablesReady();
+        $posReady = $this->posTablesReady() && empty($loadErrors);
         $recentSessionSales = [];
         if ($isPos) {
             if ($posReady) {
-                $session = $this->posSessions->activeForUser($companyId, (int)(Auth::user()['id'] ?? 0));
-                if ($session) {
-                    $sessionTotals = $this->salePayments->totalsBySession((int)$session['id']);
-                    $recentSessionSales = $this->sales->recentBySession((int)$session['id'], $companyId);
+                try {
+                    $session = $this->posSessions->activeForUser($companyId, (int)(Auth::user()['id'] ?? 0));
+                    if ($session) {
+                        $sessionTotals = $this->salePayments->totalsBySession((int)$session['id']);
+                        $recentSessionSales = $this->sales->recentBySession((int)$session['id'], $companyId);
+                    }
+                } catch (Throwable $e) {
+                    log_message('error', 'POS: failed to load session data - ' . $e->getMessage());
+                    $posReady = false;
+                    $session = null;
+                    $sessionTotals = [];
+                    $recentSessionSales = [];
+                    flash('error', 'No pudimos cargar la caja del POS. Verifica las migraciones y permisos de base de datos.');
                 }
             } else {
                 flash('error', 'Faltan tablas/columnas para el POS. Ejecuta la actualización de base de datos.');

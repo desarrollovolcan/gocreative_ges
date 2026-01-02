@@ -96,63 +96,60 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
         <div class="col-xxl-8">
             <div class="card h-100">
                 <div class="card-body py-3">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                         <div>
-                            <h6 class="mb-1">Accesos del flujo comercial</h6>
-                            <p class="text-muted mb-0 small">Navega rápidamente por CRM, briefs, órdenes y renovaciones.</p>
+                            <h6 class="mb-1">Alertas clave</h6>
+                            <p class="text-muted mb-0 small">Visualiza rápido los focos críticos del ciclo comercial.</p>
                         </div>
-                        <div class="d-flex flex-wrap gap-2">
-                            <span class="badge bg-info-subtle text-info">Tickets abiertos: <?php echo (int)$ticketsOpen; ?></span>
-                            <span class="badge bg-primary-subtle text-primary">Servicios activos: <?php echo (int)$servicesActive; ?></span>
-                        </div>
+                        <span class="badge bg-secondary-subtle text-secondary">Actualizado en tiempo real</span>
                     </div>
-                    <div class="quick-link-grid mt-2">
-                        <a href="index.php?route=crm/hub" class="quick-link d-flex align-items-center justify-content-between">
-                            <div>
-                                <p class="quick-link-label mb-1">CRM</p>
-                                <h6 class="mb-0">Panel</h6>
+                    <div class="alert-grid">
+                        <div class="alert-tile">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="alert-icon text-danger bg-danger-subtle"><i class="ti ti-alert-octagon"></i></span>
+                                    <div>
+                                        <p class="alert-label mb-0">Facturas vencidas</p>
+                                        <small class="text-muted">Impacto en cobranza</small>
+                                    </div>
+                                </div>
+                                <a href="index.php?route=invoices" class="text-decoration-none small text-primary">Revisar</a>
                             </div>
-                            <span class="text-primary"><i class="ti ti-arrow-up-right"></i></span>
-                        </a>
-                        <a href="index.php?route=crm/briefs" class="quick-link d-flex align-items-center justify-content-between">
-                            <div>
-                                <p class="quick-link-label mb-1">Flujo</p>
-                                <h6 class="mb-0">Briefs</h6>
-                            </div>
-                            <span class="text-secondary"><i class="ti ti-notes"></i></span>
-                        </a>
-                        <a href="index.php?route=crm/orders" class="quick-link d-flex align-items-center justify-content-between">
-                            <div>
-                                <p class="quick-link-label mb-1">Producción</p>
-                                <h6 class="mb-0">Órdenes</h6>
-                            </div>
-                            <span class="text-success"><i class="ti ti-briefcase"></i></span>
-                        </a>
-                        <a href="index.php?route=crm/renewals" class="quick-link d-flex align-items-center justify-content-between">
-                            <div>
-                                <p class="quick-link-label mb-1">Retención</p>
-                                <h6 class="mb-0">Renovaciones</h6>
-                            </div>
-                            <span class="text-warning"><i class="ti ti-refresh"></i></span>
-                        </a>
-                    </div>
-                    <div class="row g-3 align-items-start mt-3">
-                        <div class="col-sm-4">
-                            <div class="mini-stat text-center">
-                                <p class="quick-link-label mb-1">Próx. 7 días</p>
-                                <h5 class="mb-0"><?php echo (int)$upcoming7; ?> servicios</h5>
+                            <div class="d-flex align-items-baseline justify-content-between">
+                                <h4 class="mb-0"><?php echo (int)$overdueCount; ?></h4>
+                                <span class="text-danger fw-semibold"><?php echo e(format_currency((float)$overdue)); ?></span>
                             </div>
                         </div>
-                        <div class="col-sm-4">
-                            <div class="mini-stat text-center">
-                                <p class="quick-link-label mb-1">Próx. 15 días</p>
-                                <h5 class="mb-0"><?php echo (int)$upcoming15; ?> servicios</h5>
+                        <div class="alert-tile">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="alert-icon text-warning bg-warning-subtle"><i class="ti ti-clock"></i></span>
+                                    <div>
+                                        <p class="alert-label mb-0">Servicios por vencer</p>
+                                        <small class="text-muted">Próximos 30 días</small>
+                                    </div>
+                                </div>
+                                <a href="index.php?route=services" class="text-decoration-none small text-primary">Ver</a>
+                            </div>
+                            <div class="d-flex align-items-baseline justify-content-between">
+                                <h4 class="mb-0"><?php echo (int)$upcoming30; ?></h4>
+                                <span class="text-muted small">7d: <?php echo (int)$upcoming7; ?> · 15d: <?php echo (int)$upcoming15; ?></span>
                             </div>
                         </div>
-                        <div class="col-sm-4">
-                            <div class="mini-stat text-center">
-                                <p class="quick-link-label mb-1">Próx. 30 días</p>
-                                <h5 class="mb-0"><?php echo (int)$upcoming30; ?> servicios</h5>
+                        <div class="alert-tile">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="alert-icon text-info bg-info-subtle"><i class="ti ti-ticket"></i></span>
+                                    <div>
+                                        <p class="alert-label mb-0">Tickets abiertos</p>
+                                        <small class="text-muted">Service desk</small>
+                                    </div>
+                                </div>
+                                <a href="index.php?route=tickets" class="text-decoration-none small text-primary">Ir</a>
+                            </div>
+                            <div class="d-flex align-items-baseline justify-content-between">
+                                <h4 class="mb-0"><?php echo (int)$ticketsOpen; ?></h4>
+                                <span class="text-muted small">Seguimiento requerido</span>
                             </div>
                         </div>
                     </div>

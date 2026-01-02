@@ -278,6 +278,35 @@ body {
     box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
 }
 
+.alert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.alert-tile {
+    border: 1px solid var(--ins-border);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    background-color: #fff;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.alert-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.alert-label {
+    font-weight: 600;
+    color: var(--ins-text);
+}
+
 .progress-thin {
     height: 8px;
     border-radius: 10px;

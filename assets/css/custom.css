@@ -131,9 +131,9 @@ body {
 .side-nav .side-nav-link {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    border-radius: 14px;
-    padding: 0.7rem 0.85rem;
+    gap: 10px;
+    border-radius: 12px;
+    padding: 0.65rem 0.8rem;
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -146,14 +146,13 @@ body {
 }
 
 .side-nav .menu-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.12);
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: transparent;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
 .side-nav .sub-menu {
@@ -191,6 +190,22 @@ body {
 
 .flow-step-postventa .side-nav-link::before {
     background: linear-gradient(180deg, #c3f5d2, rgba(195, 245, 210, 0));
+}
+
+.side-nav .side-nav-link.active,
+.side-nav > .side-nav-item.active > a,
+.side-nav .sub-menu .side-nav-item.active > a {
+    border-left: 3px solid #fff;
+    padding-left: 0.9rem;
+    font-weight: 700;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.side-nav .side-nav-link.active .menu-icon,
+.side-nav > .side-nav-item.active > a .menu-icon,
+.side-nav .sub-menu .side-nav-item.active > a .menu-icon {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
 }
 
 @media (max-width: 1199.98px) {

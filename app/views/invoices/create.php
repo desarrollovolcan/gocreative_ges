@@ -168,7 +168,14 @@
             <input type="hidden" name="project_id" data-project-id value="<?php echo (int)($selectedProjectId ?? 0); ?>">
         </form>
     </div>
-</div>
+        <!-- Jquery for Datatables-->
+        <script src="assets/plugins/jquery/jquery.min.js"></script>
+
+        <!-- Datatables js -->
+        <script src="assets/plugins/datatables/dataTables.min.js"></script>
+        <script src="assets/plugins/datatables/dataTables.bootstrap5.min.js"></script>
+        <script src="assets/plugins/datatables/dataTables.responsive.min.js"></script>
+        <script src="assets/plugins/datatables/responsive.bootstrap5.min.js"></script>
 
 <div class="card mt-3">
     <div class="card-header d-flex justify-content-between align-items-center">

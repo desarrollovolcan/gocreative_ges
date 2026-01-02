@@ -10,9 +10,12 @@
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
+                        <th>Contacto</th>
+                        <th>RUT / ID</th>
                         <th>Email</th>
                         <th>Teléfono</th>
                         <th>Dirección</th>
+                        <th>Sitio web</th>
                         <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
@@ -21,9 +24,12 @@
                         <tr>
                             <td class="text-muted"><?php echo render_id_badge($supplier['id'] ?? null); ?></td>
                             <td><?php echo e($supplier['name'] ?? ''); ?></td>
+                            <td><?php echo e($supplier['contact_name'] ?? ''); ?></td>
+                            <td><?php echo e($supplier['tax_id'] ?? ''); ?></td>
                             <td><?php echo e($supplier['email'] ?? ''); ?></td>
                             <td><?php echo e($supplier['phone'] ?? ''); ?></td>
                             <td><?php echo e($supplier['address'] ?? ''); ?></td>
+                            <td><?php echo e($supplier['website'] ?? ''); ?></td>
                             <td class="text-end">
                                 <div class="dropdown actions-dropdown">
                                     <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">

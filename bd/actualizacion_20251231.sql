@@ -140,14 +140,24 @@ CREATE TABLE IF NOT EXISTS suppliers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_id INT NOT NULL,
     name VARCHAR(150) NOT NULL,
+    contact_name VARCHAR(150) NULL,
+    tax_id VARCHAR(50) NULL,
     email VARCHAR(150) NULL,
     phone VARCHAR(50) NULL,
     address VARCHAR(255) NULL,
+    website VARCHAR(150) NULL,
+    notes TEXT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     deleted_at DATETIME NULL,
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
+
+ALTER TABLE suppliers
+    ADD COLUMN IF NOT EXISTS contact_name VARCHAR(150) NULL AFTER name,
+    ADD COLUMN IF NOT EXISTS tax_id VARCHAR(50) NULL AFTER contact_name,
+    ADD COLUMN IF NOT EXISTS website VARCHAR(150) NULL AFTER address,
+    ADD COLUMN IF NOT EXISTS notes TEXT NULL AFTER website;
 
 CREATE TABLE IF NOT EXISTS product_families (
     id INT AUTO_INCREMENT PRIMARY KEY,

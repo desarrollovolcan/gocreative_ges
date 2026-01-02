@@ -11,8 +11,8 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Número</th>
+                        <th>Monto</th>
                         <th>Cliente</th>
                         <th>Emisión</th>
                         <th>Vencimiento</th>
@@ -44,8 +44,8 @@
                         }
                         ?>
                         <tr>
-                            <td class="text-muted"><?php echo render_id_badge($invoice['id'] ?? null); ?></td>
                             <td><?php echo e($invoice['numero']); ?></td>
+                            <td><?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></td>
                             <td><?php echo e($invoice['client_name']); ?></td>
                             <td><?php echo e($invoice['fecha_emision']); ?></td>
                             <td><?php echo e($invoice['fecha_vencimiento']); ?></td>

@@ -36,10 +36,12 @@ class SuppliersController extends Controller
     public function create(): void
     {
         $this->requireLogin();
-        $this->requireCompany();
+        $companyId = $this->requireCompany();
+        $suppliers = $this->suppliers->active($companyId);
         $this->render('suppliers/create', [
             'title' => 'Nuevo proveedor',
             'pageTitle' => 'Nuevo proveedor',
+            'suppliers' => $suppliers,
         ]);
     }
 
@@ -52,9 +54,13 @@ class SuppliersController extends Controller
         $this->suppliers->create([
             'company_id' => $companyId,
             'name' => trim($_POST['name'] ?? ''),
+            'contact_name' => trim($_POST['contact_name'] ?? ''),
+            'tax_id' => trim($_POST['tax_id'] ?? ''),
             'email' => trim($_POST['email'] ?? ''),
             'phone' => trim($_POST['phone'] ?? ''),
             'address' => trim($_POST['address'] ?? ''),
+            'website' => trim($_POST['website'] ?? ''),
+            'notes' => trim($_POST['notes'] ?? ''),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
@@ -95,9 +101,13 @@ class SuppliersController extends Controller
 
         $this->suppliers->update($id, [
             'name' => trim($_POST['name'] ?? ''),
+            'contact_name' => trim($_POST['contact_name'] ?? ''),
+            'tax_id' => trim($_POST['tax_id'] ?? ''),
             'email' => trim($_POST['email'] ?? ''),
             'phone' => trim($_POST['phone'] ?? ''),
             'address' => trim($_POST['address'] ?? ''),
+            'website' => trim($_POST['website'] ?? ''),
+            'notes' => trim($_POST['notes'] ?? ''),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 

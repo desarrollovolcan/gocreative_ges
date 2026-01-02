@@ -114,6 +114,12 @@
             background: #f7f9fc;
             border: 1px solid #e7eaf0;
         }
+        .pos-side-card .list-group {
+            width: 100%;
+        }
+        .pos-side-card .list-group-item {
+            width: 100%;
+        }
     </style>
     <div class="row mb-0 pos-compact">
         <div class="col-12">

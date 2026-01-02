@@ -94,7 +94,7 @@ class InvoicesController extends Controller
             'SELECT quotes.id, quotes.numero, quotes.total, quotes.fecha_emision, quotes.client_id, quotes.project_id, quotes.service_id, quotes.estado, clients.name as client_name
              FROM quotes
              JOIN clients ON quotes.client_id = clients.id
-             WHERE quotes.company_id = :company_id AND quotes.estado = "aprobada" AND quotes.deleted_at IS NULL
+             WHERE quotes.company_id = :company_id AND quotes.estado = "aprobada"
              ORDER BY quotes.id DESC',
             ['company_id' => $companyId]
         );

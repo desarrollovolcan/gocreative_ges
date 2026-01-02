@@ -162,7 +162,7 @@
         </div>
     </div>
 <?php endif; ?>
-<div class="row align-items-stretch gy-3 pos-compact">
+<div class="row align-items-stretch gy-3 gx-1 pos-compact">
     <div class="col-12 col-xl-8 pos-equal-col">
         <div class="card h-100 pos-main-card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -282,7 +282,7 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-xl-4 pos-equal-col">
+    <div class="col-12 col-xl-4 pos-equal-col px-0">
         <div class="card h-100 pos-side-card">
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" role="tablist">

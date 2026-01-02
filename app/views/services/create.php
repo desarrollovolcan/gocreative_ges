@@ -2,6 +2,11 @@
     <div class="card-body">
         <form method="post" action="index.php?route=services/store" id="service-create-form">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+            <div class="d-flex justify-content-end gap-2 mb-3">
+                <button type="button" class="btn btn-outline-success btn-sm" disabled title="Disponible al guardar el servicio">
+                    Crear factura
+                </button>
+            </div>
             <div class="accordion" id="serviceCreateAccordion">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="serviceCreateHeadingInfo">

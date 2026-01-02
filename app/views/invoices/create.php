@@ -1,3 +1,6 @@
+<!-- Datatables css -->
+<link href="assets/plugins/datatables/responsive.bootstrap5.min.css" rel="stylesheet" type="text/css">
+
 <div class="card">
     <div class="card-body">
         <?php if (!empty($selectedProjectId) && ($projectInvoiceCount ?? 0) > 0): ?>
@@ -15,21 +18,6 @@
                         <?php foreach ($clients as $client): ?>
                             <option value="<?php echo $client['id']; ?>" <?php echo (int)($selectedClientId ?? 0) === (int)$client['id'] ? 'selected' : ''; ?>>
                                 <?php echo e($client['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Proyecto origen</label>
-                    <select name="project_id" class="form-select">
-                        <option value="">Sin proyecto</option>
-                        <?php foreach ($projects as $project): ?>
-                            <option value="<?php echo $project['id']; ?>"
-                                data-client-id="<?php echo $project['client_id'] ?? ''; ?>"
-                                data-project-name="<?php echo e($project['name'] ?? ''); ?>"
-                                data-project-value="<?php echo e($project['value'] ?? 0); ?>"
-                                <?php echo (int)($selectedProjectId ?? 0) === (int)$project['id'] ? 'selected' : ''; ?>>
-                                <?php echo e($project['name']); ?> (<?php echo e($project['client_name']); ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -70,6 +58,31 @@
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Notas</label>
                     <textarea name="notas" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Proyectos, servicios y renovaciones facturables</h5>
+                    <span class="text-muted small">Selecciona un cliente para cargar la lista</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="billable-items-table" class="table table-striped dt-responsive align-middle mb-0">
+                            <thead class="thead-sm text-uppercase fs-xxs">
+                                <tr>
+                                    <th></th>
+                                    <th>Tipo</th>
+                                    <th>Nombre</th>
+                                    <th>Cliente</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">La tabla muestra servicios sin facturar, renovaciones pendientes y proyectos finalizados sin factura del cliente seleccionado.</p>
                 </div>
             </div>
             <div class="card mb-3">
@@ -151,9 +164,46 @@
                 <a href="index.php?route=invoices" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
+            <input type="hidden" name="service_id" data-service-id value="<?php echo (int)($selectedServiceId ?? 0); ?>">
+            <input type="hidden" name="project_id" data-project-id value="<?php echo (int)($selectedProjectId ?? 0); ?>">
         </form>
     </div>
 </div>
+
+<div class="card mt-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Proyectos y servicios facturables del cliente</h5>
+        <span class="text-muted small">Selecciona un cliente para cargar la lista</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="billable-items-table" class="table table-striped dt-responsive align-middle mb-0">
+                <thead class="thead-sm text-uppercase fs-xxs">
+                    <tr>
+                        <th></th>
+                        <th>Tipo</th>
+                        <th>Nombre</th>
+                        <th>Cliente</th>
+                        <th>Monto</th>
+                        <th>Fecha</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2 mb-0">La tabla muestra servicios sin facturar y proyectos finalizados sin factura del cliente seleccionado.</p>
+    </div>
+</div>
+
+<!-- Jquery for Datatables-->
+<script src="assets/plugins/jquery/jquery.min.js"></script>
+
+<!-- Datatables js -->
+<script src="assets/plugins/datatables/dataTables.min.js"></script>
+<script src="assets/plugins/datatables/dataTables.bootstrap5.min.js"></script>
+<script src="assets/plugins/datatables/dataTables.responsive.min.js"></script>
+<script src="assets/plugins/datatables/responsive.bootstrap5.min.js"></script>
 
 <script>
     const subtotalInput = document.querySelector('[data-subtotal]');
@@ -164,10 +214,17 @@
     const addManualItemButton = document.querySelector('[data-add-manual-item]');
     const addServiceItemButton = document.querySelector('[data-add-service-item]');
     const serviceItemSelect = document.querySelector('[data-service-item-select]');
-    const projectSelect = document.querySelector('select[name="project_id"]');
     const clientSelect = document.querySelector('select[name="client_id"]');
+    const serviceInput = document.querySelector('[data-service-id]');
+    const projectInput = document.querySelector('[data-project-id]');
     const dueDateInput = document.querySelector('input[name="fecha_vencimiento"]');
     const dueIndicator = document.querySelector('[data-due-indicator]');
+    const billableServices = <?php echo json_encode($billableServices ?? []); ?>;
+    const billableRenewals = <?php echo json_encode($billableRenewals ?? []); ?>;
+    const billableProjects = <?php echo json_encode($billableProjects ?? []); ?>;
+    const prefillService = <?php echo json_encode($prefillService ?? null); ?>;
+    const billableTableElement = document.getElementById('billable-items-table');
+    let billableTable = null;
 
     const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
@@ -268,41 +325,73 @@
         serviceItemSelect.value = '';
     });
 
-    const fillFromProject = () => {
-        const selected = projectSelect?.selectedOptions?.[0];
-        if (!selected) {
+    const applyLineFromData = ({ description = '', price = 0, qtyReadOnly = false }) => {
+        const firstRow = document.querySelector('[data-item-row]');
+        if (!firstRow) {
             return;
         }
-        const projectName = selected.dataset.projectName || '';
-        const projectValue = Number(selected.dataset.projectValue || 0);
-        const projectClientId = selected.dataset.clientId || '';
-        const firstRow = document.querySelector('[data-item-row]');
-        if (firstRow) {
-            const descriptionInput = firstRow.querySelector('[data-item-description]');
-            const priceInput = firstRow.querySelector('[data-item-price]');
-            const qtyInput = firstRow.querySelector('[data-item-qty]');
-            const taxRateInputRow = firstRow.querySelector('[data-item-tax-rate]');
-            if (descriptionInput) {
-                descriptionInput.value = projectName;
-            }
-            if (priceInput) {
-                priceInput.value = formatNumber(projectValue).toFixed(2);
-            }
-            if (qtyInput) {
-                qtyInput.value = '1';
-                qtyInput.readOnly = true;
-            }
-            if (taxRateInputRow) {
-                taxRateInputRow.value = taxRateInput?.value || '0';
-            }
-            updateFromItems();
+        const descriptionInput = firstRow.querySelector('[data-item-description]');
+        const priceInput = firstRow.querySelector('[data-item-price]');
+        const qtyInput = firstRow.querySelector('[data-item-qty]');
+        const taxRateInputRow = firstRow.querySelector('[data-item-tax-rate]');
+        if (descriptionInput) {
+            descriptionInput.value = description;
         }
-        if (clientSelect && projectClientId) {
-            clientSelect.value = projectClientId;
+        if (priceInput) {
+            priceInput.value = formatNumber(price).toFixed(2);
+        }
+        if (qtyInput) {
+            qtyInput.value = '1';
+            qtyInput.readOnly = qtyReadOnly;
+        }
+        if (taxRateInputRow) {
+            taxRateInputRow.value = taxRateInput?.value || '0';
+        }
+        updateFromItems();
+    };
+
+    const fillFromProjectData = (project) => {
+        if (!project) return;
+        applyLineFromData({ description: project.name || '', price: Number(project.value || 0), qtyReadOnly: true });
+        projectInput.value = project.id || 0;
+        serviceInput.value = '';
+        if (clientSelect && project.client_id) {
+            clientSelect.value = project.client_id;
+        }
+        if (dueDateInput && project.delivery_date) {
+            dueDateInput.value = project.delivery_date;
+            updateDueIndicator();
         }
     };
 
-    projectSelect?.addEventListener('change', fillFromProject);
+    const fillFromServiceData = (service) => {
+        if (!service) return;
+        applyLineFromData({ description: service.name || '', price: Number(service.cost || 0), qtyReadOnly: true });
+        serviceInput.value = service.id || 0;
+        projectInput.value = '';
+        if (clientSelect && service.client_id) {
+            clientSelect.value = service.client_id;
+        }
+        if (dueDateInput && service.due_date) {
+            dueDateInput.value = service.due_date;
+            updateDueIndicator();
+        }
+    };
+
+    const fillFromRenewalData = (renewal) => {
+        if (!renewal) return;
+        const description = renewal.service_name ? `Renovación ${renewal.service_name}` : 'Renovación de servicio';
+        applyLineFromData({ description, price: Number(renewal.amount || 0), qtyReadOnly: true });
+        serviceInput.value = renewal.service_id || 0;
+        projectInput.value = '';
+        if (clientSelect && renewal.client_id) {
+            clientSelect.value = renewal.client_id;
+        }
+        if (dueDateInput && renewal.renewal_date) {
+            dueDateInput.value = renewal.renewal_date;
+            updateDueIndicator();
+        }
+    };
 
     taxRateInput?.addEventListener('input', () => {
         document.querySelectorAll('[data-item-tax-rate]').forEach((input) => {
@@ -345,10 +434,158 @@
 
     dueDateInput?.addEventListener('change', updateDueIndicator);
 
-    <?php if (!empty($selectedProjectId)): ?>
-    fillFromProject();
-    <?php endif; ?>
-
     updateFromItems();
     updateDueIndicator();
+
+    const buildBillableRows = () => {
+        const clientId = Number(clientSelect?.value || 0);
+        const rows = [];
+        const filteredServices = clientId > 0 ? billableServices.filter((service) => Number(service.client_id) === clientId) : [];
+        const filteredRenewals = clientId > 0 ? billableRenewals.filter((renewal) => Number(renewal.client_id) === clientId) : [];
+        const filteredProjects = clientId > 0 ? billableProjects.filter((project) => Number(project.client_id) === clientId) : [];
+        filteredServices.forEach((service) => {
+            rows.push({
+                id: service.id,
+                type: 'Servicio',
+                name: service.name,
+                client_name: service.client_name,
+                amount: Number(service.cost || 0),
+                date: service.due_date || '',
+                currency: service.currency || 'CLP',
+                raw: service,
+                source: 'service',
+            });
+        });
+        filteredRenewals.forEach((renewal) => {
+            rows.push({
+                id: renewal.id,
+                type: 'Renovación',
+                name: renewal.service_name ? `Renovación ${renewal.service_name}` : 'Renovación de servicio',
+                client_name: renewal.client_name,
+                amount: Number(renewal.amount || 0),
+                date: renewal.renewal_date || '',
+                currency: renewal.currency || 'CLP',
+                raw: renewal,
+                source: 'renewal',
+            });
+        });
+        filteredProjects.forEach((project) => {
+            rows.push({
+                id: project.id,
+                type: 'Proyecto',
+                name: project.name,
+                client_name: project.client_name,
+                amount: Number(project.value || 0),
+                date: project.delivery_date || '',
+                currency: project.currency || 'CLP',
+                raw: project,
+                source: 'project',
+            });
+        });
+        return rows;
+    };
+
+    const formatDetails = (rowData) => {
+        if (!rowData?.raw) return '';
+        if (rowData.source === 'service') {
+            return `
+                <div class="row">
+                    <div class="col-md-4"><strong>Vence:</strong> ${rowData.raw.due_date || '-'}</div>
+                    <div class="col-md-4"><strong>Moneda:</strong> ${rowData.currency}</div>
+                    <div class="col-md-4"><strong>Monto:</strong> ${formatNumber(rowData.amount)} ${rowData.currency}</div>
+                </div>
+            `;
+        }
+        if (rowData.source === 'renewal') {
+            return `
+                <div class="row">
+                    <div class="col-md-4"><strong>Renovación:</strong> ${rowData.raw.renewal_date || '-'}</div>
+                    <div class="col-md-4"><strong>Moneda:</strong> ${rowData.currency}</div>
+                    <div class="col-md-4"><strong>Monto:</strong> ${formatNumber(rowData.amount)} ${rowData.currency}</div>
+                </div>
+            `;
+        }
+        return `
+            <div class="row">
+                <div class="col-md-4"><strong>Entrega:</strong> ${rowData.raw.delivery_date || '-'}</div>
+                <div class="col-md-4"><strong>Estado:</strong> ${rowData.raw.status || ''}</div>
+                <div class="col-md-4"><strong>Monto:</strong> ${formatNumber(rowData.amount)} ${rowData.currency}</div>
+            </div>
+        `;
+    };
+
+    const initBillableTable = () => {
+        if (!billableTableElement) return;
+        billableTable = $(billableTableElement).DataTable({
+            data: [],
+            columns: [
+                {
+                    className: 'details-control text-center',
+                    orderable: false,
+                    data: null,
+                    defaultContent: '<i class="ti ti-chevron-right"></i>',
+                },
+                { data: 'type' },
+                { data: 'name' },
+                { data: 'client_name' },
+                { data: 'amount', render: (data, type) => type === 'display' ? formatNumber(data) : data },
+                { data: 'date' },
+                {
+                    data: null,
+                    orderable: false,
+                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-primary">Seleccionar</button>',
+                },
+            ],
+            order: [[1, 'asc']],
+            responsive: true,
+            language: {
+                emptyTable: 'Selecciona un cliente para ver servicios y proyectos facturables.',
+            },
+        });
+
+        $('#billable-items-table tbody').on('click', 'td.details-control', function () {
+            const tr = $(this).closest('tr');
+            const row = billableTable.row(tr);
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                row.child(formatDetails(row.data())).show();
+                tr.addClass('shown');
+            }
+        });
+
+        $('#billable-items-table tbody').on('click', 'button', function () {
+            const row = billableTable.row($(this).parents('tr'));
+            const data = row.data();
+            if (!data) return;
+            if (data.source === 'service') {
+                fillFromServiceData(data.raw);
+            } else if (data.source === 'renewal') {
+                fillFromRenewalData(data.raw);
+            } else {
+                fillFromProjectData(data.raw);
+            }
+        });
+    };
+
+    const reloadBillableTable = () => {
+        if (!billableTable) return;
+        const rows = buildBillableRows();
+        billableTable.clear();
+        billableTable.rows.add(rows).draw();
+    };
+
+    initBillableTable();
+
+    clientSelect?.addEventListener('change', () => {
+        serviceInput.value = '';
+        projectInput.value = '';
+        reloadBillableTable();
+    });
+
+    if (prefillService) {
+        fillFromServiceData(prefillService);
+    }
+    reloadBillableTable();
 </script>

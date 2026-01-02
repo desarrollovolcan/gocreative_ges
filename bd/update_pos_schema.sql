@@ -61,6 +61,20 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
-CREATE INDEX IF NOT EXISTS idx_pos_sessions_company_user ON pos_sessions(company_id, user_id);
+SET @has_pos_idx := (
+    SELECT COUNT(*)
+    FROM information_schema.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'pos_sessions'
+      AND INDEX_NAME = 'idx_pos_sessions_company_user'
+);
+SET @sql := IF(
+    @has_pos_idx = 0,
+    'CREATE INDEX idx_pos_sessions_company_user ON pos_sessions(company_id, user_id);',
+    'SELECT 1;'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 COMMIT;

@@ -48,6 +48,9 @@
                                         <li><a href="index.php?route=services/show&id=<?php echo $service['id']; ?>" class="dropdown-item">Ver</a></li>
                                         <li><a href="index.php?route=services/edit&id=<?php echo $service['id']; ?>" class="dropdown-item">Editar</a></li>
                                         <li>
+                                            <a href="index.php?route=invoices/create&service_id=<?php echo $service['id']; ?>&client_id=<?php echo (int)$service['client_id']; ?>" class="dropdown-item">Crear factura</a>
+                                        </li>
+                                        <li>
                                             <form method="post" action="index.php?route=services/generate-invoice">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                 <input type="hidden" name="id" value="<?php echo $service['id']; ?>">

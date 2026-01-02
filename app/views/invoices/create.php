@@ -174,6 +174,39 @@
     </div>
 </div>
 
+<div class="modal fade" id="billablePickerModal" tabindex="-1" aria-labelledby="billablePickerLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="billablePickerLabel">Selecciona elementos a facturar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">Se muestran servicios sin facturar y proyectos finalizados sin factura para el cliente seleccionado.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h6 class="d-flex justify-content-between align-items-center">
+                            Servicios
+                            <span class="badge bg-primary" data-count-services>0</span>
+                        </h6>
+                        <div class="list-group small" data-picker-services></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="d-flex justify-content-between align-items-center">
+                            Proyectos
+                            <span class="badge bg-primary" data-count-projects>0</span>
+                        </h6>
+                        <div class="list-group small" data-picker-projects></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const subtotalInput = document.querySelector('[data-subtotal]');
     const impuestosInput = document.querySelector('[data-impuestos]');
@@ -191,6 +224,12 @@
     const billableServices = <?php echo json_encode($billableServices ?? []); ?>;
     const billableProjects = <?php echo json_encode($billableProjects ?? []); ?>;
     const prefillService = <?php echo json_encode($prefillService ?? null); ?>;
+    const billableModalElement = document.getElementById('billablePickerModal');
+    const billableModal = billableModalElement ? new bootstrap.Modal(billableModalElement) : null;
+    const pickerServices = document.querySelector('[data-picker-services]');
+    const pickerProjects = document.querySelector('[data-picker-projects]');
+    const badgeServices = document.querySelector('[data-count-services]');
+    const badgeProjects = document.querySelector('[data-count-projects]');
 
     const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
@@ -462,4 +501,63 @@
 
     updateFromItems();
     updateDueIndicator();
+
+    const renderPickerList = (container, items, type) => {
+        if (!container) return;
+        container.innerHTML = '';
+        if (!items.length) {
+            container.innerHTML = '<div class="text-muted px-2 py-1">Sin ' + type + ' disponibles.</div>';
+            return;
+        }
+        items.forEach((item) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-start';
+            button.dataset.itemId = item.id;
+            button.dataset.itemType = type;
+            button.innerHTML = `
+                <div>
+                    <div class="fw-semibold">${item.name}</div>
+                    <div class="text-muted small">${item.client_name ?? ''}</div>
+                </div>
+                <div class="text-end small text-muted">
+                    ${item.value ? 'Monto: ' + formatNumber(item.value) : ''}
+                    ${item.cost ? 'Monto: ' + formatNumber(item.cost) : ''}
+                    ${item.delivery_date ? '<div>Entrega: ' + item.delivery_date + '</div>' : ''}
+                    ${item.due_date ? '<div>Vence: ' + item.due_date + '</div>' : ''}
+                </div>
+            `;
+            button.addEventListener('click', () => {
+                if (type === 'servicios') {
+                    serviceSelect.value = item.id;
+                    fillFromService();
+                } else {
+                    projectSelect.value = item.id;
+                    fillFromProject();
+                }
+                billableModal?.hide();
+            });
+            container.appendChild(button);
+        });
+    };
+
+    const filteredItems = (items) => {
+        const clientId = Number(clientSelect?.value || 0);
+        return clientId > 0 ? items.filter((item) => Number(item.client_id) === clientId) : items;
+    };
+
+    const openPickerForClient = () => {
+        if (!billableModal) return;
+        const servicesByClient = filteredItems(billableServices);
+        const projectsByClient = filteredItems(billableProjects);
+        renderPickerList(pickerServices, servicesByClient, 'servicios');
+        renderPickerList(pickerProjects, projectsByClient, 'proyectos');
+        if (badgeServices) badgeServices.textContent = servicesByClient.length;
+        if (badgeProjects) badgeProjects.textContent = projectsByClient.length;
+        if (servicesByClient.length || projectsByClient.length) {
+            billableModal.show();
+        }
+    };
+
+    clientSelect?.addEventListener('change', openPickerForClient);
 </script>

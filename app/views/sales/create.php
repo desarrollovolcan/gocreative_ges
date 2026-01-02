@@ -12,7 +12,7 @@
         }
         .pos-compact .card-header,
         .pos-compact .card-body {
-            padding: 0.65rem 0.85rem;
+            padding: 0.45rem 0.65rem;
         }
         .pos-compact .list-group-item {
             padding: 0.65rem 0.85rem;
@@ -55,18 +55,18 @@
             color: #1f2a3d;
         }
         .pos-hero .card-body {
-            padding: 0.65rem 0.85rem;
+            padding: 0.45rem 0.65rem;
         }
         .pos-hero-row {
-            gap: 0.5rem;
+            gap: 0.35rem;
         }
         .pos-chip {
             background: #f7f9fc;
             border: 1px solid #e7eaf0;
             border-radius: 999px;
-            padding: 0.35rem 0.65rem;
-            font-size: 0.85rem;
-            line-height: 1.1;
+            padding: 0.28rem 0.55rem;
+            font-size: 0.8rem;
+            line-height: 1.05;
             white-space: nowrap;
         }
         .pos-chip small {
@@ -104,39 +104,39 @@
                 <div class="card-body">
                     <div class="d-flex flex-wrap align-items-center justify-content-between pos-hero-row">
                         <div class="d-flex align-items-center gap-2">
-                            <span class="pos-badge-dot" style="background:#00b386;"></span>
-                            <h6 class="mb-0 fw-semibold">Caja POS</h6>
+                            <span class="pos-badge-dot" style="background:#00b386; width:8px; height:8px;"></span>
+                            <h6 class="mb-0 fw-semibold text-nowrap">Caja POS</h6>
                             <?php if (!empty($posSession)): ?>
                                 <span class="badge bg-light text-body border text-nowrap">Sesión abierta</span>
                             <?php else: ?>
                                 <span class="badge bg-light text-body border text-nowrap">Sin abrir</span>
                             <?php endif; ?>
                         </div>
-                        <div class="d-flex align-items-center flex-wrap gap-2">
-                            <span class="pos-chip"><small>Apertura</small> <?php echo format_currency((float)($posSession['opening_amount'] ?? 0)); ?></span>
-                            <span class="pos-chip"><small>Recaudado</small> <?php echo format_currency(array_sum($sessionTotals)); ?></span>
+                        <div class="d-flex align-items-center flex-wrap gap-1">
+                            <span class="pos-chip text-nowrap"><small>Apertura</small> <?php echo format_currency((float)($posSession['opening_amount'] ?? 0)); ?></span>
+                            <span class="pos-chip text-nowrap"><small>Recaudado</small> <?php echo format_currency(array_sum($sessionTotals)); ?></span>
                             <?php if (!empty($sessionTotals)): ?>
                                 <?php foreach ($sessionTotals as $method => $total): ?>
-                                    <span class="pos-chip text-capitalize"><?php echo e($method); ?> <?php echo format_currency((float)$total); ?></span>
+                                    <span class="pos-chip text-capitalize text-nowrap"><?php echo e($method); ?> <?php echo format_currency((float)$total); ?></span>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <span class="pos-chip text-muted">Sin cobros</span>
+                                <span class="pos-chip text-muted text-nowrap">Sin cobros</span>
                             <?php endif; ?>
                         </div>
-                        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
-                            <a href="index.php?route=products" class="btn btn-outline-secondary btn-sm text-nowrap">Inventario</a>
-                            <a href="index.php?route=sales" class="btn btn-outline-secondary btn-sm text-nowrap">Historial</a>
+                        <div class="d-flex align-items-center gap-1 flex-wrap justify-content-end">
+                            <a href="index.php?route=products" class="btn btn-outline-secondary btn-sm text-nowrap px-2">Inventario</a>
+                            <a href="index.php?route=sales" class="btn btn-outline-secondary btn-sm text-nowrap px-2">Historial</a>
                             <?php if (!empty($posSession)): ?>
-                                <form method="post" action="index.php?route=pos/close" class="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                                <form method="post" action="index.php?route=pos/close" class="d-flex align-items-center gap-1 flex-wrap flex-sm-nowrap">
                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="number" step="0.01" min="0" name="closing_amount" class="form-control form-control-sm text-nowrap" placeholder="Monto cierre" required style="width: 120px;">
-                                    <button class="btn btn-outline-danger btn-sm text-nowrap">Cerrar caja</button>
+                                    <input type="number" step="0.01" min="0" name="closing_amount" class="form-control form-control-sm text-nowrap" placeholder="Monto cierre" required style="width: 110px;">
+                                    <button class="btn btn-outline-danger btn-sm text-nowrap px-2">Cerrar caja</button>
                                 </form>
                             <?php else: ?>
-                                <form method="post" action="index.php?route=pos/open" class="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                                <form method="post" action="index.php?route=pos/open" class="d-flex align-items-center gap-1 flex-wrap flex-sm-nowrap">
                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="number" name="opening_amount" step="0.01" min="0" class="form-control form-control-sm text-nowrap" placeholder="Monto inicial" required style="width: 120px;">
-                                    <button class="btn btn-primary btn-sm text-nowrap">Abrir caja</button>
+                                    <input type="number" name="opening_amount" step="0.01" min="0" class="form-control form-control-sm text-nowrap" placeholder="Monto inicial" required style="width: 110px;">
+                                    <button class="btn btn-primary btn-sm text-nowrap px-2">Abrir caja</button>
                                 </form>
                             <?php endif; ?>
                         </div>

@@ -20,19 +20,38 @@
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
+                    <label class="form-label">Servicio a facturar</label>
+                    <select name="service_id" class="form-select" data-service-select data-prefill-id="<?php echo (int)($selectedServiceId ?? 0); ?>">
+                        <option value="">Sin servicio</option>
+                        <?php foreach ($billableServices as $service): ?>
+                            <option value="<?php echo $service['id']; ?>"
+                                data-client-id="<?php echo $service['client_id']; ?>"
+                                data-service-name="<?php echo e($service['name'] ?? ''); ?>"
+                                data-service-cost="<?php echo e($service['cost'] ?? 0); ?>"
+                                data-service-due="<?php echo e($service['due_date'] ?? ''); ?>"
+                                <?php echo (int)($selectedServiceId ?? 0) === (int)$service['id'] ? 'selected' : ''; ?>>
+                                <?php echo e($service['name']); ?> (<?php echo e($service['client_name']); ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="text-muted">Solo se muestran servicios sin factura.</small>
+                </div>
+                <div class="col-md-4 mb-3">
                     <label class="form-label">Proyecto origen</label>
-                    <select name="project_id" class="form-select">
+                    <select name="project_id" class="form-select" data-project-select data-prefill-id="<?php echo (int)($selectedProjectId ?? 0); ?>">
                         <option value="">Sin proyecto</option>
-                        <?php foreach ($projects as $project): ?>
+                        <?php foreach ($billableProjects as $project): ?>
                             <option value="<?php echo $project['id']; ?>"
                                 data-client-id="<?php echo $project['client_id'] ?? ''; ?>"
                                 data-project-name="<?php echo e($project['name'] ?? ''); ?>"
                                 data-project-value="<?php echo e($project['value'] ?? 0); ?>"
+                                data-project-delivery="<?php echo e($project['delivery_date'] ?? ''); ?>"
                                 <?php echo (int)($selectedProjectId ?? 0) === (int)$project['id'] ? 'selected' : ''; ?>>
                                 <?php echo e($project['name']); ?> (<?php echo e($project['client_name']); ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
+                    <small class="text-muted">Proyectos finalizados sin facturas previas.</small>
                 </div>
                 <div class="col-md-2 mb-3">
                     <label class="form-label">Moneda</label>
@@ -164,10 +183,14 @@
     const addManualItemButton = document.querySelector('[data-add-manual-item]');
     const addServiceItemButton = document.querySelector('[data-add-service-item]');
     const serviceItemSelect = document.querySelector('[data-service-item-select]');
-    const projectSelect = document.querySelector('select[name="project_id"]');
+    const projectSelect = document.querySelector('[data-project-select]');
     const clientSelect = document.querySelector('select[name="client_id"]');
+    const serviceSelect = document.querySelector('[data-service-select]');
     const dueDateInput = document.querySelector('input[name="fecha_vencimiento"]');
     const dueIndicator = document.querySelector('[data-due-indicator]');
+    const billableServices = <?php echo json_encode($billableServices ?? []); ?>;
+    const billableProjects = <?php echo json_encode($billableProjects ?? []); ?>;
+    const prefillService = <?php echo json_encode($prefillService ?? null); ?>;
 
     const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
@@ -268,41 +291,72 @@
         serviceItemSelect.value = '';
     });
 
+    const applyLineFromData = ({ description = '', price = 0, qtyReadOnly = false }) => {
+        const firstRow = document.querySelector('[data-item-row]');
+        if (!firstRow) {
+            return;
+        }
+        const descriptionInput = firstRow.querySelector('[data-item-description]');
+        const priceInput = firstRow.querySelector('[data-item-price]');
+        const qtyInput = firstRow.querySelector('[data-item-qty]');
+        const taxRateInputRow = firstRow.querySelector('[data-item-tax-rate]');
+        if (descriptionInput) {
+            descriptionInput.value = description;
+        }
+        if (priceInput) {
+            priceInput.value = formatNumber(price).toFixed(2);
+        }
+        if (qtyInput) {
+            qtyInput.value = '1';
+            qtyInput.readOnly = qtyReadOnly;
+        }
+        if (taxRateInputRow) {
+            taxRateInputRow.value = taxRateInput?.value || '0';
+        }
+        updateFromItems();
+    };
+
     const fillFromProject = () => {
         const selected = projectSelect?.selectedOptions?.[0];
-        if (!selected) {
+        if (!selected || !selected.value) {
             return;
         }
         const projectName = selected.dataset.projectName || '';
         const projectValue = Number(selected.dataset.projectValue || 0);
         const projectClientId = selected.dataset.clientId || '';
-        const firstRow = document.querySelector('[data-item-row]');
-        if (firstRow) {
-            const descriptionInput = firstRow.querySelector('[data-item-description]');
-            const priceInput = firstRow.querySelector('[data-item-price]');
-            const qtyInput = firstRow.querySelector('[data-item-qty]');
-            const taxRateInputRow = firstRow.querySelector('[data-item-tax-rate]');
-            if (descriptionInput) {
-                descriptionInput.value = projectName;
-            }
-            if (priceInput) {
-                priceInput.value = formatNumber(projectValue).toFixed(2);
-            }
-            if (qtyInput) {
-                qtyInput.value = '1';
-                qtyInput.readOnly = true;
-            }
-            if (taxRateInputRow) {
-                taxRateInputRow.value = taxRateInput?.value || '0';
-            }
-            updateFromItems();
-        }
+        const projectDelivery = selected.dataset.projectDelivery || '';
+        applyLineFromData({ description: projectName, price: projectValue, qtyReadOnly: true });
         if (clientSelect && projectClientId) {
             clientSelect.value = projectClientId;
+        }
+        if (dueDateInput && projectDelivery) {
+            dueDateInput.value = projectDelivery;
+            updateDueIndicator();
         }
     };
 
     projectSelect?.addEventListener('change', fillFromProject);
+
+    const fillFromService = () => {
+        const selected = serviceSelect?.selectedOptions?.[0];
+        if (!selected || !selected.value) {
+            return;
+        }
+        const serviceName = selected.dataset.serviceName || '';
+        const serviceCost = Number(selected.dataset.serviceCost || 0);
+        const serviceClientId = selected.dataset.clientId || '';
+        const serviceDue = selected.dataset.serviceDue || '';
+        applyLineFromData({ description: serviceName, price: serviceCost, qtyReadOnly: true });
+        if (clientSelect && serviceClientId) {
+            clientSelect.value = serviceClientId;
+        }
+        if (dueDateInput && serviceDue) {
+            dueDateInput.value = serviceDue;
+            updateDueIndicator();
+        }
+    };
+
+    serviceSelect?.addEventListener('change', fillFromService);
 
     taxRateInput?.addEventListener('input', () => {
         document.querySelectorAll('[data-item-tax-rate]').forEach((input) => {
@@ -313,6 +367,54 @@
 
     applyTaxCheckbox?.addEventListener('change', () => {
         updateFromItems();
+    });
+
+    const filterOptionsByClient = (select, items, labelKey, valueKey) => {
+        if (!select) {
+            return;
+        }
+        const clientId = Number(clientSelect?.value || 0);
+        select.innerHTML = '<option value="">Sin ' + labelKey + '</option>';
+        items.forEach((item) => {
+            if (clientId > 0 && Number(item.client_id) !== clientId) {
+                return;
+            }
+            const option = document.createElement('option');
+            option.value = item[valueKey];
+            if (item.client_id) {
+                option.dataset.clientId = item.client_id;
+            }
+            if (item.name) {
+                option.dataset.projectName = item.name;
+                option.dataset.serviceName = item.name;
+            }
+            if (item.value) {
+                option.dataset.projectValue = item.value;
+            }
+            if (item.delivery_date) {
+                option.dataset.projectDelivery = item.delivery_date;
+            }
+            if (item.cost) {
+                option.dataset.serviceCost = item.cost;
+            }
+            if (item.due_date) {
+                option.dataset.serviceDue = item.due_date;
+            }
+            if (item.client_name) {
+                option.textContent = `${item.name} (${item.client_name})`;
+            } else {
+                option.textContent = item.name;
+            }
+            if (Number(valueKey === 'id' ? item.id : item[valueKey]) === Number(select.dataset.prefillId || 0)) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+    };
+
+    clientSelect?.addEventListener('change', () => {
+        filterOptionsByClient(serviceSelect, billableServices, 'servicio', 'id');
+        filterOptionsByClient(projectSelect, billableProjects, 'proyecto', 'id');
     });
 
     const updateDueIndicator = () => {
@@ -345,6 +447,15 @@
 
     dueDateInput?.addEventListener('change', updateDueIndicator);
 
+    filterOptionsByClient(serviceSelect, billableServices, 'servicio', 'id');
+    filterOptionsByClient(projectSelect, billableProjects, 'proyecto', 'id');
+
+    if (prefillService) {
+        serviceSelect.dataset.prefillId = prefillService.id ?? '';
+        filterOptionsByClient(serviceSelect, billableServices, 'servicio', 'id');
+        serviceSelect.value = prefillService.id ?? '';
+        fillFromService();
+    }
     <?php if (!empty($selectedProjectId)): ?>
     fillFromProject();
     <?php endif; ?>

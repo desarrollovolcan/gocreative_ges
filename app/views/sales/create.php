@@ -306,41 +306,48 @@
                         <div class="p-2">
                             <input type="text" class="form-control form-control-sm w-100" id="search-products" placeholder="Buscar producto">
                         </div>
-                        <div class="list-group list-group-flush flex-grow-1 overflow-auto w-100">
-                            <?php foreach ($products as $product): ?>
-                                <button type="button"
-                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product w-100"
-                                        data-product-id="<?php echo (int)$product['id']; ?>"
-                                        data-price="<?php echo e((float)($product['price'] ?? 0)); ?>"
-                                        data-name="<?php echo e(strtolower($product['name'] ?? '')); ?>"
-                                        data-label="<?php echo e($product['name']); ?>">
-                                    <span class="flex-grow-1">
-                                        <?php echo e($product['name']); ?>
-                                        <?php if (!empty($product['sku'])): ?>
-                                            <small class="text-muted ms-1">(#<?php echo e($product['sku']); ?>)</small>
-                                        <?php endif; ?>
-                                    </span>
-                                    <span class="badge bg-light text-body"><?php echo format_currency((float)($product['price'] ?? 0)); ?></span>
-                                </button>
-                            <?php endforeach; ?>
+                        <div class="flex-grow-1 overflow-auto w-100 pos-catalog-wrapper">
+                            <div class="pos-catalog">
+                                <?php foreach ($products as $product): ?>
+                                    <button type="button"
+                                            class="pos-catalog-item add-product w-100"
+                                            data-product-id="<?php echo (int)$product['id']; ?>"
+                                            data-price="<?php echo e((float)($product['price'] ?? 0)); ?>"
+                                            data-name="<?php echo e(strtolower($product['name'] ?? '')); ?>"
+                                            data-label="<?php echo e($product['name']); ?>">
+                                        <span class="pos-label">
+                                            <span class="fw-semibold"><?php echo e($product['name']); ?></span>
+                                            <?php if (!empty($product['sku'])): ?>
+                                                <small>#<?php echo e($product['sku']); ?></small>
+                                            <?php endif; ?>
+                                        </span>
+                                        <span class="badge bg-light text-body"><?php echo format_currency((float)($product['price'] ?? 0)); ?></span>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                     <div class="tab-pane fade d-flex flex-column w-100" id="pane-services" role="tabpanel" aria-labelledby="tab-services">
                         <div class="p-2">
                             <input type="text" class="form-control form-control-sm w-100" id="search-services" placeholder="Buscar servicio">
                         </div>
-                        <div class="list-group list-group-flush flex-grow-1 overflow-auto w-100">
-                            <?php foreach ($services as $service): ?>
-                                <button type="button"
-                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-service w-100"
-                                        data-service-id="<?php echo (int)$service['id']; ?>"
-                                        data-price="<?php echo e((float)($service['cost'] ?? 0)); ?>"
-                                        data-name="<?php echo e(strtolower($service['name'] ?? '')); ?>"
-                                        data-label="<?php echo e($service['name']); ?>">
-                                    <span class="flex-grow-1"><?php echo e($service['name']); ?></span>
-                                    <span class="badge bg-light text-body"><?php echo format_currency((float)($service['cost'] ?? 0)); ?></span>
-                                </button>
-                            <?php endforeach; ?>
+                        <div class="flex-grow-1 overflow-auto w-100 pos-catalog-wrapper">
+                            <div class="pos-catalog">
+                                <?php foreach ($services as $service): ?>
+                                    <button type="button"
+                                            class="pos-catalog-item add-service w-100"
+                                            data-service-id="<?php echo (int)$service['id']; ?>"
+                                            data-price="<?php echo e((float)($service['cost'] ?? 0)); ?>"
+                                            data-name="<?php echo e(strtolower($service['name'] ?? '')); ?>"
+                                            data-label="<?php echo e($service['name']); ?>">
+                                        <span class="pos-label">
+                                            <span class="fw-semibold"><?php echo e($service['name']); ?></span>
+                                            <small>Servicio</small>
+                                        </span>
+                                        <span class="badge bg-light text-body"><?php echo format_currency((float)($service['cost'] ?? 0)); ?></span>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -10,9 +10,21 @@
             border-radius: 12px;
             overflow: hidden;
         }
+        .pos-main-card,
+        .pos-side-card {
+            height: 50vh;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+        }
         .pos-compact .card-header,
         .pos-compact .card-body {
             padding: 0.4rem 0.6rem;
+        }
+        .pos-main-card .card-body,
+        .pos-side-card .card-body {
+            flex: 1 1 auto;
+            overflow: auto;
         }
         .pos-compact .list-group-item {
             padding: 0.65rem 0.85rem;

@@ -93,13 +93,16 @@
 
         <!--- Sidenav Menu -->
         <ul class="side-nav">
-            <li class="side-nav-title mt-2" data-lang="menu-title">Navigation</li>
+            <li class="side-nav-title mt-2" data-lang="menu-title">Resumen</li>
 
             <li class="side-nav-item">
                 <a data-bs-toggle="collapse" href="#sidebarDashboards" aria-expanded="false" aria-controls="sidebarDashboards" class="side-nav-link">
                     <span class="menu-icon"><i data-lucide="circle-gauge"></i></span>
-                    <span class="menu-text" data-lang="dashboards">Dashboards</span>
-                    <span class="badge bg-success">02</span>
+                    <span>
+                        <span class="menu-text" data-lang="dashboards">Dashboards</span>
+                        <span class="menu-caption">Visión general de indicadores</span>
+                    </span>
+                    <span class="badge bg-success text-uppercase">02</span>
                 </a>
                 <div class="collapse" id="sidebarDashboards">
                     <ul class="sub-menu">
@@ -118,39 +121,418 @@
             </li>
 
             <li class="side-nav-item">
-                <a href="projects.php" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="briefcase"></i></span>
-                    <span class="menu-text" data-lang="projects">Proyectos</span>
-                </a>
-            </li>
-
-            <li class="side-nav-item">
-                <a href="landing.php" target="_blank" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="earth"></i></span>
-                    <span class="menu-text" data-lang="landing-page">Landing Page</span>
-                </a>
-            </li>
-
-            <li class="side-nav-title" data-lang="apps-title">Apps</li>
-
-            <li class="side-nav-item">
                 <a href="calendar.php" class="side-nav-link">
                     <span class="menu-icon"><i data-lucide="calendar"></i></span>
-                    <span class="menu-text" data-lang="calendar"> Calendar </span>
+                    <span>
+                        <span class="menu-text" data-lang="calendar"> Calendar </span>
+                        <span class="menu-caption">Agenda y recordatorios clave</span>
+                    </span>
+                </a>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="projects.php" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="briefcase"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="projects">Proyectos</span>
+                        <span class="menu-caption">Ejecución de servicios y entregables</span>
+                    </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
                 <a href="file-manager.php" class="side-nav-link">
                     <span class="menu-icon"><i data-lucide="folder-open-dot"></i></span>
-                    <span class="menu-text" data-lang="file-manager"> File Manager </span>
+                    <span>
+                        <span class="menu-text" data-lang="file-manager"> File Manager </span>
+                        <span class="menu-caption">Biblioteca de recursos</span>
+                    </span>
+                </a>
+            </li>
+
+            <li class="side-nav-title" data-lang="crm-flow-title">Flujo CRM</li>
+
+            <li class="side-nav-item flow-step flow-step-prospeccion">
+                <a data-bs-toggle="collapse" href="#sidebarProspeccion" aria-expanded="false" aria-controls="sidebarProspeccion" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="radar"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="crm-prospeccion">Prospección</span>
+                        <span class="menu-caption">Primer contacto y calificación</span>
+                    </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarProspeccion">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="crm-leads.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-leads">Leads</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-briefs.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-briefs">Briefs Comerciales</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-campaign.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-campaign">Campaign</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-contacts.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-contacts">Contacts</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-item flow-step flow-step-ventas">
+                <a data-bs-toggle="collapse" href="#sidebarVentas" aria-expanded="false" aria-controls="sidebarVentas" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="shopping-cart"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="crm-ventas">Ventas</span>
+                        <span class="menu-caption">Funnel de oportunidades</span>
+                    </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarVentas">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="crm-opportunities.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-opportunities">Opportunities</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-deals.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-deals">Deals</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-pipeline.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-pipeline">Pipeline</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-proposals.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-proposals">Proposals</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-estimations.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-estimations">Estimations</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-orders.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-orders">Órdenes de Venta</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-item flow-step flow-step-postventa">
+                <a data-bs-toggle="collapse" href="#sidebarPostventa" aria-expanded="false" aria-controls="sidebarPostventa" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="handshake"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="crm-postventa">Postventa</span>
+                        <span class="menu-caption">Soporte y fidelización</span>
+                    </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarPostventa">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="crm-customers.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-customers">Customers</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-activities.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-activities">Activities</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="tickets-list.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-service-desk">Service Desk</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-renewals.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-renewals">Renovaciones</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-reports.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-reports">Reports &amp; Insights</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarCRM" aria-expanded="false" aria-controls="sidebarCRM" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="handshake"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="crm">CRM Workspace</span>
+                        <span class="menu-caption">Accesos rápidos para cada etapa</span>
+                    </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarCRM">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="crm-leads.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-leads">Leads</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-contacts.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-contacts">Contacts</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-briefs.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-briefs">Briefs Comerciales</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-campaign.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-campaign">Campaign</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-opportunities.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-opportunities">Opportunities</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-deals.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-deals">Deals</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-proposals.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-proposals">Proposals</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-estimations.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-estimations">Estimations</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-pipeline.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-pipeline">Pipeline</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-orders.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-orders">Órdenes de Venta</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="projects.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-projects-services">Projects &amp; Services</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="tickets-list.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-service-desk">Service Desk</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-activities.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-activities">Activities</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-customers.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-customers">Customers</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-renewals.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-renewals">Renovaciones</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="crm-reports.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="crm-reports">Reports &amp; Insights</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-title" data-lang="apps-title">Operación &amp; soporte</li>
+
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarEmail" aria-expanded="false" aria-controls="sidebarEmail" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="inbox"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="email">Email</span>
+                        <span class="menu-caption">Comunicaciones con clientes</span>
+                    </span>
+                    <span class="badge text-bg-danger">New</span>
+                </a>
+                <div class="collapse" id="sidebarEmail">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="email.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="email-inbox">Inbox</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="email-details.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="email-details">Details</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="email-compose.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="email-compose">Compose</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="email-templates.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="email-templates">Email Templates</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarTickets" aria-expanded="false" aria-controls="sidebarTickets" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="life-buoy"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="support"> Support Center</span>
+                        <span class="menu-caption">Mesa de ayuda y tickets</span>
+                    </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarTickets">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="tickets-list.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="tickets">Tickets List</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="ticket-details.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="ticket-details">Ticket Details</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="ticket-create.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="ticket-create">New Ticket</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="social-feed.php" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="rss"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="social"> Social Feed </span>
+                        <span class="menu-caption">Actualizaciones de la comunidad</span>
+                    </span>
                 </a>
             </li>
 
             <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarUsers" aria-expanded="false" aria-controls="sidebarUsers" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="users"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="users"> Users </span>
+                        <span class="menu-caption">Roles y permisos</span>
+                    </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarUsers">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="users-contacts.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="contacts">Contacts</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="users-profile.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="profile">Profile</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="users-roles.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="roles">Roles</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="users-role-details.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="role-details">Role Details</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="users-permissions.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="permissions">Permissions</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarInvoice" aria-expanded="false" aria-controls="sidebarInvoice" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="receipt-text"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="invoice"> Invoice</span>
+                        <span class="menu-caption">Facturas y cobros</span>
+                    </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarInvoice">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="invoices.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="invoices">Invoices</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="invoice-details.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="invoice-details">Single Invoice</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="invoice-create.php" class="side-nav-link">
+                                <span class="menu-text" data-lang="invoice-create">New Invoice</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="api-keys.php" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="key"></i></span>
+                    <span>
+                        <span class="menu-text" data-lang="api-keys"> API Keys </span>
+                        <span class="menu-caption">Integraciones externas</span>
+                    </span>
+                </a>
+            </li>
+
+            <li class="side-nav-title" data-lang="apps-title">Comercio digital</li>
+
+            <li class="side-nav-item">
                 <a data-bs-toggle="collapse" href="#sidebarEcommerce" aria-expanded="false" aria-controls="sidebarEcommerce" class="side-nav-link">
                     <span class="menu-icon"><i data-lucide="shopping-bag"></i></span>
-                    <span class="menu-text" data-lang="ecommerce">Ecommerce</span>
+                    <span>
+                        <span class="menu-text" data-lang="ecommerce">Ecommerce</span>
+                        <span class="menu-caption">Catálogo, pedidos y reseñas</span>
+                    </span>
                     <span class="menu-arrow"></span>
                 </a>
                 <div class="collapse" id="sidebarEcommerce">
@@ -247,347 +629,11 @@
             </li>
 
             <li class="side-nav-item">
-                <a data-bs-toggle="collapse" href="#sidebarEmail" aria-expanded="false" aria-controls="sidebarEmail" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="inbox"></i></span>
-                    <span class="menu-text" data-lang="email">Email</span>
-                    <span class="badge text-bg-danger">New</span>
-                </a>
-                <div class="collapse" id="sidebarEmail">
-                    <ul class="sub-menu">
-                        <li class="side-nav-item">
-                            <a href="email.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="email-inbox">Inbox</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="email-details.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="email-details">Details</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="email-compose.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="email-compose">Compose</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="email-templates.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="email-templates">Email Templates</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            <li class="side-nav-item">
-                <a data-bs-toggle="collapse" href="#sidebarCRM" aria-expanded="false" aria-controls="sidebarCRM" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="handshake"></i></span>
-                    <span class="menu-text" data-lang="crm"> CRM </span>
-                    <span class="menu-arrow"></span>
-                </a>
-                <div class="collapse" id="sidebarCRM">
-                    <ul class="sub-menu">
-                        <li class="side-nav-item">
-                            <a href="projects.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-projects-services">Projects &amp; Services</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="tickets-list.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-service-desk">Service Desk</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-reports.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-reports">Reports &amp; Insights</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-contacts.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-contacts">Contacts</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-opportunities.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-opportunities">Opportunities</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-deals.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-deals">Deals</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-leads.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-leads">Leads</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-briefs.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-briefs">Briefs Comerciales</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-pipeline.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-pipeline">Pipeline</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-campaign.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-campaign">Campaign</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-proposals.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-proposals">Proposals</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-estimations.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-estimations">Estimations</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-orders.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-orders">Órdenes de Venta</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-customers.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-customers">Customers</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-renewals.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-renewals">Renovaciones</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-activities.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-activities">Activities</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            <li class="side-nav-title" data-lang="crm-flow-title">Flujo CRM</li>
-
-            <li class="side-nav-item">
-                <a data-bs-toggle="collapse" href="#sidebarProspeccion" aria-expanded="false" aria-controls="sidebarProspeccion" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="radar"></i></span>
-                    <span class="menu-text" data-lang="crm-prospeccion">Prospección</span>
-                    <span class="menu-arrow"></span>
-                </a>
-                <div class="collapse" id="sidebarProspeccion">
-                    <ul class="sub-menu">
-                        <li class="side-nav-item">
-                            <a href="crm-leads.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-leads">Leads</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-briefs.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-briefs">Briefs Comerciales</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-campaign.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-campaign">Campaign</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-contacts.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-contacts">Contacts</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            <li class="side-nav-item">
-                <a data-bs-toggle="collapse" href="#sidebarVentas" aria-expanded="false" aria-controls="sidebarVentas" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="shopping-cart"></i></span>
-                    <span class="menu-text" data-lang="crm-ventas">Ventas</span>
-                    <span class="menu-arrow"></span>
-                </a>
-                <div class="collapse" id="sidebarVentas">
-                    <ul class="sub-menu">
-                        <li class="side-nav-item">
-                            <a href="crm-opportunities.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-opportunities">Opportunities</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-deals.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-deals">Deals</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-pipeline.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-pipeline">Pipeline</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-proposals.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-proposals">Proposals</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-estimations.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-estimations">Estimations</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-orders.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-orders">Órdenes de Venta</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            <li class="side-nav-item">
-                <a data-bs-toggle="collapse" href="#sidebarPostventa" aria-expanded="false" aria-controls="sidebarPostventa" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="handshake"></i></span>
-                    <span class="menu-text" data-lang="crm-postventa">Postventa</span>
-                    <span class="menu-arrow"></span>
-                </a>
-                <div class="collapse" id="sidebarPostventa">
-                    <ul class="sub-menu">
-                        <li class="side-nav-item">
-                            <a href="crm-customers.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-customers">Customers</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-activities.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-activities">Activities</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="tickets-list.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-service-desk">Service Desk</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-renewals.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-renewals">Renovaciones</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="crm-reports.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="crm-reports">Reports &amp; Insights</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            <li class="side-nav-item">
-                <a data-bs-toggle="collapse" href="#sidebarUsers" aria-expanded="false" aria-controls="sidebarUsers" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="users"></i></span>
-                    <span class="menu-text" data-lang="users"> Users </span>
-                    <span class="menu-arrow"></span>
-                </a>
-                <div class="collapse" id="sidebarUsers">
-                    <ul class="sub-menu">
-                        <li class="side-nav-item">
-                            <a href="users-contacts.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="contacts">Contacts</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="users-profile.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="profile">Profile</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="users-roles.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="roles">Roles</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="users-role-details.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="role-details">Role Details</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="users-permissions.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="permissions">Permissions</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            <li class="side-nav-item">
-                <a data-bs-toggle="collapse" href="#sidebarInvoice" aria-expanded="false" aria-controls="sidebarInvoice" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="receipt-text"></i></span>
-                    <span class="menu-text" data-lang="invoice"> Invoice</span>
-                    <span class="menu-arrow"></span>
-                </a>
-                <div class="collapse" id="sidebarInvoice">
-                    <ul class="sub-menu">
-                        <li class="side-nav-item">
-                            <a href="invoices.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="invoices">Invoices</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="invoice-details.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="invoice-details">Single Invoice</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="invoice-create.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="invoice-create">New Invoice</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            <li class="side-nav-item">
-                <a href="social-feed.php" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="rss"></i></span>
-                    <span class="menu-text" data-lang="social"> Social Feed </span>
+                <a href="landing.php" target="_blank" class="side-nav-link">
+                    <span class="menu-icon"><i data-lucide="earth"></i></span>
+                    <span class="menu-text" data-lang="landing-page">Landing Page</span>
                 </a>
             </li>
-
-            <li class="side-nav-item">
-                <a data-bs-toggle="collapse" href="#sidebarTickets" aria-expanded="false" aria-controls="sidebarTickets" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="life-buoy"></i></span>
-                    <span class="menu-text" data-lang="support"> Support Center</span>
-                    <span class="menu-arrow"></span>
-                </a>
-                <div class="collapse" id="sidebarTickets">
-                    <ul class="sub-menu">
-                        <li class="side-nav-item">
-                            <a href="tickets-list.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="tickets">Tickets List</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="ticket-details.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="ticket-details">Ticket Details</span>
-                            </a>
-                        </li>
-                        <li class="side-nav-item">
-                            <a href="ticket-create.php" class="side-nav-link">
-                                <span class="menu-text" data-lang="ticket-create">New Ticket</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            <li class="side-nav-item">
-                <a href="api-keys.php" class="side-nav-link">
-                    <span class="menu-icon"><i data-lucide="key"></i></span>
-                    <span class="menu-text" data-lang="api-keys"> API Keys </span>
-                </a>
-            </li>
-
             <li class="side-nav-title mt-2" data-lang="pages-title">Custom Pages</li>
 
             <li class="side-nav-item">

@@ -140,14 +140,86 @@ CREATE TABLE IF NOT EXISTS suppliers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_id INT NOT NULL,
     name VARCHAR(150) NOT NULL,
+    contact_name VARCHAR(150) NULL,
+    tax_id VARCHAR(50) NULL,
     email VARCHAR(150) NULL,
     phone VARCHAR(50) NULL,
     address VARCHAR(255) NULL,
+    website VARCHAR(150) NULL,
+    notes TEXT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     deleted_at DATETIME NULL,
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
+
+SET @has_contact_name := (
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'suppliers'
+      AND COLUMN_NAME = 'contact_name'
+);
+
+SET @sql := IF(
+    @has_contact_name = 0,
+    'ALTER TABLE suppliers ADD COLUMN contact_name VARCHAR(150) NULL AFTER name;',
+    'SELECT 1;'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @has_tax_id := (
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'suppliers'
+      AND COLUMN_NAME = 'tax_id'
+);
+
+SET @sql := IF(
+    @has_tax_id = 0,
+    'ALTER TABLE suppliers ADD COLUMN tax_id VARCHAR(50) NULL AFTER contact_name;',
+    'SELECT 1;'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @has_website := (
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'suppliers'
+      AND COLUMN_NAME = 'website'
+);
+
+SET @sql := IF(
+    @has_website = 0,
+    'ALTER TABLE suppliers ADD COLUMN website VARCHAR(150) NULL AFTER address;',
+    'SELECT 1;'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @has_notes := (
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'suppliers'
+      AND COLUMN_NAME = 'notes'
+);
+
+SET @sql := IF(
+    @has_notes = 0,
+    'ALTER TABLE suppliers ADD COLUMN notes TEXT NULL AFTER website;',
+    'SELECT 1;'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 CREATE TABLE IF NOT EXISTS product_families (
     id INT AUTO_INCREMENT PRIMARY KEY,

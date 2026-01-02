@@ -90,6 +90,22 @@ class InvoicesController extends Controller
              ORDER BY projects.id DESC',
             ['company_id' => $companyId]
         );
+        $billableQuotes = $this->db->fetchAll(
+            'SELECT quotes.id, quotes.numero, quotes.total, quotes.fecha_emision, quotes.client_id, quotes.project_id, quotes.service_id, quotes.estado, clients.name as client_name
+             FROM quotes
+             JOIN clients ON quotes.client_id = clients.id
+             WHERE quotes.company_id = :company_id AND quotes.estado = "aprobada" AND quotes.deleted_at IS NULL
+             ORDER BY quotes.id DESC',
+            ['company_id' => $companyId]
+        );
+        $billableOrders = $this->db->fetchAll(
+            'SELECT sales_orders.id, sales_orders.order_number, sales_orders.total, sales_orders.order_date, sales_orders.client_id, sales_orders.status, clients.name as client_name
+             FROM sales_orders
+             JOIN clients ON sales_orders.client_id = clients.id
+             WHERE sales_orders.company_id = :company_id AND sales_orders.status = "pendiente" AND sales_orders.deleted_at IS NULL
+             ORDER BY sales_orders.id DESC',
+            ['company_id' => $companyId]
+        );
         $projectInvoiceCount = 0;
         if ($selectedProjectId > 0) {
             $countRow = $this->db->fetch(
@@ -113,6 +129,8 @@ class InvoicesController extends Controller
             'prefillService' => $prefillService,
             'billableServices' => $billableServices,
             'billableRenewals' => $billableRenewals,
+            'billableQuotes' => $billableQuotes,
+            'billableOrders' => $billableOrders,
             'billableProjects' => $billableProjects,
         ]);
     }

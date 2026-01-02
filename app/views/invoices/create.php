@@ -60,6 +60,31 @@
                     <textarea name="notas" class="form-control" rows="3"></textarea>
                 </div>
             </div>
+            <div class="card mb-3" id="billable-card" hidden>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Proyectos, servicios y renovaciones facturables</h5>
+                    <span class="text-muted small">Selecciona un cliente para cargar la lista</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="billable-items-table" class="table table-striped dt-responsive align-middle mb-0">
+                            <thead class="thead-sm text-uppercase fs-xxs">
+                                <tr>
+                                    <th></th>
+                                    <th>Tipo</th>
+                                    <th>Nombre</th>
+                                    <th>Cliente</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">La tabla muestra servicios sin facturar, renovaciones pendientes y proyectos finalizados sin factura del cliente seleccionado.</p>
+                </div>
+            </div>
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">Proyectos, servicios y renovaciones facturables</h5>
@@ -222,8 +247,11 @@
     const billableServices = <?php echo json_encode($billableServices ?? []); ?>;
     const billableRenewals = <?php echo json_encode($billableRenewals ?? []); ?>;
     const billableProjects = <?php echo json_encode($billableProjects ?? []); ?>;
+    const billableQuotes = <?php echo json_encode($billableQuotes ?? []); ?>;
+    const billableOrders = <?php echo json_encode($billableOrders ?? []); ?>;
     const prefillService = <?php echo json_encode($prefillService ?? null); ?>;
     const billableTableElement = document.getElementById('billable-items-table');
+    const billableCard = document.getElementById('billable-card');
     let billableTable = null;
 
     const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
@@ -393,6 +421,37 @@
         }
     };
 
+    const fillFromQuoteData = (quote) => {
+        if (!quote) return;
+        const description = quote.numero ? `Cotización ${quote.numero}` : 'Cotización aprobada';
+        applyLineFromData({ description, price: Number(quote.total || 0), qtyReadOnly: true });
+        serviceInput.value = quote.service_id || 0;
+        projectInput.value = quote.project_id || '';
+        if (clientSelect && quote.client_id) {
+            clientSelect.value = quote.client_id;
+        }
+        if (dueDateInput && quote.fecha_emision) {
+            dueDateInput.value = quote.fecha_emision;
+            updateDueIndicator();
+        }
+        updateFromItems();
+    };
+
+    const fillFromOrderData = (order) => {
+        if (!order) return;
+        const description = order.order_number ? `Orden de venta ${order.order_number}` : 'Orden de venta';
+        applyLineFromData({ description, price: Number(order.total || 0), qtyReadOnly: true });
+        serviceInput.value = '';
+        projectInput.value = '';
+        if (clientSelect && order.client_id) {
+            clientSelect.value = order.client_id;
+        }
+        if (dueDateInput && order.order_date) {
+            dueDateInput.value = order.order_date;
+            updateDueIndicator();
+        }
+    };
+
     taxRateInput?.addEventListener('input', () => {
         document.querySelectorAll('[data-item-tax-rate]').forEach((input) => {
             input.value = taxRateInput.value;
@@ -491,6 +550,8 @@
         const filteredServices = clientId > 0 ? billableServices.filter((service) => Number(service.client_id) === clientId) : [];
         const filteredRenewals = clientId > 0 ? billableRenewals.filter((renewal) => Number(renewal.client_id) === clientId) : [];
         const filteredProjects = clientId > 0 ? billableProjects.filter((project) => Number(project.client_id) === clientId) : [];
+        const filteredQuotes = clientId > 0 ? billableQuotes.filter((quote) => Number(quote.client_id) === clientId) : [];
+        const filteredOrders = clientId > 0 ? billableOrders.filter((order) => Number(order.client_id) === clientId) : [];
         filteredServices.forEach((service) => {
             rows.push({
                 id: service.id,
@@ -515,6 +576,32 @@
                 currency: renewal.currency || 'CLP',
                 raw: renewal,
                 source: 'renewal',
+            });
+        });
+        filteredQuotes.forEach((quote) => {
+            rows.push({
+                id: quote.id,
+                type: 'Cotización',
+                name: quote.numero ? `Cotización ${quote.numero}` : 'Cotización',
+                client_name: quote.client_name,
+                amount: Number(quote.total || 0),
+                date: quote.fecha_emision || '',
+                currency: 'CLP',
+                raw: quote,
+                source: 'quote',
+            });
+        });
+        filteredOrders.forEach((order) => {
+            rows.push({
+                id: order.id,
+                type: 'Orden de venta',
+                name: order.order_number ? `Orden ${order.order_number}` : 'Orden de venta',
+                client_name: order.client_name,
+                amount: Number(order.total || 0),
+                date: order.order_date || '',
+                currency: order.currency || 'CLP',
+                raw: order,
+                source: 'order',
             });
         });
         filteredProjects.forEach((project) => {
@@ -549,6 +636,24 @@
                 <div class="row">
                     <div class="col-md-4"><strong>Renovación:</strong> ${rowData.raw.renewal_date || '-'}</div>
                     <div class="col-md-4"><strong>Moneda:</strong> ${rowData.currency}</div>
+                    <div class="col-md-4"><strong>Monto:</strong> ${formatNumber(rowData.amount)} ${rowData.currency}</div>
+                </div>
+            `;
+        }
+        if (rowData.source === 'quote') {
+            return `
+                <div class="row">
+                    <div class="col-md-4"><strong>Emisión:</strong> ${rowData.raw.fecha_emision || '-'}</div>
+                    <div class="col-md-4"><strong>Estado:</strong> ${rowData.raw.estado || ''}</div>
+                    <div class="col-md-4"><strong>Monto:</strong> ${formatNumber(rowData.amount)} CLP</div>
+                </div>
+            `;
+        }
+        if (rowData.source === 'order') {
+            return `
+                <div class="row">
+                    <div class="col-md-4"><strong>Fecha orden:</strong> ${rowData.raw.order_date || '-'}</div>
+                    <div class="col-md-4"><strong>Estado:</strong> ${rowData.raw.status || ''}</div>
                     <div class="col-md-4"><strong>Monto:</strong> ${formatNumber(rowData.amount)} ${rowData.currency}</div>
                 </div>
             `;
@@ -611,6 +716,10 @@
                 fillFromServiceData(data.raw);
             } else if (data.source === 'renewal') {
                 fillFromRenewalData(data.raw);
+            } else if (data.source === 'quote') {
+                fillFromQuoteData(data.raw);
+            } else if (data.source === 'order') {
+                fillFromOrderData(data.raw);
             } else {
                 fillFromProjectData(data.raw);
             }
@@ -622,6 +731,9 @@
         const rows = buildBillableRows();
         billableTable.clear();
         billableTable.rows.add(rows).draw();
+        if (billableCard) {
+            billableCard.hidden = rows.length === 0;
+        }
     };
 
     initBillableTable();

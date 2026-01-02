@@ -257,6 +257,12 @@ body {
     box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
 }
 
+.quick-link-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+}
+
 .quick-link-label {
     font-size: 0.72rem;
     letter-spacing: 0.08em;
@@ -265,10 +271,11 @@ body {
 }
 
 .mini-stat {
-    border: 1px dashed var(--ins-border);
+    border: 1px solid var(--ins-border);
     border-radius: 12px;
     padding: 0.75rem 0.85rem;
-    background-color: #f8fafc;
+    background-color: #fff;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
 }
 
 .progress-thin {

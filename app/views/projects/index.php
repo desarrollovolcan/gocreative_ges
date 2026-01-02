@@ -82,8 +82,8 @@
                                 </span>
                             </td>
                             <td>
-                                <button class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1" type="button" data-bs-toggle="collapse" data-bs-target="#project-tasks-<?php echo (int)$projectId; ?>" aria-expanded="false" aria-controls="project-tasks-<?php echo (int)$projectId; ?>">
-                                    <span class="fw-bold">+</span>
+                                <button class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1 tasks-toggle-btn" type="button" data-task-target="project-tasks-<?php echo (int)$projectId; ?>" aria-expanded="false">
+                                    <i class="ti ti-square-rounded-plus-filled align-middle tasks-toggle-icon"></i>
                                     <span class="badge text-bg-light border"><?php echo count($projectTasks); ?></span>
                                 </button>
                             </td>
@@ -114,7 +114,7 @@
                             </td>
                         </tr>
                         <?php if ($projectId !== null): ?>
-                            <tr class="collapse" id="project-tasks-<?php echo (int)$projectId; ?>">
+                            <tr id="project-tasks-<?php echo (int)$projectId; ?>" class="project-task-row d-none">
                                 <td colspan="7" class="bg-light">
                                     <?php if (!empty($projectTasks)): ?>
                                         <div class="table-responsive">
@@ -158,3 +158,24 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.tasks-toggle-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var targetId = button.getAttribute('data-task-target');
+            var targetRow = document.getElementById(targetId);
+            if (!targetRow) {
+                return;
+            }
+            var isHidden = targetRow.classList.contains('d-none');
+            targetRow.classList.toggle('d-none');
+            button.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+            var icon = button.querySelector('.tasks-toggle-icon');
+            if (icon) {
+                icon.classList.toggle('ti-square-rounded-plus-filled', !isHidden);
+                icon.classList.toggle('ti-square-rounded-minus-filled', isHidden);
+            }
+        });
+    });
+});
+</script>

@@ -7,7 +7,6 @@
         }
         .pos-compact .list-group-item {
             padding: 0.5rem 0.75rem;
-            width: 100%;
         }
         .pos-compact .table-sm> :not(caption)>*>* {
             padding: 0.4rem 0.5rem;
@@ -15,6 +14,7 @@
         .pos-compact .tab-pane {
             width: 100%;
         }
+<<<<<<< HEAD
         .pos-compact .tab-content {
             width: 100%;
         }
@@ -38,6 +38,8 @@
         .pos-compact .tab-pane .list-group-item-action .badge {
             flex-shrink: 0;
         }
+=======
+>>>>>>> parent of af79fb7 (Merge pull request #201 from desarrollovolcan/codex/improve-lateral-products-and-services-section-h5xl5y)
     </style>
     <div class="row mb-3 pos-compact">
         <div class="col-12">
@@ -280,7 +282,6 @@
                                         <th>Fecha</th>
                                         <th class="text-end">Total</th>
                                         <th class="text-center">Estado</th>
-                                        <th class="text-end">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -292,24 +293,6 @@
                                             <td class="text-end"><?php echo format_currency((float)($sale['total'] ?? 0)); ?></td>
                                             <td class="text-center">
                                                 <span class="badge bg-light text-body border text-capitalize"><?php echo e(str_replace('_', ' ', $sale['status'] ?? '')); ?></span>
-                                            </td>
-                                            <td class="text-end">
-                                                <div class="d-inline-flex align-items-center gap-1">
-                                                    <a href="index.php?route=sales/show&id=<?php echo (int)($sale['id'] ?? 0); ?>" class="btn btn-soft-primary btn-sm" title="Ver">
-                                                        <i class="ti ti-eye"></i>
-                                                    </a>
-                                                    <a href="index.php?route=sales/show&id=<?php echo (int)($sale['id'] ?? 0); ?>" class="btn btn-soft-secondary btn-sm" title="Editar">
-                                                        <i class="ti ti-pencil"></i>
-                                                    </a>
-                                                    <form action="index.php?route=sales/delete" method="post" class="d-inline">
-                                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                        <input type="hidden" name="sale_id" value="<?php echo (int)($sale['id'] ?? 0); ?>">
-                                                        <input type="hidden" name="origin" value="pos">
-                                                        <button type="submit" class="btn btn-soft-danger btn-sm" onclick="return confirm('¿Eliminar esta venta?');" title="Eliminar">
-                                                            <i class="ti ti-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

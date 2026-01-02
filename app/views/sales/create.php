@@ -12,7 +12,7 @@
         }
         .pos-compact .card-header,
         .pos-compact .card-body {
-            padding: 0.8rem 1rem;
+            padding: 0.65rem 0.85rem;
         }
         .pos-compact .list-group-item {
             padding: 0.65rem 0.85rem;
@@ -55,15 +55,21 @@
             color: #1f2a3d;
         }
         .pos-hero .card-body {
-            padding: 0.95rem 1.1rem;
+            padding: 0.65rem 0.85rem;
         }
-        .pos-hero .metric-pill {
+        .pos-hero-row {
+            gap: 0.5rem;
+        }
+        .pos-chip {
             background: #f7f9fc;
-            border-radius: 10px;
-            padding: 0.55rem 0.85rem;
-            min-width: 150px;
+            border: 1px solid #e7eaf0;
+            border-radius: 999px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.85rem;
+            line-height: 1.1;
+            white-space: nowrap;
         }
-        .pos-hero .metric-pill small {
+        .pos-chip small {
             color: #6b7280;
         }
         .pos-summary {
@@ -96,60 +102,41 @@
         <div class="col-12">
             <div class="card pos-hero">
                 <div class="card-body">
-                    <div class="d-flex flex-wrap align-items-center gap-4 justify-content-between">
-                        <div>
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="pos-badge-dot" style="background:#00b386;"></span>
-                                <h5 class="mb-0 fw-semibold">Caja POS</h5>
-                                <?php if (!empty($posSession)): ?>
-                                    <span class="badge bg-light text-body border">Sesión abierta</span>
-                                <?php else: ?>
-                                    <span class="badge bg-light text-body border">Sin abrir</span>
-                                <?php endif; ?>
-                            </div>
-                            <p class="mb-0 small text-muted">Opera, monitorea y cierra tu caja con un header minimalista.</p>
+                    <div class="d-flex flex-wrap align-items-center justify-content-between pos-hero-row">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="pos-badge-dot" style="background:#00b386;"></span>
+                            <h6 class="mb-0 fw-semibold">Caja POS</h6>
+                            <?php if (!empty($posSession)): ?>
+                                <span class="badge bg-light text-body border text-nowrap">Sesión abierta</span>
+                            <?php else: ?>
+                                <span class="badge bg-light text-body border text-nowrap">Sin abrir</span>
+                            <?php endif; ?>
                         </div>
-                        <div class="d-flex flex-wrap gap-2 pos-actions">
+                        <div class="d-flex align-items-center flex-wrap gap-2">
+                            <span class="pos-chip"><small>Apertura</small> <?php echo format_currency((float)($posSession['opening_amount'] ?? 0)); ?></span>
+                            <span class="pos-chip"><small>Recaudado</small> <?php echo format_currency(array_sum($sessionTotals)); ?></span>
+                            <?php if (!empty($sessionTotals)): ?>
+                                <?php foreach ($sessionTotals as $method => $total): ?>
+                                    <span class="pos-chip text-capitalize"><?php echo e($method); ?> <?php echo format_currency((float)$total); ?></span>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <span class="pos-chip text-muted">Sin cobros</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
                             <a href="index.php?route=products" class="btn btn-outline-secondary btn-sm text-nowrap">Inventario</a>
                             <a href="index.php?route=sales" class="btn btn-outline-secondary btn-sm text-nowrap">Historial</a>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-wrap align-items-center gap-3 mt-2">
-                        <div class="metric-pill">
-                            <small>Apertura</small>
-                            <div class="h5 mb-0 fw-semibold"><?php echo format_currency((float)($posSession['opening_amount'] ?? 0)); ?></div>
-                        </div>
-                        <div class="metric-pill">
-                            <small>Recaudado</small>
-                            <div class="h5 mb-0 fw-semibold"><?php echo format_currency(array_sum($sessionTotals)); ?></div>
-                        </div>
-                        <div class="metric-pill">
-                            <small>Métodos</small>
-                            <div class="d-flex flex-wrap gap-1">
-                                <?php if (!empty($sessionTotals)): ?>
-                                    <?php foreach ($sessionTotals as $method => $total): ?>
-                                        <span class="badge bg-light text-dark border-0"><?php echo e(ucfirst($method)); ?> <?php echo format_currency((float)$total); ?></span>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <span class="text-white-50 small">Sin cobros aún</span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <div class="ms-auto">
                             <?php if (!empty($posSession)): ?>
-                                <form method="post" action="index.php?route=pos/close" class="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap pos-glass p-2 rounded-3">
+                                <form method="post" action="index.php?route=pos/close" class="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="number" step="0.01" min="0" name="closing_amount" class="form-control form-control-sm" placeholder="Monto cierre" required style="min-width: 160px;">
+                                    <input type="number" step="0.01" min="0" name="closing_amount" class="form-control form-control-sm text-nowrap" placeholder="Monto cierre" required style="width: 120px;">
                                     <button class="btn btn-outline-danger btn-sm text-nowrap">Cerrar caja</button>
                                 </form>
                             <?php else: ?>
-                                <form method="post" action="index.php?route=pos/open" class="d-flex flex-wrap align-items-center gap-2 pos-glass p-2 rounded-3">
+                                <form method="post" action="index.php?route=pos/open" class="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <div>
-                                        <label class="form-label mb-1 small text-muted">Monto inicial</label>
-                                        <input type="number" name="opening_amount" step="0.01" min="0" class="form-control form-control-sm" required>
-                                    </div>
-                                    <button class="btn btn-primary btn-sm mt-auto">Abrir caja</button>
+                                    <input type="number" name="opening_amount" step="0.01" min="0" class="form-control form-control-sm text-nowrap" placeholder="Monto inicial" required style="width: 120px;">
+                                    <button class="btn btn-primary btn-sm text-nowrap">Abrir caja</button>
                                 </form>
                             <?php endif; ?>
                         </div>

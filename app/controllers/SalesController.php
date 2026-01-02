@@ -52,7 +52,13 @@ class SalesController extends Controller
 
     public function pos(): void
     {
-        $this->renderForm(true);
+        try {
+            $this->renderForm(true);
+        } catch (Throwable $e) {
+            log_message('error', 'POS: failed to render form - ' . $e->getMessage());
+            flash('error', 'No pudimos cargar el punto de venta. Verifica la conexión a la base de datos y las migraciones.');
+            $this->redirect('index.php?route=sales');
+        }
     }
 
     private function renderForm(bool $isPos): void

@@ -7,13 +7,24 @@ class Database
 
     private function __construct(array $config)
     {
+        $socket = $config['socket'] ?? '';
         $host = $config['host'] ?? 'localhost';
         $port = (int)($config['port'] ?? 3306);
         $charset = $config['charset'] ?? 'utf8mb4';
-        $this->pdo = $this->connect($host, $port, $config['name'], $charset, $config['user'], $config['pass']);
+        $name = $config['name'];
+        $user = $config['user'];
+        $pass = $config['pass'];
+
+        $this->pdo = null;
+        if (!empty($socket)) {
+            $this->pdo = $this->connectSocket($socket, $name, $charset, $user, $pass);
+        }
+        if (!$this->pdo) {
+            $this->pdo = $this->connect($host, $port, $name, $charset, $user, $pass);
+        }
         if (!$this->pdo && $host === 'localhost') {
             // Fallback to TCP to avoid socket issues on some setups.
-            $this->pdo = $this->connect('127.0.0.1', $port, $config['name'], $charset, $config['user'], $config['pass'], true);
+            $this->pdo = $this->connect('127.0.0.1', $port, $name, $charset, $user, $pass, true);
         }
         if (!$this->pdo) {
             throw new PDOException('Unable to establish database connection.');
@@ -73,5 +84,19 @@ class Database
     public function lastInsertId(): string
     {
         return $this->pdo->lastInsertId();
+    }
+
+    private function connectSocket(string $socket, string $name, string $charset, string $user, string $pass): ?PDO
+    {
+        $dsn = sprintf('mysql:unix_socket=%s;dbname=%s;charset=%s', $socket, $name, $charset);
+        try {
+            return new PDO($dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]);
+        } catch (PDOException $e) {
+            log_message('error', sprintf('DB socket connection failed (%s): %s', $socket, $e->getMessage()));
+            return null;
+        }
     }
 }

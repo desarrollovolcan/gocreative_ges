@@ -3,6 +3,11 @@
         <form method="post" action="index.php?route=services/update" id="service-edit-form">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="id" value="<?php echo $service['id'] ?? ''; ?>">
+            <div class="d-flex justify-content-end gap-2 mb-3">
+                <a href="index.php?route=invoices/create&service_id=<?php echo (int)($service['id'] ?? 0); ?>&client_id=<?php echo (int)($service['client_id'] ?? 0); ?>" class="btn btn-outline-success btn-sm">
+                    Crear factura
+                </a>
+            </div>
             <div class="mb-3">
                 <?php echo render_id_badge($service['id'] ?? null); ?>
             </div>

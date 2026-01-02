@@ -44,6 +44,41 @@ class InvoicesController extends Controller
         $selectedClientId = (int)($_GET['client_id'] ?? 0);
         $selectedProjectId = (int)($_GET['project_id'] ?? 0);
         $selectedServiceId = (int)($_GET['service_id'] ?? 0);
+        $prefillService = null;
+        if ($selectedServiceId > 0) {
+            $prefillService = $this->db->fetch(
+                'SELECT services.*, clients.name as client_name FROM services JOIN clients ON services.client_id = clients.id WHERE services.id = :id AND services.company_id = :company_id AND services.deleted_at IS NULL',
+                ['id' => $selectedServiceId, 'company_id' => $companyId]
+            );
+            if ($prefillService) {
+                $selectedClientId = (int)($prefillService['client_id'] ?? 0);
+            }
+        }
+        $billableServices = $this->db->fetchAll(
+            'SELECT services.id, services.name, services.cost, services.currency, services.due_date, services.client_id, clients.name as client_name
+             FROM services
+             JOIN clients ON services.client_id = clients.id
+             WHERE services.company_id = :company_id AND services.deleted_at IS NULL
+               AND NOT EXISTS (
+                   SELECT 1 FROM invoices WHERE invoices.service_id = services.id AND invoices.company_id = :company_id AND invoices.deleted_at IS NULL
+               )
+             ORDER BY services.id DESC',
+            ['company_id' => $companyId]
+        );
+        if ($prefillService && !array_filter($billableServices, fn ($service) => (int)($service['id'] ?? 0) === (int)$prefillService['id'])) {
+            $billableServices[] = $prefillService;
+        }
+        $billableProjects = $this->db->fetchAll(
+            'SELECT projects.id, projects.name, projects.value, projects.delivery_date, projects.client_id, projects.status, clients.name as client_name
+             FROM projects
+             JOIN clients ON projects.client_id = clients.id
+             WHERE projects.company_id = :company_id AND projects.deleted_at IS NULL AND projects.status = "finalizado"
+               AND NOT EXISTS (
+                   SELECT 1 FROM invoices WHERE invoices.project_id = projects.id AND invoices.company_id = :company_id AND invoices.deleted_at IS NULL
+               )
+             ORDER BY projects.id DESC',
+            ['company_id' => $companyId]
+        );
         $projectInvoiceCount = 0;
         if ($selectedProjectId > 0) {
             $countRow = $this->db->fetch(
@@ -64,6 +99,9 @@ class InvoicesController extends Controller
             'selectedProjectId' => $selectedProjectId,
             'selectedServiceId' => $selectedServiceId,
             'projectInvoiceCount' => $projectInvoiceCount,
+            'prefillService' => $prefillService,
+            'billableServices' => $billableServices,
+            'billableProjects' => $billableProjects,
         ]);
     }
 
@@ -72,8 +110,26 @@ class InvoicesController extends Controller
         $this->requireLogin();
         verify_csrf();
         $companyId = current_company_id();
-        $serviceId = trim($_POST['service_id'] ?? '');
-        $projectId = trim($_POST['project_id'] ?? '');
+        $serviceId = (int)($_POST['service_id'] ?? 0);
+        $projectId = (int)($_POST['project_id'] ?? 0);
+        if ($serviceId > 0) {
+            $serviceExists = $this->db->fetch(
+                'SELECT id FROM services WHERE id = :id AND company_id = :company_id',
+                ['id' => $serviceId, 'company_id' => $companyId]
+            );
+            if (!$serviceExists) {
+                $serviceId = 0;
+            }
+        }
+        if ($projectId > 0) {
+            $projectExists = $this->db->fetch(
+                'SELECT id FROM projects WHERE id = :id AND company_id = :company_id',
+                ['id' => $projectId, 'company_id' => $companyId]
+            );
+            if (!$projectExists) {
+                $projectId = 0;
+            }
+        }
         $issueDate = trim($_POST['fecha_emision'] ?? '');
         $dueDate = trim($_POST['fecha_vencimiento'] ?? '');
         $subtotal = trim($_POST['subtotal'] ?? '');
@@ -92,8 +148,8 @@ class InvoicesController extends Controller
         $invoiceId = $this->invoices->create([
             'company_id' => $companyId,
             'client_id' => $clientId,
-            'service_id' => $serviceId !== '' ? $serviceId : null,
-            'project_id' => $projectId !== '' ? $projectId : null,
+            'service_id' => $serviceId > 0 ? $serviceId : null,
+            'project_id' => $projectId > 0 ? $projectId : null,
             'numero' => trim($_POST['numero'] ?? ''),
             'fecha_emision' => $issueDate !== '' ? $issueDate : date('Y-m-d'),
             'fecha_vencimiento' => $dueDate !== '' ? $dueDate : date('Y-m-d'),

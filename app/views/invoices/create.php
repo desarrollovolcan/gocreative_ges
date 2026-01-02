@@ -180,6 +180,15 @@
         <script src="assets/plugins/datatables/dataTables.responsive.min.js"></script>
         <script src="assets/plugins/datatables/responsive.bootstrap5.min.js"></script>
 
+<!-- Jquery for Datatables-->
+<script src="assets/plugins/jquery/jquery.min.js"></script>
+
+<!-- Datatables js -->
+<script src="assets/plugins/datatables/dataTables.min.js"></script>
+<script src="assets/plugins/datatables/dataTables.bootstrap5.min.js"></script>
+<script src="assets/plugins/datatables/dataTables.responsive.min.js"></script>
+<script src="assets/plugins/datatables/responsive.bootstrap5.min.js"></script>
+
 <script>
     const subtotalInput = document.querySelector('[data-subtotal]');
     const impuestosInput = document.querySelector('[data-impuestos]');
@@ -400,6 +409,14 @@
             dueDateInput.value = quote.fecha_emision;
             updateDueIndicator();
         }
+        if (qtyInput) {
+            qtyInput.value = '1';
+            qtyInput.readOnly = qtyReadOnly;
+        }
+        if (taxRateInputRow) {
+            taxRateInputRow.value = taxRateInput?.value || '0';
+        }
+        updateFromItems();
     };
 
     const fillFromOrderData = (order) => {
@@ -426,6 +443,54 @@
 
     applyTaxCheckbox?.addEventListener('change', () => {
         updateFromItems();
+    });
+
+    const filterOptionsByClient = (select, items, labelKey, valueKey) => {
+        if (!select) {
+            return;
+        }
+        const clientId = Number(clientSelect?.value || 0);
+        select.innerHTML = '<option value="">Sin ' + labelKey + '</option>';
+        items.forEach((item) => {
+            if (clientId > 0 && Number(item.client_id) !== clientId) {
+                return;
+            }
+            const option = document.createElement('option');
+            option.value = item[valueKey];
+            if (item.client_id) {
+                option.dataset.clientId = item.client_id;
+            }
+            if (item.name) {
+                option.dataset.projectName = item.name;
+                option.dataset.serviceName = item.name;
+            }
+            if (item.value) {
+                option.dataset.projectValue = item.value;
+            }
+            if (item.delivery_date) {
+                option.dataset.projectDelivery = item.delivery_date;
+            }
+            if (item.cost) {
+                option.dataset.serviceCost = item.cost;
+            }
+            if (item.due_date) {
+                option.dataset.serviceDue = item.due_date;
+            }
+            if (item.client_name) {
+                option.textContent = `${item.name} (${item.client_name})`;
+            } else {
+                option.textContent = item.name;
+            }
+            if (Number(valueKey === 'id' ? item.id : item[valueKey]) === Number(select.dataset.prefillId || 0)) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+    };
+
+    clientSelect?.addEventListener('change', () => {
+        filterOptionsByClient(serviceSelect, billableServices, 'servicio', 'id');
+        filterOptionsByClient(projectSelect, billableProjects, 'proyecto', 'id');
     });
 
     const updateDueIndicator = () => {

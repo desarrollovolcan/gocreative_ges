@@ -52,14 +52,39 @@ class ProjectsController extends Controller
         $useClientJoin = $hasProjectColumn('client_id')
             && in_array('id', $clientColumns, true)
             && in_array('name', $clientColumns, true);
-        $projectsQuery = $useClientJoin
-            ? "SELECT projects.*, clients.name as client_name FROM projects LEFT JOIN clients ON projects.client_id = clients.id WHERE {$where} ORDER BY projects.id DESC"
-            : "SELECT projects.* FROM projects WHERE {$where} ORDER BY projects.id DESC";
+        $tasksJoin = 'LEFT JOIN (SELECT project_id, COUNT(*) AS incomplete_tasks FROM project_tasks WHERE completed = 0 GROUP BY project_id) AS task_counts ON task_counts.project_id = projects.id';
+        $select = 'SELECT projects.*';
+        if ($useClientJoin) {
+            $select .= ', clients.name as client_name';
+        }
+        $select .= ', COALESCE(task_counts.incomplete_tasks, 0) as incomplete_tasks';
+        $from = ' FROM projects';
+        if ($useClientJoin) {
+            $from .= ' LEFT JOIN clients ON projects.client_id = clients.id';
+        }
+        $from .= ' ' . $tasksJoin;
+        $projectsQuery = $select . $from . " WHERE {$where} ORDER BY projects.id DESC";
         try {
             $projects = $this->db->fetchAll($projectsQuery, $params);
         } catch (PDOException $e) {
             log_message('error', 'Failed to load projects list: ' . $e->getMessage());
             $projects = [];
+        }
+        $tasksByProject = [];
+        $projectIds = array_column($projects, 'id');
+        if (!empty($projectIds)) {
+            $placeholders = implode(',', array_fill(0, count($projectIds), '?'));
+            try {
+                $tasks = $this->db->fetchAll(
+                    "SELECT project_id, title, progress_percent, start_date, end_date FROM project_tasks WHERE project_id IN ({$placeholders}) ORDER BY project_id ASC, id ASC",
+                    $projectIds
+                );
+                foreach ($tasks as $task) {
+                    $tasksByProject[$task['project_id']][] = $task;
+                }
+            } catch (PDOException $e) {
+                log_message('error', 'Failed to load tasks for projects list: ' . $e->getMessage());
+            }
         }
         foreach ($projects as &$project) {
             if (!array_key_exists('client_name', $project)) {
@@ -94,6 +119,7 @@ class ProjectsController extends Controller
             'pageTitle' => 'Proyectos',
             'projects' => $projects,
             'clients' => $clients,
+            'tasksByProject' => $tasksByProject,
             'filters' => [
                 'client_id' => $clientId,
                 'status' => $status,

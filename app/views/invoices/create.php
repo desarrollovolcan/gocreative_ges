@@ -86,6 +86,31 @@
                 </div>
             </div>
             <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Proyectos, servicios y renovaciones facturables</h5>
+                    <span class="text-muted small">Selecciona un cliente para cargar la lista</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="billable-items-table" class="table table-striped dt-responsive align-middle mb-0">
+                            <thead class="thead-sm text-uppercase fs-xxs">
+                                <tr>
+                                    <th></th>
+                                    <th>Tipo</th>
+                                    <th>Nombre</th>
+                                    <th>Cliente</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">La tabla muestra servicios sin facturar, renovaciones pendientes y proyectos finalizados sin factura del cliente seleccionado.</p>
+                </div>
+            </div>
+            <div class="card mb-3">
                 <div class="card-header">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                         <h5 class="card-title mb-0">Items de factura</h5>
@@ -409,6 +434,7 @@
             dueDateInput.value = quote.fecha_emision;
             updateDueIndicator();
         }
+        updateFromItems();
     };
 
     const fillFromOrderData = (order) => {
@@ -435,6 +461,54 @@
 
     applyTaxCheckbox?.addEventListener('change', () => {
         updateFromItems();
+    });
+
+    const filterOptionsByClient = (select, items, labelKey, valueKey) => {
+        if (!select) {
+            return;
+        }
+        const clientId = Number(clientSelect?.value || 0);
+        select.innerHTML = '<option value="">Sin ' + labelKey + '</option>';
+        items.forEach((item) => {
+            if (clientId > 0 && Number(item.client_id) !== clientId) {
+                return;
+            }
+            const option = document.createElement('option');
+            option.value = item[valueKey];
+            if (item.client_id) {
+                option.dataset.clientId = item.client_id;
+            }
+            if (item.name) {
+                option.dataset.projectName = item.name;
+                option.dataset.serviceName = item.name;
+            }
+            if (item.value) {
+                option.dataset.projectValue = item.value;
+            }
+            if (item.delivery_date) {
+                option.dataset.projectDelivery = item.delivery_date;
+            }
+            if (item.cost) {
+                option.dataset.serviceCost = item.cost;
+            }
+            if (item.due_date) {
+                option.dataset.serviceDue = item.due_date;
+            }
+            if (item.client_name) {
+                option.textContent = `${item.name} (${item.client_name})`;
+            } else {
+                option.textContent = item.name;
+            }
+            if (Number(valueKey === 'id' ? item.id : item[valueKey]) === Number(select.dataset.prefillId || 0)) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+    };
+
+    clientSelect?.addEventListener('change', () => {
+        filterOptionsByClient(serviceSelect, billableServices, 'servicio', 'id');
+        filterOptionsByClient(projectSelect, billableProjects, 'proyecto', 'id');
     });
 
     const updateDueIndicator = () => {

@@ -48,6 +48,7 @@
                         <th>Nombre</th>
                         <th>Cliente</th>
                         <th>Estado</th>
+                        <th>Tareas</th>
                         <th>Entrega</th>
                         <th class="text-end">Acciones</th>
                     </tr>
@@ -59,14 +60,33 @@
                         $projectClientId = $project['client_id'] ?? null;
                         $projectName = $project['name'] ?? '';
                         $projectStatus = $project['status'] ?? '';
+                        $projectStatusColor = match ($projectStatus) {
+                            'cotizado' => 'info',
+                            'en_curso' => 'primary',
+                            'en_pausa' => 'warning',
+                            'finalizado' => 'success',
+                            default => 'secondary',
+                        };
+                        $projectStatusLabel = $projectStatus !== '' ? ucwords(str_replace('_', ' ', $projectStatus)) : '-';
                         $projectDeliveryDate = $project['delivery_date'] ?? '';
                         $projectClientName = $project['client_name'] ?? '-';
+                        $projectTasks = $tasksByProject[$projectId] ?? [];
                         ?>
                         <tr>
                             <td class="text-muted"><?php echo render_id_badge($projectId); ?></td>
                             <td><?php echo e($projectName); ?></td>
                             <td><?php echo e($projectClientName); ?></td>
-                            <td><span class="badge bg-secondary-subtle text-secondary"><?php echo e($projectStatus); ?></span></td>
+                            <td>
+                                <span class="badge bg-<?php echo $projectStatusColor; ?>-subtle text-<?php echo $projectStatusColor; ?>">
+                                    <?php echo e($projectStatusLabel); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1" type="button" data-bs-toggle="collapse" data-bs-target="#project-tasks-<?php echo (int)$projectId; ?>" aria-expanded="false" aria-controls="project-tasks-<?php echo (int)$projectId; ?>">
+                                    <span class="fw-bold">+</span>
+                                    <span class="badge text-bg-light border"><?php echo count($projectTasks); ?></span>
+                                </button>
+                            </td>
                             <td><?php echo e($projectDeliveryDate); ?></td>
                             <td class="text-end">
                                 <?php if ($projectId !== null): ?>
@@ -93,6 +113,45 @@
                                 <?php endif; ?>
                             </td>
                         </tr>
+                        <?php if ($projectId !== null): ?>
+                            <tr class="collapse" id="project-tasks-<?php echo (int)$projectId; ?>">
+                                <td colspan="7" class="bg-light">
+                                    <?php if (!empty($projectTasks)): ?>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm mb-0 align-middle">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-muted small">Tarea</th>
+                                                        <th class="text-muted small">Fecha inicio</th>
+                                                        <th class="text-muted small">Fecha fin</th>
+                                                        <th class="text-muted small text-end">% avance</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($projectTasks as $task): ?>
+                                                        <tr>
+                                                            <td><?php echo e($task['title']); ?></td>
+                                                            <td><?php echo e($task['start_date'] ?? '-'); ?></td>
+                                                            <td><?php echo e($task['end_date'] ?? '-'); ?></td>
+                                                            <td class="text-end">
+                                                                <div class="d-flex align-items-center justify-content-end gap-2">
+                                                                    <div class="progress flex-grow-1" style="max-width: 200px; height: 8px;">
+                                                                        <div class="progress-bar" role="progressbar" style="width: <?php echo (int)$task['progress_percent']; ?>%;" aria-valuenow="<?php echo (int)$task['progress_percent']; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                    </div>
+                                                                    <span class="text-muted small"><?php echo (int)$task['progress_percent']; ?>%</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-muted small">No hay tareas registradas para este proyecto.</div>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>

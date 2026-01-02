@@ -98,6 +98,13 @@ class InvoicesController extends Controller
              ORDER BY quotes.id DESC',
             ['company_id' => $companyId]
         );
+        foreach ($billableQuotes as &$quote) {
+            $quote['items'] = $this->db->fetchAll(
+                'SELECT descripcion, cantidad, precio_unitario, total FROM quote_items WHERE quote_id = :quote_id',
+                ['quote_id' => $quote['id']]
+            );
+        }
+        unset($quote);
         $billableOrders = $this->db->fetchAll(
             'SELECT sales_orders.id, sales_orders.order_number, sales_orders.total, sales_orders.order_date, sales_orders.client_id, sales_orders.status, clients.name as client_name
              FROM sales_orders

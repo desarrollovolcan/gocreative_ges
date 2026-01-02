@@ -119,7 +119,10 @@
                             <input type="text" name="items[0][descripcion]" class="form-control" placeholder="Descripción" data-item-description>
                         </div>
                         <div class="col-md-2">
-                            <input type="number" name="items[0][cantidad]" class="form-control" value="1" data-item-qty>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="number" name="items[0][cantidad]" class="form-control" value="1" data-item-qty>
+                                <button type="button" class="btn btn-outline-danger btn-sm" data-remove-item title="Eliminar item"><i class="ti ti-x"></i></button>
+                            </div>
                         </div>
                         <div class="col-md-2">
                             <input type="number" name="items[0][precio_unitario]" class="form-control" value="0" data-item-price>
@@ -176,32 +179,6 @@
         <script src="assets/plugins/datatables/dataTables.bootstrap5.min.js"></script>
         <script src="assets/plugins/datatables/dataTables.responsive.min.js"></script>
         <script src="assets/plugins/datatables/responsive.bootstrap5.min.js"></script>
-
-<div class="card mt-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0">Proyectos y servicios facturables del cliente</h5>
-        <span class="text-muted small">Selecciona un cliente para cargar la lista</span>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table id="billable-items-table" class="table table-striped dt-responsive align-middle mb-0">
-                <thead class="thead-sm text-uppercase fs-xxs">
-                    <tr>
-                        <th></th>
-                        <th>Tipo</th>
-                        <th>Nombre</th>
-                        <th>Cliente</th>
-                        <th>Monto</th>
-                        <th>Fecha</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <p class="text-muted small mt-2 mb-0">La tabla muestra servicios sin facturar y proyectos finalizados sin factura del cliente seleccionado.</p>
-    </div>
-</div>
 
 <!-- Jquery for Datatables-->
 <script src="assets/plugins/jquery/jquery.min.js"></script>
@@ -288,19 +265,22 @@
         }
     });
 
-    const addItemRow = ({ description = '', price = 0 } = {}) => {
+    const addItemRow = ({ description = '', price = 0, qty = 1, qtyReadOnly = false, taxRate = null } = {}) => {
         const rows = document.querySelectorAll('[data-item-row]');
         const index = rows.length;
         const row = document.createElement('div');
         row.className = 'row g-2 mb-2';
         row.setAttribute('data-item-row', 'true');
-        const defaultTaxRate = Number(taxRateInput?.value || 0);
+        const defaultTaxRate = taxRate !== null ? Number(taxRate) : Number(taxRateInput?.value || 0);
         row.innerHTML = `
             <div class="col-md-3">
                 <input type="text" name="items[${index}][descripcion]" class="form-control" placeholder="Descripción" data-item-description value="${description}">
             </div>
             <div class="col-md-2">
-                <input type="number" name="items[${index}][cantidad]" class="form-control" value="1" data-item-qty>
+                <div class="d-flex align-items-center gap-2">
+                    <input type="number" name="items[${index}][cantidad]" class="form-control" value="${qty}" data-item-qty ${qtyReadOnly ? 'readonly' : ''}>
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-remove-item title="Eliminar item"><i class="ti ti-x"></i></button>
+                </div>
             </div>
             <div class="col-md-2">
                 <input type="number" name="items[${index}][precio_unitario]" class="form-control" value="${formatNumber(price).toFixed(2)}" data-item-price>
@@ -335,34 +315,35 @@
         serviceItemSelect.value = '';
     });
 
-    const applyLineFromData = ({ description = '', price = 0, qtyReadOnly = false }) => {
+    const applyOrAddItem = ({ description = '', price = 0, qty = 1, qtyReadOnly = false, taxRate = null }) => {
         const firstRow = document.querySelector('[data-item-row]');
-        if (!firstRow) {
+        const firstDesc = firstRow?.querySelector('[data-item-description]')?.value?.trim() || '';
+        const firstPrice = Number(firstRow?.querySelector('[data-item-price]')?.value || 0);
+        const firstTotal = Number(firstRow?.querySelector('[data-item-total]')?.value || 0);
+        const isFirstEmpty = firstRow && firstDesc === '' && firstPrice === 0 && firstTotal === 0;
+        if (firstRow && isFirstEmpty) {
+            const descriptionInput = firstRow.querySelector('[data-item-description]');
+            const priceInput = firstRow.querySelector('[data-item-price]');
+            const qtyInput = firstRow.querySelector('[data-item-qty]');
+            const taxRateInputRow = firstRow.querySelector('[data-item-tax-rate]');
+            if (descriptionInput) descriptionInput.value = description;
+            if (priceInput) priceInput.value = formatNumber(price).toFixed(2);
+            if (qtyInput) {
+                qtyInput.value = String(qty);
+                qtyInput.readOnly = qtyReadOnly;
+            }
+            if (taxRateInputRow && taxRate !== null) {
+                taxRateInputRow.value = taxRate;
+            }
+            updateFromItems();
             return;
         }
-        const descriptionInput = firstRow.querySelector('[data-item-description]');
-        const priceInput = firstRow.querySelector('[data-item-price]');
-        const qtyInput = firstRow.querySelector('[data-item-qty]');
-        const taxRateInputRow = firstRow.querySelector('[data-item-tax-rate]');
-        if (descriptionInput) {
-            descriptionInput.value = description;
-        }
-        if (priceInput) {
-            priceInput.value = formatNumber(price).toFixed(2);
-        }
-        if (qtyInput) {
-            qtyInput.value = '1';
-            qtyInput.readOnly = qtyReadOnly;
-        }
-        if (taxRateInputRow) {
-            taxRateInputRow.value = taxRateInput?.value || '0';
-        }
-        updateFromItems();
+        addItemRow({ description, price, qty, qtyReadOnly, taxRate });
     };
 
     const fillFromProjectData = (project) => {
         if (!project) return;
-        applyLineFromData({ description: project.name || '', price: Number(project.value || 0), qtyReadOnly: true });
+        applyOrAddItem({ description: project.name || '', price: Number(project.value || 0), qtyReadOnly: true });
         projectInput.value = project.id || 0;
         serviceInput.value = '';
         if (clientSelect && project.client_id) {
@@ -376,7 +357,7 @@
 
     const fillFromServiceData = (service) => {
         if (!service) return;
-        applyLineFromData({ description: service.name || '', price: Number(service.cost || 0), qtyReadOnly: true });
+        applyOrAddItem({ description: service.name || '', price: Number(service.cost || 0), qtyReadOnly: true });
         serviceInput.value = service.id || 0;
         projectInput.value = '';
         if (clientSelect && service.client_id) {
@@ -391,7 +372,7 @@
     const fillFromRenewalData = (renewal) => {
         if (!renewal) return;
         const description = renewal.service_name ? `Renovación ${renewal.service_name}` : 'Renovación de servicio';
-        applyLineFromData({ description, price: Number(renewal.amount || 0), qtyReadOnly: true });
+        applyOrAddItem({ description, price: Number(renewal.amount || 0), qtyReadOnly: true });
         serviceInput.value = renewal.service_id || 0;
         projectInput.value = '';
         if (clientSelect && renewal.client_id) {
@@ -406,22 +387,42 @@
     const fillFromQuoteData = (quote) => {
         if (!quote) return;
         const description = quote.numero ? `Cotización ${quote.numero}` : 'Cotización aprobada';
-        applyLineFromData({ description, price: Number(quote.total || 0), qtyReadOnly: true });
         serviceInput.value = quote.service_id || 0;
         projectInput.value = quote.project_id || '';
         if (clientSelect && quote.client_id) {
             clientSelect.value = quote.client_id;
         }
+        const quoteItems = Array.isArray(quote.items) ? quote.items : [];
+        if (quoteItems.length > 0) {
+            quoteItems.forEach((item, index) => {
+                applyOrAddItem({
+                    description: item.descripcion || description,
+                    price: Number(item.precio_unitario || 0),
+                    qty: Number(item.cantidad || 1),
+                    qtyReadOnly: true,
+                });
+            });
+        } else {
+            applyOrAddItem({ description, price: Number(quote.total || 0), qtyReadOnly: true });
+        }
         if (dueDateInput && quote.fecha_emision) {
             dueDateInput.value = quote.fecha_emision;
             updateDueIndicator();
         }
+        if (qtyInput) {
+            qtyInput.value = '1';
+            qtyInput.readOnly = qtyReadOnly;
+        }
+        if (taxRateInputRow) {
+            taxRateInputRow.value = taxRateInput?.value || '0';
+        }
+        updateFromItems();
     };
 
     const fillFromOrderData = (order) => {
         if (!order) return;
         const description = order.order_number ? `Orden de venta ${order.order_number}` : 'Orden de venta';
-        applyLineFromData({ description, price: Number(order.total || 0), qtyReadOnly: true });
+        applyOrAddItem({ description, price: Number(order.total || 0), qtyReadOnly: true });
         serviceInput.value = '';
         projectInput.value = '';
         if (clientSelect && order.client_id) {
@@ -729,4 +730,12 @@
         fillFromServiceData(prefillService);
     }
     reloadBillableTable();
+
+    document.addEventListener('click', (event) => {
+        if (event.target.closest('[data-remove-item]')) {
+            const row = event.target.closest('[data-item-row]');
+            row?.remove();
+            updateFromItems();
+        }
+    });
 </script>

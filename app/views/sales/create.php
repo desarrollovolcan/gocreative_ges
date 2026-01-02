@@ -98,7 +98,7 @@
             border: 1px solid #e7eaf0;
         }
     </style>
-    <div class="row mb-3 pos-compact">
+    <div class="row mb-1 pos-compact">
         <div class="col-12">
             <div class="card pos-hero">
                 <div class="card-body">
@@ -125,7 +125,6 @@
                         </div>
                         <div class="d-flex align-items-center gap-1 flex-wrap justify-content-end">
                             <a href="index.php?route=products" class="btn btn-outline-secondary btn-sm text-nowrap px-2">Inventario</a>
-                            <a href="index.php?route=sales" class="btn btn-outline-secondary btn-sm text-nowrap px-2">Historial</a>
                             <?php if (!empty($posSession)): ?>
                                 <form method="post" action="index.php?route=pos/close" class="d-flex align-items-center gap-1 flex-wrap flex-sm-nowrap">
                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">

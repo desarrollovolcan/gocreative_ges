@@ -48,7 +48,7 @@
                         <th>Nombre</th>
                         <th>Cliente</th>
                         <th>Estado</th>
-                        <th>Tareas pendientes</th>
+                        <th>Tareas</th>
                         <th>Entrega</th>
                         <th class="text-end">Acciones</th>
                     </tr>
@@ -70,7 +70,7 @@
                         $projectStatusLabel = $projectStatus !== '' ? ucwords(str_replace('_', ' ', $projectStatus)) : '-';
                         $projectDeliveryDate = $project['delivery_date'] ?? '';
                         $projectClientName = $project['client_name'] ?? '-';
-                        $incompleteTasks = (int)($project['incomplete_tasks'] ?? 0);
+                        $projectTasks = $tasksByProject[$projectId] ?? [];
                         ?>
                         <tr>
                             <td class="text-muted"><?php echo render_id_badge($projectId); ?></td>
@@ -81,7 +81,12 @@
                                     <?php echo e($projectStatusLabel); ?>
                                 </span>
                             </td>
-                            <td><?php echo number_format($incompleteTasks); ?></td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1 tasks-toggle-btn" type="button" data-task-target="project-tasks-<?php echo (int)$projectId; ?>" aria-expanded="false">
+                                    <i class="ti ti-square-rounded-plus-filled align-middle tasks-toggle-icon"></i>
+                                    <span class="badge text-bg-light border"><?php echo count($projectTasks); ?></span>
+                                </button>
+                            </td>
                             <td><?php echo e($projectDeliveryDate); ?></td>
                             <td class="text-end">
                                 <?php if ($projectId !== null): ?>
@@ -108,9 +113,69 @@
                                 <?php endif; ?>
                             </td>
                         </tr>
+                        <?php if ($projectId !== null): ?>
+                            <tr id="project-tasks-<?php echo (int)$projectId; ?>" class="project-task-row d-none">
+                                <td colspan="7" class="bg-light">
+                                    <?php if (!empty($projectTasks)): ?>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm mb-0 align-middle">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-muted small">Tarea</th>
+                                                        <th class="text-muted small">Fecha inicio</th>
+                                                        <th class="text-muted small">Fecha fin</th>
+                                                        <th class="text-muted small text-end">% avance</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($projectTasks as $task): ?>
+                                                        <tr>
+                                                            <td><?php echo e($task['title']); ?></td>
+                                                            <td><?php echo e($task['start_date'] ?? '-'); ?></td>
+                                                            <td><?php echo e($task['end_date'] ?? '-'); ?></td>
+                                                            <td class="text-end">
+                                                                <div class="d-flex align-items-center justify-content-end gap-2">
+                                                                    <div class="progress flex-grow-1" style="max-width: 200px; height: 8px;">
+                                                                        <div class="progress-bar" role="progressbar" style="width: <?php echo (int)$task['progress_percent']; ?>%;" aria-valuenow="<?php echo (int)$task['progress_percent']; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                    </div>
+                                                                    <span class="text-muted small"><?php echo (int)$task['progress_percent']; ?>%</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-muted small">No hay tareas registradas para este proyecto.</div>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.tasks-toggle-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var targetId = button.getAttribute('data-task-target');
+            var targetRow = document.getElementById(targetId);
+            if (!targetRow) {
+                return;
+            }
+            var isHidden = targetRow.classList.contains('d-none');
+            targetRow.classList.toggle('d-none');
+            button.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+            var icon = button.querySelector('.tasks-toggle-icon');
+            if (icon) {
+                icon.classList.toggle('ti-square-rounded-plus-filled', !isHidden);
+                icon.classList.toggle('ti-square-rounded-minus-filled', isHidden);
+            }
+        });
+    });
+});
+</script>

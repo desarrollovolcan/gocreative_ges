@@ -70,6 +70,22 @@ class ProjectsController extends Controller
             log_message('error', 'Failed to load projects list: ' . $e->getMessage());
             $projects = [];
         }
+        $tasksByProject = [];
+        $projectIds = array_column($projects, 'id');
+        if (!empty($projectIds)) {
+            $placeholders = implode(',', array_fill(0, count($projectIds), '?'));
+            try {
+                $tasks = $this->db->fetchAll(
+                    "SELECT project_id, title, progress_percent, start_date, end_date FROM project_tasks WHERE project_id IN ({$placeholders}) ORDER BY project_id ASC, id ASC",
+                    $projectIds
+                );
+                foreach ($tasks as $task) {
+                    $tasksByProject[$task['project_id']][] = $task;
+                }
+            } catch (PDOException $e) {
+                log_message('error', 'Failed to load tasks for projects list: ' . $e->getMessage());
+            }
+        }
         foreach ($projects as &$project) {
             if (!array_key_exists('client_name', $project)) {
                 $project['client_name'] = '-';
@@ -103,6 +119,7 @@ class ProjectsController extends Controller
             'pageTitle' => 'Proyectos',
             'projects' => $projects,
             'clients' => $clients,
+            'tasksByProject' => $tasksByProject,
             'filters' => [
                 'client_id' => $clientId,
                 'status' => $status,

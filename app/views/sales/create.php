@@ -114,42 +114,11 @@
             background: #f7f9fc;
             border: 1px solid #e7eaf0;
         }
-        .pos-catalog-wrapper {
-            padding: 0.5rem 0.6rem 0.75rem;
-        }
-        .pos-catalog {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 0.4rem;
+        .pos-side-card .list-group {
             width: 100%;
         }
-        .pos-catalog-item {
-            background: #fff;
-            border: 1px solid #e7eaf0;
-            border-radius: 10px;
-            padding: 0.55rem 0.65rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.5rem;
-            text-align: left;
-            transition: all 0.15s ease;
-        }
-        .pos-catalog-item:hover {
-            background: #f7f9ff;
-            box-shadow: 0 6px 16px rgba(31, 42, 61, 0.08);
-            transform: translateY(-1px);
-        }
-        .pos-catalog-item .pos-label {
-            display: inline-flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .pos-catalog-item .pos-label small {
-            color: #6b7280;
-        }
-        .pos-catalog-item .badge {
-            flex-shrink: 0;
+        .pos-side-card .list-group-item {
+            width: 100%;
         }
     </style>
     <div class="row mb-0 pos-compact">

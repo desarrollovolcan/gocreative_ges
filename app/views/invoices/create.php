@@ -404,6 +404,54 @@
         updateFromItems();
     });
 
+    const filterOptionsByClient = (select, items, labelKey, valueKey) => {
+        if (!select) {
+            return;
+        }
+        const clientId = Number(clientSelect?.value || 0);
+        select.innerHTML = '<option value="">Sin ' + labelKey + '</option>';
+        items.forEach((item) => {
+            if (clientId > 0 && Number(item.client_id) !== clientId) {
+                return;
+            }
+            const option = document.createElement('option');
+            option.value = item[valueKey];
+            if (item.client_id) {
+                option.dataset.clientId = item.client_id;
+            }
+            if (item.name) {
+                option.dataset.projectName = item.name;
+                option.dataset.serviceName = item.name;
+            }
+            if (item.value) {
+                option.dataset.projectValue = item.value;
+            }
+            if (item.delivery_date) {
+                option.dataset.projectDelivery = item.delivery_date;
+            }
+            if (item.cost) {
+                option.dataset.serviceCost = item.cost;
+            }
+            if (item.due_date) {
+                option.dataset.serviceDue = item.due_date;
+            }
+            if (item.client_name) {
+                option.textContent = `${item.name} (${item.client_name})`;
+            } else {
+                option.textContent = item.name;
+            }
+            if (Number(valueKey === 'id' ? item.id : item[valueKey]) === Number(select.dataset.prefillId || 0)) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+    };
+
+    clientSelect?.addEventListener('change', () => {
+        filterOptionsByClient(serviceSelect, billableServices, 'servicio', 'id');
+        filterOptionsByClient(projectSelect, billableProjects, 'proyecto', 'id');
+    });
+
     const updateDueIndicator = () => {
         if (!dueDateInput || !dueIndicator) {
             return;

@@ -68,6 +68,17 @@ class InvoicesController extends Controller
         if ($prefillService && !array_filter($billableServices, fn ($service) => (int)($service['id'] ?? 0) === (int)$prefillService['id'])) {
             $billableServices[] = $prefillService;
         }
+        $billableRenewals = $this->db->fetchAll(
+            'SELECT service_renewals.*, clients.name as client_name, services.name as service_name
+             FROM service_renewals
+             JOIN clients ON service_renewals.client_id = clients.id
+             LEFT JOIN services ON service_renewals.service_id = services.id
+             WHERE service_renewals.company_id = :company_id
+               AND service_renewals.deleted_at IS NULL
+               AND service_renewals.status = "pendiente"
+             ORDER BY service_renewals.renewal_date DESC, service_renewals.id DESC',
+            ['company_id' => $companyId]
+        );
         $billableProjects = $this->db->fetchAll(
             'SELECT projects.id, projects.name, projects.value, projects.delivery_date, projects.client_id, projects.status, clients.name as client_name
              FROM projects
@@ -101,6 +112,7 @@ class InvoicesController extends Controller
             'projectInvoiceCount' => $projectInvoiceCount,
             'prefillService' => $prefillService,
             'billableServices' => $billableServices,
+            'billableRenewals' => $billableRenewals,
             'billableProjects' => $billableProjects,
         ]);
     }

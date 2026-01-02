@@ -61,6 +61,31 @@
                 </div>
             </div>
             <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Proyectos, servicios y renovaciones facturables</h5>
+                    <span class="text-muted small">Selecciona un cliente para cargar la lista</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="billable-items-table" class="table table-striped dt-responsive align-middle mb-0">
+                            <thead class="thead-sm text-uppercase fs-xxs">
+                                <tr>
+                                    <th></th>
+                                    <th>Tipo</th>
+                                    <th>Nombre</th>
+                                    <th>Cliente</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">La tabla muestra servicios sin facturar, renovaciones pendientes y proyectos finalizados sin factura del cliente seleccionado.</p>
+                </div>
+            </div>
+            <div class="card mb-3">
                 <div class="card-header">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                         <h5 class="card-title mb-0">Items de factura</h5>
@@ -195,6 +220,7 @@
     const dueDateInput = document.querySelector('input[name="fecha_vencimiento"]');
     const dueIndicator = document.querySelector('[data-due-indicator]');
     const billableServices = <?php echo json_encode($billableServices ?? []); ?>;
+    const billableRenewals = <?php echo json_encode($billableRenewals ?? []); ?>;
     const billableProjects = <?php echo json_encode($billableProjects ?? []); ?>;
     const prefillService = <?php echo json_encode($prefillService ?? null); ?>;
     const billableTableElement = document.getElementById('billable-items-table');
@@ -352,26 +378,20 @@
         }
     };
 
-    const fillFromService = () => {
-        const selected = serviceSelect?.selectedOptions?.[0];
-        if (!selected || !selected.value) {
-            return;
+    const fillFromRenewalData = (renewal) => {
+        if (!renewal) return;
+        const description = renewal.service_name ? `Renovación ${renewal.service_name}` : 'Renovación de servicio';
+        applyLineFromData({ description, price: Number(renewal.amount || 0), qtyReadOnly: true });
+        serviceInput.value = renewal.service_id || 0;
+        projectInput.value = '';
+        if (clientSelect && renewal.client_id) {
+            clientSelect.value = renewal.client_id;
         }
-        const serviceName = selected.dataset.serviceName || '';
-        const serviceCost = Number(selected.dataset.serviceCost || 0);
-        const serviceClientId = selected.dataset.clientId || '';
-        const serviceDue = selected.dataset.serviceDue || '';
-        applyLineFromData({ description: serviceName, price: serviceCost, qtyReadOnly: true });
-        if (clientSelect && serviceClientId) {
-            clientSelect.value = serviceClientId;
-        }
-        if (dueDateInput && serviceDue) {
-            dueDateInput.value = serviceDue;
+        if (dueDateInput && renewal.renewal_date) {
+            dueDateInput.value = renewal.renewal_date;
             updateDueIndicator();
         }
     };
-
-    serviceSelect?.addEventListener('change', fillFromService);
 
     taxRateInput?.addEventListener('input', () => {
         document.querySelectorAll('[data-item-tax-rate]').forEach((input) => {
@@ -469,6 +489,7 @@
         const clientId = Number(clientSelect?.value || 0);
         const rows = [];
         const filteredServices = clientId > 0 ? billableServices.filter((service) => Number(service.client_id) === clientId) : [];
+        const filteredRenewals = clientId > 0 ? billableRenewals.filter((renewal) => Number(renewal.client_id) === clientId) : [];
         const filteredProjects = clientId > 0 ? billableProjects.filter((project) => Number(project.client_id) === clientId) : [];
         filteredServices.forEach((service) => {
             rows.push({
@@ -481,6 +502,19 @@
                 currency: service.currency || 'CLP',
                 raw: service,
                 source: 'service',
+            });
+        });
+        filteredRenewals.forEach((renewal) => {
+            rows.push({
+                id: renewal.id,
+                type: 'Renovación',
+                name: renewal.service_name ? `Renovación ${renewal.service_name}` : 'Renovación de servicio',
+                client_name: renewal.client_name,
+                amount: Number(renewal.amount || 0),
+                date: renewal.renewal_date || '',
+                currency: renewal.currency || 'CLP',
+                raw: renewal,
+                source: 'renewal',
             });
         });
         filteredProjects.forEach((project) => {
@@ -505,6 +539,15 @@
             return `
                 <div class="row">
                     <div class="col-md-4"><strong>Vence:</strong> ${rowData.raw.due_date || '-'}</div>
+                    <div class="col-md-4"><strong>Moneda:</strong> ${rowData.currency}</div>
+                    <div class="col-md-4"><strong>Monto:</strong> ${formatNumber(rowData.amount)} ${rowData.currency}</div>
+                </div>
+            `;
+        }
+        if (rowData.source === 'renewal') {
+            return `
+                <div class="row">
+                    <div class="col-md-4"><strong>Renovación:</strong> ${rowData.raw.renewal_date || '-'}</div>
                     <div class="col-md-4"><strong>Moneda:</strong> ${rowData.currency}</div>
                     <div class="col-md-4"><strong>Monto:</strong> ${formatNumber(rowData.amount)} ${rowData.currency}</div>
                 </div>
@@ -566,6 +609,8 @@
             if (!data) return;
             if (data.source === 'service') {
                 fillFromServiceData(data.raw);
+            } else if (data.source === 'renewal') {
+                fillFromRenewalData(data.raw);
             } else {
                 fillFromProjectData(data.raw);
             }

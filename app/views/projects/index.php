@@ -48,6 +48,7 @@
                         <th>Nombre</th>
                         <th>Cliente</th>
                         <th>Estado</th>
+                        <th>Tareas pendientes</th>
                         <th>Entrega</th>
                         <th class="text-end">Acciones</th>
                     </tr>
@@ -59,14 +60,28 @@
                         $projectClientId = $project['client_id'] ?? null;
                         $projectName = $project['name'] ?? '';
                         $projectStatus = $project['status'] ?? '';
+                        $projectStatusColor = match ($projectStatus) {
+                            'cotizado' => 'info',
+                            'en_curso' => 'primary',
+                            'en_pausa' => 'warning',
+                            'finalizado' => 'success',
+                            default => 'secondary',
+                        };
+                        $projectStatusLabel = $projectStatus !== '' ? ucwords(str_replace('_', ' ', $projectStatus)) : '-';
                         $projectDeliveryDate = $project['delivery_date'] ?? '';
                         $projectClientName = $project['client_name'] ?? '-';
+                        $incompleteTasks = (int)($project['incomplete_tasks'] ?? 0);
                         ?>
                         <tr>
                             <td class="text-muted"><?php echo render_id_badge($projectId); ?></td>
                             <td><?php echo e($projectName); ?></td>
                             <td><?php echo e($projectClientName); ?></td>
-                            <td><span class="badge bg-secondary-subtle text-secondary"><?php echo e($projectStatus); ?></span></td>
+                            <td>
+                                <span class="badge bg-<?php echo $projectStatusColor; ?>-subtle text-<?php echo $projectStatusColor; ?>">
+                                    <?php echo e($projectStatusLabel); ?>
+                                </span>
+                            </td>
+                            <td><?php echo number_format($incompleteTasks); ?></td>
                             <td><?php echo e($projectDeliveryDate); ?></td>
                             <td class="text-end">
                                 <?php if ($projectId !== null): ?>

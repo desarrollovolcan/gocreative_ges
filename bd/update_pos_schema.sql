@@ -29,8 +29,21 @@ CREATE TABLE IF NOT EXISTS sale_payments (
     FOREIGN KEY (sale_id) REFERENCES sales(id)
 );
 
-ALTER TABLE sales
-    ADD COLUMN IF NOT EXISTS pos_session_id INT NULL AFTER client_id;
+SET @has_pos_col := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'sales'
+      AND COLUMN_NAME = 'pos_session_id'
+);
+SET @sql := IF(
+    @has_pos_col = 0,
+    'ALTER TABLE sales ADD COLUMN pos_session_id INT NULL AFTER client_id;',
+    'SELECT 1;'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 SET @has_fk_pos := (
     SELECT COUNT(*)

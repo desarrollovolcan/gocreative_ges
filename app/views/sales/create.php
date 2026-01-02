@@ -1,20 +1,34 @@
 <?php $isPos = $isPos ?? false; ?>
 <?php if ($isPos): ?>
     <style>
+        .pos-compact {
+            background: linear-gradient(135deg, #f5f7fb 0%, #eef1f6 100%);
+            border-radius: 16px;
+            padding: 0.5rem 0.5rem 1rem;
+        }
+        .pos-compact .card {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border-radius: 14px;
+            overflow: hidden;
+        }
         .pos-compact .card-header,
         .pos-compact .card-body {
-            padding: 0.75rem 1rem;
+            padding: 0.9rem 1.1rem;
         }
         .pos-compact .list-group-item {
-            padding: 0.5rem 0.75rem;
+            padding: 0.65rem 0.85rem;
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .pos-compact .list-group-item-action:hover {
+            background: #f1f4ff;
+            transform: translateY(-1px);
         }
         .pos-compact .table-sm> :not(caption)>*>* {
-            padding: 0.4rem 0.5rem;
+            padding: 0.45rem 0.6rem;
         }
-        .pos-compact .tab-pane {
-            width: 100%;
-        }
-<<<<<<< HEAD
+        .pos-compact .tab-pane,
         .pos-compact .tab-content {
             width: 100%;
         }
@@ -38,54 +52,111 @@
         .pos-compact .tab-pane .list-group-item-action .badge {
             flex-shrink: 0;
         }
-=======
->>>>>>> parent of af79fb7 (Merge pull request #201 from desarrollovolcan/codex/improve-lateral-products-and-services-section-h5xl5y)
+        .pos-hero {
+            background: linear-gradient(120deg, #1e88e5 0%, #7c4dff 100%);
+            color: #fff;
+        }
+        .pos-hero .card-body {
+            padding: 1.2rem 1.5rem;
+        }
+        .pos-hero .metric-pill {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            min-width: 160px;
+        }
+        .pos-hero .metric-pill small {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .pos-summary {
+            border-radius: 14px;
+            background: #fdfefe;
+            border: 1px solid #edf0f5;
+            padding: 1rem;
+        }
+        .pos-summary .summary-row + .summary-row {
+            border-top: 1px dashed #e3e7ef;
+            padding-top: 0.65rem;
+            margin-top: 0.65rem;
+        }
+        .pos-badge-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .pos-actions {
+            gap: 0.5rem;
+        }
+        .pos-glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
     </style>
     <div class="row mb-3 pos-compact">
         <div class="col-12">
-            <div class="card" style="min-height: 120px;">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title mb-0">Caja POS</h5>
-                    <?php if (!empty($posSession)): ?>
-                        <span class="badge bg-success">Abierta</span>
-                    <?php endif; ?>
-                </div>
-                <div class="card-body py-3">
-                    <?php if (!empty($posSession)): ?>
-                        <div class="d-flex flex-wrap align-items-center gap-4">
-                            <div>
-                                <div class="text-muted small">Apertura</div>
-                                <div class="fw-semibold"><?php echo format_currency((float)($posSession['opening_amount'] ?? 0)); ?></div>
+            <div class="card pos-hero">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-center gap-4 justify-content-between">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="pos-badge-dot" style="background:#7be0a7;"></span>
+                                <h4 class="mb-0 fw-semibold">Caja POS</h4>
+                                <?php if (!empty($posSession)): ?>
+                                    <span class="badge bg-light text-body">Sesión abierta</span>
+                                <?php else: ?>
+                                    <span class="badge bg-light text-body">Sin abrir</span>
+                                <?php endif; ?>
                             </div>
-                            <div>
-                                <div class="text-muted small">Recaudado</div>
-                                <div class="fw-semibold"><?php echo format_currency(array_sum($sessionTotals)); ?></div>
-                            </div>
-                            <?php if (!empty($sessionTotals)): ?>
-                                <div class="d-flex flex-wrap gap-2 small">
-                                    <?php foreach ($sessionTotals as $method => $total): ?>
-                                        <span class="d-inline-flex align-items-center gap-1 badge bg-light text-body border">
-                                            <?php echo e(ucfirst($method)); ?>: <?php echo format_currency((float)$total); ?>
-                                        </span>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
-                            <form method="post" action="index.php?route=pos/close" class="d-flex align-items-center gap-2 ms-auto flex-wrap flex-sm-nowrap">
-                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                <input type="number" step="0.01" min="0" name="closing_amount" class="form-control" placeholder="Monto cierre" required style="min-width: 140px;">
-                                <button class="btn btn-danger text-nowrap">Cerrar caja</button>
-                            </form>
+                            <p class="mb-0 small">Opera, monitorea y cierra tu caja desde este panel moderno.</p>
                         </div>
-                    <?php else: ?>
-                        <form method="post" action="index.php?route=pos/open" class="d-flex flex-wrap align-items-center gap-3">
-                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                            <div>
-                                <label class="form-label mb-1">Monto inicial</label>
-                                <input type="number" name="opening_amount" step="0.01" min="0" class="form-control" required>
+                        <div class="d-flex flex-wrap gap-2 pos-actions">
+                            <a href="index.php?route=products" class="btn btn-light btn-sm text-nowrap">Inventario</a>
+                            <a href="index.php?route=sales" class="btn btn-outline-light btn-sm text-nowrap">Historial</a>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+                        <div class="metric-pill">
+                            <small>Apertura</small>
+                            <div class="h5 mb-0 fw-semibold"><?php echo format_currency((float)($posSession['opening_amount'] ?? 0)); ?></div>
+                        </div>
+                        <div class="metric-pill">
+                            <small>Recaudado</small>
+                            <div class="h5 mb-0 fw-semibold"><?php echo format_currency(array_sum($sessionTotals)); ?></div>
+                        </div>
+                        <div class="metric-pill">
+                            <small>Métodos</small>
+                            <div class="d-flex flex-wrap gap-1">
+                                <?php if (!empty($sessionTotals)): ?>
+                                    <?php foreach ($sessionTotals as $method => $total): ?>
+                                        <span class="badge bg-light text-dark border-0"><?php echo e(ucfirst($method)); ?> <?php echo format_currency((float)$total); ?></span>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <span class="text-white-50 small">Sin cobros aún</span>
+                                <?php endif; ?>
                             </div>
-                            <button class="btn btn-primary">Abrir caja</button>
-                        </form>
-                    <?php endif; ?>
+                        </div>
+                        <div class="ms-auto">
+                            <?php if (!empty($posSession)): ?>
+                                <form method="post" action="index.php?route=pos/close" class="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap pos-glass p-2 rounded-3">
+                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                    <input type="number" step="0.01" min="0" name="closing_amount" class="form-control form-control-sm" placeholder="Monto cierre" required style="min-width: 160px;">
+                                    <button class="btn btn-danger btn-sm text-nowrap">Cerrar caja</button>
+                                </form>
+                            <?php else: ?>
+                                <form method="post" action="index.php?route=pos/open" class="d-flex flex-wrap align-items-center gap-2 pos-glass p-2 rounded-3">
+                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                    <div>
+                                        <label class="form-label mb-1 small text-white-75">Monto inicial</label>
+                                        <input type="number" name="opening_amount" step="0.01" min="0" class="form-control form-control-sm" required>
+                                    </div>
+                                    <button class="btn btn-light btn-sm mt-auto">Abrir caja</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -94,14 +165,15 @@
 <div class="row align-items-stretch gy-3 pos-compact">
     <div class="col-12 col-xl-8 pos-equal-col">
         <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
                     <h4 class="card-title mb-0"><?php echo $isPos ? 'Punto de venta' : 'Nueva venta'; ?></h4>
-                    <?php if ($isPos): ?>
-                        <small class="text-muted">Registra ventas rápidas en el punto de venta.</small>
-                    <?php endif; ?>
+                    <small class="text-muted">Construye el ticket, ajusta precios y define el pago en un solo lugar.</small>
                 </div>
-                <a href="index.php?route=products" class="btn btn-soft-secondary btn-sm">Ver inventario</a>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-light text-body border">Modo rápido</span>
+                    <span class="badge bg-light text-primary border"><?php echo date('d M Y'); ?></span>
+                </div>
             </div>
             <div class="card-body">
                 <?php if ($isPos && (empty($posReady) || empty($posSession))): ?>
@@ -110,34 +182,44 @@
                 <form method="post" action="index.php?route=sales/store" id="sale-form">
                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                     <input type="hidden" name="channel" value="<?php echo $isPos ? 'pos' : 'venta'; ?>">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Cliente</label>
-                            <select name="client_id" class="form-select" <?php echo $isPos ? '' : ''; ?>>
-                                <option value="">Consumidor final</option>
-                                <?php foreach ($clients as $client): ?>
-                                    <option value="<?php echo (int)$client['id']; ?>"><?php echo e($client['name']); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Fecha</label>
-                            <input type="date" name="sale_date" class="form-control" value="<?php echo e($today); ?>" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Estado</label>
-                            <select name="status" class="form-select">
-                                <option value="pagado" selected>Pagado</option>
-                                <option value="pendiente">Pendiente</option>
-                                <option value="borrador">Borrador</option>
-                                <option value="en_espera">En espera</option>
-                            </select>
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Cliente</label>
+                                    <select name="client_id" class="form-select">
+                                        <option value="">Consumidor final</option>
+                                        <?php foreach ($clients as $client): ?>
+                                            <option value="<?php echo (int)$client['id']; ?>"><?php echo e($client['name']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Fecha</label>
+                                    <input type="date" name="sale_date" class="form-control" value="<?php echo e($today); ?>" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Estado</label>
+                                    <select name="status" class="form-select">
+                                        <option value="pagado" selected>Pagado</option>
+                                        <option value="pendiente">Pendiente</option>
+                                        <option value="borrador">Borrador</option>
+                                        <option value="en_espera">En espera</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Productos / Servicios</label>
-                            <div class="table-responsive">
-                                <table class="table table-sm align-middle" id="sale-items-table">
-                                    <thead>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <label class="form-label mb-0">Productos / Servicios</label>
+                                    <p class="text-muted mb-0 small">Arranca con los atajos rápidos de la derecha para llenar el ticket.</p>
+                                </div>
+                                <span class="badge bg-light text-secondary border">Editor interactivo</span>
+                            </div>
+                            <div class="table-responsive rounded-3 border bg-light">
+                                <table class="table table-sm align-middle mb-0" id="sale-items-table">
+                                    <thead class="table-light">
                                         <tr>
                                             <th style="width: 45%;">Item</th>
                                             <th style="width: 15%;">Cantidad</th>
@@ -164,29 +246,29 @@
                         </template>
                         <div class="col-md-6">
                             <label class="form-label">Notas</label>
-                            <textarea name="notes" class="form-control" rows="3" placeholder="Detalles adicionales o instrucciones"></textarea>
+                            <textarea name="notes" class="form-control" rows="4" placeholder="Detalles adicionales o instrucciones"></textarea>
                         </div>
                         <div class="col-md-6">
-                            <div class="d-flex flex-column align-items-end gap-2">
-                                <div class="d-flex justify-content-between w-100">
-                                    <span>Subtotal</span>
+                            <div class="pos-summary">
+                                <div class="d-flex justify-content-between align-items-center summary-row">
+                                    <span class="text-muted">Subtotal</span>
                                     <strong id="sale-subtotal"><?php echo format_currency(0); ?></strong>
                                 </div>
-                                <div class="d-flex justify-content-between w-100 align-items-center">
-                                    <span>Impuestos</span>
-                                    <input type="number" name="tax" id="sale-tax" class="form-control form-control-sm w-auto" style="width: 140px;" step="0.01" min="0" value="0">
+                                <div class="d-flex justify-content-between align-items-center summary-row">
+                                    <span class="text-muted">Impuestos</span>
+                                    <input type="number" name="tax" id="sale-tax" class="form-control form-control-sm w-auto" style="width: 160px;" step="0.01" min="0" value="0">
                                 </div>
-                                <div class="d-flex justify-content-between w-100 align-items-center">
-                                    <span>Forma de pago</span>
-                                    <select name="payment_method" class="form-select form-select-sm w-auto" style="width: 160px;">
+                                <div class="d-flex justify-content-between align-items-center summary-row">
+                                    <span class="text-muted">Forma de pago</span>
+                                    <select name="payment_method" class="form-select form-select-sm w-auto" style="width: 180px;">
                                         <option value="efectivo">Efectivo</option>
                                         <option value="tarjeta">Tarjeta</option>
                                         <option value="transferencia">Transferencia</option>
                                     </select>
                                 </div>
-                                <div class="d-flex justify-content-between w-100">
-                                    <span>Total</span>
-                                    <strong id="sale-total"><?php echo format_currency(0); ?></strong>
+                                <div class="d-flex justify-content-between align-items-center summary-row">
+                                    <span class="fw-semibold">Total a cobrar</span>
+                                    <span class="h5 mb-0" id="sale-total"><?php echo format_currency(0); ?></span>
                                 </div>
                             </div>
                         </div>

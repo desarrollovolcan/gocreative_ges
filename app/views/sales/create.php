@@ -152,7 +152,7 @@
 <?php endif; ?>
 <div class="row align-items-stretch gy-3 pos-compact">
     <div class="col-12 col-xl-8 pos-equal-col">
-        <div class="card h-100">
+        <div class="card h-100 pos-main-card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
                     <h4 class="card-title mb-0"><?php echo $isPos ? 'Punto de venta' : 'Nueva venta'; ?></h4>
@@ -271,7 +271,7 @@
         </div>
     </div>
     <div class="col-12 col-xl-4 pos-equal-col">
-        <div class="card h-100">
+        <div class="card h-100 pos-side-card">
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -391,6 +391,8 @@
         const serviceSelectors = document.querySelectorAll('.add-service');
         const searchProducts = document.getElementById('search-products');
         const searchServices = document.getElementById('search-services');
+        const mainCard = document.querySelector('.pos-main-card');
+        const sideCard = document.querySelector('.pos-side-card');
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(amount || 0);
@@ -481,6 +483,13 @@
         }
         searchProducts?.addEventListener('input', () => filterList(searchProducts, productSelectors));
         searchServices?.addEventListener('input', () => filterList(searchServices, serviceSelectors));
+        function syncCardHeights() {
+            if (mainCard && sideCard) {
+                sideCard.style.minHeight = `${mainCard.clientHeight}px`;
+            }
+        }
+        window.addEventListener('resize', syncCardHeights);
+        syncCardHeights();
         recalc();
     })();
 </script>

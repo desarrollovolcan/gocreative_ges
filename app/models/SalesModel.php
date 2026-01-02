@@ -40,14 +40,6 @@ class SalesModel extends Model
         );
     }
 
-    public function softDelete(int $id, int $companyId): bool
-    {
-        return $this->db->execute(
-            'UPDATE sales SET deleted_at = NOW() WHERE id = :id AND company_id = :company_id',
-            ['id' => $id, 'company_id' => $companyId]
-        ) > 0;
-    }
-
     public function nextNumber(string $prefix, int $companyId): string
     {
         $row = $this->db->fetch(

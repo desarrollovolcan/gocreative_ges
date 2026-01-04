@@ -308,8 +308,16 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </li>
                 <?php endif; ?>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccessAny(['projects_view', 'products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'sales_view', 'sales_edit', 'services_view', 'services_edit', 'system_services_view', 'system_services_edit', 'service_types_view', 'service_types_edit'])): ?>
+            <?php if ($hasCompany && $canAccessAny(['documents_view', 'projects_view', 'products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'sales_view', 'sales_edit', 'services_view', 'services_edit', 'system_services_view', 'system_services_edit', 'service_types_view', 'service_types_edit'])): ?>
                 <li class="side-nav-title">Operaciones</li>
+            <?php endif; ?>
+            <?php if ($hasCompany && $hasPermission('documents_view')): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=documents" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="folder-open"></i></span>
+                        <span class="menu-text">Documentos</span>
+                    </a>
+                </li>
             <?php endif; ?>
             <?php if ($hasCompany && $hasPermission('projects_view')): ?>
                 <li class="side-nav-item">

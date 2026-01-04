@@ -31,6 +31,33 @@
                         <p class="mb-1"><strong>Total:</strong> <?php echo e(format_currency((float)($purchase['total'] ?? 0))); ?></p>
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <h6 class="text-uppercase text-muted mb-2">Datos tributarios (SII)</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Documento:</strong>
+                                    <?php
+                                    $docType = $purchase['sii_document_type'] ?? '';
+                                    $docLabel = sii_document_types()[$docType] ?? $docType;
+                                    ?>
+                                    <?php echo e($docLabel ?: 'No informado'); ?>
+                                </p>
+                                <p class="mb-1"><strong>Folio:</strong> <?php echo e($purchase['sii_document_number'] ?? ''); ?></p>
+                                <p class="mb-1"><strong>RUT proveedor:</strong> <?php echo e($purchase['sii_receiver_rut'] ?? ''); ?></p>
+                                <p class="mb-1"><strong>Razón social:</strong> <?php echo e($purchase['sii_receiver_name'] ?? ''); ?></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Giro:</strong> <?php echo e($purchase['sii_receiver_giro'] ?? ''); ?></p>
+                                <p class="mb-1"><strong>Código actividad:</strong> <?php echo e($purchase['sii_receiver_activity_code'] ?? ''); ?></p>
+                                <p class="mb-1"><strong>Dirección:</strong> <?php echo e($purchase['sii_receiver_address'] ?? ''); ?></p>
+                                <p class="mb-1"><strong>Comuna/Ciudad:</strong> <?php echo e(trim(($purchase['sii_receiver_commune'] ?? '') . ' ' . ($purchase['sii_receiver_city'] ?? ''))); ?></p>
+                                <p class="mb-1"><strong>Tasa impuesto:</strong> <?php echo e(number_format((float)($purchase['sii_tax_rate'] ?? 0), 2)); ?>%</p>
+                                <p class="mb-1"><strong>Monto exento:</strong> <?php echo e(format_currency((float)($purchase['sii_exempt_amount'] ?? 0))); ?></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-sm align-middle">
                         <thead>

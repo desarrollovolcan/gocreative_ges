@@ -192,6 +192,107 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </div>
                 </li>
             <?php endif; ?>
+            <?php if ($hasCompany && $canAccessAny(['accounting_view', 'accounting_edit', 'taxes_view', 'taxes_edit', 'honorarios_view', 'honorarios_edit', 'fixed_assets_view', 'fixed_assets_edit', 'treasury_view', 'treasury_edit', 'inventory_view', 'inventory_edit'])): ?>
+                <li class="side-nav-title">Contabilidad</li>
+                <?php if ($canAccessAny(['accounting_view', 'accounting_edit'])): ?>
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarAccounting" aria-expanded="false" aria-controls="sidebarAccounting" class="side-nav-link">
+                            <span class="menu-icon"><i data-lucide="book-open"></i></span>
+                            <span class="menu-text">Contabilidad general</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarAccounting">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=accounting/chart" class="side-nav-link">
+                                        <span class="menu-text">Plan de cuentas</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=accounting/journals" class="side-nav-link">
+                                        <span class="menu-text">Libro diario</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=accounting/ledger" class="side-nav-link">
+                                        <span class="menu-text">Libro mayor</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=accounting/trial-balance" class="side-nav-link">
+                                        <span class="menu-text">Balance de comprobación</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=accounting/financial-statements" class="side-nav-link">
+                                        <span class="menu-text">Estados financieros</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=accounting/periods" class="side-nav-link">
+                                        <span class="menu-text">Cierres contables</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                <?php endif; ?>
+                <?php if ($hasPermission('taxes_view') || $hasPermission('taxes_edit')): ?>
+                    <li class="side-nav-item">
+                        <a href="index.php?route=taxes" class="side-nav-link">
+                            <span class="menu-icon"><i data-lucide="file-text"></i></span>
+                            <span class="menu-text">Impuestos</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if ($hasPermission('honorarios_view') || $hasPermission('honorarios_edit')): ?>
+                    <li class="side-nav-item">
+                        <a href="index.php?route=honorarios" class="side-nav-link">
+                            <span class="menu-icon"><i data-lucide="receipt"></i></span>
+                            <span class="menu-text">Honorarios</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if ($hasPermission('fixed_assets_view') || $hasPermission('fixed_assets_edit')): ?>
+                    <li class="side-nav-item">
+                        <a href="index.php?route=fixed-assets" class="side-nav-link">
+                            <span class="menu-icon"><i data-lucide="briefcase"></i></span>
+                            <span class="menu-text">Activos fijos</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if ($hasPermission('treasury_view') || $hasPermission('treasury_edit')): ?>
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarTreasury" aria-expanded="false" aria-controls="sidebarTreasury" class="side-nav-link">
+                            <span class="menu-icon"><i data-lucide="wallet"></i></span>
+                            <span class="menu-text">Tesorería</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarTreasury">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=treasury/accounts" class="side-nav-link">
+                                        <span class="menu-text">Cuentas bancarias</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=treasury/transactions" class="side-nav-link">
+                                        <span class="menu-text">Movimientos</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                <?php endif; ?>
+                <?php if ($hasPermission('inventory_view') || $hasPermission('inventory_edit')): ?>
+                    <li class="side-nav-item">
+                        <a href="index.php?route=inventory/movements" class="side-nav-link">
+                            <span class="menu-icon"><i data-lucide="layers"></i></span>
+                            <span class="menu-text">Inventario</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+            <?php endif; ?>
             <?php if ($hasCompany && $hasPermission('clients_view')): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarClients" aria-expanded="false" aria-controls="sidebarClients" class="side-nav-link">

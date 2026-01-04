@@ -53,6 +53,14 @@ $defaultIssueDate = date('Y-m-d');
                     </select>
                 </div>
             </div>
+            <?php
+            $siiData = [
+                'sii_document_type' => 'factura_electronica',
+                'sii_tax_rate' => 19,
+                'sii_exempt_amount' => 0,
+            ];
+            include __DIR__ . '/../partials/sii-document-fields.php';
+            ?>
 
             <div class="card mb-3">
                 <div class="card-header">

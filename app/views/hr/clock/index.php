@@ -1,22 +1,29 @@
 <div class="card">
     <div class="card-header">
-        <h4 class="card-title mb-0">Reloj control QR</h4>
+        <h4 class="card-title mb-0">Reloj control QR y facial</h4>
+        <p class="text-muted mb-0">Marcación automática con ticket impreso al reconocer el trabajador.</p>
     </div>
     <div class="card-body">
         <div class="row g-4">
             <div class="col-lg-6">
-                <div class="border rounded p-3">
-                    <div class="fw-semibold mb-2">Cámara QR</div>
+                <div class="border rounded p-3 h-100">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="ti ti-qrcode fs-22 text-primary"></i>
+                        <div class="fw-semibold">Cámara QR</div>
+                    </div>
                     <div id="qr-reader" style="width: 100%;"></div>
                     <div class="text-muted mt-2">Permite acceso a la cámara para escanear el QR de la credencial.</div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="border rounded p-3">
-                    <div class="fw-semibold mb-2">Reconocimiento facial</div>
+                <div class="border rounded p-3 h-100">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="ti ti-scan fs-22 text-primary"></i>
+                        <div class="fw-semibold">Reconocimiento facial</div>
+                    </div>
                     <div id="face-clock" class="mb-3">
-                        <video id="face-clock-video" width="320" height="240" autoplay muted class="border rounded"></video>
-                        <div class="mt-2 d-flex gap-2">
+                        <video id="face-clock-video" width="320" height="240" autoplay muted class="border rounded w-100"></video>
+                        <div class="mt-2 d-flex gap-2 align-items-center">
                             <button type="button" class="btn btn-outline-primary" id="face-start">Iniciar reconocimiento</button>
                             <span class="text-muted" id="face-clock-status">Esperando cámara</span>
                         </div>
@@ -31,9 +38,9 @@
                             <a href="index.php?route=hr/attendance" class="btn btn-light">Ver asistencia</a>
                         </div>
                     </form>
-                </div>
-                <div class="alert alert-info mt-3">
-                    Cada escaneo registra entrada o salida según la última marcación del día.
+                    <div class="alert alert-info mt-3 mb-0">
+                        Cada escaneo registra entrada o salida según la última marcación del día.
+                    </div>
                 </div>
             </div>
         </div>

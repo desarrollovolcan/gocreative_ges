@@ -59,7 +59,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a href="index.php?route=dashboard" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="circle-gauge"></i></span>
-                        <span class="menu-text">Dashboard</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Dashboard</span>
+                            <span class="menu-caption">Visión general de indicadores</span>
+                        </span>
                     </a>
                 </li>
             <?php endif; ?>
@@ -68,7 +71,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrm" aria-expanded="false" aria-controls="sidebarCrm" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="handshake"></i></span>
-                        <span class="menu-text">CRM Comercial</span>
+                        <span class="menu-label">
+                            <span class="menu-text">CRM Comercial</span>
+                            <span class="menu-caption">Accesos rápidos por etapa</span>
+                        </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="sidebarCrm">
@@ -104,7 +110,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrmProspeccion" aria-expanded="false" aria-controls="sidebarCrmProspeccion" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="radar"></i></span>
-                        <span class="menu-text">Prospección</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Prospección</span>
+                            <span class="menu-caption">Primer contacto y calificación</span>
+                        </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="sidebarCrmProspeccion">
@@ -134,7 +143,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrmVentas" aria-expanded="false" aria-controls="sidebarCrmVentas" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="shopping-cart"></i></span>
-                        <span class="menu-text">Ventas</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Ventas</span>
+                            <span class="menu-caption">Funnel y oportunidades</span>
+                        </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="sidebarCrmVentas">
@@ -174,7 +186,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrmPostventa" aria-expanded="false" aria-controls="sidebarCrmPostventa" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="handshake"></i></span>
-                        <span class="menu-text">Postventa</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Postventa</span>
+                            <span class="menu-caption">Soporte y fidelización</span>
+                        </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="sidebarCrmPostventa">
@@ -213,7 +228,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarAccounting" aria-expanded="false" aria-controls="sidebarAccounting" class="side-nav-link">
                             <span class="menu-icon"><i data-lucide="book-open"></i></span>
-                            <span class="menu-text">Contabilidad general</span>
+                            <span class="menu-label">
+                                <span class="menu-text">Contabilidad general</span>
+                                <span class="menu-caption">Libro diario y estados</span>
+                            </span>
                             <span class="menu-arrow"></span>
                         </a>
                         <div class="collapse" id="sidebarAccounting">
@@ -315,7 +333,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a href="index.php?route=documents" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="folder-open"></i></span>
-                        <span class="menu-text">Documentos</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Documentos</span>
+                            <span class="menu-caption">Biblioteca de recursos</span>
+                        </span>
                     </a>
                 </li>
             <?php endif; ?>
@@ -323,7 +344,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a href="index.php?route=projects" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="folder"></i></span>
-                        <span class="menu-text">Proyectos</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Proyectos</span>
+                            <span class="menu-caption">Ejecución de servicios</span>
+                        </span>
                     </a>
                 </li>
             <?php endif; ?>
@@ -332,7 +356,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarInventory" aria-expanded="false" aria-controls="sidebarInventory" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="package"></i></span>
-                        <span class="menu-text">Productos</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Productos</span>
+                            <span class="menu-caption">Compras y stock</span>
+                        </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="sidebarInventory">
@@ -392,7 +419,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarServices" aria-expanded="false" aria-controls="sidebarServices" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="server"></i></span>
-                        <span class="menu-text">Servicios</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Servicios</span>
+                            <span class="menu-caption">Clientes y catálogo</span>
+                        </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="sidebarServices">
@@ -432,7 +462,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarHr" aria-expanded="false" aria-controls="sidebarHr" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="id-card"></i></span>
-                        <span class="menu-text">Gestión RRHH</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Gestión RRHH</span>
+                            <span class="menu-caption">Contratos y asistencia</span>
+                        </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="sidebarHr">
@@ -488,7 +521,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a href="index.php?route=hr/clock" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="qr-code"></i></span>
-                        <span class="menu-text">Marcación QR</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Marcación QR</span>
+                            <span class="menu-caption">Control de asistencia</span>
+                        </span>
                     </a>
                 </li>
             <?php endif; ?>
@@ -498,7 +534,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     <li class="side-nav-item">
                         <a href="index.php?route=email-templates" class="side-nav-link">
                             <span class="menu-icon"><i data-lucide="mail"></i></span>
-                            <span class="menu-text">Plantillas Email</span>
+                            <span class="menu-label">
+                                <span class="menu-text">Plantillas Email</span>
+                                <span class="menu-caption">Mensajes y diseños</span>
+                            </span>
                         </a>
                     </li>
                 <?php endif; ?>
@@ -506,7 +545,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     <li class="side-nav-item">
                         <a href="index.php?route=email-queue" class="side-nav-link">
                             <span class="menu-icon"><i data-lucide="send"></i></span>
-                            <span class="menu-text">Cola de Correos</span>
+                            <span class="menu-label">
+                                <span class="menu-text">Cola de Correos</span>
+                                <span class="menu-caption">Envíos programados</span>
+                            </span>
                         </a>
                     </li>
                 <?php endif; ?>
@@ -515,7 +557,10 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarMaintainers" aria-expanded="false" aria-controls="sidebarMaintainers" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="database"></i></span>
-                        <span class="menu-text">Mantenedores</span>
+                        <span class="menu-label">
+                            <span class="menu-text">Mantenedores</span>
+                            <span class="menu-caption">Configuración y catálogos</span>
+                        </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <div class="collapse" id="sidebarMaintainers">

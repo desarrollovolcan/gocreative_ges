@@ -3,6 +3,9 @@
 return [
     'dashboard' => ['DashboardController', 'index'],
     'documents' => ['DocumentsController', 'index'],
+    'documents/store' => ['DocumentsController', 'store'],
+    'documents/delete' => ['DocumentsController', 'delete'],
+    'documents/download' => ['DocumentsController', 'download'],
     'tickets' => ['TicketsController', 'index'],
     'tickets/create' => ['TicketsController', 'create'],
     'tickets/store' => ['TicketsController', 'store'],

@@ -1,14 +1,19 @@
+<?php
+$documents = $documents ?? [];
+$documentCount = count($documents);
+?>
+
 <div class="outlook-box gap-1">
     <div class="offcanvas-lg offcanvas-start outlook-left-menu outlook-left-menu-md" tabindex="-1" id="documentsSidebarOffcanvas">
         <div class="card h-100 mb-0 rounded-0 border-0" data-simplebar>
             <div class="card-body">
-                <a href="#!" class="btn btn-danger fw-medium w-100">Subir archivos</a>
+                <button type="button" class="btn btn-danger fw-medium w-100" data-bs-toggle="modal" data-bs-target="#documentsUploadModal">Subir archivos</button>
 
                 <div class="list-group list-group-flush list-custom mt-3">
                     <a href="#!" class="list-group-item list-group-item-action active">
                         <i class="ti ti-folder me-1 opacity-75 fs-lg align-middle"></i>
                         <span class="align-middle">Mis archivos</span>
-                        <span class="badge align-middle bg-danger-subtle fs-xxs text-danger float-end">12</span>
+                        <span class="badge align-middle bg-danger-subtle fs-xxs text-danger float-end"><?php echo e((string)$documentCount); ?></span>
                     </a>
 
                     <a href="#!" class="list-group-item list-group-item-action">
@@ -107,128 +112,6 @@
         </div>
 
         <div class="card-body" style="height: calc(100% - 100px);" data-simplebar data-simplebar-md>
-            <div class="row g-2 mb-3">
-                <div class="col-md-6 col-lg-4 col-xxl-3">
-                    <div class="card border border-dashed mb-0">
-                        <div class="card-body p-2">
-                            <div class="d-flex align-items-center justify-content-between gap-2">
-                                <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                    <i class="ti ti-folder fs-24 avatar-title"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="mb-1 fs-sm"><a href="#!" class="link-reset">Documentación
-                                            fiscal</a></h5>
-                                    <p class="text-muted mb-0 fs-xs">2.3 GB</p>
-                                </div>
-                                <div class="dropdown flex-shrink-0 text-muted">
-                                    <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ti ti-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-share me-1"></i> Compartir</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-link me-1"></i> Obtener enlace</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-download me-1"></i> Descargar</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-pin me-1"></i> Fijar</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-edit me-1"></i> Editar</a>
-                                        <a href="#!" class="dropdown-item" data-dismissible="#documents-tax"><i class="ti ti-trash me-1"></i> Eliminar</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4 col-xxl-3">
-                    <div class="card border border-dashed mb-0">
-                        <div class="card-body p-2">
-                            <div class="d-flex align-items-center justify-content-between gap-2">
-                                <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                    <i class="ti ti-folder fs-24 avatar-title"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="mb-1 fs-sm"><a href="#!" class="link-reset">Contratos
-                                            legales</a></h5>
-                                    <p class="text-muted mb-0 fs-xs">105.3 MB</p>
-                                </div>
-                                <div class="dropdown flex-shrink-0 text-muted">
-                                    <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ti ti-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-share me-1"></i> Compartir</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-link me-1"></i> Obtener enlace</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-download me-1"></i> Descargar</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-pin me-1"></i> Fijar</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-edit me-1"></i> Editar</a>
-                                        <a href="#!" class="dropdown-item" data-dismissible="#documents-contracts"><i class="ti ti-trash me-1"></i> Eliminar</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4 col-xxl-3">
-                    <div class="card border border-dashed mb-0">
-                        <div class="card-body p-2">
-                            <div class="d-flex align-items-center justify-content-between gap-2">
-                                <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                    <i class="ti ti-folder fs-24 avatar-title"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="mb-1 fs-sm"><a href="#!" class="link-reset">Evidencias
-                                            comerciales</a></h5>
-                                    <p class="text-muted mb-0 fs-xs">512 MB</p>
-                                </div>
-                                <div class="dropdown flex-shrink-0 text-muted">
-                                    <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ti ti-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-share me-1"></i> Compartir</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-link me-1"></i> Obtener enlace</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-download me-1"></i> Descargar</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-pin me-1"></i> Fijar</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-edit me-1"></i> Editar</a>
-                                        <a href="#!" class="dropdown-item" data-dismissible="#documents-sales"><i class="ti ti-trash me-1"></i> Eliminar</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4 col-xxl-3">
-                    <div class="card border border-dashed mb-0">
-                        <div class="card-body p-2">
-                            <div class="d-flex align-items-center justify-content-between gap-2">
-                                <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                    <i class="ti ti-folder fs-24 avatar-title"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="mb-1 fs-sm"><a href="#!" class="link-reset">Recursos de
-                                            marketing</a></h5>
-                                    <p class="text-muted mb-0 fs-xs">980 MB</p>
-                                </div>
-                                <div class="dropdown flex-shrink-0 text-muted">
-                                    <a href="#" class="dropdown-toggle drop-arrow-none fs-xxl link-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ti ti-dots-vertical"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-share me-1"></i> Compartir</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-link me-1"></i> Obtener enlace</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-download me-1"></i> Descargar</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-pin me-1"></i> Fijar</a>
-                                        <a href="#!" class="dropdown-item"><i class="ti ti-edit me-1"></i> Editar</a>
-                                        <a href="#!" class="dropdown-item" data-dismissible="#documents-marketing"><i class="ti ti-trash me-1"></i> Eliminar</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="row g-2">
                 <div class="col-lg-12">
                     <div class="table-responsive">
@@ -248,119 +131,75 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" data-table-check>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="avatar-xs bg-light text-muted rounded-2">
-                                                <i class="ti ti-file-text fs-16 avatar-title"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-semibold">Contrato cliente - Enero.pdf</div>
-                                                <div class="text-muted fs-xs">Clientes</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>PDF</td>
-                                    <td>2.4 MB</td>
-                                    <td>12/01/2024</td>
-                                    <td class="text-end">
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-light">Ver</button>
-                                            <button class="btn btn-light">Descargar</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" data-table-check>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="avatar-xs bg-light text-muted rounded-2">
-                                                <i class="ti ti-file-spreadsheet fs-16 avatar-title"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-semibold">Balance de pagos.xlsx</div>
-                                                <div class="text-muted fs-xs">Finanzas</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>XLSX</td>
-                                    <td>1.2 MB</td>
-                                    <td>02/02/2024</td>
-                                    <td class="text-end">
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-light">Ver</button>
-                                            <button class="btn btn-light">Descargar</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" data-table-check>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="avatar-xs bg-light text-muted rounded-2">
-                                                <i class="ti ti-photo fs-16 avatar-title"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-semibold">Campaña redes.jpg</div>
-                                                <div class="text-muted fs-xs">Marketing</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>JPG</td>
-                                    <td>3.8 MB</td>
-                                    <td>11/03/2024</td>
-                                    <td class="text-end">
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-light">Ver</button>
-                                            <button class="btn btn-light">Descargar</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" data-table-check>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="avatar-xs bg-light text-muted rounded-2">
-                                                <i class="ti ti-music fs-16 avatar-title"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-semibold">Audio spot.mp3</div>
-                                                <div class="text-muted fs-xs">Media</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>MP3</td>
-                                    <td>6.7 MB</td>
-                                    <td>22/03/2024</td>
-                                    <td class="text-end">
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-light">Ver</button>
-                                            <button class="btn btn-light">Descargar</button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <?php if (empty($documents)): ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">
+                                            No hay documentos cargados todavía.
+                                        </td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($documents as $document): ?>
+                                        <tr>
+                                            <td>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" data-table-check>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="avatar-xs bg-light text-muted rounded-2">
+                                                        <i class="ti ti-file-text fs-16 avatar-title"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-semibold"><?php echo e($document['name']); ?></div>
+                                                        <div class="text-muted fs-xs">Documentos</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><?php echo e($document['extension']); ?></td>
+                                            <td><?php echo e(number_format(($document['size'] ?? 0) / 1024, 1)); ?> KB</td>
+                                            <td><?php echo e($document['updated_at']); ?></td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a class="btn btn-light" href="<?php echo e($document['download_url']); ?>">Descargar</a>
+                                                    <form method="post" action="index.php?route=documents/delete" class="d-inline">
+                                                        <input type="hidden" name="file" value="<?php echo e($document['filename']); ?>">
+                                                        <button type="submit" class="btn btn-light text-danger">Eliminar</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="documentsUploadModal" tabindex="-1" aria-labelledby="documentsUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="index.php?route=documents/store" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="documentsUploadModalLabel">Subir documento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Archivo</label>
+                        <input type="file" name="document" class="form-control" required>
+                        <small class="text-muted">Máximo 10MB por archivo.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Subir</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

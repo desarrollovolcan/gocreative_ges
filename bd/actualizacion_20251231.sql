@@ -153,11 +153,41 @@ CREATE TABLE IF NOT EXISTS suppliers (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
-ALTER TABLE suppliers
-    ADD COLUMN IF NOT EXISTS contact_name VARCHAR(150) NULL AFTER name,
-    ADD COLUMN IF NOT EXISTS tax_id VARCHAR(50) NULL AFTER contact_name,
-    ADD COLUMN IF NOT EXISTS website VARCHAR(150) NULL AFTER address,
-    ADD COLUMN IF NOT EXISTS notes TEXT NULL AFTER website;
+SET @suppliers_contact_name := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'contact_name'
+);
+SET @sql := IF(@suppliers_contact_name = 0, 'ALTER TABLE suppliers ADD COLUMN contact_name VARCHAR(150) NULL AFTER name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_tax_id := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'tax_id'
+);
+SET @sql := IF(@suppliers_tax_id = 0, 'ALTER TABLE suppliers ADD COLUMN tax_id VARCHAR(50) NULL AFTER contact_name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_website := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'website'
+);
+SET @sql := IF(@suppliers_website = 0, 'ALTER TABLE suppliers ADD COLUMN website VARCHAR(150) NULL AFTER address;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_notes := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'notes'
+);
+SET @sql := IF(@suppliers_notes = 0, 'ALTER TABLE suppliers ADD COLUMN notes TEXT NULL AFTER website;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 CREATE TABLE IF NOT EXISTS product_families (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -394,5 +424,428 @@ SET @sql := IF(@sale_items_service_col = 0, 'ALTER TABLE sale_items ADD COLUMN s
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+CREATE TABLE IF NOT EXISTS hr_departments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_positions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_contract_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(255) NULL,
+    max_duration_months INT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_health_providers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    provider_type VARCHAR(20) NOT NULL DEFAULT 'fonasa',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_pension_funds (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_work_schedules (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    weekly_hours INT NOT NULL DEFAULT 45,
+    start_time TIME NULL,
+    end_time TIME NULL,
+    lunch_break_minutes INT NOT NULL DEFAULT 60,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_payroll_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    item_type VARCHAR(20) NOT NULL DEFAULT 'haber',
+    taxable TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_employees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    department_id INT NULL,
+    position_id INT NULL,
+    health_provider_id INT NULL,
+    pension_fund_id INT NULL,
+    rut VARCHAR(50) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    nationality VARCHAR(100) NULL,
+    birth_date DATE NULL,
+    civil_status VARCHAR(50) NULL,
+    email VARCHAR(150) NULL,
+    phone VARCHAR(50) NULL,
+    address VARCHAR(255) NULL,
+    hire_date DATE NOT NULL,
+    termination_date DATE NULL,
+    health_provider VARCHAR(100) NULL,
+    health_plan VARCHAR(150) NULL,
+    pension_fund VARCHAR(100) NULL,
+    pension_rate DECIMAL(5,2) NOT NULL DEFAULT 10.00,
+    health_rate DECIMAL(5,2) NOT NULL DEFAULT 7.00,
+    unemployment_rate DECIMAL(5,2) NOT NULL DEFAULT 0.60,
+    dependents_count INT NOT NULL DEFAULT 0,
+    payment_method VARCHAR(50) NULL,
+    bank_name VARCHAR(100) NULL,
+    bank_account_type VARCHAR(50) NULL,
+    bank_account_number VARCHAR(50) NULL,
+    qr_token VARCHAR(100) NULL,
+    face_descriptor TEXT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'activo',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (department_id) REFERENCES hr_departments(id),
+    FOREIGN KEY (position_id) REFERENCES hr_positions(id),
+    FOREIGN KEY (health_provider_id) REFERENCES hr_health_providers(id),
+    FOREIGN KEY (pension_fund_id) REFERENCES hr_pension_funds(id)
+);
+
+SET @hr_employees_health_provider_id := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'health_provider_id'
+);
+SET @sql := IF(@hr_employees_health_provider_id = 0, 'ALTER TABLE hr_employees ADD COLUMN health_provider_id INT NULL AFTER position_id;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_pension_fund_id := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'pension_fund_id'
+);
+SET @sql := IF(@hr_employees_pension_fund_id = 0, 'ALTER TABLE hr_employees ADD COLUMN pension_fund_id INT NULL AFTER health_provider_id;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_qr_token := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'qr_token'
+);
+SET @sql := IF(@hr_employees_qr_token = 0, 'ALTER TABLE hr_employees ADD COLUMN qr_token VARCHAR(100) NULL AFTER bank_account_number;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_face_descriptor := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'face_descriptor'
+);
+SET @sql := IF(@hr_employees_face_descriptor = 0, 'ALTER TABLE hr_employees ADD COLUMN face_descriptor TEXT NULL AFTER qr_token;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_nationality := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'nationality'
+);
+SET @sql := IF(@hr_employees_nationality = 0, 'ALTER TABLE hr_employees ADD COLUMN nationality VARCHAR(100) NULL AFTER last_name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_birth_date := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'birth_date'
+);
+SET @sql := IF(@hr_employees_birth_date = 0, 'ALTER TABLE hr_employees ADD COLUMN birth_date DATE NULL AFTER nationality;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_civil_status := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'civil_status'
+);
+SET @sql := IF(@hr_employees_civil_status = 0, 'ALTER TABLE hr_employees ADD COLUMN civil_status VARCHAR(50) NULL AFTER birth_date;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_health_provider := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'health_provider'
+);
+SET @sql := IF(@hr_employees_health_provider = 0, 'ALTER TABLE hr_employees ADD COLUMN health_provider VARCHAR(100) NULL AFTER termination_date;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_health_plan := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'health_plan'
+);
+SET @sql := IF(@hr_employees_health_plan = 0, 'ALTER TABLE hr_employees ADD COLUMN health_plan VARCHAR(150) NULL AFTER health_provider;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_pension_fund := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'pension_fund'
+);
+SET @sql := IF(@hr_employees_pension_fund = 0, 'ALTER TABLE hr_employees ADD COLUMN pension_fund VARCHAR(100) NULL AFTER health_plan;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_pension_rate := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'pension_rate'
+);
+SET @sql := IF(@hr_employees_pension_rate = 0, 'ALTER TABLE hr_employees ADD COLUMN pension_rate DECIMAL(5,2) NOT NULL DEFAULT 10.00 AFTER pension_fund;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_health_rate := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'health_rate'
+);
+SET @sql := IF(@hr_employees_health_rate = 0, 'ALTER TABLE hr_employees ADD COLUMN health_rate DECIMAL(5,2) NOT NULL DEFAULT 7.00 AFTER pension_rate;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_unemployment_rate := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'unemployment_rate'
+);
+SET @sql := IF(@hr_employees_unemployment_rate = 0, 'ALTER TABLE hr_employees ADD COLUMN unemployment_rate DECIMAL(5,2) NOT NULL DEFAULT 0.60 AFTER health_rate;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_dependents := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'dependents_count'
+);
+SET @sql := IF(@hr_employees_dependents = 0, 'ALTER TABLE hr_employees ADD COLUMN dependents_count INT NOT NULL DEFAULT 0 AFTER unemployment_rate;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_payment_method := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'payment_method'
+);
+SET @sql := IF(@hr_employees_payment_method = 0, 'ALTER TABLE hr_employees ADD COLUMN payment_method VARCHAR(50) NULL AFTER dependents_count;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_bank_name := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'bank_name'
+);
+SET @sql := IF(@hr_employees_bank_name = 0, 'ALTER TABLE hr_employees ADD COLUMN bank_name VARCHAR(100) NULL AFTER payment_method;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_bank_account_type := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'bank_account_type'
+);
+SET @sql := IF(@hr_employees_bank_account_type = 0, 'ALTER TABLE hr_employees ADD COLUMN bank_account_type VARCHAR(50) NULL AFTER bank_name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_bank_account_number := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'bank_account_number'
+);
+SET @sql := IF(@hr_employees_bank_account_number = 0, 'ALTER TABLE hr_employees ADD COLUMN bank_account_number VARCHAR(50) NULL AFTER bank_account_type;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+CREATE TABLE IF NOT EXISTS hr_contracts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    contract_type_id INT NULL,
+    department_id INT NULL,
+    position_id INT NULL,
+    schedule_id INT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NULL,
+    salary DECIMAL(12,2) NOT NULL,
+    weekly_hours INT NOT NULL DEFAULT 45,
+    status VARCHAR(20) NOT NULL DEFAULT 'vigente',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (employee_id) REFERENCES hr_employees(id),
+    FOREIGN KEY (contract_type_id) REFERENCES hr_contract_types(id),
+    FOREIGN KEY (department_id) REFERENCES hr_departments(id),
+    FOREIGN KEY (position_id) REFERENCES hr_positions(id),
+    FOREIGN KEY (schedule_id) REFERENCES hr_work_schedules(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_attendance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    date DATE NOT NULL,
+    check_in TIME NULL,
+    check_out TIME NULL,
+    worked_hours DECIMAL(5,2) NULL,
+    overtime_hours DECIMAL(5,2) NOT NULL DEFAULT 0,
+    absence_type VARCHAR(100) NULL,
+    notes VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (employee_id) REFERENCES hr_employees(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_payrolls (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    base_salary DECIMAL(12,2) NOT NULL,
+    bonuses DECIMAL(12,2) NOT NULL DEFAULT 0,
+    other_earnings DECIMAL(12,2) NOT NULL DEFAULT 0,
+    other_deductions DECIMAL(12,2) NOT NULL DEFAULT 0,
+    taxable_income DECIMAL(12,2) NOT NULL DEFAULT 0,
+    pension_deduction DECIMAL(12,2) NOT NULL DEFAULT 0,
+    health_deduction DECIMAL(12,2) NOT NULL DEFAULT 0,
+    unemployment_deduction DECIMAL(12,2) NOT NULL DEFAULT 0,
+    total_deductions DECIMAL(12,2) NOT NULL DEFAULT 0,
+    net_pay DECIMAL(12,2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'borrador',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (employee_id) REFERENCES hr_employees(id)
+);
+
+SET @hr_payrolls_other_earnings := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_payrolls' AND COLUMN_NAME = 'other_earnings'
+);
+SET @sql := IF(@hr_payrolls_other_earnings = 0, 'ALTER TABLE hr_payrolls ADD COLUMN other_earnings DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER bonuses;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_payrolls_other_deductions := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_payrolls' AND COLUMN_NAME = 'other_deductions'
+);
+SET @sql := IF(@hr_payrolls_other_deductions = 0, 'ALTER TABLE hr_payrolls ADD COLUMN other_deductions DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER other_earnings;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_payrolls_taxable_income := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_payrolls' AND COLUMN_NAME = 'taxable_income'
+);
+SET @sql := IF(@hr_payrolls_taxable_income = 0, 'ALTER TABLE hr_payrolls ADD COLUMN taxable_income DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER other_deductions;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_payrolls_pension_deduction := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_payrolls' AND COLUMN_NAME = 'pension_deduction'
+);
+SET @sql := IF(@hr_payrolls_pension_deduction = 0, 'ALTER TABLE hr_payrolls ADD COLUMN pension_deduction DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER taxable_income;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_payrolls_health_deduction := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_payrolls' AND COLUMN_NAME = 'health_deduction'
+);
+SET @sql := IF(@hr_payrolls_health_deduction = 0, 'ALTER TABLE hr_payrolls ADD COLUMN health_deduction DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER pension_deduction;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_payrolls_unemployment_deduction := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_payrolls' AND COLUMN_NAME = 'unemployment_deduction'
+);
+SET @sql := IF(@hr_payrolls_unemployment_deduction = 0, 'ALTER TABLE hr_payrolls ADD COLUMN unemployment_deduction DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER health_deduction;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_payrolls_total_deductions := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_payrolls' AND COLUMN_NAME = 'total_deductions'
+);
+SET @sql := IF(@hr_payrolls_total_deductions = 0, 'ALTER TABLE hr_payrolls ADD COLUMN total_deductions DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER unemployment_deduction;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+CREATE TABLE IF NOT EXISTS hr_payroll_lines (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    payroll_id INT NOT NULL,
+    payroll_item_id INT NOT NULL,
+    amount DECIMAL(12,2) NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (payroll_id) REFERENCES hr_payrolls(id),
+    FOREIGN KEY (payroll_item_id) REFERENCES hr_payroll_items(id)
+);
 
 COMMIT;

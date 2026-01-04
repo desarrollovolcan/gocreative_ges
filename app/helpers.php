@@ -547,6 +547,13 @@ function permission_catalog(): array
             'view_key' => 'projects_view',
             'edit_key' => 'projects_edit',
         ],
+        'documents' => [
+            'label' => 'Documentos',
+            'routes' => ['documents'],
+            'legacy_key' => 'documents',
+            'view_key' => 'documents_view',
+            'edit_key' => 'documents_edit',
+        ],
         'products' => [
             'label' => 'Productos',
             'routes' => ['products'],

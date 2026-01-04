@@ -2,6 +2,7 @@
 
 return [
     'dashboard' => ['DashboardController', 'index'],
+    'documents' => ['DocumentsController', 'index'],
     'tickets' => ['TicketsController', 'index'],
     'tickets/create' => ['TicketsController', 'create'],
     'tickets/store' => ['TicketsController', 'store'],

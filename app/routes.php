@@ -193,6 +193,8 @@ return [
     'hr/payrolls' => ['HrPayrollsController', 'index'],
     'hr/payrolls/create' => ['HrPayrollsController', 'create'],
     'hr/payrolls/store' => ['HrPayrollsController', 'store'],
+    'hr/payrolls/bulk' => ['HrPayrollsController', 'bulkCreate'],
+    'hr/payrolls/bulk-store' => ['HrPayrollsController', 'bulkStore'],
     'hr/payrolls/delete' => ['HrPayrollsController', 'delete'],
     'maintainers/hr-departments' => ['HrDepartmentsController', 'index'],
     'maintainers/hr-departments/create' => ['HrDepartmentsController', 'create'],

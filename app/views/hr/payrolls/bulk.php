@@ -1,36 +1,21 @@
 <div class="card">
     <div class="card-header">
-        <h4 class="card-title mb-0">Nueva remuneración</h4>
+        <h4 class="card-title mb-0">Generación masiva de liquidaciones</h4>
     </div>
     <div class="card-body">
-        <form method="post" action="index.php?route=hr/payrolls/store">
+        <form method="post" action="index.php?route=hr/payrolls/bulk-store">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
             <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Trabajador *</label>
-                    <select name="employee_id" class="form-select" required>
-                        <option value="">Selecciona</option>
-                        <?php foreach ($employees as $employee): ?>
-                            <option value="<?php echo (int)$employee['id']; ?>">
-                                <?php echo e(trim(($employee['first_name'] ?? '') . ' ' . ($employee['last_name'] ?? ''))); ?> - <?php echo e($employee['rut'] ?? ''); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label">Inicio período *</label>
                     <input type="date" name="period_start" class="form-control" required>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label">Fin período *</label>
                     <input type="date" name="period_end" class="form-control" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Sueldo base *</label>
-                    <input type="number" name="base_salary" class="form-control" min="0" step="0.01" required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Haberes</label>
+                    <label class="form-label">Haberes generales</label>
                     <input type="number" name="bonuses" class="form-control" min="0" step="0.01" value="0">
                 </div>
                 <div class="col-md-4">
@@ -40,7 +25,6 @@
                 <div class="col-md-4">
                     <label class="form-label">Otros descuentos</label>
                     <input type="number" name="other_deductions" class="form-control" min="0" step="0.01" value="0">
-                    <div class="form-text">Las cotizaciones se calculan según AFP/Salud del trabajador.</div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Estado</label>
@@ -51,8 +35,12 @@
                     </select>
                 </div>
             </div>
-            <div class="mt-4 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Guardar</button>
+            <div class="alert alert-info mt-4">
+                Se generará una liquidación por cada contrato vigente en el período. Las cotizaciones se calculan con las tasas
+                registradas en cada trabajador (AFP, Salud, Seguro de Cesantía).
+            </div>
+            <div class="mt-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Generar liquidaciones</button>
                 <a href="index.php?route=hr/payrolls" class="btn btn-light">Cancelar</a>
             </div>
         </form>

@@ -1,7 +1,10 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4 class="card-title mb-0">Remuneraciones y nómina</h4>
-        <a href="index.php?route=hr/payrolls/create" class="btn btn-primary">Nueva remuneración</a>
+        <div class="d-flex gap-2">
+            <a href="index.php?route=hr/payrolls/bulk" class="btn btn-outline-primary">Liquidaciones masivas</a>
+            <a href="index.php?route=hr/payrolls/create" class="btn btn-primary">Nueva remuneración</a>
+        </div>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -13,7 +16,8 @@
                         <th>Período</th>
                         <th class="text-end">Sueldo base</th>
                         <th class="text-end">Haberes</th>
-                        <th class="text-end">Descuentos</th>
+                        <th class="text-end">Cotizaciones</th>
+                        <th class="text-end">Otros descuentos</th>
                         <th class="text-end">Líquido</th>
                         <th>Estado</th>
                         <th class="text-end">Acciones</th>
@@ -39,7 +43,15 @@
                             <td><?php echo e(format_date($payroll['period_start'] ?? null)); ?> - <?php echo e(format_date($payroll['period_end'] ?? null)); ?></td>
                             <td class="text-end"><?php echo e(format_currency((float)($payroll['base_salary'] ?? 0), 0)); ?></td>
                             <td class="text-end"><?php echo e(format_currency((float)($payroll['bonuses'] ?? 0), 0)); ?></td>
-                            <td class="text-end"><?php echo e(format_currency((float)($payroll['deductions'] ?? 0), 0)); ?></td>
+                            <td class="text-end">
+                                <?php
+                                $social = (float)($payroll['pension_deduction'] ?? 0)
+                                    + (float)($payroll['health_deduction'] ?? 0)
+                                    + (float)($payroll['unemployment_deduction'] ?? 0);
+                                ?>
+                                <?php echo e(format_currency($social, 0)); ?>
+                            </td>
+                            <td class="text-end"><?php echo e(format_currency((float)($payroll['other_deductions'] ?? 0), 0)); ?></td>
                             <td class="text-end fw-semibold"><?php echo e(format_currency((float)($payroll['net_pay'] ?? 0), 0)); ?></td>
                             <td>
                                 <span class="badge bg-<?php echo $statusColor; ?>-subtle text-<?php echo $statusColor; ?>">

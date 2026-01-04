@@ -275,6 +275,13 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     </a>
                                 </li>
                             <?php endif; ?>
+                            <?php if ($hasPermission('hr_payrolls_edit')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/payrolls/bulk" class="side-nav-link">
+                                        <span class="menu-text">Liquidaciones masivas</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </li>

@@ -31,4 +31,22 @@ class HrContractsModel extends Model
             ['id' => $id, 'company_id' => $companyId]
         );
     }
+
+    public function activeForPayroll(int $companyId, string $periodStart, string $periodEnd): array
+    {
+        return $this->db->fetchAll(
+            'SELECT c.*
+             FROM hr_contracts c
+             WHERE c.company_id = :company_id
+               AND c.deleted_at IS NULL
+               AND c.status = \"vigente\"
+               AND c.start_date <= :period_end
+               AND (c.end_date IS NULL OR c.end_date >= :period_start)',
+            [
+                'company_id' => $companyId,
+                'period_start' => $periodStart,
+                'period_end' => $periodEnd,
+            ]
+        );
+    }
 }

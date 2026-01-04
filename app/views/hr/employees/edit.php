@@ -20,6 +20,26 @@
                     <input type="text" name="last_name" class="form-control" value="<?php echo e($employee['last_name'] ?? ''); ?>" required>
                 </div>
                 <div class="col-md-4">
+                    <label class="form-label">Nacionalidad</label>
+                    <input type="text" name="nationality" class="form-control" value="<?php echo e($employee['nationality'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Fecha de nacimiento</label>
+                    <input type="date" name="birth_date" class="form-control" value="<?php echo e($employee['birth_date'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Estado civil</label>
+                    <?php $civilStatus = $employee['civil_status'] ?? ''; ?>
+                    <select name="civil_status" class="form-select">
+                        <option value="" <?php echo $civilStatus === '' ? 'selected' : ''; ?>>Selecciona</option>
+                        <option value="soltero" <?php echo $civilStatus === 'soltero' ? 'selected' : ''; ?>>Soltero(a)</option>
+                        <option value="casado" <?php echo $civilStatus === 'casado' ? 'selected' : ''; ?>>Casado(a)</option>
+                        <option value="conviviente" <?php echo $civilStatus === 'conviviente' ? 'selected' : ''; ?>>Conviviente</option>
+                        <option value="divorciado" <?php echo $civilStatus === 'divorciado' ? 'selected' : ''; ?>>Divorciado(a)</option>
+                        <option value="viudo" <?php echo $civilStatus === 'viudo' ? 'selected' : ''; ?>>Viudo(a)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
                     <label class="form-label">Email</label>
                     <input type="email" name="email" class="form-control" value="<?php echo e($employee['email'] ?? ''); ?>">
                 </div>
@@ -30,6 +50,10 @@
                 <div class="col-md-4">
                     <label class="form-label">Dirección</label>
                     <input type="text" name="address" class="form-control" value="<?php echo e($employee['address'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Dependientes</label>
+                    <input type="number" name="dependents_count" class="form-control" min="0" value="<?php echo e($employee['dependents_count'] ?? 0); ?>">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Departamento</label>
@@ -60,6 +84,52 @@
                 <div class="col-md-4">
                     <label class="form-label">Fecha de término</label>
                     <input type="date" name="termination_date" class="form-control" value="<?php echo e($employee['termination_date'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">AFP</label>
+                    <input type="text" name="pension_fund" class="form-control" value="<?php echo e($employee['pension_fund'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tasa AFP (%)</label>
+                    <input type="number" name="pension_rate" class="form-control" min="0" step="0.01" value="<?php echo e($employee['pension_rate'] ?? 10); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Salud</label>
+                    <input type="text" name="health_provider" class="form-control" value="<?php echo e($employee['health_provider'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Plan de salud</label>
+                    <input type="text" name="health_plan" class="form-control" value="<?php echo e($employee['health_plan'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tasa Salud (%)</label>
+                    <input type="number" name="health_rate" class="form-control" min="0" step="0.01" value="<?php echo e($employee['health_rate'] ?? 7); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Seguro cesantía (%)</label>
+                    <input type="number" name="unemployment_rate" class="form-control" min="0" step="0.01" value="<?php echo e($employee['unemployment_rate'] ?? 0.6); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Método de pago</label>
+                    <?php $paymentMethod = $employee['payment_method'] ?? ''; ?>
+                    <select name="payment_method" class="form-select">
+                        <option value="" <?php echo $paymentMethod === '' ? 'selected' : ''; ?>>Selecciona</option>
+                        <option value="transferencia" <?php echo $paymentMethod === 'transferencia' ? 'selected' : ''; ?>>Transferencia</option>
+                        <option value="efectivo" <?php echo $paymentMethod === 'efectivo' ? 'selected' : ''; ?>>Efectivo</option>
+                        <option value="cheque" <?php echo $paymentMethod === 'cheque' ? 'selected' : ''; ?>>Cheque</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Banco</label>
+                    <input type="text" name="bank_name" class="form-control" value="<?php echo e($employee['bank_name'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tipo de cuenta</label>
+                    <input type="text" name="bank_account_type" class="form-control" value="<?php echo e($employee['bank_account_type'] ?? ''); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">N° de cuenta</label>
+                    <input type="text" name="bank_account_number" class="form-control" value="<?php echo e($employee['bank_account_number'] ?? ''); ?>">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Estado</label>

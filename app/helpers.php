@@ -690,6 +690,8 @@ function permission_is_edit_route(string $route): bool
         '/edit',
         '/update',
         '/delete',
+        '/bulk',
+        '/bulk-store',
         '/generate',
         '/send',
         '/test',

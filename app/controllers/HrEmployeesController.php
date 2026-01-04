@@ -142,6 +142,7 @@ class HrEmployeesController extends Controller
             'bank_account_type' => trim($_POST['bank_account_type'] ?? ''),
             'bank_account_number' => trim($_POST['bank_account_number'] ?? ''),
             'qr_token' => $qrToken,
+            'face_descriptor' => trim($_POST['face_descriptor'] ?? ''),
             'status' => $_POST['status'] ?? 'activo',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -260,6 +261,7 @@ class HrEmployeesController extends Controller
             'bank_account_type' => trim($_POST['bank_account_type'] ?? ''),
             'bank_account_number' => trim($_POST['bank_account_number'] ?? ''),
             'qr_token' => trim($_POST['qr_token'] ?? ($employee['qr_token'] ?? '')),
+            'face_descriptor' => trim($_POST['face_descriptor'] ?? ($employee['face_descriptor'] ?? '')),
             'status' => $_POST['status'] ?? 'activo',
             'updated_at' => date('Y-m-d H:i:s'),
         ]);

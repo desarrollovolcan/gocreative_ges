@@ -536,6 +536,7 @@ CREATE TABLE IF NOT EXISTS hr_employees (
     bank_account_type VARCHAR(50) NULL,
     bank_account_number VARCHAR(50) NULL,
     qr_token VARCHAR(100) NULL,
+    face_descriptor TEXT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'activo',
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
@@ -570,6 +571,15 @@ SET @hr_employees_qr_token := (
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'qr_token'
 );
 SET @sql := IF(@hr_employees_qr_token = 0, 'ALTER TABLE hr_employees ADD COLUMN qr_token VARCHAR(100) NULL AFTER bank_account_number;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @hr_employees_face_descriptor := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'hr_employees' AND COLUMN_NAME = 'face_descriptor'
+);
+SET @sql := IF(@hr_employees_face_descriptor = 0, 'ALTER TABLE hr_employees ADD COLUMN face_descriptor TEXT NULL AFTER qr_token;', 'SELECT 1;');
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;

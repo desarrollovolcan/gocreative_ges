@@ -39,15 +39,20 @@ class HrClockController extends Controller
         verify_csrf();
         $companyId = $this->requireCompany();
 
+        $employeeId = (int)($_POST['employee_id'] ?? 0);
         $token = trim($_POST['qr_token'] ?? '');
-        if ($token === '') {
-            flash('error', 'Escanea el QR del trabajador.');
-            $this->redirect('index.php?route=hr/clock');
+        $method = 'QR';
+        $employee = null;
+
+        if ($employeeId > 0) {
+            $employee = $this->employees->findForCompany($employeeId, $companyId);
+            $method = 'Facial';
+        } elseif ($token !== '') {
+            $employee = $this->employees->findByQrToken($token, $companyId);
         }
 
-        $employee = $this->employees->findByQrToken($token, $companyId);
         if (!$employee) {
-            flash('error', 'QR no válido para esta empresa.');
+            flash('error', 'No se pudo identificar al trabajador.');
             $this->redirect('index.php?route=hr/clock');
         }
 
@@ -74,7 +79,7 @@ class HrClockController extends Controller
                 'worked_hours' => null,
                 'overtime_hours' => 0,
                 'absence_type' => '',
-                'notes' => 'Marcación QR',
+                'notes' => 'Marcación ' . $method,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
@@ -85,7 +90,8 @@ class HrClockController extends Controller
             . '&rut=' . urlencode($employee['rut'] ?? '')
             . '&action=' . urlencode($action)
             . '&date=' . urlencode($today)
-            . '&time=' . urlencode($now));
+            . '&time=' . urlencode($now)
+            . '&method=' . urlencode($method));
     }
 
     public function ticket(): void
@@ -101,6 +107,24 @@ class HrClockController extends Controller
             'action' => $_GET['action'] ?? '',
             'date' => $_GET['date'] ?? '',
             'time' => $_GET['time'] ?? '',
+            'method' => $_GET['method'] ?? '',
         ]);
+    }
+
+    public function faces(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+
+        $rows = $this->db->fetchAll(
+            'SELECT id, first_name, last_name, face_descriptor
+             FROM hr_employees
+             WHERE company_id = :company_id AND deleted_at IS NULL AND face_descriptor IS NOT NULL',
+            ['company_id' => $companyId]
+        );
+
+        header('Content-Type: application/json');
+        echo json_encode($rows);
+        exit;
     }
 }

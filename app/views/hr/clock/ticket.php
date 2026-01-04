@@ -10,6 +10,7 @@
             <div class="mt-2">Acción: <strong><?php echo e(ucfirst($action)); ?></strong></div>
             <div>Fecha: <?php echo e($date); ?></div>
             <div>Hora: <?php echo e($time); ?></div>
+            <div>Método: <?php echo e($method); ?></div>
         </div>
         <div class="text-muted mt-3">Se imprimió automáticamente el comprobante de entrada/salida.</div>
     </div>

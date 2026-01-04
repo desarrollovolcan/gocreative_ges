@@ -194,6 +194,7 @@ return [
     'hr/clock' => ['HrClockController', 'index'],
     'hr/clock/store' => ['HrClockController', 'store'],
     'hr/clock/ticket' => ['HrClockController', 'ticket'],
+    'hr/clock/faces' => ['HrClockController', 'faces'],
     'hr/payrolls' => ['HrPayrollsController', 'index'],
     'hr/payrolls/create' => ['HrPayrollsController', 'create'],
     'hr/payrolls/store' => ['HrPayrollsController', 'store'],

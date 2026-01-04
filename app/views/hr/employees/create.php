@@ -136,6 +136,18 @@
                     <label class="form-label">N° de cuenta</label>
                     <input type="text" name="bank_account_number" class="form-control">
                 </div>
+                <div class="col-md-12">
+                    <label class="form-label">Enrolamiento facial</label>
+                    <input type="hidden" name="face_descriptor" id="face-descriptor">
+                    <div class="border rounded p-3">
+                        <div class="fw-semibold mb-2">Captura facial</div>
+                        <video id="face-video" width="320" height="240" autoplay muted class="border rounded"></video>
+                        <div class="mt-2 d-flex gap-2">
+                            <button type="button" class="btn btn-outline-primary" id="face-capture">Capturar rostro</button>
+                            <span class="text-muted" id="face-status">Sin captura</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-4">
                     <label class="form-label">Estado</label>
                     <select name="status" class="form-select">
@@ -152,3 +164,46 @@
         </form>
     </div>
 </div>
+
+<script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+    const faceVideo = document.getElementById('face-video');
+    const faceCapture = document.getElementById('face-capture');
+    const faceDescriptorInput = document.getElementById('face-descriptor');
+    const faceStatus = document.getElementById('face-status');
+    const faceModelsUrl = 'https://justadudewhohacks.github.io/face-api.js/models';
+
+    async function loadFaceModels() {
+        await faceapi.nets.tinyFaceDetector.loadFromUri(faceModelsUrl);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(faceModelsUrl);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(faceModelsUrl);
+    }
+
+    async function startFaceCamera() {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        faceVideo.srcObject = stream;
+    }
+
+    async function captureFaceDescriptor() {
+        const detection = await faceapi
+            .detectSingleFace(faceVideo, new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+
+        if (!detection) {
+            faceStatus.textContent = 'No se detectó rostro.';
+            return;
+        }
+
+        faceDescriptorInput.value = JSON.stringify(Array.from(detection.descriptor));
+        faceStatus.textContent = 'Rostro capturado.';
+    }
+
+    loadFaceModels()
+        .then(startFaceCamera)
+        .catch(() => {
+            faceStatus.textContent = 'No se pudo cargar el módulo facial.';
+        });
+
+    faceCapture?.addEventListener('click', captureFaceDescriptor);
+</script>

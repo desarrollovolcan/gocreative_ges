@@ -727,6 +727,7 @@ CREATE TABLE hr_employees (
     bank_account_type VARCHAR(50) NULL,
     bank_account_number VARCHAR(50) NULL,
     qr_token VARCHAR(100) NULL,
+    face_descriptor TEXT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'activo',
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,

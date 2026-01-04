@@ -101,6 +101,8 @@ return [
     'quotes/send' => ['QuotesController', 'send'],
     'invoices' => ['InvoicesController', 'index'],
     'invoices/create' => ['InvoicesController', 'create'],
+    'invoices/preview-pdf' => ['InvoicesController', 'previewPdf'],
+    'invoices/download-pdf' => ['InvoicesController', 'downloadPdf'],
     'invoices/edit' => ['InvoicesController', 'edit'],
     'invoices/store' => ['InvoicesController', 'store'],
     'invoices/update' => ['InvoicesController', 'update'],

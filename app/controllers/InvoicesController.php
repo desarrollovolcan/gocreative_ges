@@ -142,6 +142,269 @@ class InvoicesController extends Controller
         ]);
     }
 
+    public function previewPdf(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        $company = $this->db->fetch(
+            'SELECT name, rut, email, phone, address FROM companies WHERE id = :id',
+            ['id' => $companyId]
+        ) ?: [];
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = [];
+        if ($clientId > 0) {
+            $client = $this->db->fetch(
+                'SELECT name, address, phone, email FROM clients WHERE id = :id AND company_id = :company_id',
+                ['id' => $clientId, 'company_id' => $companyId]
+            ) ?: [];
+        }
+
+        $items = array_values(array_filter($_POST['items'] ?? [], static function ($item) {
+            return trim($item['descripcion'] ?? '') !== '';
+        }));
+
+        $currency = $_POST['currency_display'] ?? 'CLP';
+        $currencySymbols = [
+            'CLP' => '$',
+            'USD' => 'US$',
+            'EUR' => '€',
+        ];
+        $currencySymbol = $currencySymbols[$currency] ?? '$';
+
+        $subtotal = (float)($_POST['subtotal'] ?? 0);
+        if ($subtotal <= 0 && $items) {
+            $subtotal = array_reduce($items, static function ($sum, $item) {
+                return $sum + (float)($item['total'] ?? 0);
+            }, 0);
+        }
+        $taxes = (float)($_POST['impuestos'] ?? 0);
+        $total = (float)($_POST['total'] ?? 0);
+        if ($total <= 0) {
+            $total = $subtotal + $taxes;
+        }
+
+        $invoiceNumber = trim($_POST['numero'] ?? '');
+        $issueDate = trim($_POST['fecha_emision'] ?? date('Y-m-d'));
+        $dueDate = trim($_POST['fecha_vencimiento'] ?? date('Y-m-d'));
+        $notes = trim($_POST['notas'] ?? '');
+
+        $fileName = 'Factura-' . ($invoiceNumber !== '' ? $invoiceNumber : 'borrador') . '.pdf';
+        $this->outputInvoicePdf([
+            'company' => $company,
+            'client' => $client,
+            'items' => $items,
+            'currency_symbol' => $currencySymbol,
+            'invoice_number' => $invoiceNumber !== '' ? $invoiceNumber : 'Borrador',
+            'issue_date' => $issueDate,
+            'due_date' => $dueDate,
+            'status' => 'Borrador',
+            'subtotal' => $subtotal,
+            'taxes' => $taxes,
+            'total' => $total,
+            'notes' => $notes,
+            'file_name' => $fileName,
+        ]);
+    }
+
+    public function downloadPdf(): void
+    {
+        $this->requireLogin();
+        $companyId = current_company_id();
+        $invoiceId = (int)($_GET['id'] ?? 0);
+        if ($invoiceId <= 0) {
+            $this->redirect('index.php?route=invoices');
+        }
+        $invoice = $this->db->fetch(
+            'SELECT * FROM invoices WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $invoiceId, 'company_id' => $companyId]
+        );
+        if (!$invoice) {
+            $this->redirect('index.php?route=invoices');
+        }
+        $company = $this->db->fetch(
+            'SELECT name, rut, email, phone, address FROM companies WHERE id = :id',
+            ['id' => $companyId]
+        ) ?: [];
+        $client = $this->db->fetch(
+            'SELECT name, address, phone, email FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $invoice['client_id'], 'company_id' => $companyId]
+        ) ?: [];
+        $items = (new InvoiceItemsModel($this->db))->byInvoice($invoiceId);
+        $notes = trim($invoice['notas'] ?? '');
+        $fileName = 'Factura-' . ($invoice['numero'] ?? $invoiceId) . '.pdf';
+        $this->outputInvoicePdf([
+            'company' => $company,
+            'client' => $client,
+            'items' => $items,
+            'currency_symbol' => '$',
+            'invoice_number' => $invoice['numero'] ?? (string)$invoiceId,
+            'issue_date' => $invoice['fecha_emision'] ?? '',
+            'due_date' => $invoice['fecha_vencimiento'] ?? '',
+            'status' => $invoice['estado'] ?? '',
+            'subtotal' => (float)($invoice['subtotal'] ?? 0),
+            'taxes' => (float)($invoice['impuestos'] ?? 0),
+            'total' => (float)($invoice['total'] ?? 0),
+            'notes' => $notes,
+            'file_name' => $fileName,
+        ]);
+    }
+
+    private function outputInvoicePdf(array $data): void
+    {
+        require_once __DIR__ . '/../../api/fpdf/fpdf.php';
+
+        $pdf = new FPDF('P', 'mm', 'A4');
+        $pdf->SetAutoPageBreak(true, 18);
+        $pdf->AddPage();
+
+        $primaryColor = [24, 119, 190];
+        $mutedColor = [243, 246, 250];
+        $borderColor = [225, 231, 238];
+        $textDark = [35, 35, 35];
+        $textMuted = [120, 128, 138];
+
+        $pdf->SetDrawColor($borderColor[0], $borderColor[1], $borderColor[2]);
+        $pdf->SetLineWidth(0.3);
+
+        $logoPath = __DIR__ . '/../../logos/Logo Go color t.png';
+        if (!is_file($logoPath)) {
+            $logoPath = __DIR__ . '/../../assets/images/logo-black.png';
+        }
+        if (is_file($logoPath)) {
+            $pdf->Image($logoPath, 12, 12, 26);
+        }
+
+        $statusLabel = strtoupper(trim((string)($data['status'] ?? '')));
+        if ($statusLabel === '') {
+            $statusLabel = 'PENDIENTE';
+        }
+
+        $pdf->SetXY(120, 12);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->SetTextColor($primaryColor[0], $primaryColor[1], $primaryColor[2]);
+        $pdf->SetFillColor(227, 240, 252);
+        $pdf->Cell(40, 6, $statusLabel, 0, 2, 'C', true);
+
+        $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
+        $pdf->SetFont('Arial', 'B', 15);
+        $pdf->Cell(76, 7, 'Factura #' . ($data['invoice_number'] ?? ''), 0, 2, 'R');
+        $pdf->SetFont('Arial', '', 9.5);
+        $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
+        $pdf->Cell(76, 5, 'Fecha emision: ' . ($data['issue_date'] ?? ''), 0, 2, 'R');
+        $pdf->Cell(76, 5, 'Fecha vencimiento: ' . ($data['due_date'] ?? ''), 0, 2, 'R');
+
+        $pdf->SetDrawColor($borderColor[0], $borderColor[1], $borderColor[2]);
+        $pdf->Line(12, 36, 198, 36);
+
+        $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->SetXY(12, 40);
+        $pdf->Cell(90, 6, 'Emisor', 0, 0);
+        $pdf->Cell(90, 6, 'Cliente', 0, 1);
+
+        $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
+        $pdf->SetFont('Arial', '', 9.5);
+        $companyLines = array_filter([
+            $data['company']['name'] ?? 'GoCreative',
+            $data['company']['address'] ?? '',
+            $data['company']['phone'] ?? '',
+            $data['company']['email'] ?? '',
+        ]);
+        $clientLines = array_filter([
+            $data['client']['name'] ?? 'Sin cliente seleccionado',
+            $data['client']['address'] ?? '',
+            $data['client']['phone'] ?? '',
+            $data['client']['email'] ?? '',
+        ]);
+
+        $startY = $pdf->GetY();
+        $pdf->SetXY(12, $startY + 4);
+        foreach ($companyLines as $line) {
+            $pdf->Cell(90, 5, $line, 0, 1);
+        }
+        $companyEndY = $pdf->GetY();
+
+        $pdf->SetXY(112, $startY + 4);
+        foreach ($clientLines as $line) {
+            $pdf->Cell(90, 5, $line, 0, 1);
+        }
+
+        $pdf->SetY(max($companyEndY, $pdf->GetY()) + 6);
+
+        $pdf->SetFillColor($mutedColor[0], $mutedColor[1], $mutedColor[2]);
+        $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
+        $pdf->SetFont('Arial', 'B', 8.5);
+        $pdf->Cell(10, 8, '#', 1, 0, 'C', true);
+        $pdf->Cell(90, 8, 'Detalle', 1, 0, 'L', true);
+        $pdf->Cell(20, 8, 'Qty', 1, 0, 'C', true);
+        $pdf->Cell(35, 8, 'Precio unitario', 1, 0, 'R', true);
+        $pdf->Cell(35, 8, 'Total', 1, 1, 'R', true);
+
+        $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
+        $pdf->SetFont('Arial', '', 9.2);
+        $items = $data['items'] ?? [];
+        if (!$items) {
+            $pdf->Cell(190, 10, 'Sin items registrados en la factura.', 1, 1, 'C');
+        } else {
+            foreach ($items as $index => $item) {
+                $description = mb_strimwidth(trim($item['descripcion'] ?? ''), 0, 58, '...');
+                $qty = (float)($item['cantidad'] ?? 0);
+                $unit = (float)($item['precio_unitario'] ?? 0);
+                $lineTotal = (float)($item['total'] ?? 0);
+
+                $pdf->Cell(10, 8, sprintf('%02d', $index + 1), 1, 0, 'C');
+                $pdf->Cell(90, 8, $description, 1, 0, 'L');
+                $pdf->Cell(20, 8, $qty > 0 ? (string)$qty : '-', 1, 0, 'C');
+                $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format($unit, 2, ',', '.'), 1, 0, 'R');
+                $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format($lineTotal, 2, ',', '.'), 1, 1, 'R');
+            }
+        }
+
+        $pdf->Ln(4);
+        $pdf->SetFont('Arial', '', 9.5);
+        $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
+        $pdf->Cell(120, 7, '', 0, 0);
+        $pdf->Cell(35, 7, 'Subtotal', 0, 0, 'R');
+        $pdf->Cell(35, 7, ($data['currency_symbol'] ?? '$') . ' ' . number_format((float)($data['subtotal'] ?? 0), 2, ',', '.'), 0, 1, 'R');
+        $pdf->Cell(120, 7, '', 0, 0);
+        $pdf->Cell(35, 7, 'Impuestos', 0, 0, 'R');
+        $pdf->Cell(35, 7, ($data['currency_symbol'] ?? '$') . ' ' . number_format((float)($data['taxes'] ?? 0), 2, ',', '.'), 0, 1, 'R');
+        $pdf->SetFont('Arial', 'B', 11);
+        $pdf->Cell(120, 8, '', 0, 0);
+        $pdf->Cell(35, 8, 'Total', 0, 0, 'R');
+        $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
+        $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format((float)($data['total'] ?? 0), 2, ',', '.'), 0, 1, 'R');
+
+        $noteText = trim((string)($data['notes'] ?? ''));
+        if ($noteText === '') {
+            $companyEmail = $data['company']['email'] ?? '';
+            $noteText = 'Pago dentro de 15 dias. Para consultas escribe a ' . $companyEmail . '.';
+        }
+
+        $pdf->Ln(6);
+        $pdf->SetFillColor($mutedColor[0], $mutedColor[1], $mutedColor[2]);
+        $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->MultiCell(0, 5, 'Nota: ' . $noteText, 0, 'L', true);
+
+        $signaturePath = __DIR__ . '/../../assets/images/sign.png';
+        if (is_file($signaturePath)) {
+            $pdf->Ln(6);
+            $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
+            $pdf->SetFont('Arial', 'B', 9.5);
+            $pdf->Cell(0, 5, 'Agradecemos tu preferencia', 0, 1);
+            $pdf->Image($signaturePath, 12, $pdf->GetY(), 28);
+            $pdf->Ln(12);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
+            $pdf->Cell(0, 4, 'Firma autorizada', 0, 1);
+        }
+
+        $pdf->Output('D', $data['file_name'] ?? 'Factura.pdf');
+        exit;
+    }
+
     public function store(): void
     {
         $this->requireLogin();

@@ -103,6 +103,15 @@ class DashboardController extends Controller
                  GROUP BY estado',
                 $companyParams
             );
+            $accountingJournals = $this->db->fetch('SELECT COUNT(*) as total FROM accounting_journals WHERE 1=1' . $companyFilter, $companyParams);
+            $taxPeriods = $this->db->fetch('SELECT COUNT(*) as total FROM tax_periods WHERE 1=1' . $companyFilter, $companyParams);
+            $honorariosPending = $this->db->fetch('SELECT COUNT(*) as total FROM honorarios_documents WHERE status = "pendiente"' . $companyFilter, $companyParams);
+            $fixedAssets = $this->db->fetch('SELECT COUNT(*) as total FROM fixed_assets WHERE 1=1' . $companyFilter, $companyParams);
+            $bankAccounts = $this->db->fetch('SELECT COUNT(*) as total FROM bank_accounts WHERE 1=1' . $companyFilter, $companyParams);
+            $inventoryMovesMonth = $this->db->fetch(
+                'SELECT COUNT(*) as total FROM inventory_movements WHERE movement_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)' . $companyFilter,
+                $companyParams
+            );
         } catch (PDOException $e) {
             log_message('error', 'Failed to load dashboard metrics: ' . $e->getMessage());
             $clientsActive = ['total' => 0];
@@ -127,6 +136,12 @@ class DashboardController extends Controller
             $revenueTrend = [];
             $ticketStatusSummary = [];
             $invoiceStatusSummary = [];
+            $accountingJournals = ['total' => 0];
+            $taxPeriods = ['total' => 0];
+            $honorariosPending = ['total' => 0];
+            $fixedAssets = ['total' => 0];
+            $bankAccounts = ['total' => 0];
+            $inventoryMovesMonth = ['total' => 0];
         }
 
         $this->render('dashboard/index', [
@@ -154,6 +169,12 @@ class DashboardController extends Controller
             'revenueTrend' => $revenueTrend,
             'ticketStatusSummary' => $ticketStatusSummary,
             'invoiceStatusSummary' => $invoiceStatusSummary,
+            'accountingJournals' => $accountingJournals['total'] ?? 0,
+            'taxPeriods' => $taxPeriods['total'] ?? 0,
+            'honorariosPending' => $honorariosPending['total'] ?? 0,
+            'fixedAssets' => $fixedAssets['total'] ?? 0,
+            'bankAccounts' => $bankAccounts['total'] ?? 0,
+            'inventoryMovesMonth' => $inventoryMovesMonth['total'] ?? 0,
         ]);
     }
 }

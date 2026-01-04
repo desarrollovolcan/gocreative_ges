@@ -8,10 +8,13 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Trabajador *</label>
-                    <select name="employee_id" class="form-select" required>
+                    <select name="employee_id" class="form-select" data-employee-select required>
                         <option value="">Selecciona</option>
                         <?php foreach ($employees as $employee): ?>
-                            <option value="<?php echo (int)$employee['id']; ?>">
+                            <option value="<?php echo (int)$employee['id']; ?>"
+                                data-department-id="<?php echo (int)($employee['department_id'] ?? 0); ?>"
+                                data-position-id="<?php echo (int)($employee['position_id'] ?? 0); ?>"
+                                data-hire-date="<?php echo e($employee['hire_date'] ?? ''); ?>">
                                 <?php echo e(trim(($employee['first_name'] ?? '') . ' ' . ($employee['last_name'] ?? ''))); ?> - <?php echo e($employee['rut'] ?? ''); ?>
                             </option>
                         <?php endforeach; ?>
@@ -28,7 +31,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Departamento</label>
-                    <select name="department_id" class="form-select">
+                    <select name="department_id" class="form-select" data-department-select>
                         <option value="">Selecciona</option>
                         <?php foreach ($departments as $department): ?>
                             <option value="<?php echo (int)$department['id']; ?>"><?php echo e($department['name']); ?></option>
@@ -37,7 +40,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Cargo</label>
-                    <select name="position_id" class="form-select">
+                    <select name="position_id" class="form-select" data-position-select>
                         <option value="">Selecciona</option>
                         <?php foreach ($positions as $position): ?>
                             <option value="<?php echo (int)$position['id']; ?>"><?php echo e($position['name']); ?></option>
@@ -55,7 +58,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Fecha de inicio *</label>
-                    <input type="date" name="start_date" class="form-control" required>
+                    <input type="date" name="start_date" class="form-control" data-start-date required>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Fecha de término</label>
@@ -86,3 +89,34 @@
         </form>
     </div>
 </div>
+
+<script>
+    (function() {
+        const employeeSelect = document.querySelector('[data-employee-select]');
+        const departmentSelect = document.querySelector('[data-department-select]');
+        const positionSelect = document.querySelector('[data-position-select]');
+        const startDateInput = document.querySelector('[data-start-date]');
+
+        const applyEmployeeDefaults = (option) => {
+            if (!option) {
+                return;
+            }
+            const departmentId = option.dataset.departmentId || '';
+            const positionId = option.dataset.positionId || '';
+            const hireDate = option.dataset.hireDate || '';
+            if (departmentSelect && departmentId) {
+                departmentSelect.value = departmentId;
+            }
+            if (positionSelect && positionId) {
+                positionSelect.value = positionId;
+            }
+            if (startDateInput && hireDate && !startDateInput.value) {
+                startDateInput.value = hireDate;
+            }
+        };
+
+        employeeSelect?.addEventListener('change', (event) => {
+            applyEmployeeDefaults(event.target.selectedOptions[0]);
+        });
+    })();
+</script>

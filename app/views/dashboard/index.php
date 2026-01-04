@@ -92,6 +92,105 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
         </div>
     </div>
 
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-2 mt-2">
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="stat-label">Asientos contables</p>
+                            <h3 class="stat-value"><?php echo (int)$accountingJournals; ?></h3>
+                            <span class="stat-sub">Libro diario actualizado</span>
+                        </div>
+                        <div class="stat-icon bg-secondary-subtle text-secondary">
+                            <i class="ti ti-book"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="stat-label">Períodos tributarios</p>
+                            <h3 class="stat-value"><?php echo (int)$taxPeriods; ?></h3>
+                            <span class="stat-sub">Impuestos y retenciones</span>
+                        </div>
+                        <div class="stat-icon bg-info-subtle text-info">
+                            <i class="ti ti-file-text"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="stat-label">Honorarios pendientes</p>
+                            <h3 class="stat-value"><?php echo (int)$honorariosPending; ?></h3>
+                            <span class="stat-sub">Boletas por pagar</span>
+                        </div>
+                        <div class="stat-icon bg-warning-subtle text-warning">
+                            <i class="ti ti-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="stat-label">Activos fijos</p>
+                            <h3 class="stat-value"><?php echo (int)$fixedAssets; ?></h3>
+                            <span class="stat-sub">Control patrimonial</span>
+                        </div>
+                        <div class="stat-icon bg-success-subtle text-success">
+                            <i class="ti ti-briefcase"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="stat-label">Cuentas bancarias</p>
+                            <h3 class="stat-value"><?php echo (int)$bankAccounts; ?></h3>
+                            <span class="stat-sub">Tesorería activa</span>
+                        </div>
+                        <div class="stat-icon bg-primary-subtle text-primary">
+                            <i class="ti ti-wallet"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="stat-label">Movimientos inventario</p>
+                            <h3 class="stat-value"><?php echo (int)$inventoryMovesMonth; ?></h3>
+                            <span class="stat-sub">Últimos 30 días</span>
+                        </div>
+                        <div class="stat-icon bg-danger-subtle text-danger">
+                            <i class="ti ti-layers"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-2 mt-2">
         <div class="col-xxl-8">
             <div class="card h-100">

@@ -189,52 +189,117 @@ class InvoicesController extends Controller
         $dueDate = trim($_POST['fecha_vencimiento'] ?? date('Y-m-d'));
         $notes = trim($_POST['notas'] ?? '');
 
+        $fileName = 'Factura-' . ($invoiceNumber !== '' ? $invoiceNumber : 'borrador') . '.pdf';
+        $this->outputInvoicePdf([
+            'company' => $company,
+            'client' => $client,
+            'items' => $items,
+            'currency_symbol' => $currencySymbol,
+            'invoice_number' => $invoiceNumber !== '' ? $invoiceNumber : 'Borrador',
+            'issue_date' => $issueDate,
+            'due_date' => $dueDate,
+            'subtotal' => $subtotal,
+            'taxes' => $taxes,
+            'total' => $total,
+            'notes' => $notes,
+            'file_name' => $fileName,
+        ]);
+    }
+
+    public function downloadPdf(): void
+    {
+        $this->requireLogin();
+        $companyId = current_company_id();
+        $invoiceId = (int)($_GET['id'] ?? 0);
+        if ($invoiceId <= 0) {
+            $this->redirect('index.php?route=invoices');
+        }
+        $invoice = $this->db->fetch(
+            'SELECT * FROM invoices WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $invoiceId, 'company_id' => $companyId]
+        );
+        if (!$invoice) {
+            $this->redirect('index.php?route=invoices');
+        }
+        $company = $this->db->fetch(
+            'SELECT name, rut, email, phone, address FROM companies WHERE id = :id',
+            ['id' => $companyId]
+        ) ?: [];
+        $client = $this->db->fetch(
+            'SELECT name, address, phone, email FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $invoice['client_id'], 'company_id' => $companyId]
+        ) ?: [];
+        $items = (new InvoiceItemsModel($this->db))->byInvoice($invoiceId);
+        $notes = trim($invoice['notas'] ?? '');
+        $fileName = 'Factura-' . ($invoice['numero'] ?? $invoiceId) . '.pdf';
+        $this->outputInvoicePdf([
+            'company' => $company,
+            'client' => $client,
+            'items' => $items,
+            'currency_symbol' => '$',
+            'invoice_number' => $invoice['numero'] ?? (string)$invoiceId,
+            'issue_date' => $invoice['fecha_emision'] ?? '',
+            'due_date' => $invoice['fecha_vencimiento'] ?? '',
+            'subtotal' => (float)($invoice['subtotal'] ?? 0),
+            'taxes' => (float)($invoice['impuestos'] ?? 0),
+            'total' => (float)($invoice['total'] ?? 0),
+            'notes' => $notes,
+            'file_name' => $fileName,
+        ]);
+    }
+
+    private function outputInvoicePdf(array $data): void
+    {
         require_once __DIR__ . '/../../api/fpdf/fpdf.php';
 
         $pdf = new FPDF('P', 'mm', 'A4');
-        $pdf->SetAutoPageBreak(true, 20);
+        $pdf->SetAutoPageBreak(true, 18);
         $pdf->AddPage();
 
-        $primaryColor = [20, 94, 133];
-        $accentColor = [238, 245, 249];
+        $primaryColor = [22, 102, 141];
+        $mutedColor = [240, 244, 248];
+        $textDark = [40, 40, 40];
+        $textMuted = [120, 120, 120];
 
+        $pdf->SetDrawColor($mutedColor[0], $mutedColor[1], $mutedColor[2]);
+        $pdf->SetLineWidth(0.3);
         $pdf->SetFillColor($primaryColor[0], $primaryColor[1], $primaryColor[2]);
-        $pdf->Rect(0, 0, 210, 38, 'F');
+        $pdf->Rect(0, 0, 210, 6, 'F');
 
         $logoPath = __DIR__ . '/../../logos/Logo Go color t.png';
         if (is_file($logoPath)) {
-            $pdf->Image($logoPath, 12, 10, 28);
+            $pdf->Image($logoPath, 12, 12, 26);
         }
 
-        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
         $pdf->SetFont('Arial', 'B', 16);
-        $pdf->SetXY(120, 10);
-        $pdf->Cell(78, 8, 'Factura', 0, 2, 'R');
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(78, 6, '#' . ($invoiceNumber !== '' ? $invoiceNumber : 'Borrador'), 0, 2, 'R');
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(78, 5, 'Emision: ' . $issueDate, 0, 2, 'R');
-        $pdf->Cell(78, 5, 'Vencimiento: ' . $dueDate, 0, 2, 'R');
+        $pdf->SetXY(130, 14);
+        $pdf->Cell(68, 8, 'Factura', 0, 2, 'R');
+        $pdf->SetFont('Arial', '', 11);
+        $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
+        $pdf->Cell(68, 6, 'N° ' . ($data['invoice_number'] ?? ''), 0, 2, 'R');
+        $pdf->Cell(68, 5, 'Emision: ' . ($data['issue_date'] ?? ''), 0, 2, 'R');
+        $pdf->Cell(68, 5, 'Vencimiento: ' . ($data['due_date'] ?? ''), 0, 2, 'R');
 
-        $pdf->SetTextColor(30, 30, 30);
-        $pdf->SetXY(12, 45);
-        $pdf->SetFont('Arial', 'B', 11);
+        $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->SetXY(12, 40);
         $pdf->Cell(90, 6, 'Emisor', 0, 0);
         $pdf->Cell(90, 6, 'Cliente', 0, 1);
 
-        $pdf->SetFont('Arial', '', 10);
+        $pdf->SetFont('Arial', '', 9.5);
         $companyLines = array_filter([
-            $company['name'] ?? 'GoCreative',
-            $company['rut'] ?? '',
-            $company['address'] ?? '',
-            $company['phone'] ?? '',
-            $company['email'] ?? '',
+            $data['company']['name'] ?? 'GoCreative',
+            $data['company']['rut'] ?? '',
+            $data['company']['address'] ?? '',
+            $data['company']['phone'] ?? '',
+            $data['company']['email'] ?? '',
         ]);
         $clientLines = array_filter([
-            $client['name'] ?? 'Sin cliente seleccionado',
-            $client['address'] ?? '',
-            $client['phone'] ?? '',
-            $client['email'] ?? '',
+            $data['client']['name'] ?? 'Sin cliente seleccionado',
+            $data['client']['address'] ?? '',
+            $data['client']['phone'] ?? '',
+            $data['client']['email'] ?? '',
         ]);
 
         $startY = $pdf->GetY();
@@ -251,23 +316,23 @@ class InvoicesController extends Controller
 
         $pdf->SetY(max($companyEndY, $pdf->GetY()) + 6);
 
-        $pdf->SetFillColor($accentColor[0], $accentColor[1], $accentColor[2]);
-        $pdf->SetTextColor(20, 94, 133);
-        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->SetFillColor($mutedColor[0], $mutedColor[1], $mutedColor[2]);
+        $pdf->SetTextColor($primaryColor[0], $primaryColor[1], $primaryColor[2]);
+        $pdf->SetFont('Arial', 'B', 9.5);
         $pdf->Cell(10, 8, '#', 0, 0, 'C', true);
         $pdf->Cell(90, 8, 'Detalle', 0, 0, 'L', true);
         $pdf->Cell(20, 8, 'Qty', 0, 0, 'C', true);
-        $pdf->Cell(35, 8, 'Precio unitario', 0, 0, 'R', true);
+        $pdf->Cell(35, 8, 'Precio', 0, 0, 'R', true);
         $pdf->Cell(35, 8, 'Total', 0, 1, 'R', true);
 
-        $pdf->SetTextColor(50, 50, 50);
-        $pdf->SetFont('Arial', '', 9.5);
-
+        $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
+        $pdf->SetFont('Arial', '', 9.2);
+        $items = $data['items'] ?? [];
         if (!$items) {
             $pdf->Cell(190, 10, 'Sin items registrados en la factura.', 1, 1, 'C');
         } else {
             foreach ($items as $index => $item) {
-                $description = mb_strimwidth(trim($item['descripcion'] ?? ''), 0, 60, '...');
+                $description = mb_strimwidth(trim($item['descripcion'] ?? ''), 0, 58, '...');
                 $qty = (float)($item['cantidad'] ?? 0);
                 $unit = (float)($item['precio_unitario'] ?? 0);
                 $lineTotal = (float)($item['total'] ?? 0);
@@ -275,36 +340,35 @@ class InvoicesController extends Controller
                 $pdf->Cell(10, 8, (string)($index + 1), 1, 0, 'C');
                 $pdf->Cell(90, 8, $description, 1, 0, 'L');
                 $pdf->Cell(20, 8, $qty > 0 ? (string)$qty : '-', 1, 0, 'C');
-                $pdf->Cell(35, 8, $currencySymbol . ' ' . number_format($unit, 2, ',', '.'), 1, 0, 'R');
-                $pdf->Cell(35, 8, $currencySymbol . ' ' . number_format($lineTotal, 2, ',', '.'), 1, 1, 'R');
+                $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format($unit, 2, ',', '.'), 1, 0, 'R');
+                $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format($lineTotal, 2, ',', '.'), 1, 1, 'R');
             }
         }
 
         $pdf->Ln(4);
-        $pdf->SetFillColor($accentColor[0], $accentColor[1], $accentColor[2]);
-        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->SetFillColor($mutedColor[0], $mutedColor[1], $mutedColor[2]);
+        $pdf->SetFont('Arial', 'B', 9.5);
         $pdf->Cell(120, 8, '', 0, 0);
         $pdf->Cell(35, 8, 'Subtotal', 0, 0, 'R', true);
-        $pdf->Cell(35, 8, $currencySymbol . ' ' . number_format($subtotal, 2, ',', '.'), 0, 1, 'R', true);
+        $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format((float)($data['subtotal'] ?? 0), 2, ',', '.'), 0, 1, 'R', true);
         $pdf->Cell(120, 8, '', 0, 0);
         $pdf->Cell(35, 8, 'Impuestos', 0, 0, 'R', true);
-        $pdf->Cell(35, 8, $currencySymbol . ' ' . number_format($taxes, 2, ',', '.'), 0, 1, 'R', true);
+        $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format((float)($data['taxes'] ?? 0), 2, ',', '.'), 0, 1, 'R', true);
         $pdf->Cell(120, 8, '', 0, 0);
-        $pdf->SetTextColor(20, 94, 133);
+        $pdf->SetTextColor($primaryColor[0], $primaryColor[1], $primaryColor[2]);
         $pdf->Cell(35, 8, 'Total', 0, 0, 'R', true);
-        $pdf->Cell(35, 8, $currencySymbol . ' ' . number_format($total, 2, ',', '.'), 0, 1, 'R', true);
+        $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format((float)($data['total'] ?? 0), 2, ',', '.'), 0, 1, 'R', true);
 
-        if ($notes !== '') {
+        if (!empty($data['notes'])) {
             $pdf->Ln(6);
-            $pdf->SetTextColor(30, 30, 30);
-            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
+            $pdf->SetFont('Arial', 'B', 9.5);
             $pdf->Cell(0, 6, 'Notas', 0, 1);
-            $pdf->SetFont('Arial', '', 9.5);
-            $pdf->MultiCell(0, 5, $notes, 0, 'L');
+            $pdf->SetFont('Arial', '', 9);
+            $pdf->MultiCell(0, 5, (string)$data['notes'], 0, 'L');
         }
 
-        $fileName = 'Factura-' . ($invoiceNumber !== '' ? $invoiceNumber : 'borrador') . '.pdf';
-        $pdf->Output('D', $fileName);
+        $pdf->Output('D', $data['file_name'] ?? 'Factura.pdf');
         exit;
     }
 

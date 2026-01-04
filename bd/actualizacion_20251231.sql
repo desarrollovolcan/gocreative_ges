@@ -848,6 +848,171 @@ CREATE TABLE IF NOT EXISTS hr_payroll_lines (
     FOREIGN KEY (payroll_item_id) REFERENCES hr_payroll_items(id)
 );
 
+CREATE TABLE IF NOT EXISTS accounting_accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    code VARCHAR(50) NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    type VARCHAR(30) NOT NULL,
+    level INT NOT NULL DEFAULT 1,
+    parent_id INT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (parent_id) REFERENCES accounting_accounts(id)
+);
+
+CREATE TABLE IF NOT EXISTS accounting_periods (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    period VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'abierto',
+    closed_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS accounting_journals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    entry_number VARCHAR(50) NOT NULL,
+    entry_date DATE NOT NULL,
+    description VARCHAR(255) NULL,
+    source VARCHAR(20) NOT NULL DEFAULT 'manual',
+    status VARCHAR(20) NOT NULL DEFAULT 'borrador',
+    created_by INT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS accounting_journal_lines (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    journal_id INT NOT NULL,
+    account_id INT NOT NULL,
+    line_description VARCHAR(255) NULL,
+    debit DECIMAL(12,2) NOT NULL DEFAULT 0,
+    credit DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (journal_id) REFERENCES accounting_journals(id),
+    FOREIGN KEY (account_id) REFERENCES accounting_accounts(id)
+);
+
+CREATE TABLE IF NOT EXISTS tax_periods (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    period VARCHAR(20) NOT NULL,
+    iva_debito DECIMAL(12,2) NOT NULL DEFAULT 0,
+    iva_credito DECIMAL(12,2) NOT NULL DEFAULT 0,
+    remanente DECIMAL(12,2) NOT NULL DEFAULT 0,
+    total_retenciones DECIMAL(12,2) NOT NULL DEFAULT 0,
+    impuesto_unico DECIMAL(12,2) NOT NULL DEFAULT 0,
+    status VARCHAR(20) NOT NULL DEFAULT 'pendiente',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS tax_withholdings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    period_id INT NULL,
+    type VARCHAR(50) NOT NULL,
+    base_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    rate DECIMAL(5,2) NOT NULL DEFAULT 0,
+    amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (period_id) REFERENCES tax_periods(id)
+);
+
+CREATE TABLE IF NOT EXISTS honorarios_documents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    provider_name VARCHAR(150) NOT NULL,
+    provider_rut VARCHAR(50) NULL,
+    document_number VARCHAR(50) NOT NULL,
+    issue_date DATE NOT NULL,
+    gross_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    retention_rate DECIMAL(5,2) NOT NULL DEFAULT 13,
+    retention_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    net_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    status VARCHAR(20) NOT NULL DEFAULT 'pendiente',
+    paid_at DATE NULL,
+    notes TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS fixed_assets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    category VARCHAR(100) NULL,
+    acquisition_date DATE NOT NULL,
+    acquisition_value DECIMAL(12,2) NOT NULL DEFAULT 0,
+    depreciation_method VARCHAR(30) NOT NULL DEFAULT 'linea_recta',
+    useful_life_months INT NOT NULL DEFAULT 0,
+    accumulated_depreciation DECIMAL(12,2) NOT NULL DEFAULT 0,
+    book_value DECIMAL(12,2) NOT NULL DEFAULT 0,
+    status VARCHAR(20) NOT NULL DEFAULT 'activo',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS bank_accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    bank_name VARCHAR(150) NULL,
+    account_number VARCHAR(80) NULL,
+    currency VARCHAR(10) NOT NULL DEFAULT 'CLP',
+    current_balance DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS bank_transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    bank_account_id INT NOT NULL,
+    transaction_date DATE NOT NULL,
+    description VARCHAR(255) NULL,
+    type VARCHAR(20) NOT NULL DEFAULT 'deposito',
+    amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    balance DECIMAL(12,2) NOT NULL DEFAULT 0,
+    reference VARCHAR(150) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (bank_account_id) REFERENCES bank_accounts(id)
+);
+
+CREATE TABLE IF NOT EXISTS inventory_movements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    product_id INT NOT NULL,
+    movement_date DATE NOT NULL,
+    movement_type VARCHAR(20) NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    unit_cost DECIMAL(12,2) NOT NULL DEFAULT 0,
+    reference_type VARCHAR(50) NULL,
+    reference_id INT NULL,
+    notes TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
 SET @invoices_sii_document_type := (
     SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_document_type'

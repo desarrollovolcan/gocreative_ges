@@ -230,6 +230,55 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
+            <?php if ($hasCompany && $canAccessAny(['hr_employees_view', 'hr_contracts_view', 'hr_attendance_view', 'hr_payrolls_view'])): ?>
+                <li class="side-nav-title">Recursos Humanos</li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarHr" aria-expanded="false" aria-controls="sidebarHr" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="id-card"></i></span>
+                        <span class="menu-text">Gestión RRHH</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarHr">
+                        <ul class="sub-menu">
+                            <?php if ($hasPermission('hr_employees_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/employees" class="side-nav-link">
+                                        <span class="menu-text">Trabajadores</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('hr_contracts_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/contracts" class="side-nav-link">
+                                        <span class="menu-text">Contratos</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('hr_contracts_edit')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/contracts/bulk" class="side-nav-link">
+                                        <span class="menu-text">Contratos masivos</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('hr_attendance_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/attendance" class="side-nav-link">
+                                        <span class="menu-text">Asistencia</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('hr_payrolls_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/payrolls" class="side-nav-link">
+                                        <span class="menu-text">Remuneraciones</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </li>
+            <?php endif; ?>
             <?php if ($hasCompany && $canAccessAny(['products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'sales_view', 'sales_edit'])): ?>
                 <li class="side-nav-title">Inventario</li>
                 <li class="side-nav-item">
@@ -390,7 +439,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($canAccessAny(['users_view', 'roles_view', 'users_companies_view', 'users_permissions_view', 'companies_view', 'settings_view', 'email_config_view', 'online_payments_config_view', 'system_services_view', 'service_types_view'])): ?>
+            <?php if ($canAccessAny(['users_view', 'roles_view', 'users_companies_view', 'users_permissions_view', 'companies_view', 'settings_view', 'email_config_view', 'online_payments_config_view', 'system_services_view', 'service_types_view', 'hr_maintainers_view'])): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarMaintainers" aria-expanded="false" aria-controls="sidebarMaintainers" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="database"></i></span>
@@ -465,6 +514,43 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <a href="index.php?route=maintainers/online-payments" class="side-nav-link">
                                         <span class="menu-text">Pagos en línea</span>
                                     </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasCompany && $hasPermission('hr_maintainers_view')): ?>
+                                <li class="side-nav-item">
+                                    <a data-bs-toggle="collapse" href="#sidebarMaintainersHr" aria-expanded="false" aria-controls="sidebarMaintainersHr" class="side-nav-link">
+                                        <span class="menu-text">Recursos Humanos</span>
+                                        <span class="menu-arrow"></span>
+                                    </a>
+                                    <div class="collapse" id="sidebarMaintainersHr">
+                                        <ul class="sub-menu">
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=maintainers/hr-departments" class="side-nav-link">
+                                                    <span class="menu-text">Departamentos</span>
+                                                </a>
+                                            </li>
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=maintainers/hr-positions" class="side-nav-link">
+                                                    <span class="menu-text">Cargos</span>
+                                                </a>
+                                            </li>
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=maintainers/hr-contract-types" class="side-nav-link">
+                                                    <span class="menu-text">Tipos de contrato</span>
+                                                </a>
+                                            </li>
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=maintainers/hr-work-schedules" class="side-nav-link">
+                                                    <span class="menu-text">Jornadas</span>
+                                                </a>
+                                            </li>
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=maintainers/hr-payroll-items" class="side-nav-link">
+                                                    <span class="menu-text">Ítems remuneración</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </li>
                             <?php endif; ?>
                         </ul>

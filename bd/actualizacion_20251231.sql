@@ -153,11 +153,41 @@ CREATE TABLE IF NOT EXISTS suppliers (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
-ALTER TABLE suppliers
-    ADD COLUMN IF NOT EXISTS contact_name VARCHAR(150) NULL AFTER name,
-    ADD COLUMN IF NOT EXISTS tax_id VARCHAR(50) NULL AFTER contact_name,
-    ADD COLUMN IF NOT EXISTS website VARCHAR(150) NULL AFTER address,
-    ADD COLUMN IF NOT EXISTS notes TEXT NULL AFTER website;
+SET @suppliers_contact_name := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'contact_name'
+);
+SET @sql := IF(@suppliers_contact_name = 0, 'ALTER TABLE suppliers ADD COLUMN contact_name VARCHAR(150) NULL AFTER name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_tax_id := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'tax_id'
+);
+SET @sql := IF(@suppliers_tax_id = 0, 'ALTER TABLE suppliers ADD COLUMN tax_id VARCHAR(50) NULL AFTER contact_name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_website := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'website'
+);
+SET @sql := IF(@suppliers_website = 0, 'ALTER TABLE suppliers ADD COLUMN website VARCHAR(150) NULL AFTER address;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_notes := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'notes'
+);
+SET @sql := IF(@suppliers_notes = 0, 'ALTER TABLE suppliers ADD COLUMN notes TEXT NULL AFTER website;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 CREATE TABLE IF NOT EXISTS product_families (
     id INT AUTO_INCREMENT PRIMARY KEY,

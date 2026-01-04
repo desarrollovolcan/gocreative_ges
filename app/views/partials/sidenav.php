@@ -64,6 +64,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 </li>
             <?php endif; ?>
             <?php if ($hasCompany && $hasPermission('crm_view')): ?>
+                <li class="side-nav-title">Comercial</li>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrm" aria-expanded="false" aria-controls="sidebarCrm" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="handshake"></i></span>
@@ -100,9 +101,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                         </ul>
                     </div>
                 </li>
-            <?php endif; ?>
-            <?php if ($hasCompany && $hasPermission('crm_view')): ?>
-                <li class="side-nav-title">Flujo CRM</li>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrmProspeccion" aria-expanded="false" aria-controls="sidebarCrmProspeccion" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="radar"></i></span>
@@ -116,16 +114,20 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Briefs Comerciales</span>
                                 </a>
                             </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=clients" class="side-nav-link">
-                                    <span class="menu-text">Clientes</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=quotes" class="side-nav-link">
-                                    <span class="menu-text">Cotizaciones</span>
-                                </a>
-                            </li>
+                            <?php if ($hasPermission('clients_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=clients" class="side-nav-link">
+                                        <span class="menu-text">Clientes</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('quotes_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=quotes" class="side-nav-link">
+                                        <span class="menu-text">Cotizaciones</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </li>
@@ -142,21 +144,30 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Órdenes de Venta</span>
                                 </a>
                             </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=invoices" class="side-nav-link">
-                                    <span class="menu-text">Facturas</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=payments/paid" class="side-nav-link">
-                                    <span class="menu-text">Pagos recibidos</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=payments/pending" class="side-nav-link">
-                                    <span class="menu-text">Pagos pendientes</span>
-                                </a>
-                            </li>
+                            <?php if ($hasPermission('invoices_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=invoices" class="side-nav-link">
+                                        <span class="menu-text">Facturas</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('payments_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=payments/buttons" class="side-nav-link">
+                                        <span class="menu-text">Botones de pago</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=payments/paid" class="side-nav-link">
+                                        <span class="menu-text">Pagos recibidos</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=payments/pending" class="side-nav-link">
+                                        <span class="menu-text">Pagos pendientes</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </li>
@@ -173,16 +184,20 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Renovaciones</span>
                                 </a>
                             </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=services" class="side-nav-link">
-                                    <span class="menu-text">Servicios</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=tickets" class="side-nav-link">
-                                    <span class="menu-text">Service Desk</span>
-                                </a>
-                            </li>
+                            <?php if ($hasPermission('services_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=services" class="side-nav-link">
+                                        <span class="menu-text">Servicios</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('tickets_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=tickets" class="side-nav-link">
+                                        <span class="menu-text">Service Desk</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                             <li class="side-nav-item">
                                 <a href="index.php?route=crm/reports" class="side-nav-link">
                                     <span class="menu-text">Reportes &amp; Insights</span>
@@ -293,106 +308,14 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </li>
                 <?php endif; ?>
             <?php endif; ?>
-            <?php if ($hasCompany && $hasPermission('clients_view')): ?>
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarClients" aria-expanded="false" aria-controls="sidebarClients" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="users"></i></span>
-                        <span class="menu-text">Clientes</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarClients">
-                        <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="index.php?route=clients" class="side-nav-link">
-                                    <span class="menu-text">Listado</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=clients/history" class="side-nav-link">
-                                    <span class="menu-text">Historial de clientes</span>
-                                </a>
-                            </li>
-                            <?php if ($hasPermission('tickets_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=tickets" class="side-nav-link">
-                                        <span class="menu-text">Tickets</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
-                </li>
+            <?php if ($hasCompany && $canAccessAny(['projects_view', 'products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'sales_view', 'sales_edit', 'services_view', 'services_edit', 'system_services_view', 'system_services_edit', 'service_types_view', 'service_types_edit'])): ?>
+                <li class="side-nav-title">Operaciones</li>
             <?php endif; ?>
             <?php if ($hasCompany && $hasPermission('projects_view')): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=projects" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="folder"></i></span>
                         <span class="menu-text">Proyectos</span>
-                    </a>
-                </li>
-            <?php endif; ?>
-            <?php if ($hasCompany && $canAccessAny(['hr_employees_view', 'hr_contracts_view', 'hr_attendance_view', 'hr_payrolls_view'])): ?>
-                <li class="side-nav-title">Recursos Humanos</li>
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarHr" aria-expanded="false" aria-controls="sidebarHr" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="id-card"></i></span>
-                        <span class="menu-text">Gestión RRHH</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarHr">
-                        <ul class="sub-menu">
-                            <?php if ($hasPermission('hr_employees_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=hr/employees" class="side-nav-link">
-                                        <span class="menu-text">Trabajadores</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('hr_contracts_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=hr/contracts" class="side-nav-link">
-                                        <span class="menu-text">Contratos</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('hr_contracts_edit')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=hr/contracts/bulk" class="side-nav-link">
-                                        <span class="menu-text">Contratos masivos</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('hr_attendance_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=hr/attendance" class="side-nav-link">
-                                        <span class="menu-text">Asistencia</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('hr_payrolls_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=hr/payrolls" class="side-nav-link">
-                                        <span class="menu-text">Remuneraciones</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('hr_payrolls_edit')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=hr/payrolls/bulk" class="side-nav-link">
-                                        <span class="menu-text">Liquidaciones masivas</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
-                </li>
-            <?php endif; ?>
-            <?php if ($hasCompany && $hasPermission('hr_attendance_edit')): ?>
-                <li class="side-nav-title">Reloj Control</li>
-                <li class="side-nav-item">
-                    <a href="index.php?route=hr/clock" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="qr-code"></i></span>
-                        <span class="menu-text">Marcación QR</span>
                     </a>
                 </li>
             <?php endif; ?>
@@ -496,65 +419,89 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </div>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $hasPermission('quotes_view')): ?>
+            <?php if ($hasCompany && $canAccessAny(['hr_employees_view', 'hr_contracts_view', 'hr_attendance_view', 'hr_payrolls_view'])): ?>
+                <li class="side-nav-title">Recursos Humanos</li>
                 <li class="side-nav-item">
-                    <a href="index.php?route=quotes" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="clipboard-list"></i></span>
-                        <span class="menu-text">Cotizaciones</span>
-                    </a>
-                </li>
-            <?php endif; ?>
-            <?php if ($hasCompany && $hasPermission('invoices_view')): ?>
-                <li class="side-nav-item">
-                    <a href="index.php?route=invoices" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="file-text"></i></span>
-                        <span class="menu-text">Facturas</span>
-                    </a>
-                </li>
-            <?php endif; ?>
-            <?php if ($hasCompany && $hasPermission('payments_view')): ?>
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarPayments" aria-expanded="false" aria-controls="sidebarPayments" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="credit-card"></i></span>
-                        <span class="menu-text">Pagos</span>
+                    <a data-bs-toggle="collapse" href="#sidebarHr" aria-expanded="false" aria-controls="sidebarHr" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="id-card"></i></span>
+                        <span class="menu-text">Gestión RRHH</span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse" id="sidebarPayments">
+                    <div class="collapse" id="sidebarHr">
                         <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="index.php?route=payments/buttons" class="side-nav-link">
-                                    <span class="menu-text">Botones de pago</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=payments/paid" class="side-nav-link">
-                                    <span class="menu-text">Pagos realizados</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=payments/pending" class="side-nav-link">
-                                    <span class="menu-text">Pagos pendientes</span>
-                                </a>
-                            </li>
+                            <?php if ($hasPermission('hr_employees_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/employees" class="side-nav-link">
+                                        <span class="menu-text">Trabajadores</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('hr_contracts_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/contracts" class="side-nav-link">
+                                        <span class="menu-text">Contratos</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('hr_contracts_edit')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/contracts/bulk" class="side-nav-link">
+                                        <span class="menu-text">Contratos masivos</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('hr_attendance_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/attendance" class="side-nav-link">
+                                        <span class="menu-text">Asistencia</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('hr_payrolls_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/payrolls" class="side-nav-link">
+                                        <span class="menu-text">Remuneraciones</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('hr_payrolls_edit')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=hr/payrolls/bulk" class="side-nav-link">
+                                        <span class="menu-text">Liquidaciones masivas</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $hasPermission('email_templates_view')): ?>
+            <?php if ($hasCompany && $hasPermission('hr_attendance_edit')): ?>
+                <li class="side-nav-title">Reloj Control</li>
                 <li class="side-nav-item">
-                    <a href="index.php?route=email-templates" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="mail"></i></span>
-                        <span class="menu-text">Plantillas Email</span>
+                    <a href="index.php?route=hr/clock" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="qr-code"></i></span>
+                        <span class="menu-text">Marcación QR</span>
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $hasPermission('email_queue_view')): ?>
-                <li class="side-nav-item">
-                    <a href="index.php?route=email-queue" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="send"></i></span>
-                        <span class="menu-text">Cola de Correos</span>
-                    </a>
-                </li>
+            <?php if ($hasCompany && $canAccessAny(['email_templates_view', 'email_queue_view'])): ?>
+                <li class="side-nav-title">Comunicaciones</li>
+                <?php if ($hasPermission('email_templates_view')): ?>
+                    <li class="side-nav-item">
+                        <a href="index.php?route=email-templates" class="side-nav-link">
+                            <span class="menu-icon"><i data-lucide="mail"></i></span>
+                            <span class="menu-text">Plantillas Email</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if ($hasPermission('email_queue_view')): ?>
+                    <li class="side-nav-item">
+                        <a href="index.php?route=email-queue" class="side-nav-link">
+                            <span class="menu-icon"><i data-lucide="send"></i></span>
+                            <span class="menu-text">Cola de Correos</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
             <?php endif; ?>
             <?php if ($canAccessAny(['users_view', 'roles_view', 'users_companies_view', 'users_permissions_view', 'companies_view', 'settings_view', 'email_config_view', 'online_payments_config_view', 'system_services_view', 'service_types_view', 'hr_maintainers_view'])): ?>
                 <li class="side-nav-item">

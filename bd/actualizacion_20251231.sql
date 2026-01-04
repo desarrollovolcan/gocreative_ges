@@ -153,11 +153,41 @@ CREATE TABLE IF NOT EXISTS suppliers (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
-ALTER TABLE suppliers
-    ADD COLUMN IF NOT EXISTS contact_name VARCHAR(150) NULL AFTER name,
-    ADD COLUMN IF NOT EXISTS tax_id VARCHAR(50) NULL AFTER contact_name,
-    ADD COLUMN IF NOT EXISTS website VARCHAR(150) NULL AFTER address,
-    ADD COLUMN IF NOT EXISTS notes TEXT NULL AFTER website;
+SET @suppliers_contact_name := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'contact_name'
+);
+SET @sql := IF(@suppliers_contact_name = 0, 'ALTER TABLE suppliers ADD COLUMN contact_name VARCHAR(150) NULL AFTER name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_tax_id := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'tax_id'
+);
+SET @sql := IF(@suppliers_tax_id = 0, 'ALTER TABLE suppliers ADD COLUMN tax_id VARCHAR(50) NULL AFTER contact_name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_website := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'website'
+);
+SET @sql := IF(@suppliers_website = 0, 'ALTER TABLE suppliers ADD COLUMN website VARCHAR(150) NULL AFTER address;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_notes := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'notes'
+);
+SET @sql := IF(@suppliers_notes = 0, 'ALTER TABLE suppliers ADD COLUMN notes TEXT NULL AFTER website;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 CREATE TABLE IF NOT EXISTS product_families (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -394,5 +424,156 @@ SET @sql := IF(@sale_items_service_col = 0, 'ALTER TABLE sale_items ADD COLUMN s
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+CREATE TABLE IF NOT EXISTS hr_departments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_positions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_contract_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(255) NULL,
+    max_duration_months INT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_work_schedules (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    weekly_hours INT NOT NULL DEFAULT 45,
+    start_time TIME NULL,
+    end_time TIME NULL,
+    lunch_break_minutes INT NOT NULL DEFAULT 60,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_payroll_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    item_type VARCHAR(20) NOT NULL DEFAULT 'haber',
+    taxable TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_employees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    department_id INT NULL,
+    position_id INT NULL,
+    rut VARCHAR(50) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NULL,
+    phone VARCHAR(50) NULL,
+    address VARCHAR(255) NULL,
+    hire_date DATE NOT NULL,
+    termination_date DATE NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'activo',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (department_id) REFERENCES hr_departments(id),
+    FOREIGN KEY (position_id) REFERENCES hr_positions(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_contracts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    contract_type_id INT NULL,
+    department_id INT NULL,
+    position_id INT NULL,
+    schedule_id INT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NULL,
+    salary DECIMAL(12,2) NOT NULL,
+    weekly_hours INT NOT NULL DEFAULT 45,
+    status VARCHAR(20) NOT NULL DEFAULT 'vigente',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (employee_id) REFERENCES hr_employees(id),
+    FOREIGN KEY (contract_type_id) REFERENCES hr_contract_types(id),
+    FOREIGN KEY (department_id) REFERENCES hr_departments(id),
+    FOREIGN KEY (position_id) REFERENCES hr_positions(id),
+    FOREIGN KEY (schedule_id) REFERENCES hr_work_schedules(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_attendance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    date DATE NOT NULL,
+    check_in TIME NULL,
+    check_out TIME NULL,
+    worked_hours DECIMAL(5,2) NULL,
+    overtime_hours DECIMAL(5,2) NOT NULL DEFAULT 0,
+    absence_type VARCHAR(100) NULL,
+    notes VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (employee_id) REFERENCES hr_employees(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_payrolls (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    base_salary DECIMAL(12,2) NOT NULL,
+    bonuses DECIMAL(12,2) NOT NULL DEFAULT 0,
+    deductions DECIMAL(12,2) NOT NULL DEFAULT 0,
+    net_pay DECIMAL(12,2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'borrador',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (employee_id) REFERENCES hr_employees(id)
+);
+
+CREATE TABLE IF NOT EXISTS hr_payroll_lines (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    payroll_id INT NOT NULL,
+    payroll_item_id INT NOT NULL,
+    amount DECIMAL(12,2) NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (payroll_id) REFERENCES hr_payrolls(id),
+    FOREIGN KEY (payroll_item_id) REFERENCES hr_payroll_items(id)
+);
 
 COMMIT;

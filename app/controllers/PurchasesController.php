@@ -66,6 +66,12 @@ class PurchasesController extends Controller
             flash('error', 'Proveedor no válido.');
             $this->redirect('index.php?route=purchases/create');
         }
+        $siiData = sii_document_payload($_POST);
+        $siiErrors = validate_sii_document_payload($siiData);
+        if ($siiErrors) {
+            flash('error', implode(' ', $siiErrors));
+            $this->redirect('index.php?route=purchases/create');
+        }
 
         $items = $this->collectItems($companyId);
         if (empty($items)) {
@@ -80,7 +86,7 @@ class PurchasesController extends Controller
         $pdo = $this->db->pdo();
         try {
             $pdo->beginTransaction();
-            $purchaseId = $this->purchases->create([
+            $purchaseId = $this->purchases->create(array_merge([
                 'company_id' => $companyId,
                 'supplier_id' => $supplierId,
                 'reference' => trim($_POST['reference'] ?? ''),
@@ -92,7 +98,7 @@ class PurchasesController extends Controller
                 'notes' => trim($_POST['notes'] ?? ''),
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
-            ]);
+            ], $siiData));
 
             foreach ($items as $item) {
                 $this->purchaseItems->create([

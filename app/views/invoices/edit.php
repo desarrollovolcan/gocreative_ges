@@ -85,6 +85,22 @@ if (empty($invoiceItems)) {
                     <textarea name="notas" class="form-control" rows="3"><?php echo e($invoice['notas'] ?? ''); ?></textarea>
                 </div>
             </div>
+            <?php
+            $siiData = [
+                'sii_document_type' => $invoice['sii_document_type'] ?? ($invoiceDefaults['sii_document_type'] ?? 'factura_electronica'),
+                'sii_document_number' => $invoice['sii_document_number'] ?? '',
+                'sii_receiver_rut' => $invoice['sii_receiver_rut'] ?? '',
+                'sii_receiver_name' => $invoice['sii_receiver_name'] ?? '',
+                'sii_receiver_giro' => $invoice['sii_receiver_giro'] ?? '',
+                'sii_receiver_activity_code' => $invoice['sii_receiver_activity_code'] ?? '',
+                'sii_receiver_address' => $invoice['sii_receiver_address'] ?? '',
+                'sii_receiver_commune' => $invoice['sii_receiver_commune'] ?? '',
+                'sii_receiver_city' => $invoice['sii_receiver_city'] ?? '',
+                'sii_tax_rate' => $invoice['sii_tax_rate'] ?? ($invoiceDefaults['tax_rate'] ?? 19),
+                'sii_exempt_amount' => $invoice['sii_exempt_amount'] ?? 0,
+            ];
+            include __DIR__ . '/../partials/sii-document-fields.php';
+            ?>
             <div class="card mb-3">
                 <div class="card-header">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">

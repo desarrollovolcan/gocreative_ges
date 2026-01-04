@@ -76,6 +76,22 @@ $item = $items[0] ?? [
                     </select>
                 </div>
             </div>
+            <?php
+            $siiData = [
+                'sii_document_type' => $quote['sii_document_type'] ?? 'factura_electronica',
+                'sii_document_number' => $quote['sii_document_number'] ?? '',
+                'sii_receiver_rut' => $quote['sii_receiver_rut'] ?? '',
+                'sii_receiver_name' => $quote['sii_receiver_name'] ?? '',
+                'sii_receiver_giro' => $quote['sii_receiver_giro'] ?? '',
+                'sii_receiver_activity_code' => $quote['sii_receiver_activity_code'] ?? '',
+                'sii_receiver_address' => $quote['sii_receiver_address'] ?? '',
+                'sii_receiver_commune' => $quote['sii_receiver_commune'] ?? '',
+                'sii_receiver_city' => $quote['sii_receiver_city'] ?? '',
+                'sii_tax_rate' => $quote['sii_tax_rate'] ?? 19,
+                'sii_exempt_amount' => $quote['sii_exempt_amount'] ?? 0,
+            ];
+            include __DIR__ . '/../partials/sii-document-fields.php';
+            ?>
 
             <div class="table-responsive mt-3">
                 <table class="table table-bordered align-middle">

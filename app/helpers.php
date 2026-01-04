@@ -241,6 +241,111 @@ function upload_avatar(?array $file, string $prefix): array
     return ['path' => 'storage/uploads/avatars/' . $filename, 'error' => null];
 }
 
+function normalize_rut(?string $rut): string
+{
+    $rut = strtoupper((string)$rut);
+    $rut = preg_replace('/[^0-9K]/', '', $rut ?? '');
+    if ($rut === '' || strlen($rut) < 2) {
+        return '';
+    }
+    $body = substr($rut, 0, -1);
+    $dv = substr($rut, -1);
+    return $body . '-' . $dv;
+}
+
+function is_valid_rut(string $rut): bool
+{
+    $rut = strtoupper(preg_replace('/[^0-9K]/', '', $rut));
+    if ($rut === '' || strlen($rut) < 2) {
+        return false;
+    }
+    $body = substr($rut, 0, -1);
+    $dv = substr($rut, -1);
+    $sum = 0;
+    $multiplier = 2;
+    for ($i = strlen($body) - 1; $i >= 0; $i--) {
+        $sum += (int)$body[$i] * $multiplier;
+        $multiplier = $multiplier === 7 ? 2 : $multiplier + 1;
+    }
+    $remainder = 11 - ($sum % 11);
+    $expected = match ($remainder) {
+        11 => '0',
+        10 => 'K',
+        default => (string)$remainder,
+    };
+    return $dv === $expected;
+}
+
+function sii_document_types(): array
+{
+    return [
+        'factura_electronica' => 'Factura electrónica',
+        'factura_exenta' => 'Factura exenta',
+        'boleta_electronica' => 'Boleta electrónica',
+        'nota_credito' => 'Nota de crédito',
+        'nota_debito' => 'Nota de débito',
+        'guia_despacho' => 'Guía de despacho',
+        'otro' => 'Otro documento',
+    ];
+}
+
+function sii_document_payload(array $source): array
+{
+    $payload = [
+        'sii_document_type' => trim((string)($source['sii_document_type'] ?? '')),
+        'sii_document_number' => trim((string)($source['sii_document_number'] ?? '')),
+        'sii_receiver_rut' => normalize_rut($source['sii_receiver_rut'] ?? ''),
+        'sii_receiver_name' => trim((string)($source['sii_receiver_name'] ?? '')),
+        'sii_receiver_giro' => trim((string)($source['sii_receiver_giro'] ?? '')),
+        'sii_receiver_activity_code' => trim((string)($source['sii_receiver_activity_code'] ?? '')),
+        'sii_receiver_address' => trim((string)($source['sii_receiver_address'] ?? '')),
+        'sii_receiver_commune' => trim((string)($source['sii_receiver_commune'] ?? '')),
+        'sii_receiver_city' => trim((string)($source['sii_receiver_city'] ?? '')),
+        'sii_tax_rate' => (float)($source['sii_tax_rate'] ?? 19),
+        'sii_exempt_amount' => (float)($source['sii_exempt_amount'] ?? 0),
+    ];
+    return $payload;
+}
+
+function sii_required_fields(): array
+{
+    return [
+        'sii_document_type' => 'el tipo de documento',
+        'sii_document_number' => 'el folio del documento',
+        'sii_receiver_rut' => 'el RUT del receptor',
+        'sii_receiver_name' => 'la razón social del receptor',
+        'sii_receiver_giro' => 'el giro del receptor',
+        'sii_receiver_address' => 'la dirección del receptor',
+        'sii_receiver_commune' => 'la comuna del receptor',
+        'sii_receiver_city' => 'la ciudad del receptor',
+    ];
+}
+
+function validate_sii_document_payload(array $payload, ?array $requiredFields = null): array
+{
+    $requiredFields = $requiredFields ?? sii_required_fields();
+    $errors = [];
+    foreach ($requiredFields as $field => $label) {
+        if (trim((string)($payload[$field] ?? '')) === '') {
+            $errors[] = 'Completa ' . $label . '.';
+        }
+    }
+    $documentTypes = sii_document_types();
+    if (!empty($payload['sii_document_type']) && !array_key_exists($payload['sii_document_type'], $documentTypes)) {
+        $errors[] = 'Selecciona un tipo de documento válido.';
+    }
+    if (!empty($payload['sii_receiver_rut']) && !is_valid_rut($payload['sii_receiver_rut'])) {
+        $errors[] = 'El RUT del receptor no es válido.';
+    }
+    if (($payload['sii_tax_rate'] ?? 0) < 0 || ($payload['sii_tax_rate'] ?? 0) > 100) {
+        $errors[] = 'La tasa de impuesto debe estar entre 0 y 100.';
+    }
+    if (($payload['sii_exempt_amount'] ?? 0) < 0) {
+        $errors[] = 'El monto exento no puede ser negativo.';
+    }
+    return $errors;
+}
+
 function upload_company_logo(?array $file, string $prefix): array
 {
     if ($file === null || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {

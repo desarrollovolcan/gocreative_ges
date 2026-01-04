@@ -258,6 +258,12 @@ class InvoicesController extends Controller
         $pdf->SetAutoPageBreak(true, 18);
         $pdf->AddPage();
 
+        $normalizeText = static function ($text): string {
+            $text = (string)($text ?? '');
+            $converted = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
+            return $converted !== false ? $converted : utf8_decode($text);
+        };
+
         $primaryColor = [24, 119, 190];
         $mutedColor = [243, 246, 250];
         $borderColor = [225, 231, 238];
@@ -284,24 +290,29 @@ class InvoicesController extends Controller
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->SetTextColor($primaryColor[0], $primaryColor[1], $primaryColor[2]);
         $pdf->SetFillColor(227, 240, 252);
-        $pdf->Cell(40, 6, $statusLabel, 0, 2, 'C', true);
+        $pdf->Cell(76, 6, $normalizeText($statusLabel), 0, 2, 'C', true);
 
         $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
         $pdf->SetFont('Arial', 'B', 15);
-        $pdf->Cell(76, 7, 'Factura #' . ($data['invoice_number'] ?? ''), 0, 2, 'R');
+        $pdf->Cell(76, 8, $normalizeText('Factura #' . ($data['invoice_number'] ?? '')), 0, 2, 'R');
         $pdf->SetFont('Arial', '', 9.5);
         $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
-        $pdf->Cell(76, 5, 'Fecha emision: ' . ($data['issue_date'] ?? ''), 0, 2, 'R');
-        $pdf->Cell(76, 5, 'Fecha vencimiento: ' . ($data['due_date'] ?? ''), 0, 2, 'R');
+        $pdf->Cell(76, 5, $normalizeText('Fecha emisión: ' . ($data['issue_date'] ?? '')), 0, 2, 'R');
+        $pdf->Cell(76, 5, $normalizeText('Fecha vencimiento: ' . ($data['due_date'] ?? '')), 0, 2, 'R');
 
         $pdf->SetDrawColor($borderColor[0], $borderColor[1], $borderColor[2]);
         $pdf->Line(12, 36, 198, 36);
 
+        $leftX = 12;
+        $rightX = 108;
+        $blockTop = 40;
+
         $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
         $pdf->SetFont('Arial', 'B', 9);
-        $pdf->SetXY(12, 40);
-        $pdf->Cell(90, 6, 'Emisor', 0, 0);
-        $pdf->Cell(90, 6, 'Cliente', 0, 1);
+        $pdf->SetXY($leftX, $blockTop);
+        $pdf->Cell(90, 6, $normalizeText('Emisor'), 0, 0);
+        $pdf->SetXY($rightX, $blockTop);
+        $pdf->Cell(90, 6, $normalizeText('Cliente'), 0, 1);
 
         $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
         $pdf->SetFont('Arial', '', 9.5);
@@ -318,34 +329,33 @@ class InvoicesController extends Controller
             $data['client']['email'] ?? '',
         ]);
 
-        $startY = $pdf->GetY();
-        $pdf->SetXY(12, $startY + 4);
-        foreach ($companyLines as $line) {
-            $pdf->Cell(90, 5, $line, 0, 1);
-        }
+        $contentTop = $blockTop + 6;
+        $pdf->SetXY($leftX, $contentTop);
+        $companyText = $normalizeText(implode("\n", $companyLines));
+        $pdf->MultiCell(90, 5, $companyText, 0, 'L');
         $companyEndY = $pdf->GetY();
 
-        $pdf->SetXY(112, $startY + 4);
-        foreach ($clientLines as $line) {
-            $pdf->Cell(90, 5, $line, 0, 1);
-        }
+        $pdf->SetXY($rightX, $contentTop);
+        $clientText = $normalizeText(implode("\n", $clientLines));
+        $pdf->MultiCell(90, 5, $clientText, 0, 'L');
+        $clientEndY = $pdf->GetY();
 
-        $pdf->SetY(max($companyEndY, $pdf->GetY()) + 6);
+        $pdf->SetY(max($companyEndY, $clientEndY) + 8);
 
         $pdf->SetFillColor($mutedColor[0], $mutedColor[1], $mutedColor[2]);
         $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
         $pdf->SetFont('Arial', 'B', 8.5);
         $pdf->Cell(10, 8, '#', 1, 0, 'C', true);
-        $pdf->Cell(90, 8, 'Detalle', 1, 0, 'L', true);
+        $pdf->Cell(90, 8, $normalizeText('Detalle'), 1, 0, 'L', true);
         $pdf->Cell(20, 8, 'Qty', 1, 0, 'C', true);
-        $pdf->Cell(35, 8, 'Precio unitario', 1, 0, 'R', true);
-        $pdf->Cell(35, 8, 'Total', 1, 1, 'R', true);
+        $pdf->Cell(35, 8, $normalizeText('Precio unitario'), 1, 0, 'R', true);
+        $pdf->Cell(35, 8, $normalizeText('Total'), 1, 1, 'R', true);
 
         $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
         $pdf->SetFont('Arial', '', 9.2);
         $items = $data['items'] ?? [];
         if (!$items) {
-            $pdf->Cell(190, 10, 'Sin items registrados en la factura.', 1, 1, 'C');
+            $pdf->Cell(190, 10, $normalizeText('Sin items registrados en la factura.'), 1, 1, 'C');
         } else {
             foreach ($items as $index => $item) {
                 $description = mb_strimwidth(trim($item['descripcion'] ?? ''), 0, 58, '...');
@@ -354,7 +364,7 @@ class InvoicesController extends Controller
                 $lineTotal = (float)($item['total'] ?? 0);
 
                 $pdf->Cell(10, 8, sprintf('%02d', $index + 1), 1, 0, 'C');
-                $pdf->Cell(90, 8, $description, 1, 0, 'L');
+                $pdf->Cell(90, 8, $normalizeText($description), 1, 0, 'L');
                 $pdf->Cell(20, 8, $qty > 0 ? (string)$qty : '-', 1, 0, 'C');
                 $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format($unit, 2, ',', '.'), 1, 0, 'R');
                 $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format($lineTotal, 2, ',', '.'), 1, 1, 'R');
@@ -365,40 +375,42 @@ class InvoicesController extends Controller
         $pdf->SetFont('Arial', '', 9.5);
         $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
         $pdf->Cell(120, 7, '', 0, 0);
-        $pdf->Cell(35, 7, 'Subtotal', 0, 0, 'R');
+        $pdf->Cell(35, 7, $normalizeText('Subtotal'), 0, 0, 'R');
         $pdf->Cell(35, 7, ($data['currency_symbol'] ?? '$') . ' ' . number_format((float)($data['subtotal'] ?? 0), 2, ',', '.'), 0, 1, 'R');
         $pdf->Cell(120, 7, '', 0, 0);
-        $pdf->Cell(35, 7, 'Impuestos', 0, 0, 'R');
+        $pdf->Cell(35, 7, $normalizeText('Impuestos'), 0, 0, 'R');
         $pdf->Cell(35, 7, ($data['currency_symbol'] ?? '$') . ' ' . number_format((float)($data['taxes'] ?? 0), 2, ',', '.'), 0, 1, 'R');
         $pdf->SetFont('Arial', 'B', 11);
         $pdf->Cell(120, 8, '', 0, 0);
-        $pdf->Cell(35, 8, 'Total', 0, 0, 'R');
+        $pdf->Cell(35, 8, $normalizeText('Total'), 0, 0, 'R');
         $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
         $pdf->Cell(35, 8, ($data['currency_symbol'] ?? '$') . ' ' . number_format((float)($data['total'] ?? 0), 2, ',', '.'), 0, 1, 'R');
 
         $noteText = trim((string)($data['notes'] ?? ''));
         if ($noteText === '') {
             $companyEmail = $data['company']['email'] ?? '';
-            $noteText = 'Pago dentro de 15 dias. Para consultas escribe a ' . $companyEmail . '.';
+            $noteText = $companyEmail !== ''
+                ? 'Pago dentro de 15 días. Para consultas escribe a ' . $companyEmail . '.'
+                : 'Pago dentro de 15 días. Para consultas, contáctanos.';
         }
 
         $pdf->Ln(6);
         $pdf->SetFillColor($mutedColor[0], $mutedColor[1], $mutedColor[2]);
         $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
         $pdf->SetFont('Arial', '', 9);
-        $pdf->MultiCell(0, 5, 'Nota: ' . $noteText, 0, 'L', true);
+        $pdf->MultiCell(0, 5, $normalizeText('Nota: ' . $noteText), 0, 'L', true);
 
         $signaturePath = __DIR__ . '/../../assets/images/sign.png';
         if (is_file($signaturePath)) {
             $pdf->Ln(6);
             $pdf->SetTextColor($textDark[0], $textDark[1], $textDark[2]);
             $pdf->SetFont('Arial', 'B', 9.5);
-            $pdf->Cell(0, 5, 'Agradecemos tu preferencia', 0, 1);
+            $pdf->Cell(0, 5, $normalizeText('Agradecemos tu preferencia'), 0, 1);
             $pdf->Image($signaturePath, 12, $pdf->GetY(), 28);
             $pdf->Ln(12);
             $pdf->SetFont('Arial', '', 8);
             $pdf->SetTextColor($textMuted[0], $textMuted[1], $textMuted[2]);
-            $pdf->Cell(0, 4, 'Firma autorizada', 0, 1);
+            $pdf->Cell(0, 4, $normalizeText('Firma autorizada'), 0, 1);
         }
 
         $pdf->Output('D', $data['file_name'] ?? 'Factura.pdf');

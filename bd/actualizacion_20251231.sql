@@ -848,4 +848,565 @@ CREATE TABLE IF NOT EXISTS hr_payroll_lines (
     FOREIGN KEY (payroll_item_id) REFERENCES hr_payroll_items(id)
 );
 
+CREATE TABLE IF NOT EXISTS accounting_accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    code VARCHAR(50) NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    type VARCHAR(30) NOT NULL,
+    level INT NOT NULL DEFAULT 1,
+    parent_id INT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (parent_id) REFERENCES accounting_accounts(id)
+);
+
+CREATE TABLE IF NOT EXISTS accounting_periods (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    period VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'abierto',
+    closed_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS accounting_journals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    entry_number VARCHAR(50) NOT NULL,
+    entry_date DATE NOT NULL,
+    description VARCHAR(255) NULL,
+    source VARCHAR(20) NOT NULL DEFAULT 'manual',
+    status VARCHAR(20) NOT NULL DEFAULT 'borrador',
+    created_by INT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS accounting_journal_lines (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    journal_id INT NOT NULL,
+    account_id INT NOT NULL,
+    line_description VARCHAR(255) NULL,
+    debit DECIMAL(12,2) NOT NULL DEFAULT 0,
+    credit DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (journal_id) REFERENCES accounting_journals(id),
+    FOREIGN KEY (account_id) REFERENCES accounting_accounts(id)
+);
+
+CREATE TABLE IF NOT EXISTS tax_periods (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    period VARCHAR(20) NOT NULL,
+    iva_debito DECIMAL(12,2) NOT NULL DEFAULT 0,
+    iva_credito DECIMAL(12,2) NOT NULL DEFAULT 0,
+    remanente DECIMAL(12,2) NOT NULL DEFAULT 0,
+    total_retenciones DECIMAL(12,2) NOT NULL DEFAULT 0,
+    impuesto_unico DECIMAL(12,2) NOT NULL DEFAULT 0,
+    status VARCHAR(20) NOT NULL DEFAULT 'pendiente',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS tax_withholdings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    period_id INT NULL,
+    type VARCHAR(50) NOT NULL,
+    base_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    rate DECIMAL(5,2) NOT NULL DEFAULT 0,
+    amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (period_id) REFERENCES tax_periods(id)
+);
+
+CREATE TABLE IF NOT EXISTS honorarios_documents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    provider_name VARCHAR(150) NOT NULL,
+    provider_rut VARCHAR(50) NULL,
+    document_number VARCHAR(50) NOT NULL,
+    issue_date DATE NOT NULL,
+    gross_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    retention_rate DECIMAL(5,2) NOT NULL DEFAULT 13,
+    retention_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    net_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    status VARCHAR(20) NOT NULL DEFAULT 'pendiente',
+    paid_at DATE NULL,
+    notes TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS fixed_assets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    category VARCHAR(100) NULL,
+    acquisition_date DATE NOT NULL,
+    acquisition_value DECIMAL(12,2) NOT NULL DEFAULT 0,
+    depreciation_method VARCHAR(30) NOT NULL DEFAULT 'linea_recta',
+    useful_life_months INT NOT NULL DEFAULT 0,
+    accumulated_depreciation DECIMAL(12,2) NOT NULL DEFAULT 0,
+    book_value DECIMAL(12,2) NOT NULL DEFAULT 0,
+    status VARCHAR(20) NOT NULL DEFAULT 'activo',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS bank_accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    bank_name VARCHAR(150) NULL,
+    account_number VARCHAR(80) NULL,
+    currency VARCHAR(10) NOT NULL DEFAULT 'CLP',
+    current_balance DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS bank_transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    bank_account_id INT NOT NULL,
+    transaction_date DATE NOT NULL,
+    description VARCHAR(255) NULL,
+    type VARCHAR(20) NOT NULL DEFAULT 'deposito',
+    amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    balance DECIMAL(12,2) NOT NULL DEFAULT 0,
+    reference VARCHAR(150) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (bank_account_id) REFERENCES bank_accounts(id)
+);
+
+CREATE TABLE IF NOT EXISTS inventory_movements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    product_id INT NOT NULL,
+    movement_date DATE NOT NULL,
+    movement_type VARCHAR(20) NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    unit_cost DECIMAL(12,2) NOT NULL DEFAULT 0,
+    reference_type VARCHAR(50) NULL,
+    reference_id INT NULL,
+    notes TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+SET @invoices_sii_document_type := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_document_type'
+);
+SET @sql := IF(@invoices_sii_document_type = 0, 'ALTER TABLE invoices ADD COLUMN sii_document_type VARCHAR(50) NULL AFTER total;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @invoices_sii_document_number := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_document_number'
+);
+SET @sql := IF(@invoices_sii_document_number = 0, 'ALTER TABLE invoices ADD COLUMN sii_document_number VARCHAR(50) NULL AFTER sii_document_type;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @invoices_sii_receiver_rut := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_receiver_rut'
+);
+SET @sql := IF(@invoices_sii_receiver_rut = 0, 'ALTER TABLE invoices ADD COLUMN sii_receiver_rut VARCHAR(50) NULL AFTER sii_document_number;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @invoices_sii_receiver_name := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_receiver_name'
+);
+SET @sql := IF(@invoices_sii_receiver_name = 0, 'ALTER TABLE invoices ADD COLUMN sii_receiver_name VARCHAR(150) NULL AFTER sii_receiver_rut;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @invoices_sii_receiver_giro := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_receiver_giro'
+);
+SET @sql := IF(@invoices_sii_receiver_giro = 0, 'ALTER TABLE invoices ADD COLUMN sii_receiver_giro VARCHAR(150) NULL AFTER sii_receiver_name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @invoices_sii_receiver_activity_code := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_receiver_activity_code'
+);
+SET @sql := IF(@invoices_sii_receiver_activity_code = 0, 'ALTER TABLE invoices ADD COLUMN sii_receiver_activity_code VARCHAR(50) NULL AFTER sii_receiver_giro;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @invoices_sii_receiver_address := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_receiver_address'
+);
+SET @sql := IF(@invoices_sii_receiver_address = 0, 'ALTER TABLE invoices ADD COLUMN sii_receiver_address VARCHAR(255) NULL AFTER sii_receiver_activity_code;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @invoices_sii_receiver_commune := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_receiver_commune'
+);
+SET @sql := IF(@invoices_sii_receiver_commune = 0, 'ALTER TABLE invoices ADD COLUMN sii_receiver_commune VARCHAR(100) NULL AFTER sii_receiver_address;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @invoices_sii_receiver_city := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_receiver_city'
+);
+SET @sql := IF(@invoices_sii_receiver_city = 0, 'ALTER TABLE invoices ADD COLUMN sii_receiver_city VARCHAR(100) NULL AFTER sii_receiver_commune;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @invoices_sii_tax_rate := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_tax_rate'
+);
+SET @sql := IF(@invoices_sii_tax_rate = 0, 'ALTER TABLE invoices ADD COLUMN sii_tax_rate DECIMAL(5,2) NOT NULL DEFAULT 19 AFTER sii_receiver_city;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @invoices_sii_exempt_amount := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'sii_exempt_amount'
+);
+SET @sql := IF(@invoices_sii_exempt_amount = 0, 'ALTER TABLE invoices ADD COLUMN sii_exempt_amount DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER sii_tax_rate;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_document_type := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_document_type'
+);
+SET @sql := IF(@quotes_sii_document_type = 0, 'ALTER TABLE quotes ADD COLUMN sii_document_type VARCHAR(50) NULL AFTER total;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_document_number := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_document_number'
+);
+SET @sql := IF(@quotes_sii_document_number = 0, 'ALTER TABLE quotes ADD COLUMN sii_document_number VARCHAR(50) NULL AFTER sii_document_type;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_receiver_rut := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_receiver_rut'
+);
+SET @sql := IF(@quotes_sii_receiver_rut = 0, 'ALTER TABLE quotes ADD COLUMN sii_receiver_rut VARCHAR(50) NULL AFTER sii_document_number;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_receiver_name := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_receiver_name'
+);
+SET @sql := IF(@quotes_sii_receiver_name = 0, 'ALTER TABLE quotes ADD COLUMN sii_receiver_name VARCHAR(150) NULL AFTER sii_receiver_rut;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_receiver_giro := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_receiver_giro'
+);
+SET @sql := IF(@quotes_sii_receiver_giro = 0, 'ALTER TABLE quotes ADD COLUMN sii_receiver_giro VARCHAR(150) NULL AFTER sii_receiver_name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_receiver_activity_code := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_receiver_activity_code'
+);
+SET @sql := IF(@quotes_sii_receiver_activity_code = 0, 'ALTER TABLE quotes ADD COLUMN sii_receiver_activity_code VARCHAR(50) NULL AFTER sii_receiver_giro;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_receiver_address := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_receiver_address'
+);
+SET @sql := IF(@quotes_sii_receiver_address = 0, 'ALTER TABLE quotes ADD COLUMN sii_receiver_address VARCHAR(255) NULL AFTER sii_receiver_activity_code;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_receiver_commune := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_receiver_commune'
+);
+SET @sql := IF(@quotes_sii_receiver_commune = 0, 'ALTER TABLE quotes ADD COLUMN sii_receiver_commune VARCHAR(100) NULL AFTER sii_receiver_address;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_receiver_city := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_receiver_city'
+);
+SET @sql := IF(@quotes_sii_receiver_city = 0, 'ALTER TABLE quotes ADD COLUMN sii_receiver_city VARCHAR(100) NULL AFTER sii_receiver_commune;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_tax_rate := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_tax_rate'
+);
+SET @sql := IF(@quotes_sii_tax_rate = 0, 'ALTER TABLE quotes ADD COLUMN sii_tax_rate DECIMAL(5,2) NOT NULL DEFAULT 19 AFTER sii_receiver_city;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @quotes_sii_exempt_amount := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'sii_exempt_amount'
+);
+SET @sql := IF(@quotes_sii_exempt_amount = 0, 'ALTER TABLE quotes ADD COLUMN sii_exempt_amount DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER sii_tax_rate;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_document_type := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_document_type'
+);
+SET @sql := IF(@purchases_sii_document_type = 0, 'ALTER TABLE purchases ADD COLUMN sii_document_type VARCHAR(50) NULL AFTER total;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_document_number := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_document_number'
+);
+SET @sql := IF(@purchases_sii_document_number = 0, 'ALTER TABLE purchases ADD COLUMN sii_document_number VARCHAR(50) NULL AFTER sii_document_type;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_receiver_rut := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_receiver_rut'
+);
+SET @sql := IF(@purchases_sii_receiver_rut = 0, 'ALTER TABLE purchases ADD COLUMN sii_receiver_rut VARCHAR(50) NULL AFTER sii_document_number;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_receiver_name := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_receiver_name'
+);
+SET @sql := IF(@purchases_sii_receiver_name = 0, 'ALTER TABLE purchases ADD COLUMN sii_receiver_name VARCHAR(150) NULL AFTER sii_receiver_rut;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_receiver_giro := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_receiver_giro'
+);
+SET @sql := IF(@purchases_sii_receiver_giro = 0, 'ALTER TABLE purchases ADD COLUMN sii_receiver_giro VARCHAR(150) NULL AFTER sii_receiver_name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_receiver_activity_code := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_receiver_activity_code'
+);
+SET @sql := IF(@purchases_sii_receiver_activity_code = 0, 'ALTER TABLE purchases ADD COLUMN sii_receiver_activity_code VARCHAR(50) NULL AFTER sii_receiver_giro;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_receiver_address := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_receiver_address'
+);
+SET @sql := IF(@purchases_sii_receiver_address = 0, 'ALTER TABLE purchases ADD COLUMN sii_receiver_address VARCHAR(255) NULL AFTER sii_receiver_activity_code;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_receiver_commune := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_receiver_commune'
+);
+SET @sql := IF(@purchases_sii_receiver_commune = 0, 'ALTER TABLE purchases ADD COLUMN sii_receiver_commune VARCHAR(100) NULL AFTER sii_receiver_address;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_receiver_city := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_receiver_city'
+);
+SET @sql := IF(@purchases_sii_receiver_city = 0, 'ALTER TABLE purchases ADD COLUMN sii_receiver_city VARCHAR(100) NULL AFTER sii_receiver_commune;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_tax_rate := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_tax_rate'
+);
+SET @sql := IF(@purchases_sii_tax_rate = 0, 'ALTER TABLE purchases ADD COLUMN sii_tax_rate DECIMAL(5,2) NOT NULL DEFAULT 19 AFTER sii_receiver_city;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @purchases_sii_exempt_amount := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchases' AND COLUMN_NAME = 'sii_exempt_amount'
+);
+SET @sql := IF(@purchases_sii_exempt_amount = 0, 'ALTER TABLE purchases ADD COLUMN sii_exempt_amount DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER sii_tax_rate;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_document_type := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_document_type'
+);
+SET @sql := IF(@sales_sii_document_type = 0, 'ALTER TABLE sales ADD COLUMN sii_document_type VARCHAR(50) NULL AFTER total;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_document_number := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_document_number'
+);
+SET @sql := IF(@sales_sii_document_number = 0, 'ALTER TABLE sales ADD COLUMN sii_document_number VARCHAR(50) NULL AFTER sii_document_type;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_receiver_rut := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_receiver_rut'
+);
+SET @sql := IF(@sales_sii_receiver_rut = 0, 'ALTER TABLE sales ADD COLUMN sii_receiver_rut VARCHAR(50) NULL AFTER sii_document_number;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_receiver_name := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_receiver_name'
+);
+SET @sql := IF(@sales_sii_receiver_name = 0, 'ALTER TABLE sales ADD COLUMN sii_receiver_name VARCHAR(150) NULL AFTER sii_receiver_rut;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_receiver_giro := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_receiver_giro'
+);
+SET @sql := IF(@sales_sii_receiver_giro = 0, 'ALTER TABLE sales ADD COLUMN sii_receiver_giro VARCHAR(150) NULL AFTER sii_receiver_name;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_receiver_activity_code := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_receiver_activity_code'
+);
+SET @sql := IF(@sales_sii_receiver_activity_code = 0, 'ALTER TABLE sales ADD COLUMN sii_receiver_activity_code VARCHAR(50) NULL AFTER sii_receiver_giro;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_receiver_address := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_receiver_address'
+);
+SET @sql := IF(@sales_sii_receiver_address = 0, 'ALTER TABLE sales ADD COLUMN sii_receiver_address VARCHAR(255) NULL AFTER sii_receiver_activity_code;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_receiver_commune := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_receiver_commune'
+);
+SET @sql := IF(@sales_sii_receiver_commune = 0, 'ALTER TABLE sales ADD COLUMN sii_receiver_commune VARCHAR(100) NULL AFTER sii_receiver_address;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_receiver_city := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_receiver_city'
+);
+SET @sql := IF(@sales_sii_receiver_city = 0, 'ALTER TABLE sales ADD COLUMN sii_receiver_city VARCHAR(100) NULL AFTER sii_receiver_commune;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_tax_rate := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_tax_rate'
+);
+SET @sql := IF(@sales_sii_tax_rate = 0, 'ALTER TABLE sales ADD COLUMN sii_tax_rate DECIMAL(5,2) NOT NULL DEFAULT 19 AFTER sii_receiver_city;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sales_sii_exempt_amount := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sales' AND COLUMN_NAME = 'sii_exempt_amount'
+);
+SET @sql := IF(@sales_sii_exempt_amount = 0, 'ALTER TABLE sales ADD COLUMN sii_exempt_amount DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER sii_tax_rate;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 COMMIT;

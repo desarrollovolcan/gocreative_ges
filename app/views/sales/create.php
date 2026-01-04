@@ -216,6 +216,16 @@
                             </div>
                         </div>
                         <div class="col-12">
+                            <?php
+                            $siiData = [
+                                'sii_document_type' => $isPos ? 'boleta_electronica' : 'factura_electronica',
+                                'sii_tax_rate' => 19,
+                                'sii_exempt_amount' => 0,
+                            ];
+                            include __DIR__ . '/../partials/sii-document-fields.php';
+                            ?>
+                        </div>
+                        <div class="col-12">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div>
                                     <label class="form-label mb-0">Productos / Servicios</label>

@@ -60,6 +60,14 @@
                     <textarea name="notas" class="form-control" rows="3"></textarea>
                 </div>
             </div>
+            <?php
+            $siiData = [
+                'sii_document_type' => $invoiceDefaults['sii_document_type'] ?? 'factura_electronica',
+                'sii_tax_rate' => $invoiceDefaults['tax_rate'] ?? 19,
+                'sii_exempt_amount' => 0,
+            ];
+            include __DIR__ . '/../partials/sii-document-fields.php';
+            ?>
             <div class="card mb-3" id="billable-card" hidden>
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">Proyectos, servicios y renovaciones facturables</h5>

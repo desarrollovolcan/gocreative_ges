@@ -84,6 +84,12 @@ class QuotesController extends Controller
             flash('error', 'Cliente no encontrado para esta empresa.');
             $this->redirect('index.php?route=quotes/create');
         }
+        $siiData = sii_document_payload($_POST);
+        $siiErrors = validate_sii_document_payload($siiData);
+        if ($siiErrors) {
+            flash('error', implode(' ', $siiErrors));
+            $this->redirect('index.php?route=quotes/create');
+        }
         if ($serviceId !== '') {
             $service = $this->db->fetch(
                 'SELECT id FROM system_services WHERE id = :id AND company_id = :company_id',
@@ -95,7 +101,7 @@ class QuotesController extends Controller
             }
         }
 
-        $quoteId = $this->quotes->create([
+        $quoteId = $this->quotes->create(array_merge([
             'company_id' => $companyId,
             'client_id' => $clientId,
             'system_service_id' => $serviceId !== '' ? $serviceId : null,
@@ -109,7 +115,7 @@ class QuotesController extends Controller
             'notas' => trim($_POST['notas'] ?? ''),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        ], $siiData));
 
         $items = $_POST['items'] ?? [];
         $itemsModel = new QuoteItemsModel($this->db);
@@ -238,8 +244,14 @@ class QuotesController extends Controller
                 $this->redirect('index.php?route=quotes/edit&id=' . $id);
             }
         }
+        $siiData = sii_document_payload($_POST);
+        $siiErrors = validate_sii_document_payload($siiData);
+        if ($siiErrors) {
+            flash('error', implode(' ', $siiErrors));
+            $this->redirect('index.php?route=quotes/edit&id=' . $id);
+        }
 
-        $this->quotes->update($id, [
+        $this->quotes->update($id, array_merge([
             'client_id' => (int)($_POST['client_id'] ?? 0),
             'system_service_id' => $serviceId !== '' ? $serviceId : null,
             'project_id' => $projectId !== '' ? $projectId : null,
@@ -251,7 +263,7 @@ class QuotesController extends Controller
             'total' => $total !== '' ? $total : 0,
             'notas' => trim($_POST['notas'] ?? ''),
             'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        ], $siiData));
 
         $this->db->execute('DELETE FROM quote_items WHERE quote_id = :quote_id', ['quote_id' => $id]);
         $items = $_POST['items'] ?? [];

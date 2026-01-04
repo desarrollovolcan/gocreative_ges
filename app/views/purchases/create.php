@@ -35,6 +35,17 @@
                             <input type="text" name="reference" class="form-control" placeholder="Factura, OC u otro identificador">
                         </div>
                         <div class="col-12">
+                            <?php
+                            $siiData = [
+                                'sii_document_type' => 'factura_electronica',
+                                'sii_tax_rate' => 19,
+                                'sii_exempt_amount' => 0,
+                            ];
+                            $siiLabel = 'Proveedor';
+                            include __DIR__ . '/../partials/sii-document-fields.php';
+                            ?>
+                        </div>
+                        <div class="col-12">
                             <label class="form-label">Productos</label>
                             <div class="table-responsive">
                                 <table class="table table-sm align-middle" id="purchase-items-table">

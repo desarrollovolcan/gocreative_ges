@@ -456,8 +456,14 @@ class InvoicesController extends Controller
             flash('error', 'Cliente no encontrado para esta empresa.');
             $this->redirect('index.php?route=invoices/create');
         }
+        $siiData = sii_document_payload($_POST);
+        $siiErrors = validate_sii_document_payload($siiData);
+        if ($siiErrors) {
+            flash('error', implode(' ', $siiErrors));
+            $this->redirect('index.php?route=invoices/create');
+        }
 
-        $invoiceId = $this->invoices->create([
+        $invoiceId = $this->invoices->create(array_merge([
             'company_id' => $companyId,
             'client_id' => $clientId,
             'service_id' => $serviceId > 0 ? $serviceId : null,
@@ -472,7 +478,7 @@ class InvoicesController extends Controller
             'notas' => trim($_POST['notas'] ?? ''),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        ], $siiData));
 
         $items = $_POST['items'] ?? [];
         $itemsModel = new InvoiceItemsModel($this->db);
@@ -610,6 +616,12 @@ class InvoicesController extends Controller
             flash('error', 'Cliente no encontrado para esta empresa.');
             $this->redirect('index.php?route=invoices/edit&id=' . $id);
         }
+        $siiData = sii_document_payload($_POST);
+        $siiErrors = validate_sii_document_payload($siiData);
+        if ($siiErrors) {
+            flash('error', implode(' ', $siiErrors));
+            $this->redirect('index.php?route=invoices/edit&id=' . $id);
+        }
         $serviceId = trim($_POST['service_id'] ?? '');
         $projectId = trim($_POST['project_id'] ?? '');
         $issueDate = trim($_POST['fecha_emision'] ?? '');
@@ -617,7 +629,7 @@ class InvoicesController extends Controller
         $subtotal = trim($_POST['subtotal'] ?? '');
         $impuestos = trim($_POST['impuestos'] ?? '');
         $total = trim($_POST['total'] ?? '');
-        $this->invoices->update($id, [
+        $this->invoices->update($id, array_merge([
             'client_id' => $clientId,
             'service_id' => $serviceId !== '' ? $serviceId : null,
             'project_id' => $projectId !== '' ? $projectId : null,
@@ -630,7 +642,7 @@ class InvoicesController extends Controller
             'total' => $total !== '' ? $total : 0,
             'notas' => trim($_POST['notas'] ?? ''),
             'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        ], $siiData));
 
         $items = $_POST['items'] ?? [];
         $itemsModel = new InvoiceItemsModel($this->db);

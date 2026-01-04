@@ -23,4 +23,30 @@ class HrAttendanceModel extends Model
             ['id' => $id, 'company_id' => $companyId]
         );
     }
+
+    public function findOpenForDate(int $employeeId, int $companyId, string $date): ?array
+    {
+        return $this->db->fetch(
+            'SELECT * FROM hr_attendance
+             WHERE employee_id = :employee_id AND company_id = :company_id AND date = :date
+             ORDER BY id DESC
+             LIMIT 1',
+            [
+                'employee_id' => $employeeId,
+                'company_id' => $companyId,
+                'date' => $date,
+            ]
+        );
+    }
+
+    public function calculateWorkedHours(string $startTime, string $endTime): float
+    {
+        $start = DateTime::createFromFormat('H:i', $startTime);
+        $end = DateTime::createFromFormat('H:i', $endTime);
+        if (!$start || !$end) {
+            return 0.0;
+        }
+        $interval = $start->diff($end);
+        return round(($interval->h * 60 + $interval->i) / 60, 2);
+    }
 }

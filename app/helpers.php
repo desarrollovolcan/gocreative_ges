@@ -542,7 +542,7 @@ function permission_catalog(): array
         ],
         'hr_attendance' => [
             'label' => 'Asistencia',
-            'routes' => ['hr/attendance'],
+            'routes' => ['hr/attendance', 'hr/clock'],
             'legacy_key' => 'hr',
             'view_key' => 'hr_attendance_view',
             'edit_key' => 'hr_attendance_edit',
@@ -562,6 +562,8 @@ function permission_catalog(): array
                 'maintainers/hr-contract-types',
                 'maintainers/hr-work-schedules',
                 'maintainers/hr-payroll-items',
+                'maintainers/hr-health-providers',
+                'maintainers/hr-pension-funds',
             ],
             'legacy_key' => 'maintainers',
             'view_key' => 'hr_maintainers_view',

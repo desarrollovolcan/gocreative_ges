@@ -286,6 +286,15 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </div>
                 </li>
             <?php endif; ?>
+            <?php if ($hasCompany && $hasPermission('hr_attendance_edit')): ?>
+                <li class="side-nav-title">Reloj Control</li>
+                <li class="side-nav-item">
+                    <a href="index.php?route=hr/clock" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="qr-code"></i></span>
+                        <span class="menu-text">Marcación QR</span>
+                    </a>
+                </li>
+            <?php endif; ?>
             <?php if ($hasCompany && $canAccessAny(['products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'sales_view', 'sales_edit'])): ?>
                 <li class="side-nav-title">Inventario</li>
                 <li class="side-nav-item">
@@ -549,6 +558,16 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                             <li class="side-nav-item">
                                                 <a href="index.php?route=maintainers/hr-work-schedules" class="side-nav-link">
                                                     <span class="menu-text">Jornadas</span>
+                                                </a>
+                                            </li>
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=maintainers/hr-health-providers" class="side-nav-link">
+                                                    <span class="menu-text">Instituciones de salud</span>
+                                                </a>
+                                            </li>
+                                            <li class="side-nav-item">
+                                                <a href="index.php?route=maintainers/hr-pension-funds" class="side-nav-link">
+                                                    <span class="menu-text">AFP</span>
                                                 </a>
                                             </li>
                                             <li class="side-nav-item">

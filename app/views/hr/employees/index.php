@@ -50,6 +50,7 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li><a class="dropdown-item" href="index.php?route=hr/employees/edit&id=<?php echo (int)$employee['id']; ?>">Editar</a></li>
+                                        <li><a class="dropdown-item" href="index.php?route=hr/employees/card&id=<?php echo (int)$employee['id']; ?>" target="_blank">Imprimir credencial</a></li>
                                         <li>
                                             <form method="post" action="index.php?route=hr/employees/delete" onsubmit="return confirm('¿Eliminar este trabajador?');">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">

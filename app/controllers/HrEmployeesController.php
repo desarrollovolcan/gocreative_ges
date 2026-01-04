@@ -5,6 +5,8 @@ class HrEmployeesController extends Controller
     private HrEmployeesModel $employees;
     private HrDepartmentsModel $departments;
     private HrPositionsModel $positions;
+    private HrHealthProvidersModel $healthProviders;
+    private HrPensionFundsModel $pensionFunds;
 
     public function __construct(array $config, Database $db)
     {
@@ -12,6 +14,8 @@ class HrEmployeesController extends Controller
         $this->employees = new HrEmployeesModel($db);
         $this->departments = new HrDepartmentsModel($db);
         $this->positions = new HrPositionsModel($db);
+        $this->healthProviders = new HrHealthProvidersModel($db);
+        $this->pensionFunds = new HrPensionFundsModel($db);
     }
 
     private function requireCompany(): int
@@ -49,6 +53,8 @@ class HrEmployeesController extends Controller
             'pageTitle' => 'Nuevo trabajador',
             'departments' => $departments,
             'positions' => $positions,
+            'healthProviders' => $this->healthProviders->active($companyId),
+            'pensionFunds' => $this->pensionFunds->active($companyId),
         ]);
     }
 
@@ -85,6 +91,27 @@ class HrEmployeesController extends Controller
                 $this->redirect('index.php?route=hr/employees/create');
             }
         }
+        $healthProviderId = !empty($_POST['health_provider_id']) ? (int)$_POST['health_provider_id'] : null;
+        $healthProviderName = '';
+        if ($healthProviderId) {
+            $provider = $this->healthProviders->findForCompany($healthProviderId, $companyId);
+            if (!$provider) {
+                flash('error', 'Institución de salud no válida.');
+                $this->redirect('index.php?route=hr/employees/create');
+            }
+            $healthProviderName = $provider['name'] ?? '';
+        }
+        $pensionFundId = !empty($_POST['pension_fund_id']) ? (int)$_POST['pension_fund_id'] : null;
+        $pensionFundName = '';
+        if ($pensionFundId) {
+            $fund = $this->pensionFunds->findForCompany($pensionFundId, $companyId);
+            if (!$fund) {
+                flash('error', 'AFP no válida.');
+                $this->redirect('index.php?route=hr/employees/create');
+            }
+            $pensionFundName = $fund['name'] ?? '';
+        }
+        $qrToken = bin2hex(random_bytes(8));
 
         $this->employees->create([
             'company_id' => $companyId,
@@ -101,9 +128,11 @@ class HrEmployeesController extends Controller
             'termination_date' => trim($_POST['termination_date'] ?? '') ?: null,
             'department_id' => $departmentId,
             'position_id' => $positionId,
-            'health_provider' => trim($_POST['health_provider'] ?? ''),
+            'health_provider_id' => $healthProviderId,
+            'health_provider' => $healthProviderName,
             'health_plan' => trim($_POST['health_plan'] ?? ''),
-            'pension_fund' => trim($_POST['pension_fund'] ?? ''),
+            'pension_fund_id' => $pensionFundId,
+            'pension_fund' => $pensionFundName,
             'pension_rate' => (float)($_POST['pension_rate'] ?? 10),
             'health_rate' => (float)($_POST['health_rate'] ?? 7),
             'unemployment_rate' => (float)($_POST['unemployment_rate'] ?? 0.6),
@@ -112,6 +141,7 @@ class HrEmployeesController extends Controller
             'bank_name' => trim($_POST['bank_name'] ?? ''),
             'bank_account_type' => trim($_POST['bank_account_type'] ?? ''),
             'bank_account_number' => trim($_POST['bank_account_number'] ?? ''),
+            'qr_token' => $qrToken,
             'status' => $_POST['status'] ?? 'activo',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -140,6 +170,8 @@ class HrEmployeesController extends Controller
             'employee' => $employee,
             'departments' => $departments,
             'positions' => $positions,
+            'healthProviders' => $this->healthProviders->active($companyId),
+            'pensionFunds' => $this->pensionFunds->active($companyId),
         ]);
     }
 
@@ -179,6 +211,26 @@ class HrEmployeesController extends Controller
                 $this->redirect('index.php?route=hr/employees/edit&id=' . $id);
             }
         }
+        $healthProviderId = !empty($_POST['health_provider_id']) ? (int)$_POST['health_provider_id'] : null;
+        $healthProviderName = '';
+        if ($healthProviderId) {
+            $provider = $this->healthProviders->findForCompany($healthProviderId, $companyId);
+            if (!$provider) {
+                flash('error', 'Institución de salud no válida.');
+                $this->redirect('index.php?route=hr/employees/edit&id=' . $id);
+            }
+            $healthProviderName = $provider['name'] ?? '';
+        }
+        $pensionFundId = !empty($_POST['pension_fund_id']) ? (int)$_POST['pension_fund_id'] : null;
+        $pensionFundName = '';
+        if ($pensionFundId) {
+            $fund = $this->pensionFunds->findForCompany($pensionFundId, $companyId);
+            if (!$fund) {
+                flash('error', 'AFP no válida.');
+                $this->redirect('index.php?route=hr/employees/edit&id=' . $id);
+            }
+            $pensionFundName = $fund['name'] ?? '';
+        }
 
         $this->employees->update($id, [
             'rut' => $rut,
@@ -194,9 +246,11 @@ class HrEmployeesController extends Controller
             'termination_date' => trim($_POST['termination_date'] ?? '') ?: null,
             'department_id' => $departmentId,
             'position_id' => $positionId,
-            'health_provider' => trim($_POST['health_provider'] ?? ''),
+            'health_provider_id' => $healthProviderId,
+            'health_provider' => $healthProviderName,
             'health_plan' => trim($_POST['health_plan'] ?? ''),
-            'pension_fund' => trim($_POST['pension_fund'] ?? ''),
+            'pension_fund_id' => $pensionFundId,
+            'pension_fund' => $pensionFundName,
             'pension_rate' => (float)($_POST['pension_rate'] ?? 10),
             'health_rate' => (float)($_POST['health_rate'] ?? 7),
             'unemployment_rate' => (float)($_POST['unemployment_rate'] ?? 0.6),
@@ -205,6 +259,7 @@ class HrEmployeesController extends Controller
             'bank_name' => trim($_POST['bank_name'] ?? ''),
             'bank_account_type' => trim($_POST['bank_account_type'] ?? ''),
             'bank_account_number' => trim($_POST['bank_account_number'] ?? ''),
+            'qr_token' => trim($_POST['qr_token'] ?? ($employee['qr_token'] ?? '')),
             'status' => $_POST['status'] ?? 'activo',
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
@@ -229,5 +284,30 @@ class HrEmployeesController extends Controller
         audit($this->db, Auth::user()['id'], 'delete', 'hr_employees', $id);
         flash('success', 'Trabajador eliminado correctamente.');
         $this->redirect('index.php?route=hr/employees');
+    }
+
+    public function card(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $id = (int)($_GET['id'] ?? 0);
+        $employee = $this->employees->findForCompany($id, $companyId);
+        if (!$employee) {
+            $this->redirect('index.php?route=hr/employees');
+        }
+        if (empty($employee['qr_token'])) {
+            $token = bin2hex(random_bytes(8));
+            $this->employees->update($id, [
+                'qr_token' => $token,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+            $employee['qr_token'] = $token;
+        }
+
+        $this->render('hr/employees/card', [
+            'title' => 'Credencial de trabajador',
+            'pageTitle' => 'Credencial de trabajador',
+            'employee' => $employee,
+        ]);
     }
 }

@@ -81,7 +81,12 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">AFP</label>
-                    <input type="text" name="pension_fund" class="form-control" placeholder="Modelo, Habitat, etc.">
+                    <select name="pension_fund_id" class="form-select">
+                        <option value="">Selecciona</option>
+                        <?php foreach ($pensionFunds as $fund): ?>
+                            <option value="<?php echo (int)$fund['id']; ?>"><?php echo e($fund['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Tasa AFP (%)</label>
@@ -89,7 +94,14 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Salud</label>
-                    <input type="text" name="health_provider" class="form-control" placeholder="FONASA / ISAPRE">
+                    <select name="health_provider_id" class="form-select">
+                        <option value="">Selecciona</option>
+                        <?php foreach ($healthProviders as $provider): ?>
+                            <option value="<?php echo (int)$provider['id']; ?>">
+                                <?php echo e($provider['name']); ?> (<?php echo e($provider['provider_type']); ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Plan de salud</label>

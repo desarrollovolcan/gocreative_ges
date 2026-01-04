@@ -650,6 +650,27 @@ CREATE TABLE hr_contract_types (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
+CREATE TABLE hr_health_providers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    provider_type VARCHAR(20) NOT NULL DEFAULT 'fonasa',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE hr_pension_funds (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
 CREATE TABLE hr_work_schedules (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_id INT NOT NULL,
@@ -681,6 +702,8 @@ CREATE TABLE hr_employees (
     company_id INT NOT NULL,
     department_id INT NULL,
     position_id INT NULL,
+    health_provider_id INT NULL,
+    pension_fund_id INT NULL,
     rut VARCHAR(50) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
@@ -703,13 +726,16 @@ CREATE TABLE hr_employees (
     bank_name VARCHAR(100) NULL,
     bank_account_type VARCHAR(50) NULL,
     bank_account_number VARCHAR(50) NULL,
+    qr_token VARCHAR(100) NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'activo',
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     deleted_at DATETIME NULL,
     FOREIGN KEY (company_id) REFERENCES companies(id),
     FOREIGN KEY (department_id) REFERENCES hr_departments(id),
-    FOREIGN KEY (position_id) REFERENCES hr_positions(id)
+    FOREIGN KEY (position_id) REFERENCES hr_positions(id),
+    FOREIGN KEY (health_provider_id) REFERENCES hr_health_providers(id),
+    FOREIGN KEY (pension_fund_id) REFERENCES hr_pension_funds(id)
 );
 
 CREATE TABLE hr_contracts (

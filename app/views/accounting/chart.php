@@ -39,12 +39,23 @@
                             <td><?php echo (int)($account['level'] ?? 1); ?></td>
                             <td><?php echo !empty($account['is_active']) ? 'Activa' : 'Inactiva'; ?></td>
                             <td class="text-end">
-                                <a class="btn btn-sm btn-outline-primary" href="index.php?route=accounting/chart/edit&id=<?php echo (int)$account['id']; ?>">Editar</a>
-                                <form method="post" action="index.php?route=accounting/chart/delete" class="d-inline" onsubmit="return confirm('¿Eliminar esta cuenta contable?');">
-                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                    <input type="hidden" name="id" value="<?php echo (int)$account['id']; ?>">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                </form>
+                                <div class="dropdown actions-dropdown">
+                                    <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Acciones
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="index.php?route=accounting/chart/edit&id=<?php echo (int)$account['id']; ?>">Editar</a>
+                                        </li>
+                                        <li>
+                                            <form method="post" action="index.php?route=accounting/chart/delete" onsubmit="return confirm('¿Eliminar esta cuenta contable?');">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="id" value="<?php echo (int)$account['id']; ?>">
+                                                <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

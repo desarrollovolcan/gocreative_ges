@@ -272,7 +272,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center summary-row">
                                     <span class="text-muted">Impuestos</span>
-                                    <input type="number" name="tax" id="sale-tax" class="form-control form-control-sm w-auto" style="width: 160px;" step="0.01" min="0" value="0">
+                                    <input type="number" name="tax" id="sale-tax" class="form-control form-control-sm w-auto" style="width: 160px;" step="0.01" min="0" value="<?php echo e($taxDefault ?? 0); ?>">
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center summary-row">
                                     <span class="text-muted">Forma de pago</span>

@@ -1,5 +1,41 @@
 START TRANSACTION;
 
+SET @companies_giro := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'companies' AND COLUMN_NAME = 'giro'
+);
+SET @sql := IF(@companies_giro = 0, 'ALTER TABLE companies ADD COLUMN giro VARCHAR(150) NULL AFTER address;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @companies_activity_code := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'companies' AND COLUMN_NAME = 'activity_code'
+);
+SET @sql := IF(@companies_activity_code = 0, 'ALTER TABLE companies ADD COLUMN activity_code VARCHAR(50) NULL AFTER giro;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @companies_commune := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'companies' AND COLUMN_NAME = 'commune'
+);
+SET @sql := IF(@companies_commune = 0, 'ALTER TABLE companies ADD COLUMN commune VARCHAR(120) NULL AFTER activity_code;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @companies_city := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'companies' AND COLUMN_NAME = 'city'
+);
+SET @sql := IF(@companies_city = 0, 'ALTER TABLE companies ADD COLUMN city VARCHAR(120) NULL AFTER commune;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 SET @company_id_exists := (
     SELECT COUNT(*)
     FROM INFORMATION_SCHEMA.COLUMNS
@@ -145,6 +181,10 @@ CREATE TABLE IF NOT EXISTS suppliers (
     email VARCHAR(150) NULL,
     phone VARCHAR(50) NULL,
     address VARCHAR(255) NULL,
+    giro VARCHAR(150) NULL,
+    activity_code VARCHAR(50) NULL,
+    commune VARCHAR(120) NULL,
+    city VARCHAR(120) NULL,
     website VARCHAR(150) NULL,
     notes TEXT NULL,
     created_at DATETIME NOT NULL,
@@ -185,6 +225,42 @@ SET @suppliers_notes := (
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'notes'
 );
 SET @sql := IF(@suppliers_notes = 0, 'ALTER TABLE suppliers ADD COLUMN notes TEXT NULL AFTER website;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_giro := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'giro'
+);
+SET @sql := IF(@suppliers_giro = 0, 'ALTER TABLE suppliers ADD COLUMN giro VARCHAR(150) NULL AFTER address;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_activity_code := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'activity_code'
+);
+SET @sql := IF(@suppliers_activity_code = 0, 'ALTER TABLE suppliers ADD COLUMN activity_code VARCHAR(50) NULL AFTER giro;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_commune := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'commune'
+);
+SET @sql := IF(@suppliers_commune = 0, 'ALTER TABLE suppliers ADD COLUMN commune VARCHAR(120) NULL AFTER activity_code;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @suppliers_city := (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'suppliers' AND COLUMN_NAME = 'city'
+);
+SET @sql := IF(@suppliers_city = 0, 'ALTER TABLE suppliers ADD COLUMN city VARCHAR(120) NULL AFTER commune;', 'SELECT 1;');
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;

@@ -6,6 +6,7 @@ class PurchasesController extends Controller
     private SuppliersModel $suppliers;
     private ProductsModel $products;
     private PurchaseItemsModel $purchaseItems;
+    private SettingsModel $settings;
 
     public function __construct(array $config, Database $db)
     {
@@ -14,6 +15,7 @@ class PurchasesController extends Controller
         $this->suppliers = new SuppliersModel($db);
         $this->products = new ProductsModel($db);
         $this->purchaseItems = new PurchaseItemsModel($db);
+        $this->settings = new SettingsModel($db);
     }
 
     private function requireCompany(): int
@@ -45,6 +47,8 @@ class PurchasesController extends Controller
         $companyId = $this->requireCompany();
         $suppliers = $this->suppliers->active($companyId);
         $products = $this->products->active($companyId);
+        $invoiceDefaults = $this->settings->get('invoice_defaults', []);
+        $taxDefault = !empty($invoiceDefaults['apply_tax']) ? (float)($invoiceDefaults['tax_rate'] ?? 0) : 0;
 
         $this->render('purchases/create', [
             'title' => 'Registrar compra',
@@ -52,6 +56,7 @@ class PurchasesController extends Controller
             'suppliers' => $suppliers,
             'products' => $products,
             'today' => date('Y-m-d'),
+            'taxDefault' => $taxDefault,
         ]);
     }
 

@@ -92,7 +92,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between w-100 align-items-center">
                                     <span>Impuestos</span>
-                                    <input type="number" name="tax" id="tax-input" class="form-control form-control-sm w-auto" style="width: 140px;" step="0.01" min="0" value="0">
+                                    <input type="number" name="tax" id="tax-input" class="form-control form-control-sm w-auto" style="width: 140px;" step="0.01" min="0" value="<?php echo e($taxDefault ?? 0); ?>">
                                 </div>
                                 <div class="d-flex justify-content-between w-100">
                                     <span>Total</span>
@@ -112,6 +112,58 @@
 </div>
 
 <script>
+    const supplierSiiMap = <?php echo json_encode(array_reduce($suppliers ?? [], static function (array $carry, array $supplier): array {
+        $carry[(int)($supplier['id'] ?? 0)] = [
+            'rut' => $supplier['tax_id'] ?? '',
+            'name' => $supplier['name'] ?? '',
+            'giro' => $supplier['giro'] ?? '',
+            'activity_code' => $supplier['activity_code'] ?? '',
+            'address' => $supplier['address'] ?? '',
+            'commune' => $supplier['commune'] ?? '',
+            'city' => $supplier['city'] ?? '',
+        ];
+        return $carry;
+    }, [])); ?>;
+
+    const supplierSelect = document.querySelector('[name="supplier_id"]');
+    const siiInputs = {
+        sii_receiver_rut: document.querySelector('[name="sii_receiver_rut"]'),
+        sii_receiver_name: document.querySelector('[name="sii_receiver_name"]'),
+        sii_receiver_giro: document.querySelector('[name="sii_receiver_giro"]'),
+        sii_receiver_activity_code: document.querySelector('[name="sii_receiver_activity_code"]'),
+        sii_receiver_address: document.querySelector('[name="sii_receiver_address"]'),
+        sii_receiver_commune: document.querySelector('[name="sii_receiver_commune"]'),
+        sii_receiver_city: document.querySelector('[name="sii_receiver_city"]'),
+    };
+    const hasSiiValues = () => Object.values(siiInputs).some((input) => input && input.value.trim() !== '');
+    const applySupplierSii = (supplierId, force = false) => {
+        const data = supplierSiiMap?.[supplierId];
+        if (!data) {
+            return;
+        }
+        if (!force && hasSiiValues()) {
+            const confirmed = window.confirm('Ya hay datos SII ingresados. ¿Quieres reemplazarlos con los datos del proveedor?');
+            if (!confirmed) {
+                return;
+            }
+        }
+        if (siiInputs.sii_receiver_rut) siiInputs.sii_receiver_rut.value = data.rut || '';
+        if (siiInputs.sii_receiver_name) siiInputs.sii_receiver_name.value = data.name || '';
+        if (siiInputs.sii_receiver_giro) siiInputs.sii_receiver_giro.value = data.giro || '';
+        if (siiInputs.sii_receiver_activity_code) siiInputs.sii_receiver_activity_code.value = data.activity_code || '';
+        if (siiInputs.sii_receiver_address) siiInputs.sii_receiver_address.value = data.address || '';
+        if (siiInputs.sii_receiver_commune) siiInputs.sii_receiver_commune.value = data.commune || '';
+        if (siiInputs.sii_receiver_city) siiInputs.sii_receiver_city.value = data.city || '';
+    };
+
+    supplierSelect?.addEventListener('change', (event) => {
+        const supplierId = Number(event.target.value || 0);
+        applySupplierSii(supplierId);
+    });
+    if (supplierSelect?.value) {
+        applySupplierSii(Number(supplierSelect.value || 0), true);
+    }
+
     (function() {
         const tableBody = document.querySelector('#purchase-items-table tbody');
         const addButton = document.querySelector('#add-item');

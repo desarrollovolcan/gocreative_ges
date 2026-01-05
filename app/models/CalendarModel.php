@@ -11,7 +11,7 @@ class CalendarModel
 
     public function listEvents(int $companyId, ?string $start, ?string $end): array
     {
-        $conditions = ['company_id = :company_id'];
+        $conditions = ['ce.company_id = :company_id'];
         $params = ['company_id' => $companyId];
         $startFilter = $this->normalizeDateTime($start);
         $endFilter = $this->normalizeDateTime($end);
@@ -22,10 +22,23 @@ class CalendarModel
         }
 
         $rows = $this->db->fetchAll(
-            'SELECT id, title, description, event_type, location, start_at, end_at, all_day, reminder_minutes, class_name
-             FROM calendar_events
+            'SELECT ce.id,
+                    ce.title,
+                    ce.description,
+                    ce.event_type,
+                    ce.event_type_id,
+                    ce.location,
+                    ce.start_at,
+                    ce.end_at,
+                    ce.all_day,
+                    ce.reminder_minutes,
+                    COALESCE(cet.class_name, ce.class_name) AS class_name,
+                    cet.name AS type_name
+             FROM calendar_events ce
+             LEFT JOIN calendar_event_types cet
+                ON cet.id = ce.event_type_id AND cet.company_id = ce.company_id
              WHERE ' . implode(' AND ', $conditions) . '
-             ORDER BY start_at ASC',
+             ORDER BY ce.start_at ASC',
             $params
         );
         $eventIds = array_map(static fn(array $row) => (int)$row['id'], $rows);
@@ -45,7 +58,8 @@ class CalendarModel
                 'allDay' => $allDay,
                 'className' => $row['class_name'] ?: null,
                 'extendedProps' => [
-                    'type' => $row['event_type'],
+                    'type_id' => $row['event_type_id'] !== null ? (int)$row['event_type_id'] : null,
+                    'type_name' => $row['type_name'] ?: $row['event_type'],
                     'location' => $row['location'],
                     'description' => $row['description'],
                     'reminder_minutes' => $row['reminder_minutes'] !== null ? (int)$row['reminder_minutes'] : null,
@@ -81,6 +95,87 @@ class CalendarModel
             ];
         }
         return $documents;
+    }
+
+    public function listEventTypes(int $companyId): array
+    {
+        return $this->db->fetchAll(
+            'SELECT id, name, class_name
+             FROM calendar_event_types
+             WHERE company_id = :company_id
+             ORDER BY name ASC, id ASC',
+            ['company_id' => $companyId]
+        );
+    }
+
+    public function findEventType(int $companyId, int $typeId): ?array
+    {
+        return $this->db->fetch(
+            'SELECT id, name, class_name
+             FROM calendar_event_types
+             WHERE id = :id AND company_id = :company_id',
+            ['id' => $typeId, 'company_id' => $companyId]
+        );
+    }
+
+    public function createEventType(int $companyId, int $userId, string $name, string $className): int
+    {
+        $this->db->execute(
+            'INSERT INTO calendar_event_types (company_id, created_by_user_id, name, class_name, created_at, updated_at)
+             VALUES (:company_id, :created_by_user_id, :name, :class_name, NOW(), NOW())',
+            [
+                'company_id' => $companyId,
+                'created_by_user_id' => $userId,
+                'name' => $name,
+                'class_name' => $className,
+            ]
+        );
+        return (int)$this->db->lastInsertId();
+    }
+
+    public function updateEventType(int $companyId, int $typeId, string $name, string $className): void
+    {
+        $this->db->execute(
+            'UPDATE calendar_event_types
+             SET name = :name,
+                 class_name = :class_name,
+                 updated_at = NOW()
+             WHERE id = :id AND company_id = :company_id',
+            [
+                'id' => $typeId,
+                'company_id' => $companyId,
+                'name' => $name,
+                'class_name' => $className,
+            ]
+        );
+    }
+
+    public function deleteEventType(int $companyId, int $typeId): void
+    {
+        $this->db->execute(
+            'DELETE FROM calendar_event_types WHERE id = :id AND company_id = :company_id',
+            [
+                'id' => $typeId,
+                'company_id' => $companyId,
+            ]
+        );
+    }
+
+    public function syncEventTypeAppearance(int $companyId, int $typeId, string $name, string $className): void
+    {
+        $this->db->execute(
+            'UPDATE calendar_events
+             SET event_type = :event_type,
+                 class_name = :class_name,
+                 updated_at = NOW()
+             WHERE company_id = :company_id AND event_type_id = :event_type_id',
+            [
+                'event_type' => $name,
+                'class_name' => $className,
+                'company_id' => $companyId,
+                'event_type_id' => $typeId,
+            ]
+        );
     }
 
     private function documentsForEvents(array $eventIds): array

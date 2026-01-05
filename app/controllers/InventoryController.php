@@ -37,6 +37,29 @@ class InventoryController extends Controller
         ]);
     }
 
+    public function showMovement(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $movementId = (int)($_GET['id'] ?? 0);
+        $movement = $this->db->fetch(
+            'SELECT im.*, p.name as product_name
+             FROM inventory_movements im
+             JOIN products p ON im.product_id = p.id
+             WHERE im.id = :id AND im.company_id = :company_id',
+            ['id' => $movementId, 'company_id' => $companyId]
+        );
+        if (!$movement) {
+            flash('error', 'Movimiento de inventario no encontrado.');
+            $this->redirect('index.php?route=inventory/movements');
+        }
+        $this->render('inventory/movement-show', [
+            'title' => 'Detalle movimiento de inventario',
+            'pageTitle' => 'Detalle movimiento de inventario',
+            'movement' => $movement,
+        ]);
+    }
+
     public function storeMovement(): void
     {
         $this->requireLogin();

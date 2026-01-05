@@ -53,6 +53,7 @@
                                 <th>Banco</th>
                                 <th>Moneda</th>
                                 <th>Saldo</th>
+                                <th class="text-end">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -62,11 +63,23 @@
                                     <td><?php echo e($account['bank_name']); ?></td>
                                     <td><?php echo e($account['currency']); ?></td>
                                     <td><?php echo e(format_currency((float)($account['current_balance'] ?? 0))); ?></td>
+                                    <td class="text-end">
+                                        <div class="dropdown actions-dropdown">
+                                            <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Acciones
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="index.php?route=treasury/accounts/show&id=<?php echo (int)$account['id']; ?>">Ver detalle</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                             <?php if (empty($accounts)): ?>
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted">No hay cuentas registradas.</td>
+                                    <td colspan="5" class="text-center text-muted">No hay cuentas registradas.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>

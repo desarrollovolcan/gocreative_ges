@@ -213,6 +213,32 @@ class AccountingController extends Controller
         ]);
     }
 
+    public function journalsShow(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $journalId = (int)($_GET['id'] ?? 0);
+        $journal = $this->db->fetch(
+            'SELECT aj.*, COALESCE(SUM(ajl.debit), 0) as total_debit, COALESCE(SUM(ajl.credit), 0) as total_credit
+             FROM accounting_journals aj
+             LEFT JOIN accounting_journal_lines ajl ON aj.id = ajl.journal_id
+             WHERE aj.id = :id AND aj.company_id = :company_id
+             GROUP BY aj.id',
+            ['id' => $journalId, 'company_id' => $companyId]
+        );
+        if (!$journal) {
+            flash('error', 'Asiento contable no encontrado.');
+            $this->redirect('index.php?route=accounting/journals');
+        }
+        $lines = $this->journalLines->byJournal($journalId);
+        $this->render('accounting/journals-show', [
+            'title' => 'Detalle de asiento',
+            'pageTitle' => 'Detalle de asiento',
+            'journal' => $journal,
+            'lines' => $lines,
+        ]);
+    }
+
     public function journalsCreate(): void
     {
         $this->requireLogin();

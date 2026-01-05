@@ -63,6 +63,7 @@ return [
     'accounting/chart/update' => ['AccountingController', 'chartUpdate'],
     'accounting/chart/delete' => ['AccountingController', 'chartDelete'],
     'accounting/journals' => ['AccountingController', 'journals'],
+    'accounting/journals/show' => ['AccountingController', 'journalsShow'],
     'accounting/journals/create' => ['AccountingController', 'journalsCreate'],
     'accounting/journals/store' => ['AccountingController', 'journalsStore'],
     'accounting/ledger' => ['AccountingController', 'ledger'],

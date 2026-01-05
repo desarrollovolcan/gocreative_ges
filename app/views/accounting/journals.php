@@ -15,6 +15,7 @@
                         <th>Origen</th>
                         <th>Débito</th>
                         <th>Crédito</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,11 +27,23 @@
                             <td class="text-capitalize"><?php echo e($journal['source'] ?? 'manual'); ?></td>
                             <td><?php echo e(format_currency((float)($journal['total_debit'] ?? 0))); ?></td>
                             <td><?php echo e(format_currency((float)($journal['total_credit'] ?? 0))); ?></td>
+                            <td class="text-end">
+                                <div class="dropdown actions-dropdown">
+                                    <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Acciones
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="index.php?route=accounting/journals/show&id=<?php echo (int)$journal['id']; ?>">Ver detalle</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                     <?php if (empty($journals)): ?>
                         <tr>
-                            <td colspan="6" class="text-center text-muted">No hay asientos registrados.</td>
+                            <td colspan="7" class="text-center text-muted">No hay asientos registrados.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

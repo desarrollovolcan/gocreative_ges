@@ -189,9 +189,9 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                                         <div class="flex-shrink-0 avatar-sm bg-light bg-opacity-50 text-muted rounded-2">
                                             <i class="<?php echo e($fileIcon($document['extension'] ?? '')); ?> fs-18 avatar-title"></i>
                                         </div>
-                                        <div class="flex-grow-1">
+                                        <div class="flex-grow-1 documents-card-body">
                                             <h5 class="mb-1 fs-xs text-truncate documents-card-title">
-                                                <a href="<?php echo e($document['download_url']); ?>" class="link-reset">
+                                                <a href="<?php echo e($document['download_url']); ?>" class="link-reset documents-card-link">
                                                     <?php echo e($document['name']); ?>
                                                 </a>
                                             </h5>
@@ -265,13 +265,13 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                         <table class="table table-sm align-middle mb-0" data-table-sort>
                             <thead class="bg-light-subtle text-muted fs-xs">
                                 <tr>
-                                    <th>Nombre</th>
-                                    <th>Tipo</th>
-                                    <th>Categoría</th>
-                                    <th>Tamaño</th>
-                                    <th>Compartido con</th>
-                                    <th>Última actualización</th>
-                                    <th class="text-end">Acciones</th>
+                                    <th data-column="name">Nombre</th>
+                                    <th data-column="type">Tipo</th>
+                                    <th data-column="category">Categoría</th>
+                                    <th data-column="size">Tamaño</th>
+                                    <th data-column="shared">Compartido con</th>
+                                    <th data-column="updated">Última actualización</th>
+                                    <th class="text-end" data-column="actions">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -653,6 +653,15 @@ document.addEventListener('DOMContentLoaded', () => {
     .documents-compact .actions-dropdown .btn {
         padding: 0.25rem 0.6rem;
         font-size: 0.75rem;
+    }
+
+    .documents-compact-card .documents-card-body {
+        min-width: 0;
+    }
+
+    .documents-compact-card .documents-card-link {
+        display: block;
+        max-width: 100%;
     }
 
     .documents-compact-card .documents-card-title,

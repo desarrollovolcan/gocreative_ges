@@ -107,11 +107,22 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                         </div>
                     <?php else: ?>
                         <?php foreach ($categories as $category): ?>
-                            <a href="<?php echo e($filterLink('all', (int)$category['id'])); ?>" class="list-group-item list-group-item-action <?php echo $activeCategoryId === (int)$category['id'] ? 'active' : ''; ?>">
-                                <span class="rounded-circle d-inline-block me-1 align-middle" style="width: 10px; height: 10px; background-color: <?php echo e((string)$category['color']); ?>"></span>
-                                <span class="align-middle"><?php echo e((string)$category['name']); ?></span>
-                                <span class="badge align-middle bg-light fs-xxs text-muted float-end"><?php echo e((string)($category['total'] ?? 0)); ?></span>
-                            </a>
+                            <div class="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-2 <?php echo $activeCategoryId === (int)$category['id'] ? 'active' : ''; ?>">
+                                <a href="<?php echo e($filterLink('all', (int)$category['id'])); ?>" class="d-flex align-items-center gap-1 flex-grow-1 link-reset">
+                                    <span class="rounded-circle d-inline-block me-1 align-middle" style="width: 10px; height: 10px; background-color: <?php echo e((string)$category['color']); ?>"></span>
+                                    <span class="align-middle"><?php echo e((string)$category['name']); ?></span>
+                                    <span class="badge align-middle bg-light fs-xxs text-muted ms-auto"><?php echo e((string)($category['total'] ?? 0)); ?></span>
+                                </a>
+                                <form method="post" action="index.php?route=documents/categories/delete">
+                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                    <input type="hidden" name="id" value="<?php echo e((string)$category['id']); ?>">
+                                    <input type="hidden" name="redirect_filter" value="<?php echo e((string)$activeFilter); ?>">
+                                    <input type="hidden" name="redirect_category" value="<?php echo e((string)$activeCategoryId); ?>">
+                                    <button type="submit" class="btn btn-sm btn-link p-0 text-danger" title="Eliminar categoría">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
@@ -197,7 +208,8 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a href="<?php echo e($document['download_url']); ?>" class="dropdown-item"><i class="ti ti-download me-1"></i> Descargar</a>
-                                                <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#documentsShareModal" data-document-id="<?php echo e((string)$document['id']); ?>">
+                                                <?php $sharedUsersJson = htmlspecialchars(json_encode($document['shared_with'] ?? [], JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>
+                                                <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#documentsShareModal" data-document-id="<?php echo e((string)$document['id']); ?>" data-shared-users="<?php echo $sharedUsersJson; ?>">
                                                     <i class="ti ti-share me-1"></i> Compartir
                                                 </button>
                                                 <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#documentsCategoryAssignModal" data-document-id="<?php echo e((string)$document['id']); ?>">
@@ -368,7 +380,8 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                                                             </li>
                                                         <?php else: ?>
                                                             <li>
-                                                                <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#documentsShareModal" data-document-id="<?php echo e((string)$document['id']); ?>">
+                                                                <?php $sharedUsersJson = htmlspecialchars(json_encode($document['shared_with'] ?? [], JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>
+                                                                <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#documentsShareModal" data-document-id="<?php echo e((string)$document['id']); ?>" data-shared-users="<?php echo $sharedUsersJson; ?>">
                                                                     Compartir
                                                                 </button>
                                                             </li>
@@ -531,6 +544,7 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <div class="border-top pt-3 mt-3" data-share-list data-empty-text="Aún no se ha compartido con nadie."></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
@@ -558,7 +572,70 @@ document.addEventListener('DOMContentLoaded', () => {
         shareModal.addEventListener('show.bs.modal', (event) => {
             const trigger = event.relatedTarget;
             const documentId = trigger?.getAttribute('data-document-id');
+            const shareList = shareModal.querySelector('[data-share-list]');
             shareModal.querySelector('input[name="id"]').value = documentId || '';
+            if (!shareList) {
+                return;
+            }
+            const sharedUsersRaw = trigger?.getAttribute('data-shared-users') || '[]';
+            let sharedUsers = [];
+            try {
+                sharedUsers = JSON.parse(sharedUsersRaw);
+                if (!Array.isArray(sharedUsers)) {
+                    sharedUsers = [];
+                }
+            } catch (error) {
+                sharedUsers = [];
+            }
+            shareList.innerHTML = '';
+            if (sharedUsers.length === 0) {
+                const emptyText = shareList.getAttribute('data-empty-text') || 'Sin usuarios compartidos.';
+                const emptyItem = document.createElement('p');
+                emptyItem.className = 'text-muted mb-0';
+                emptyItem.textContent = emptyText;
+                shareList.appendChild(emptyItem);
+                return;
+            }
+            const csrfToken = shareModal.querySelector('input[name="csrf_token"]')?.value || '';
+            const redirectFilter = shareModal.querySelector('input[name="redirect_filter"]')?.value || '';
+            const redirectCategory = shareModal.querySelector('input[name="redirect_category"]')?.value || '';
+
+            const createHiddenInput = (name, value) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                return input;
+            };
+
+            sharedUsers.forEach((sharedUser) => {
+                const item = document.createElement('div');
+                item.className = 'd-flex align-items-center justify-content-between gap-2 border rounded-2 px-2 py-1 mb-2';
+
+                const name = document.createElement('span');
+                name.className = 'fw-medium';
+                name.textContent = sharedUser?.name || 'Usuario';
+
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = 'index.php?route=documents/unshare';
+                form.className = 'ms-auto';
+                form.appendChild(createHiddenInput('csrf_token', csrfToken));
+                form.appendChild(createHiddenInput('id', documentId || ''));
+                form.appendChild(createHiddenInput('user_id', sharedUser?.id ? String(sharedUser.id) : ''));
+                form.appendChild(createHiddenInput('redirect_filter', redirectFilter));
+                form.appendChild(createHiddenInput('redirect_category', redirectCategory));
+
+                const button = document.createElement('button');
+                button.type = 'submit';
+                button.className = 'btn btn-sm btn-outline-danger';
+                button.textContent = 'Dejar de compartir';
+                form.appendChild(button);
+
+                item.appendChild(name);
+                item.appendChild(form);
+                shareList.appendChild(item);
+            });
         });
     }
 });

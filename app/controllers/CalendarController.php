@@ -2,7 +2,6 @@
 
 class CalendarController extends Controller
 {
-    private const ALLOWED_TYPES = ['reminder', 'meeting', 'task'];
     private const ALLOWED_CLASSNAMES = [
         'bg-primary-subtle text-primary',
         'bg-secondary-subtle text-secondary',
@@ -24,6 +23,7 @@ class CalendarController extends Controller
         $this->ensureCalendarTables();
         $calendarModel = new CalendarModel($this->db);
         $documents = $calendarModel->listDocuments((int)$companyId);
+        $eventTypes = $calendarModel->listEventTypes((int)$companyId);
         $usersModel = new UsersModel($this->db);
         $users = $usersModel->allActive((int)$companyId);
 
@@ -31,6 +31,7 @@ class CalendarController extends Controller
             'title' => 'Calendario',
             'pageTitle' => 'Calendario',
             'documents' => $documents,
+            'eventTypes' => $eventTypes,
             'users' => $users,
         ]);
     }
@@ -69,8 +70,7 @@ class CalendarController extends Controller
         $this->verifyToken($data['csrf_token'] ?? null);
 
         $title = trim((string)($data['title'] ?? ''));
-        $eventType = (string)($data['type'] ?? 'meeting');
-        $className = (string)($data['class_name'] ?? '');
+        $typeId = (int)($data['type_id'] ?? 0);
         $location = trim((string)($data['location'] ?? ''));
         $description = trim((string)($data['description'] ?? ''));
         $allDay = !empty($data['all_day']);
@@ -85,11 +85,10 @@ class CalendarController extends Controller
             echo json_encode(['message' => 'Completa el título y la fecha de inicio.'], JSON_UNESCAPED_UNICODE);
             return;
         }
-        if (!in_array($eventType, self::ALLOWED_TYPES, true)) {
-            $eventType = 'meeting';
-        }
-        if (!in_array($className, self::ALLOWED_CLASSNAMES, true)) {
-            $className = self::ALLOWED_CLASSNAMES[0];
+        if ($typeId <= 0) {
+            http_response_code(422);
+            echo json_encode(['message' => 'Selecciona un tipo de evento.'], JSON_UNESCAPED_UNICODE);
+            return;
         }
         if ($end && $end < $start) {
             http_response_code(422);
@@ -105,6 +104,14 @@ class CalendarController extends Controller
         if ($userId <= 0) {
             http_response_code(403);
             echo json_encode(['message' => 'Usuario no válido.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $calendarModel = new CalendarModel($this->db);
+        $eventType = $calendarModel->findEventType((int)$companyId, $typeId);
+        if (!$eventType) {
+            http_response_code(422);
+            echo json_encode(['message' => 'El tipo de evento seleccionado no existe.'], JSON_UNESCAPED_UNICODE);
             return;
         }
 
@@ -124,6 +131,7 @@ class CalendarController extends Controller
                  SET title = :title,
                      description = :description,
                      event_type = :event_type,
+                     event_type_id = :event_type_id,
                      location = :location,
                      start_at = :start_at,
                      end_at = :end_at,
@@ -135,13 +143,14 @@ class CalendarController extends Controller
                 [
                     'title' => $title,
                     'description' => $description !== '' ? $description : null,
-                    'event_type' => $eventType,
+                    'event_type' => $eventType['name'],
+                    'event_type_id' => $eventType['id'],
                     'location' => $location !== '' ? $location : null,
                     'start_at' => $start->format('Y-m-d H:i:s'),
                     'end_at' => $end ? $end->format('Y-m-d H:i:s') : null,
                     'all_day' => $allDay ? 1 : 0,
                     'reminder_minutes' => $reminderMinutes,
-                    'class_name' => $className,
+                    'class_name' => $eventType['class_name'],
                     'id' => $eventId,
                     'company_id' => (int)$companyId,
                 ]
@@ -149,21 +158,22 @@ class CalendarController extends Controller
         } else {
             $this->db->execute(
                 'INSERT INTO calendar_events
-                    (company_id, created_by_user_id, title, description, event_type, location, start_at, end_at, all_day, reminder_minutes, class_name, created_at, updated_at)
+                    (company_id, created_by_user_id, title, description, event_type, event_type_id, location, start_at, end_at, all_day, reminder_minutes, class_name, created_at, updated_at)
                  VALUES
-                    (:company_id, :created_by, :title, :description, :event_type, :location, :start_at, :end_at, :all_day, :reminder_minutes, :class_name, NOW(), NOW())',
+                    (:company_id, :created_by, :title, :description, :event_type, :event_type_id, :location, :start_at, :end_at, :all_day, :reminder_minutes, :class_name, NOW(), NOW())',
                 [
                     'company_id' => (int)$companyId,
                     'created_by' => $userId,
                     'title' => $title,
                     'description' => $description !== '' ? $description : null,
-                    'event_type' => $eventType,
+                    'event_type' => $eventType['name'],
+                    'event_type_id' => $eventType['id'],
                     'location' => $location !== '' ? $location : null,
                     'start_at' => $start->format('Y-m-d H:i:s'),
                     'end_at' => $end ? $end->format('Y-m-d H:i:s') : null,
                     'all_day' => $allDay ? 1 : 0,
                     'reminder_minutes' => $reminderMinutes,
-                    'class_name' => $className,
+                    'class_name' => $eventType['class_name'],
                 ]
             );
             $eventId = (int)$this->db->lastInsertId();
@@ -211,6 +221,180 @@ class CalendarController extends Controller
             'id' => $eventId,
             'company_id' => (int)$companyId,
         ]);
+        echo json_encode(['success' => true], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function types(): void
+    {
+        $this->requireLogin();
+        header('Content-Type: application/json; charset=utf-8');
+
+        $companyId = current_company_id();
+        if (!$companyId) {
+            echo json_encode([], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $this->ensureCalendarTables();
+        $calendarModel = new CalendarModel($this->db);
+        $types = $calendarModel->listEventTypes((int)$companyId);
+        echo json_encode($types, JSON_UNESCAPED_UNICODE);
+    }
+
+    public function storeType(): void
+    {
+        $this->requireLogin();
+        header('Content-Type: application/json; charset=utf-8');
+
+        $companyId = current_company_id();
+        if (!$companyId) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Empresa no válida.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $this->ensureCalendarTables();
+        $data = $this->requestData();
+        $this->verifyToken($data['csrf_token'] ?? null);
+
+        $name = trim((string)($data['name'] ?? ''));
+        $className = (string)($data['class_name'] ?? '');
+        if ($name === '') {
+            http_response_code(422);
+            echo json_encode(['message' => 'Ingresa un nombre para el tipo de evento.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        if (!in_array($className, self::ALLOWED_CLASSNAMES, true)) {
+            http_response_code(422);
+            echo json_encode(['message' => 'Selecciona un color válido.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $existing = $this->db->fetch(
+            'SELECT id FROM calendar_event_types WHERE company_id = :company_id AND LOWER(name) = LOWER(:name)',
+            ['company_id' => (int)$companyId, 'name' => $name]
+        );
+        if ($existing) {
+            http_response_code(409);
+            echo json_encode(['message' => 'Ya existe un tipo con ese nombre.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $user = Auth::user();
+        $userId = (int)($user['id'] ?? 0);
+        if ($userId <= 0) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Usuario no válido.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $calendarModel = new CalendarModel($this->db);
+        $typeId = $calendarModel->createEventType((int)$companyId, $userId, $name, $className);
+        echo json_encode([
+            'success' => true,
+            'type' => [
+                'id' => $typeId,
+                'name' => $name,
+                'class_name' => $className,
+            ],
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function updateType(): void
+    {
+        $this->requireLogin();
+        header('Content-Type: application/json; charset=utf-8');
+
+        $companyId = current_company_id();
+        if (!$companyId) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Empresa no válida.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $this->ensureCalendarTables();
+        $data = $this->requestData();
+        $this->verifyToken($data['csrf_token'] ?? null);
+
+        $typeId = (int)($data['id'] ?? 0);
+        $name = trim((string)($data['name'] ?? ''));
+        $className = (string)($data['class_name'] ?? '');
+        if ($typeId <= 0) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Tipo de evento no encontrado.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        if ($name === '') {
+            http_response_code(422);
+            echo json_encode(['message' => 'Ingresa un nombre para el tipo de evento.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        if (!in_array($className, self::ALLOWED_CLASSNAMES, true)) {
+            http_response_code(422);
+            echo json_encode(['message' => 'Selecciona un color válido.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $calendarModel = new CalendarModel($this->db);
+        $existing = $calendarModel->findEventType((int)$companyId, $typeId);
+        if (!$existing) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Tipo de evento no encontrado.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $duplicate = $this->db->fetch(
+            'SELECT id FROM calendar_event_types
+             WHERE company_id = :company_id AND LOWER(name) = LOWER(:name) AND id != :id',
+            ['company_id' => (int)$companyId, 'name' => $name, 'id' => $typeId]
+        );
+        if ($duplicate) {
+            http_response_code(409);
+            echo json_encode(['message' => 'Ya existe un tipo con ese nombre.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $calendarModel->updateEventType((int)$companyId, $typeId, $name, $className);
+        $calendarModel->syncEventTypeAppearance((int)$companyId, $typeId, $name, $className);
+        echo json_encode([
+            'success' => true,
+            'type' => [
+                'id' => $typeId,
+                'name' => $name,
+                'class_name' => $className,
+            ],
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function deleteType(): void
+    {
+        $this->requireLogin();
+        header('Content-Type: application/json; charset=utf-8');
+
+        $companyId = current_company_id();
+        if (!$companyId) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Empresa no válida.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $this->ensureCalendarTables();
+        $data = $this->requestData();
+        $this->verifyToken($data['csrf_token'] ?? null);
+
+        $typeId = (int)($data['id'] ?? 0);
+        if ($typeId <= 0) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Tipo de evento no encontrado.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $calendarModel = new CalendarModel($this->db);
+        $existing = $calendarModel->findEventType((int)$companyId, $typeId);
+        if (!$existing) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Tipo de evento no encontrado.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $linked = $this->db->fetch(
+            'SELECT COUNT(*) as total FROM calendar_events WHERE company_id = :company_id AND event_type_id = :event_type_id',
+            ['company_id' => (int)$companyId, 'event_type_id' => $typeId]
+        );
+        if (!empty($linked['total'])) {
+            http_response_code(409);
+            echo json_encode(['message' => 'No se puede eliminar el tipo porque tiene eventos asociados.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        $calendarModel->deleteEventType((int)$companyId, $typeId);
         echo json_encode(['success' => true], JSON_UNESCAPED_UNICODE);
     }
 
@@ -322,6 +506,25 @@ class CalendarController extends Controller
     private function ensureCalendarTables(): void
     {
         $this->db->execute(
+            'CREATE TABLE IF NOT EXISTS calendar_event_types (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                company_id INT NOT NULL,
+                created_by_user_id INT NOT NULL,
+                name VARCHAR(100) NOT NULL,
+                class_name VARCHAR(100) NOT NULL,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL,
+                INDEX idx_calendar_event_types_company (company_id),
+                UNIQUE KEY idx_calendar_event_types_name (company_id, name),
+                CONSTRAINT fk_calendar_event_types_company
+                    FOREIGN KEY (company_id) REFERENCES companies(id)
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_calendar_event_types_user
+                    FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+                    ON DELETE CASCADE
+            )'
+        );
+        $this->db->execute(
             'CREATE TABLE IF NOT EXISTS calendar_events (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 company_id INT NOT NULL,
@@ -329,6 +532,7 @@ class CalendarController extends Controller
                 title VARCHAR(150) NOT NULL,
                 description TEXT NULL,
                 event_type VARCHAR(20) NOT NULL DEFAULT \'meeting\',
+                event_type_id INT NULL,
                 location VARCHAR(150) NULL,
                 start_at DATETIME NOT NULL,
                 end_at DATETIME NULL,
@@ -339,14 +543,29 @@ class CalendarController extends Controller
                 updated_at DATETIME NOT NULL,
                 INDEX idx_calendar_events_company (company_id),
                 INDEX idx_calendar_events_start (start_at),
+                INDEX idx_calendar_events_type (event_type_id),
                 CONSTRAINT fk_calendar_events_company
                     FOREIGN KEY (company_id) REFERENCES companies(id)
                     ON DELETE CASCADE,
                 CONSTRAINT fk_calendar_events_user
                     FOREIGN KEY (created_by_user_id) REFERENCES users(id)
-                    ON DELETE CASCADE
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_calendar_events_type
+                    FOREIGN KEY (event_type_id) REFERENCES calendar_event_types(id)
+                    ON DELETE SET NULL
             )'
         );
+        $typeColumn = $this->db->fetch("SHOW COLUMNS FROM calendar_events LIKE 'event_type_id'");
+        if (!$typeColumn) {
+            $this->db->execute(
+                'ALTER TABLE calendar_events
+                 ADD COLUMN event_type_id INT NULL AFTER event_type,
+                 ADD INDEX idx_calendar_events_type (event_type_id),
+                 ADD CONSTRAINT fk_calendar_events_type
+                    FOREIGN KEY (event_type_id) REFERENCES calendar_event_types(id)
+                    ON DELETE SET NULL'
+            );
+        }
         $this->db->execute(
             'CREATE TABLE IF NOT EXISTS calendar_event_documents (
                 id INT AUTO_INCREMENT PRIMARY KEY,

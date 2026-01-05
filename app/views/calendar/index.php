@@ -1,7 +1,9 @@
 <?php
 $documents = $documents ?? [];
+$eventTypes = $eventTypes ?? [];
 $users = $users ?? [];
 $documentCount = count($documents);
+$eventTypeCount = count($eventTypes);
 $userCount = count($users);
 $documentHelp = $documentCount > 0
     ? 'Adjunta documentos del módulo Documentos para preparar cada reunión o recordatorio.'
@@ -9,6 +11,18 @@ $documentHelp = $documentCount > 0
 $attendeeHelp = $userCount > 0
     ? 'Selecciona participantes internos para compartir el evento.'
     : 'No hay usuarios disponibles en tu empresa.';
+$eventTypeHelp = $eventTypeCount > 0
+    ? 'Arrastra un tipo de evento al calendario o haz clic en la fecha.'
+    : 'Crea un tipo para comenzar a agendar eventos.';
+$typeClasses = [
+    'bg-primary-subtle text-primary' => 'Primario',
+    'bg-secondary-subtle text-secondary' => 'Secundario',
+    'bg-success-subtle text-success' => 'Éxito',
+    'bg-info-subtle text-info' => 'Info',
+    'bg-warning-subtle text-warning' => 'Advertencia',
+    'bg-danger-subtle text-danger' => 'Urgente',
+    'bg-dark-subtle text-dark' => 'Oscuro',
+];
 ?>
 
 <div class="d-flex mb-3 gap-1">
@@ -20,30 +34,16 @@ $attendeeHelp = $userCount > 0
             </button>
 
             <div id="external-events">
-                <p class="text-muted mt-2 fst-italic fs-xs mb-3">Arrastra un tipo de evento al calendario o haz clic en la fecha.</p>
-
-                <div class="external-event fc-event bg-primary-subtle text-primary fw-semibold" data-class="bg-primary-subtle text-primary" data-type="meeting">
-                    <i class="ti ti-circle-filled me-2"></i>Reunión de equipo
+                <div class="d-flex align-items-center justify-content-between mb-2 mt-2">
+                    <span class="text-uppercase text-muted fs-xxs fw-semibold">Tipos de evento</span>
+                    <button class="btn btn-sm btn-outline-primary" type="button" id="btn-add-type">
+                        <i class="ti ti-plus me-1"></i>Nuevo
+                    </button>
                 </div>
-
-                <div class="external-event fc-event bg-secondary-subtle text-secondary fw-semibold" data-class="bg-secondary-subtle text-secondary" data-type="reminder">
-                    <i class="ti ti-circle-filled me-2"></i>Recordatorio importante
-                </div>
-
-                <div class="external-event fc-event bg-success-subtle text-success fw-semibold" data-class="bg-success-subtle text-success" data-type="task">
-                    <i class="ti ti-circle-filled me-2"></i>Tarea pendiente
-                </div>
-
-                <div class="external-event fc-event bg-info-subtle text-info fw-semibold" data-class="bg-info-subtle text-info" data-type="meeting">
-                    <i class="ti ti-circle-filled me-2"></i>Reunión con cliente
-                </div>
-
-                <div class="external-event fc-event bg-warning-subtle text-warning fw-semibold" data-class="bg-warning-subtle text-warning" data-type="reminder">
-                    <i class="ti ti-circle-filled me-2"></i>Entrega de proyecto
-                </div>
-
-                <div class="external-event fc-event bg-danger-subtle text-danger fw-semibold" data-class="bg-danger-subtle text-danger" data-type="reminder">
-                    <i class="ti ti-circle-filled me-2"></i>Pago y facturación
+                <p class="text-muted fst-italic fs-xs mb-3" id="event-types-help"><?php echo e($eventTypeHelp); ?></p>
+                <div id="event-types-list"></div>
+                <div class="border rounded-2 p-2 bg-light text-muted fs-xs" id="event-types-empty">
+                    No hay tipos de evento. Crea uno para habilitar el calendario.
                 </div>
             </div>
 
@@ -90,9 +90,15 @@ $attendeeHelp = $userCount > 0
                             <div class="mb-2">
                                 <label class="control-label form-label" for="event-type">Tipo de evento</label>
                                 <select class="form-select" name="type" id="event-type" required>
-                                    <option value="meeting">Reunión</option>
-                                    <option value="reminder">Recordatorio</option>
-                                    <option value="task">Tarea</option>
+                                    <?php if ($eventTypeCount === 0): ?>
+                                        <option value="">No hay tipos disponibles</option>
+                                    <?php else: ?>
+                                        <?php foreach ($eventTypes as $type): ?>
+                                            <option value="<?php echo e((string)$type['id']); ?>">
+                                                <?php echo e((string)$type['name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                                 <div class="invalid-feedback">Selecciona un tipo de evento.</div>
                             </div>
@@ -100,16 +106,15 @@ $attendeeHelp = $userCount > 0
                         <div class="col-md-6">
                             <div class="mb-2">
                                 <label class="control-label form-label" for="event-category">Color</label>
-                                <select class="form-select" name="category" id="event-category" required>
-                                    <option value="bg-primary-subtle text-primary" selected>Primario</option>
-                                    <option value="bg-secondary-subtle text-secondary">Secundario</option>
-                                    <option value="bg-success-subtle text-success">Éxito</option>
-                                    <option value="bg-info-subtle text-info">Info</option>
-                                    <option value="bg-warning-subtle text-warning">Advertencia</option>
-                                    <option value="bg-danger-subtle text-danger">Urgente</option>
-                                    <option value="bg-dark-subtle text-dark">Oscuro</option>
+                                <select class="form-select" name="category" id="event-category" required disabled>
+                                    <?php foreach ($typeClasses as $className => $label): ?>
+                                        <option value="<?php echo e($className); ?>">
+                                            <?php echo e($label); ?>
+                                        </option>
+                                    <?php endforeach; ?>
                                 </select>
                                 <div class="invalid-feedback">Selecciona un color válido.</div>
+                                <small class="text-muted fs-xxs">El color se define desde el tipo de evento.</small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -229,11 +234,64 @@ $attendeeHelp = $userCount > 0
 </div>
 <!-- end modal-->
 
+<!-- Modal Event Types -->
+<div class="modal fade" id="event-type-modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form class="needs-validation" name="event-type-form" id="event-type-form" novalidate>
+                <div class="modal-header">
+                    <h4 class="modal-title" id="event-type-modal-title">
+                        Nuevo tipo de evento
+                    </h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="event-type-id">
+                    <div class="mb-2">
+                        <label class="control-label form-label" for="event-type-name">Nombre</label>
+                        <input class="form-control" placeholder="Ej: Reunión con cliente" type="text" name="name" id="event-type-name" required>
+                        <div class="invalid-feedback">Ingresa un nombre válido.</div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="control-label form-label" for="event-type-class">Color</label>
+                        <select class="form-select" name="class_name" id="event-type-class" required>
+                            <?php foreach ($typeClasses as $className => $label): ?>
+                                <option value="<?php echo e($className); ?>">
+                                    <?php echo e($label); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="invalid-feedback">Selecciona un color válido.</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-3">
+                        <button type="button" class="btn btn-danger" id="btn-delete-type">
+                            Eliminar
+                        </button>
+                        <button type="button" class="btn btn-light ms-auto" data-bs-dismiss="modal">
+                            Cerrar
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="btn-save-type">
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- end modal-->
+
 <script>
     window.calendarConfig = {
         eventsUrl: 'index.php?route=calendar/events',
         storeUrl: 'index.php?route=calendar/store',
         deleteUrl: 'index.php?route=calendar/delete',
+        typesUrl: 'index.php?route=calendar/types',
+        storeTypeUrl: 'index.php?route=calendar/types/store',
+        updateTypeUrl: 'index.php?route=calendar/types/update',
+        deleteTypeUrl: 'index.php?route=calendar/types/delete',
+        eventTypes: <?php echo json_encode($eventTypes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>,
+        typeClasses: <?php echo json_encode(array_keys($typeClasses), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>,
         csrfToken: '<?php echo csrf_token(); ?>'
     };
 </script>

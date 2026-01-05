@@ -51,50 +51,50 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
 };
 ?>
 
-<div class="outlook-box gap-1">
+<div class="outlook-box gap-1 documents-compact">
     <div class="offcanvas-lg offcanvas-start outlook-left-menu outlook-left-menu-md" tabindex="-1" id="documentsSidebarOffcanvas">
         <div class="card h-100 mb-0 rounded-0 border-0" data-simplebar>
-            <div class="card-body">
-                <button type="button" class="btn btn-danger fw-medium w-100" data-bs-toggle="modal" data-bs-target="#documentsUploadModal">Subir archivos</button>
+            <div class="card-body p-3">
+                <button type="button" class="btn btn-danger btn-sm fw-medium w-100" data-bs-toggle="modal" data-bs-target="#documentsUploadModal">Subir archivos</button>
 
-                <div class="list-group list-group-flush list-custom mt-3">
-                    <a href="<?php echo e($filterLink('all')); ?>" class="list-group-item list-group-item-action <?php echo $activeFilter === 'all' && !$activeCategoryId ? 'active' : ''; ?>">
-                        <i class="ti ti-folder me-1 opacity-75 fs-lg align-middle"></i>
+                <div class="list-group list-group-flush list-custom mt-2">
+                    <a href="<?php echo e($filterLink('all')); ?>" class="list-group-item list-group-item-action py-2 <?php echo $activeFilter === 'all' && !$activeCategoryId ? 'active' : ''; ?>">
+                        <i class="ti ti-folder me-1 opacity-75 align-middle"></i>
                         <span class="align-middle">Mis archivos</span>
                         <span class="badge align-middle bg-danger-subtle fs-xxs text-danger float-end"><?php echo e((string)($counts['all'] ?? $documentCount)); ?></span>
                     </a>
 
-                    <a href="<?php echo e($filterLink('shared')); ?>" class="list-group-item list-group-item-action <?php echo $activeFilter === 'shared' ? 'active' : ''; ?>">
-                        <i class="ti ti-share align-middle me-1 opacity-75 fs-lg"></i>
+                    <a href="<?php echo e($filterLink('shared')); ?>" class="list-group-item list-group-item-action py-2 <?php echo $activeFilter === 'shared' ? 'active' : ''; ?>">
+                        <i class="ti ti-share align-middle me-1 opacity-75"></i>
                         <span class="align-middle">Compartidos conmigo</span>
                         <span class="badge align-middle bg-light fs-xxs text-muted float-end"><?php echo e((string)($counts['shared'] ?? 0)); ?></span>
                     </a>
 
-                    <a href="<?php echo e($filterLink('recent')); ?>" class="list-group-item list-group-item-action <?php echo $activeFilter === 'recent' ? 'active' : ''; ?>">
-                        <i class="ti ti-clock align-middle me-1 opacity-75 fs-lg"></i>
+                    <a href="<?php echo e($filterLink('recent')); ?>" class="list-group-item list-group-item-action py-2 <?php echo $activeFilter === 'recent' ? 'active' : ''; ?>">
+                        <i class="ti ti-clock align-middle me-1 opacity-75"></i>
                         <span class="align-middle">Recientes</span>
                         <span class="badge align-middle bg-light fs-xxs text-muted float-end"><?php echo e((string)($counts['recent'] ?? 0)); ?></span>
                     </a>
 
-                    <a href="<?php echo e($filterLink('favorites')); ?>" class="list-group-item list-group-item-action <?php echo $activeFilter === 'favorites' ? 'active' : ''; ?>">
-                        <i class="ti ti-star align-middle me-1 opacity-75 fs-lg"></i>
+                    <a href="<?php echo e($filterLink('favorites')); ?>" class="list-group-item list-group-item-action py-2 <?php echo $activeFilter === 'favorites' ? 'active' : ''; ?>">
+                        <i class="ti ti-star align-middle me-1 opacity-75"></i>
                         <span class="align-middle">Favoritos</span>
                         <span class="badge align-middle bg-light fs-xxs text-muted float-end"><?php echo e((string)($counts['favorites'] ?? 0)); ?></span>
                     </a>
 
-                    <a href="<?php echo e($filterLink('downloads')); ?>" class="list-group-item list-group-item-action <?php echo $activeFilter === 'downloads' ? 'active' : ''; ?>">
-                        <i class="ti ti-download align-middle me-1 opacity-75 fs-lg"></i>
+                    <a href="<?php echo e($filterLink('downloads')); ?>" class="list-group-item list-group-item-action py-2 <?php echo $activeFilter === 'downloads' ? 'active' : ''; ?>">
+                        <i class="ti ti-download align-middle me-1 opacity-75"></i>
                         <span class="align-middle">Descargas</span>
                         <span class="badge align-middle bg-light fs-xxs text-muted float-end"><?php echo e((string)($counts['downloads'] ?? 0)); ?></span>
                     </a>
 
-                    <a href="<?php echo e($filterLink('trash')); ?>" class="list-group-item list-group-item-action <?php echo $activeFilter === 'trash' ? 'active' : ''; ?>">
-                        <i class="ti ti-trash me-1 align-middle opacity-75 fs-lg"></i>
+                    <a href="<?php echo e($filterLink('trash')); ?>" class="list-group-item list-group-item-action py-2 <?php echo $activeFilter === 'trash' ? 'active' : ''; ?>">
+                        <i class="ti ti-trash me-1 align-middle opacity-75"></i>
                         <span class="align-middle">Papelera</span>
                         <span class="badge align-middle bg-light fs-xxs text-muted float-end"><?php echo e((string)($counts['trash'] ?? 0)); ?></span>
                     </a>
 
-                    <div class="list-group-item mt-2 d-flex align-items-center justify-content-between">
+                    <div class="list-group-item mt-2 d-flex align-items-center justify-content-between py-2">
                         <span class="align-middle">Categorías</span>
                         <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" data-bs-toggle="modal" data-bs-target="#documentsCategoryModal">
                             <i class="ti ti-plus"></i>
@@ -107,7 +107,7 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                         </div>
                     <?php else: ?>
                         <?php foreach ($categories as $category): ?>
-                            <div class="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-2 <?php echo $activeCategoryId === (int)$category['id'] ? 'active' : ''; ?>">
+                            <div class="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-2 py-2 <?php echo $activeCategoryId === (int)$category['id'] ? 'active' : ''; ?>">
                                 <a href="<?php echo e($filterLink('all', (int)$category['id'])); ?>" class="d-flex align-items-center gap-1 flex-grow-1 link-reset">
                                     <span class="rounded-circle d-inline-block me-1 align-middle" style="width: 10px; height: 10px; background-color: <?php echo e((string)$category['color']); ?>"></span>
                                     <span class="align-middle"><?php echo e((string)$category['name']); ?></span>
@@ -131,26 +131,26 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
     </div>
 
     <div data-table data-table-rows-per-page="8" class="card h-100 mb-0 rounded-0 flex-grow-1 border-0">
-        <div class="card-header border-light justify-content-between">
+        <div class="card-header border-light justify-content-between py-2">
             <div class="d-flex gap-2">
                 <div class="d-lg-none d-inline-flex gap-2">
-                    <button class="btn btn-default btn-icon" type="button" data-bs-toggle="offcanvas" data-bs-target="#documentsSidebarOffcanvas" aria-controls="documentsSidebarOffcanvas">
+                    <button class="btn btn-default btn-icon btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#documentsSidebarOffcanvas" aria-controls="documentsSidebarOffcanvas">
                         <i class="ti ti-menu-2 fs-lg"></i>
                     </button>
                 </div>
 
                 <div class="app-search">
-                    <input data-table-search type="search" class="form-control" placeholder="Buscar archivos...">
+                    <input data-table-search type="search" class="form-control form-control-sm" placeholder="Buscar archivos...">
                     <i data-lucide="search" class="app-search-icon text-muted"></i>
                 </div>
-                <button data-table-delete-selected class="btn btn-danger d-none">Eliminar</button>
+                <button data-table-delete-selected class="btn btn-danger btn-sm d-none">Eliminar</button>
             </div>
 
             <div class="d-flex align-items-center gap-2 documents-filter-bar">
-                <span class="me-2 fw-semibold">Filtrar por:</span>
+                <span class="me-2 fw-semibold fs-xs text-muted">Filtrar por:</span>
 
                 <div class="app-search">
-                    <select data-table-filter="type" class="form-select form-control my-1 my-md-0">
+                    <select data-table-filter="type" class="form-select form-control form-control-sm my-1 my-md-0">
                         <option value="">Tipo de archivo</option>
                                 <option value="PDF">PDF</option>
                                 <option value="DOC">DOC</option>
@@ -162,7 +162,7 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                         </div>
 
                 <div>
-                    <select data-table-set-rows-per-page class="form-select form-control my-1 my-md-0">
+                    <select data-table-set-rows-per-page class="form-select form-control form-control-sm my-1 my-md-0">
                         <option value="5">5</option>
                         <option value="10">10</option>
                         <option value="15">15</option>
@@ -172,25 +172,25 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
             </div>
         </div>
 
-        <div class="card-body" style="height: calc(100% - 100px);" data-simplebar data-simplebar-md>
-            <div class="row g-2 mb-3">
+        <div class="card-body pt-3" style="height: calc(100% - 86px);" data-simplebar data-simplebar-md>
+            <div class="row g-2 mb-2">
                 <?php if (empty($recentDocuments)): ?>
                     <div class="col-12">
-                        <div class="border border-dashed rounded-3 p-4 text-center text-muted">
+                        <div class="border border-dashed rounded-3 p-3 text-center text-muted fs-sm">
                             Sube documentos para comenzar a organizar tu biblioteca.
                         </div>
                     </div>
                 <?php else: ?>
                     <?php foreach ($recentDocuments as $document): ?>
                         <div class="col-md-6 col-lg-4 col-xxl-3">
-                            <div class="card border border-dashed mb-0">
+                            <div class="card border border-dashed mb-0 documents-compact-card">
                                 <div class="card-body p-2">
                                     <div class="d-flex align-items-center justify-content-between gap-2">
-                                        <div class="flex-shrink-0 avatar-md bg-light bg-opacity-50 text-muted rounded-2">
-                                            <i class="<?php echo e($fileIcon($document['extension'] ?? '')); ?> fs-24 avatar-title"></i>
+                                        <div class="flex-shrink-0 avatar-sm bg-light bg-opacity-50 text-muted rounded-2">
+                                            <i class="<?php echo e($fileIcon($document['extension'] ?? '')); ?> fs-18 avatar-title"></i>
                                         </div>
                                         <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-sm">
+                                            <h5 class="mb-1 fs-xs text-truncate">
                                                 <a href="<?php echo e($document['download_url']); ?>" class="link-reset">
                                                     <?php echo e($document['name']); ?>
                                                 </a>
@@ -262,8 +262,8 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
             <div class="row g-2">
                 <div class="col-lg-12">
                     <div class="table-responsive">
-                        <table class="table align-middle mb-0" data-table-sort>
-                            <thead class="bg-light-subtle">
+                        <table class="table table-sm align-middle mb-0" data-table-sort>
+                            <thead class="bg-light-subtle text-muted fs-xs">
                                 <tr>
                                     <th style="width: 24px;">
                                         <div class="form-check">
@@ -642,6 +642,29 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <style>
+    .documents-compact .list-group-item {
+        font-size: 0.85rem;
+    }
+
+    .documents-compact .documents-compact-card .dropdown-toggle {
+        font-size: 1rem;
+    }
+
+    .documents-compact .table td,
+    .documents-compact .table th {
+        padding-top: 0.55rem;
+        padding-bottom: 0.55rem;
+    }
+
+    .documents-compact .table td {
+        font-size: 0.85rem;
+    }
+
+    .documents-compact .actions-dropdown .btn {
+        padding: 0.25rem 0.6rem;
+        font-size: 0.75rem;
+    }
+
     .documents-filter-bar {
         flex-wrap: wrap;
     }

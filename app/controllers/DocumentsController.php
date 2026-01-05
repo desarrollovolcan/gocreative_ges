@@ -277,6 +277,42 @@ class DocumentsController extends Controller
         $this->redirect($this->documentsRedirectUrl());
     }
 
+    public function unshare(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para dejar de compartir documentos.');
+            $this->redirect('index.php?route=dashboard');
+        }
+        $documentId = (int)($_POST['id'] ?? 0);
+        $shareUserId = (int)($_POST['user_id'] ?? 0);
+        if ($documentId <= 0 || $shareUserId <= 0) {
+            flash('error', 'Selecciona un usuario para dejar de compartir.');
+            $this->redirect($this->documentsRedirectUrl());
+        }
+        $share = $this->db->fetch(
+            'SELECT ds.id
+             FROM document_shares ds
+             INNER JOIN documents d ON d.id = ds.document_id
+             WHERE ds.document_id = :document_id
+               AND ds.user_id = :user_id
+               AND d.company_id = :company_id',
+            ['document_id' => $documentId, 'user_id' => $shareUserId, 'company_id' => (int)$companyId]
+        );
+        if (!$share) {
+            flash('error', 'No encontramos el permiso de compartición.');
+            $this->redirect($this->documentsRedirectUrl());
+        }
+        $this->db->execute(
+            'DELETE FROM document_shares WHERE document_id = :document_id AND user_id = :user_id',
+            ['document_id' => $documentId, 'user_id' => $shareUserId]
+        );
+        flash('success', 'Se dejó de compartir el documento.');
+        $this->redirect($this->documentsRedirectUrl());
+    }
+
     public function storeCategory(): void
     {
         $this->requireLogin();
@@ -305,6 +341,41 @@ class DocumentsController extends Controller
             ]
         );
         flash('success', 'Categoría creada.');
+        $this->redirect($this->documentsRedirectUrl());
+    }
+
+    public function deleteCategory(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para eliminar categorías.');
+            $this->redirect('index.php?route=dashboard');
+        }
+        $categoryId = (int)($_POST['id'] ?? 0);
+        if ($categoryId <= 0) {
+            flash('error', 'Categoría no encontrada.');
+            $this->redirect($this->documentsRedirectUrl());
+        }
+        $category = $this->db->fetch(
+            'SELECT id FROM document_categories WHERE id = :id AND company_id = :company_id',
+            ['id' => $categoryId, 'company_id' => (int)$companyId]
+        );
+        if (!$category) {
+            flash('error', 'Categoría no encontrada.');
+            $this->redirect($this->documentsRedirectUrl());
+        }
+        $this->db->execute(
+            'UPDATE documents SET category_id = NULL, updated_at = NOW()
+             WHERE category_id = :category_id AND company_id = :company_id',
+            ['category_id' => $categoryId, 'company_id' => (int)$companyId]
+        );
+        $this->db->execute(
+            'DELETE FROM document_categories WHERE id = :id AND company_id = :company_id',
+            ['id' => $categoryId, 'company_id' => (int)$companyId]
+        );
+        flash('success', 'Categoría eliminada.');
         $this->redirect($this->documentsRedirectUrl());
     }
 

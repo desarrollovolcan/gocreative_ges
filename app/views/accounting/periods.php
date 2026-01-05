@@ -46,16 +46,16 @@
                                                 <button type="submit" class="btn btn-outline-danger btn-sm">Cerrar</button>
                                             </form>
                                         <?php else: ?>
-                                            <div class="d-flex flex-column flex-md-row gap-2 justify-content-end">
+                                            <div class="d-flex flex-wrap align-items-center gap-2 justify-content-end">
                                                 <form method="post" action="index.php?route=accounting/periods/request-open">
                                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                     <input type="hidden" name="period_id" value="<?php echo (int)$period['id']; ?>">
                                                     <button type="submit" class="btn btn-outline-primary btn-sm">Enviar código</button>
                                                 </form>
-                                                <form method="post" action="index.php?route=accounting/periods/open" class="d-flex gap-2">
+                                                <form method="post" action="index.php?route=accounting/periods/open" class="d-flex align-items-center gap-2">
                                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                     <input type="hidden" name="period_id" value="<?php echo (int)$period['id']; ?>">
-                                                    <input type="text" name="open_code" class="form-control form-control-sm" placeholder="Código" required>
+                                                    <input type="text" name="open_code" class="form-control form-control-sm" placeholder="Código" required style="width: 120px;">
                                                     <button type="submit" class="btn btn-success btn-sm">Abrir</button>
                                                 </form>
                                             </div>

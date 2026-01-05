@@ -82,6 +82,9 @@ class CalendarSchedule {
             editable: true,
             droppable: true,
             selectable: true,
+            select: function (info) {
+                self.onSelect(info);
+            },
             dateClick: function (info) {
                 self.onSelect(info);
             },
@@ -211,10 +214,11 @@ class CalendarSchedule {
         if (this.eventCategoryInput) {
             this.eventCategoryInput.value = 'bg-primary-subtle text-primary';
         }
+        const selection = this.normalizeSelection(info);
         if (this.eventAllDayInput) {
-            this.eventAllDayInput.checked = info.allDay === true;
+            this.eventAllDayInput.checked = selection.allDay === true;
         }
-        this.setDateInputs(info.date, info.allDay === true);
+        this.setDateInputs(selection.start, selection.allDay === true, selection.end);
         if (this.eventLocationInput) {
             this.eventLocationInput.value = '';
         }
@@ -244,7 +248,8 @@ class CalendarSchedule {
         if (this.eventAllDayInput) {
             this.eventAllDayInput.checked = event.allDay === true;
         }
-        this.setDateInputs(event.start, event.allDay === true, event.end);
+        const endDate = event.allDay ? this.normalizeAllDayEndForForm(event.end) : event.end;
+        this.setDateInputs(event.start, event.allDay === true, endDate);
         if (this.eventLocationInput) {
             this.eventLocationInput.value = event.extendedProps?.location || '';
         }
@@ -303,6 +308,30 @@ class CalendarSchedule {
             this.eventStartInput.type = 'datetime-local';
             this.eventEndInput.type = 'datetime-local';
         }
+    }
+
+    normalizeSelection(info) {
+        const start = info.start || info.date || new Date();
+        let end = info.end || info.date || start;
+        if (info.allDay && info.end) {
+            const endDate = new Date(info.end);
+            endDate.setDate(endDate.getDate() - 1);
+            end = endDate;
+        }
+        return {
+            start: start,
+            end: end,
+            allDay: info.allDay === true
+        };
+    }
+
+    normalizeAllDayEndForForm(endDate) {
+        if (!endDate) {
+            return null;
+        }
+        const adjusted = new Date(endDate);
+        adjusted.setDate(adjusted.getDate() - 1);
+        return adjusted;
     }
 
     buildPayload() {

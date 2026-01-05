@@ -57,6 +57,8 @@ return [
     'accounting/chart' => ['AccountingController', 'chart'],
     'accounting/chart/create' => ['AccountingController', 'chartCreate'],
     'accounting/chart/store' => ['AccountingController', 'chartStore'],
+    'accounting/chart/edit' => ['AccountingController', 'chartEdit'],
+    'accounting/chart/update' => ['AccountingController', 'chartUpdate'],
     'accounting/journals' => ['AccountingController', 'journals'],
     'accounting/journals/create' => ['AccountingController', 'journalsCreate'],
     'accounting/journals/store' => ['AccountingController', 'journalsStore'],

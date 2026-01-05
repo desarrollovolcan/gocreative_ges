@@ -30,4 +30,31 @@ class AccountingAccountsModel extends Model
         }
         return $this->db->fetch($sql, $params);
     }
+
+    public function hasChildren(int $companyId, int $accountId): bool
+    {
+        $row = $this->db->fetch(
+            'SELECT id FROM accounting_accounts WHERE company_id = :company_id AND parent_id = :parent_id LIMIT 1',
+            ['company_id' => $companyId, 'parent_id' => $accountId]
+        );
+        return !empty($row);
+    }
+
+    public function hasJournalLines(int $companyId, int $accountId): bool
+    {
+        $row = $this->db->fetch(
+            'SELECT ajl.id
+             FROM accounting_journal_lines ajl
+             JOIN accounting_journals aj ON ajl.journal_id = aj.id
+             WHERE aj.company_id = :company_id AND ajl.account_id = :account_id
+             LIMIT 1',
+            ['company_id' => $companyId, 'account_id' => $accountId]
+        );
+        return !empty($row);
+    }
+
+    public function delete(int $accountId): bool
+    {
+        return $this->db->execute('DELETE FROM accounting_accounts WHERE id = :id', ['id' => $accountId]);
+    }
 }

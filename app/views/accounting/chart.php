@@ -40,6 +40,11 @@
                             <td><?php echo !empty($account['is_active']) ? 'Activa' : 'Inactiva'; ?></td>
                             <td class="text-end">
                                 <a class="btn btn-sm btn-outline-primary" href="index.php?route=accounting/chart/edit&id=<?php echo (int)$account['id']; ?>">Editar</a>
+                                <form method="post" action="index.php?route=accounting/chart/delete" class="d-inline" onsubmit="return confirm('¿Eliminar esta cuenta contable?');">
+                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                    <input type="hidden" name="id" value="<?php echo (int)$account['id']; ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>

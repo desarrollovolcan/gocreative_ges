@@ -177,6 +177,30 @@ class AccountingController extends Controller
         $this->redirect('index.php?route=accounting/chart');
     }
 
+    public function chartDelete(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $accountId = (int)($_POST['id'] ?? 0);
+        $account = $this->accounts->find($accountId);
+        if (!$account || (int)$account['company_id'] !== $companyId) {
+            flash('error', 'Cuenta contable no encontrada.');
+            $this->redirect('index.php?route=accounting/chart');
+        }
+        if ($this->accounts->hasChildren($companyId, $accountId)) {
+            flash('error', 'No puedes eliminar la cuenta porque tiene subcuentas asociadas.');
+            $this->redirect('index.php?route=accounting/chart');
+        }
+        if ($this->accounts->hasJournalLines($companyId, $accountId)) {
+            flash('error', 'No puedes eliminar la cuenta porque tiene movimientos asociados.');
+            $this->redirect('index.php?route=accounting/chart');
+        }
+        $this->accounts->delete($accountId);
+        flash('success', 'Cuenta contable eliminada.');
+        $this->redirect('index.php?route=accounting/chart');
+    }
+
     public function journals(): void
     {
         $this->requireLogin();

@@ -879,6 +879,16 @@ function permission_legacy_key_for(string $key): ?string
     return null;
 }
 
+function permission_edit_key_for_view(string $viewKey): ?string
+{
+    foreach (permission_catalog() as $data) {
+        if (($data['view_key'] ?? null) === $viewKey) {
+            return $data['edit_key'] ?? null;
+        }
+    }
+    return null;
+}
+
 function role_permissions(Database $db, int $roleId): array
 {
     static $cache = [];
@@ -915,6 +925,10 @@ function can_access_route(Database $db, string $route, ?array $user): bool
     }
     $permissions = role_permissions($db, $roleId);
     if (in_array($key, $permissions, true)) {
+        return true;
+    }
+    $editKey = permission_edit_key_for_view($key);
+    if ($editKey && in_array($editKey, $permissions, true)) {
         return true;
     }
     $legacyKey = permission_legacy_key_for($key);

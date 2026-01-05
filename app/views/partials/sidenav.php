@@ -340,7 +340,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $hasPermission('calendar_view')): ?>
+            <?php if ($hasCompany && $canAccessAny(['calendar_view', 'calendar_edit'])): ?>
                 <li class="side-nav-item">
                     <a href="index.php?route=calendar" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="calendar"></i></span>

@@ -21,6 +21,7 @@ class CalendarController extends Controller
             flash('error', 'Selecciona una empresa para usar el calendario.');
             $this->redirect('index.php?route=dashboard');
         }
+        $this->ensureCalendarTables();
         $calendarModel = new CalendarModel($this->db);
         $documents = $calendarModel->listDocuments((int)$companyId);
 
@@ -41,6 +42,7 @@ class CalendarController extends Controller
             echo json_encode([], JSON_UNESCAPED_UNICODE);
             return;
         }
+        $this->ensureCalendarTables();
         $start = $_GET['start'] ?? null;
         $end = $_GET['end'] ?? null;
         $calendarModel = new CalendarModel($this->db);
@@ -59,6 +61,7 @@ class CalendarController extends Controller
             echo json_encode(['message' => 'Empresa no válida.'], JSON_UNESCAPED_UNICODE);
             return;
         }
+        $this->ensureCalendarTables();
         $data = $this->requestData();
         $this->verifyToken($data['csrf_token'] ?? null);
 
@@ -180,6 +183,7 @@ class CalendarController extends Controller
             echo json_encode(['message' => 'Empresa no válida.'], JSON_UNESCAPED_UNICODE);
             return;
         }
+        $this->ensureCalendarTables();
         $data = $this->requestData();
         $this->verifyToken($data['csrf_token'] ?? null);
 
@@ -277,5 +281,52 @@ class CalendarController extends Controller
                 ]
             );
         }
+    }
+
+    private function ensureCalendarTables(): void
+    {
+        $this->db->execute(
+            'CREATE TABLE IF NOT EXISTS calendar_events (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                company_id INT NOT NULL,
+                created_by_user_id INT NOT NULL,
+                title VARCHAR(150) NOT NULL,
+                description TEXT NULL,
+                event_type VARCHAR(20) NOT NULL DEFAULT \'meeting\',
+                location VARCHAR(150) NULL,
+                start_at DATETIME NOT NULL,
+                end_at DATETIME NULL,
+                all_day TINYINT(1) NOT NULL DEFAULT 0,
+                reminder_minutes INT NULL,
+                class_name VARCHAR(100) NOT NULL DEFAULT \'bg-primary-subtle text-primary\',
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL,
+                INDEX idx_calendar_events_company (company_id),
+                INDEX idx_calendar_events_start (start_at),
+                CONSTRAINT fk_calendar_events_company
+                    FOREIGN KEY (company_id) REFERENCES companies(id)
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_calendar_events_user
+                    FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+                    ON DELETE CASCADE
+            )'
+        );
+        $this->db->execute(
+            'CREATE TABLE IF NOT EXISTS calendar_event_documents (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                event_id INT NOT NULL,
+                document_id INT NOT NULL,
+                created_at DATETIME NOT NULL,
+                UNIQUE KEY idx_calendar_event_document_unique (event_id, document_id),
+                INDEX idx_calendar_event_documents_event (event_id),
+                INDEX idx_calendar_event_documents_document (document_id),
+                CONSTRAINT fk_calendar_event_documents_event
+                    FOREIGN KEY (event_id) REFERENCES calendar_events(id)
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_calendar_event_documents_document
+                    FOREIGN KEY (document_id) REFERENCES documents(id)
+                    ON DELETE CASCADE
+            )'
+        );
     }
 }

@@ -128,7 +128,7 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                 <button data-table-delete-selected class="btn btn-danger d-none">Eliminar</button>
             </div>
 
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 documents-filter-bar">
                 <span class="me-2 fw-semibold">Filtrar por:</span>
 
                 <div class="app-search">
@@ -503,3 +503,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+
+<style>
+    .documents-filter-bar {
+        flex-wrap: wrap;
+    }
+
+    .documents-filter-bar .app-search {
+        min-width: 180px;
+    }
+
+    .documents-filter-bar .app-search .form-select {
+        padding-left: 2.5rem;
+    }
+</style>

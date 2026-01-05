@@ -793,6 +793,13 @@ function permission_catalog(): array
             'view_key' => 'users_permissions_view',
             'edit_key' => 'users_permissions_edit',
         ],
+        'calendar' => [
+            'label' => 'Calendario',
+            'routes' => ['calendar'],
+            'legacy_key' => 'calendar',
+            'view_key' => 'calendar_view',
+            'edit_key' => 'calendar_edit',
+        ],
         'company_switch' => [
             'label' => 'Cambio de empresa',
             'routes' => ['auth/switch-company'],

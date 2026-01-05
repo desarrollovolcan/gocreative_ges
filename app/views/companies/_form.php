@@ -19,4 +19,20 @@
         <label class="form-label">Dirección</label>
         <input type="text" name="address" class="form-control" value="<?php echo e($company['address'] ?? ''); ?>">
     </div>
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Giro</label>
+        <input type="text" name="giro" class="form-control" value="<?php echo e($company['giro'] ?? ''); ?>" placeholder="Ej: Servicios informáticos">
+    </div>
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Código actividad</label>
+        <input type="text" name="activity_code" class="form-control" value="<?php echo e($company['activity_code'] ?? ''); ?>" placeholder="Ej: 620100">
+    </div>
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Comuna</label>
+        <input type="text" name="commune" class="form-control" value="<?php echo e($company['commune'] ?? ''); ?>">
+    </div>
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Ciudad</label>
+        <input type="text" name="city" class="form-control" value="<?php echo e($company['city'] ?? ''); ?>">
+    </div>
 </div>

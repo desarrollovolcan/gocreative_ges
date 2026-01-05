@@ -48,6 +48,10 @@ class CompaniesController extends Controller
             'email' => trim($_POST['email'] ?? ''),
             'phone' => trim($_POST['phone'] ?? ''),
             'address' => trim($_POST['address'] ?? ''),
+            'giro' => trim($_POST['giro'] ?? ''),
+            'activity_code' => trim($_POST['activity_code'] ?? ''),
+            'commune' => trim($_POST['commune'] ?? ''),
+            'city' => trim($_POST['city'] ?? ''),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
@@ -95,6 +99,10 @@ class CompaniesController extends Controller
             'email' => trim($_POST['email'] ?? ''),
             'phone' => trim($_POST['phone'] ?? ''),
             'address' => trim($_POST['address'] ?? ''),
+            'giro' => trim($_POST['giro'] ?? ''),
+            'activity_code' => trim($_POST['activity_code'] ?? ''),
+            'commune' => trim($_POST['commune'] ?? ''),
+            'city' => trim($_POST['city'] ?? ''),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         audit($this->db, Auth::user()['id'], 'update', 'companies', $id);

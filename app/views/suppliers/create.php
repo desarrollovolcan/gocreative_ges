@@ -37,6 +37,22 @@
                             <label class="form-label">Dirección</label>
                             <input type="text" name="address" class="form-control" placeholder="Calle y número">
                         </div>
+                        <div class="col-md-6 col-xl-4">
+                            <label class="form-label">Giro</label>
+                            <input type="text" name="giro" class="form-control" placeholder="Ej: Servicios profesionales">
+                        </div>
+                        <div class="col-md-6 col-xl-4">
+                            <label class="form-label">Código actividad</label>
+                            <input type="text" name="activity_code" class="form-control" placeholder="Ej: 620100">
+                        </div>
+                        <div class="col-md-6 col-xl-4">
+                            <label class="form-label">Comuna</label>
+                            <input type="text" name="commune" class="form-control">
+                        </div>
+                        <div class="col-md-6 col-xl-4">
+                            <label class="form-label">Ciudad</label>
+                            <input type="text" name="city" class="form-control">
+                        </div>
                         <div class="col-12">
                             <label class="form-label">Notas</label>
                             <textarea name="notes" class="form-control" rows="3" placeholder="Información adicional, condiciones de pago, etc."></textarea>

@@ -38,6 +38,22 @@
                             <label class="form-label">Dirección</label>
                             <input type="text" name="address" class="form-control" value="<?php echo e($supplier['address'] ?? ''); ?>">
                         </div>
+                        <div class="col-md-6 col-xl-4">
+                            <label class="form-label">Giro</label>
+                            <input type="text" name="giro" class="form-control" value="<?php echo e($supplier['giro'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-6 col-xl-4">
+                            <label class="form-label">Código actividad</label>
+                            <input type="text" name="activity_code" class="form-control" value="<?php echo e($supplier['activity_code'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-6 col-xl-4">
+                            <label class="form-label">Comuna</label>
+                            <input type="text" name="commune" class="form-control" value="<?php echo e($supplier['commune'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-6 col-xl-4">
+                            <label class="form-label">Ciudad</label>
+                            <input type="text" name="city" class="form-control" value="<?php echo e($supplier['city'] ?? ''); ?>">
+                        </div>
                         <div class="col-12">
                             <label class="form-label">Notas</label>
                             <textarea name="notes" class="form-control" rows="3"><?php echo e($supplier['notes'] ?? ''); ?></textarea>

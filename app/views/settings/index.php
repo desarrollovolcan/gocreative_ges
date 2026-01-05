@@ -32,6 +32,30 @@
                     <input type="email" name="email" class="form-control" value="<?php echo e($company['email'] ?? ''); ?>">
                 </div>
                 <div class="col-md-6 mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" name="phone" class="form-control" value="<?php echo e($company['phone'] ?? ''); ?>">
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" name="address" class="form-control" value="<?php echo e($company['address'] ?? ''); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Giro</label>
+                    <input type="text" name="giro" class="form-control" value="<?php echo e($company['giro'] ?? ''); ?>" placeholder="Ej: Servicios informáticos">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Código actividad</label>
+                    <input type="text" name="activity_code" class="form-control" value="<?php echo e($company['activity_code'] ?? ''); ?>" placeholder="Ej: 620100">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Comuna</label>
+                    <input type="text" name="commune" class="form-control" value="<?php echo e($company['commune'] ?? ''); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Ciudad</label>
+                    <input type="text" name="city" class="form-control" value="<?php echo e($company['city'] ?? ''); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
                     <label class="form-label">Logo color</label>
                     <input type="file" name="logo_color" class="form-control" accept="image/png,image/jpeg,image/webp">
                     <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>

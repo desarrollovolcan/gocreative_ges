@@ -9,6 +9,7 @@ class SalesController extends Controller
     private PosSessionsModel $posSessions;
     private SalePaymentsModel $salePayments;
     private ServicesModel $services;
+    private SettingsModel $settings;
 
     public function __construct(array $config, Database $db)
     {
@@ -20,6 +21,7 @@ class SalesController extends Controller
         $this->posSessions = new PosSessionsModel($db);
         $this->salePayments = new SalePaymentsModel($db);
         $this->services = new ServicesModel($db);
+        $this->settings = new SettingsModel($db);
     }
 
     private function requireCompany(): int
@@ -62,6 +64,8 @@ class SalesController extends Controller
         $products = $this->products->active($companyId);
         $clients = $this->clients->active($companyId);
         $services = $this->services->active($companyId);
+        $invoiceDefaults = $this->settings->get('invoice_defaults', []);
+        $taxDefault = !empty($invoiceDefaults['apply_tax']) ? (float)($invoiceDefaults['tax_rate'] ?? 0) : 0;
         $session = null;
         $sessionTotals = [];
         $posReady = $this->posTablesReady();
@@ -85,6 +89,7 @@ class SalesController extends Controller
             'clients' => $clients,
             'services' => $services,
             'today' => date('Y-m-d'),
+            'taxDefault' => $taxDefault,
             'isPos' => $isPos,
             'posSession' => $session,
             'sessionTotals' => $sessionTotals,

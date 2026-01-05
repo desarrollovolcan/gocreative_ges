@@ -71,6 +71,8 @@ return [
     'accounting/periods' => ['AccountingController', 'periods'],
     'accounting/periods/store' => ['AccountingController', 'periodsStore'],
     'accounting/periods/close' => ['AccountingController', 'periodsClose'],
+    'accounting/periods/request-open' => ['AccountingController', 'periodsRequestOpen'],
+    'accounting/periods/open' => ['AccountingController', 'periodsOpen'],
     'taxes' => ['TaxesController', 'index'],
     'taxes/periods/store' => ['TaxesController', 'storePeriod'],
     'taxes/withholdings/store' => ['TaxesController', 'storeWithholding'],

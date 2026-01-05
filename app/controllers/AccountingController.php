@@ -421,4 +421,101 @@ class AccountingController extends Controller
         flash('success', 'Periodo contable cerrado.');
         $this->redirect('index.php?route=accounting/periods');
     }
+
+    public function periodsRequestOpen(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $periodId = (int)($_POST['period_id'] ?? 0);
+        $period = $this->periods->find($periodId);
+        if (!$period || (int)$period['company_id'] !== $companyId) {
+            flash('error', 'Periodo contable no encontrado.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        if (($period['status'] ?? '') !== 'cerrado') {
+            flash('error', 'El período ya está abierto.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        $code = (string)random_int(100000, 999999);
+        $_SESSION['accounting_period_open_code'][$companyId][$periodId] = [
+            'code' => $code,
+            'expires_at' => time() + 600,
+        ];
+        $admins = $this->db->fetchAll(
+            'SELECT users.email
+             FROM users
+             JOIN roles ON users.role_id = roles.id
+             WHERE users.company_id = :company_id AND users.deleted_at IS NULL AND roles.name = "admin"',
+            ['company_id' => $companyId]
+        );
+        $recipients = array_values(array_filter(array_map(static function ($row) {
+            return $row['email'] ?? '';
+        }, $admins), static function ($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        }));
+        if (empty($recipients)) {
+            $fallback = Auth::user()['email'] ?? '';
+            if (filter_var($fallback, FILTER_VALIDATE_EMAIL)) {
+                $recipients = [$fallback];
+            }
+        }
+        if (empty($recipients)) {
+            flash('error', 'No encontramos un correo de administrador válido para enviar el código.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        $mailer = new Mailer($this->db);
+        $subject = 'Código para abrir período contable';
+        $body = '<p>Se solicitó la apertura del período contable <strong>' . e($period['period'] ?? '') . '</strong>.</p>'
+            . '<p>Tu código de autorización es: <strong>' . e($code) . '</strong></p>'
+            . '<p>Este código vence en 10 minutos.</p>';
+        $sent = $mailer->send('info', $recipients, $subject, $body);
+        if (!$sent) {
+            $errorDetail = $mailer->getLastError() ?: 'No se pudo enviar el correo.';
+            flash('error', 'No se pudo enviar el código: ' . $errorDetail);
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        flash('success', 'Código enviado al correo del administrador.');
+        $this->redirect('index.php?route=accounting/periods');
+    }
+
+    public function periodsOpen(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $periodId = (int)($_POST['period_id'] ?? 0);
+        $code = trim($_POST['open_code'] ?? '');
+        $period = $this->periods->find($periodId);
+        if (!$period || (int)$period['company_id'] !== $companyId) {
+            flash('error', 'Periodo contable no encontrado.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        if (($period['status'] ?? '') !== 'cerrado') {
+            flash('error', 'El período ya está abierto.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        $stored = $_SESSION['accounting_period_open_code'][$companyId][$periodId] ?? null;
+        if (!$stored || empty($stored['code']) || empty($stored['expires_at'])) {
+            flash('error', 'Debes solicitar un código para abrir el período.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        if (time() > (int)$stored['expires_at']) {
+            unset($_SESSION['accounting_period_open_code'][$companyId][$periodId]);
+            flash('error', 'El código ha expirado. Solicita uno nuevo.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        if (!hash_equals((string)$stored['code'], $code)) {
+            flash('error', 'El código ingresado no es válido.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        unset($_SESSION['accounting_period_open_code'][$companyId][$periodId]);
+        $this->periods->update($periodId, [
+            'status' => 'abierto',
+            'closed_at' => null,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        flash('success', 'Periodo contable abierto.');
+        $this->redirect('index.php?route=accounting/periods');
+    }
 }

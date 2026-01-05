@@ -15,6 +15,9 @@ class DocumentsController extends Controller
         $user = Auth::user();
         $userId = isset($user['id']) ? (int)$user['id'] : null;
         $documents = $this->listDocuments((int)$companyId, $filter, $categoryId, $userId);
+        if (!empty($documents)) {
+            $documents = $this->attachSharesToDocuments($documents, (int)$companyId);
+        }
         $categories = $this->listCategories((int)$companyId);
         $counts = $this->documentCounts((int)$companyId, $userId);
         $usersModel = new UsersModel($this->db);
@@ -518,6 +521,45 @@ class DocumentsController extends Controller
             'SELECT id FROM document_categories WHERE id = :id AND company_id = :company_id',
             ['id' => $categoryId, 'company_id' => $companyId]
         );
+    }
+
+    private function attachSharesToDocuments(array $documents, int $companyId): array
+    {
+        $documentIds = array_values(array_filter(array_map(
+            static fn(array $document): int => (int)($document['id'] ?? 0),
+            $documents
+        )));
+        if (empty($documentIds)) {
+            return $documents;
+        }
+        $placeholders = implode(',', array_fill(0, count($documentIds), '?'));
+        $params = $documentIds;
+        $params[] = $companyId;
+        $rows = $this->db->fetchAll(
+            'SELECT ds.document_id, u.id, u.name, u.avatar_path
+             FROM document_shares ds
+             INNER JOIN users u ON u.id = ds.user_id
+             WHERE ds.document_id IN (' . $placeholders . ')
+               AND u.company_id = ?
+               AND u.deleted_at IS NULL
+             ORDER BY ds.document_id ASC, u.name ASC',
+            $params
+        );
+        $sharesByDocument = [];
+        foreach ($rows as $row) {
+            $docId = (int)$row['document_id'];
+            $sharesByDocument[$docId][] = [
+                'id' => (int)$row['id'],
+                'name' => $row['name'] ?? '',
+                'avatar_path' => $row['avatar_path'] ?? '',
+            ];
+        }
+        foreach ($documents as &$document) {
+            $docId = (int)($document['id'] ?? 0);
+            $document['shared_with'] = $sharesByDocument[$docId] ?? [];
+        }
+        unset($document);
+        return $documents;
     }
 
     private function documentsRedirectUrl(): string

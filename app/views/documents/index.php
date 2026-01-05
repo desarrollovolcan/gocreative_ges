@@ -35,6 +35,13 @@ $fileIcon = static function (string $extension): string {
         default => 'ti ti-file-text',
     };
 };
+$userInitials = static function (string $name): string {
+    $name = trim($name);
+    if ($name === '') {
+        return 'U';
+    }
+    return strtoupper(mb_substr($name, 0, 1));
+};
 $filterLink = static function (string $filter = 'all', ?int $categoryId = null): string {
     $params = ['route=documents', 'filter=' . urlencode($filter)];
     if ($categoryId) {
@@ -255,6 +262,7 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                                     <th>Tipo</th>
                                     <th>Categoría</th>
                                     <th>Tamaño</th>
+                                    <th>Compartido con</th>
                                     <th>Última actualización</th>
                                     <th class="text-end">Acciones</th>
                                 </tr>
@@ -262,7 +270,7 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                             <tbody>
                                 <?php if (empty($documents)): ?>
                                     <tr>
-                                        <td colspan="7" class="text-center text-muted py-4">
+                                        <td colspan="8" class="text-center text-muted py-4">
                                             No hay documentos cargados todavía.
                                         </td>
                                     </tr>
@@ -302,43 +310,95 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                                                 <?php endif; ?>
                                             </td>
                                             <td><?php echo e($formatSize($document['size'] ?? 0)); ?></td>
+                                            <td>
+                                                <?php $sharedUsers = $document['shared_with'] ?? []; ?>
+                                                <?php if (empty($sharedUsers)): ?>
+                                                    <span class="text-muted fs-xs">-</span>
+                                                <?php else: ?>
+                                                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                                                        <?php foreach ($sharedUsers as $sharedUser): ?>
+                                                            <?php $sharedName = (string)($sharedUser['name'] ?? ''); ?>
+                                                            <?php if (!empty($sharedUser['avatar_path'])): ?>
+                                                                <img src="<?php echo e((string)$sharedUser['avatar_path']); ?>"
+                                                                     alt="<?php echo e($sharedName); ?>"
+                                                                     class="rounded-circle"
+                                                                     style="width: 28px; height: 28px; object-fit: cover;"
+                                                                     title="<?php echo e($sharedName); ?>">
+                                                            <?php else: ?>
+                                                                <span class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center fw-semibold"
+                                                                      style="width: 28px; height: 28px;"
+                                                                      title="<?php echo e($sharedName); ?>">
+                                                                    <?php echo e($userInitials($sharedName)); ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </td>
                                             <td><?php echo e($document['updated_at']); ?></td>
                                             <td class="text-end">
-                                                <div class="btn-group btn-group-sm">
-                                                    <a class="btn btn-light" href="<?php echo e($document['download_url']); ?>">Descargar</a>
-                                                    <?php if ($activeFilter === 'trash'): ?>
-                                                        <form method="post" action="index.php?route=documents/restore" class="d-inline">
-                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                            <input type="hidden" name="id" value="<?php echo e((string)$document['id']); ?>">
-                                                            <input type="hidden" name="redirect_filter" value="<?php echo e((string)$activeFilter); ?>">
-                                                            <input type="hidden" name="redirect_category" value="<?php echo e((string)$activeCategoryId); ?>">
-                                                            <button type="submit" class="btn btn-light text-success">Restaurar</button>
-                                                        </form>
-                                                        <form method="post" action="index.php?route=documents/purge" class="d-inline">
-                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                            <input type="hidden" name="id" value="<?php echo e((string)$document['id']); ?>">
-                                                            <input type="hidden" name="redirect_filter" value="<?php echo e((string)$activeFilter); ?>">
-                                                            <input type="hidden" name="redirect_category" value="<?php echo e((string)$activeCategoryId); ?>">
-                                                            <button type="submit" class="btn btn-light text-danger">Eliminar</button>
-                                                        </form>
-                                                    <?php else: ?>
-                                                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#documentsShareModal" data-document-id="<?php echo e((string)$document['id']); ?>">Compartir</button>
-                                                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#documentsCategoryAssignModal" data-document-id="<?php echo e((string)$document['id']); ?>">Categoría</button>
-                                                        <form method="post" action="index.php?route=documents/favorite" class="d-inline">
-                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                            <input type="hidden" name="id" value="<?php echo e((string)$document['id']); ?>">
-                                                            <input type="hidden" name="redirect_filter" value="<?php echo e((string)$activeFilter); ?>">
-                                                            <input type="hidden" name="redirect_category" value="<?php echo e((string)$activeCategoryId); ?>">
-                                                            <button type="submit" class="btn btn-light"><?php echo $document['is_favorite'] ? 'Quitar' : 'Favorito'; ?></button>
-                                                        </form>
-                                                        <form method="post" action="index.php?route=documents/delete" class="d-inline">
-                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                            <input type="hidden" name="id" value="<?php echo e((string)$document['id']); ?>">
-                                                            <input type="hidden" name="redirect_filter" value="<?php echo e((string)$activeFilter); ?>">
-                                                            <input type="hidden" name="redirect_category" value="<?php echo e((string)$activeCategoryId); ?>">
-                                                            <button type="submit" class="btn btn-light text-danger">Papelera</button>
-                                                        </form>
-                                                    <?php endif; ?>
+                                                <div class="dropdown actions-dropdown">
+                                                    <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Acciones
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <a class="dropdown-item" href="<?php echo e($document['download_url']); ?>">
+                                                                Descargar
+                                                            </a>
+                                                        </li>
+                                                        <?php if ($activeFilter === 'trash'): ?>
+                                                            <li>
+                                                                <form method="post" action="index.php?route=documents/restore">
+                                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                                    <input type="hidden" name="id" value="<?php echo e((string)$document['id']); ?>">
+                                                                    <input type="hidden" name="redirect_filter" value="<?php echo e((string)$activeFilter); ?>">
+                                                                    <input type="hidden" name="redirect_category" value="<?php echo e((string)$activeCategoryId); ?>">
+                                                                    <button type="submit" class="dropdown-item dropdown-item-button text-success">Restaurar</button>
+                                                                </form>
+                                                            </li>
+                                                            <li>
+                                                                <form method="post" action="index.php?route=documents/purge">
+                                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                                    <input type="hidden" name="id" value="<?php echo e((string)$document['id']); ?>">
+                                                                    <input type="hidden" name="redirect_filter" value="<?php echo e((string)$activeFilter); ?>">
+                                                                    <input type="hidden" name="redirect_category" value="<?php echo e((string)$activeCategoryId); ?>">
+                                                                    <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar definitivamente</button>
+                                                                </form>
+                                                            </li>
+                                                        <?php else: ?>
+                                                            <li>
+                                                                <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#documentsShareModal" data-document-id="<?php echo e((string)$document['id']); ?>">
+                                                                    Compartir
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#documentsCategoryAssignModal" data-document-id="<?php echo e((string)$document['id']); ?>">
+                                                                    Cambiar categoría
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <form method="post" action="index.php?route=documents/favorite">
+                                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                                    <input type="hidden" name="id" value="<?php echo e((string)$document['id']); ?>">
+                                                                    <input type="hidden" name="redirect_filter" value="<?php echo e((string)$activeFilter); ?>">
+                                                                    <input type="hidden" name="redirect_category" value="<?php echo e((string)$activeCategoryId); ?>">
+                                                                    <button type="submit" class="dropdown-item dropdown-item-button">
+                                                                        <?php echo $document['is_favorite'] ? 'Quitar favorito' : 'Agregar a favoritos'; ?>
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                            <li>
+                                                                <form method="post" action="index.php?route=documents/delete">
+                                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                                    <input type="hidden" name="id" value="<?php echo e((string)$document['id']); ?>">
+                                                                    <input type="hidden" name="redirect_filter" value="<?php echo e((string)$activeFilter); ?>">
+                                                                    <input type="hidden" name="redirect_category" value="<?php echo e((string)$activeCategoryId); ?>">
+                                                                    <button type="submit" class="dropdown-item dropdown-item-button text-danger">Enviar a papelera</button>
+                                                                </form>
+                                                            </li>
+                                                        <?php endif; ?>
+                                                    </ul>
                                                 </div>
                                             </td>
                                         </tr>

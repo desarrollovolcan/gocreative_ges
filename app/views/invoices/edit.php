@@ -202,6 +202,50 @@ if (empty($invoiceItems)) {
     const clientSelect = document.querySelector('select[name="client_id"]');
     const dueDateInput = document.querySelector('input[name="fecha_vencimiento"]');
     const dueIndicator = document.querySelector('[data-due-indicator]');
+    const clientSiiMap = <?php echo json_encode(array_reduce($clients ?? [], static function (array $carry, array $client): array {
+        $carry[$client['id']] = [
+            'rut' => $client['rut'] ?? '',
+            'name' => $client['name'] ?? '',
+            'giro' => $client['giro'] ?? '',
+            'activity_code' => $client['activity_code'] ?? '',
+            'address' => $client['address'] ?? '',
+            'commune' => $client['commune'] ?? '',
+            'city' => $client['city'] ?? '',
+        ];
+        return $carry;
+    }, []), JSON_UNESCAPED_UNICODE); ?>;
+
+    const siiInputs = {
+        sii_receiver_rut: document.querySelector('[name="sii_receiver_rut"]'),
+        sii_receiver_name: document.querySelector('[name="sii_receiver_name"]'),
+        sii_receiver_giro: document.querySelector('[name="sii_receiver_giro"]'),
+        sii_receiver_activity_code: document.querySelector('[name="sii_receiver_activity_code"]'),
+        sii_receiver_address: document.querySelector('[name="sii_receiver_address"]'),
+        sii_receiver_commune: document.querySelector('[name="sii_receiver_commune"]'),
+        sii_receiver_city: document.querySelector('[name="sii_receiver_city"]'),
+    };
+
+    const hasSiiValues = () => Object.values(siiInputs).some((input) => input && input.value.trim() !== '');
+
+    const applyClientSii = (clientId, force = false) => {
+        const data = clientSiiMap?.[clientId];
+        if (!data) {
+            return;
+        }
+        if (!force && hasSiiValues()) {
+            const confirmed = window.confirm('Ya hay datos SII ingresados. ¿Quieres reemplazarlos con los datos del cliente?');
+            if (!confirmed) {
+                return;
+            }
+        }
+        if (siiInputs.sii_receiver_rut) siiInputs.sii_receiver_rut.value = data.rut || '';
+        if (siiInputs.sii_receiver_name) siiInputs.sii_receiver_name.value = data.name || '';
+        if (siiInputs.sii_receiver_giro) siiInputs.sii_receiver_giro.value = data.giro || '';
+        if (siiInputs.sii_receiver_activity_code) siiInputs.sii_receiver_activity_code.value = data.activity_code || '';
+        if (siiInputs.sii_receiver_address) siiInputs.sii_receiver_address.value = data.address || '';
+        if (siiInputs.sii_receiver_commune) siiInputs.sii_receiver_commune.value = data.commune || '';
+        if (siiInputs.sii_receiver_city) siiInputs.sii_receiver_city.value = data.city || '';
+    };
 
     const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
@@ -333,10 +377,14 @@ if (empty($invoiceItems)) {
         }
         if (clientSelect && projectClientId) {
             clientSelect.value = projectClientId;
+            applyClientSii(Number(projectClientId));
         }
     };
 
     projectSelect?.addEventListener('change', fillFromProject);
+    clientSelect?.addEventListener('change', () => {
+        applyClientSii(Number(clientSelect?.value || 0));
+    });
 
     taxRateInput?.addEventListener('input', () => {
         document.querySelectorAll('[data-item-tax-rate]').forEach((input) => {

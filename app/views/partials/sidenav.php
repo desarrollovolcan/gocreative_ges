@@ -687,3 +687,36 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
         </ul>
     </div>
 </div>
+
+<script>
+    (function () {
+        const currentRoute = new URLSearchParams(window.location.search).get('route') || 'dashboard';
+        const links = document.querySelectorAll('.side-nav-link[href*="route="]');
+        links.forEach((link) => {
+            let linkRoute = '';
+            try {
+                linkRoute = new URL(link.href, window.location.origin).searchParams.get('route') || '';
+            } catch (error) {
+                linkRoute = '';
+            }
+            if (!linkRoute) {
+                return;
+            }
+            const isActive = currentRoute === linkRoute || currentRoute.startsWith(`${linkRoute}/`);
+            if (!isActive) {
+                return;
+            }
+            link.classList.add('active');
+            link.closest('.side-nav-item')?.classList.add('active');
+            const collapse = link.closest('.collapse');
+            if (collapse) {
+                collapse.classList.add('show');
+                const toggle = collapse.previousElementSibling;
+                if (toggle && toggle.classList.contains('side-nav-link')) {
+                    toggle.classList.add('active');
+                    toggle.setAttribute('aria-expanded', 'true');
+                }
+            }
+        });
+    })();
+</script>

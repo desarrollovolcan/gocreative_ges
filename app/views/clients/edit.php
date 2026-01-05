@@ -111,6 +111,22 @@
                                     <input type="text" name="address" class="form-control" value="<?php echo e($client['address'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6">
+                                    <label class="form-label">Giro</label>
+                                    <input type="text" name="giro" class="form-control" value="<?php echo e($client['giro'] ?? ''); ?>" placeholder="Ej: Servicios informáticos">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Código actividad</label>
+                                    <input type="text" name="activity_code" class="form-control" value="<?php echo e($client['activity_code'] ?? ''); ?>" placeholder="Ej: 620100">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Comuna</label>
+                                    <input type="text" name="commune" class="form-control" value="<?php echo e($client['commune'] ?? ''); ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Ciudad</label>
+                                    <input type="text" name="city" class="form-control" value="<?php echo e($client['city'] ?? ''); ?>">
+                                </div>
+                                <div class="col-md-6">
                                     <label class="form-label">Estado</label>
                                     <select name="status" class="form-select">
                                         <option value="activo" <?php echo ($client['status'] ?? '') === 'activo' ? 'selected' : ''; ?>>Activo</option>

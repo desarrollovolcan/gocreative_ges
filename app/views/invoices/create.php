@@ -220,9 +220,53 @@
     const billableQuotes = <?php echo json_encode($billableQuotes ?? []); ?>;
     const billableOrders = <?php echo json_encode($billableOrders ?? []); ?>;
     const prefillService = <?php echo json_encode($prefillService ?? null); ?>;
+    const clientSiiMap = <?php echo json_encode(array_reduce($clients ?? [], static function (array $carry, array $client): array {
+        $carry[$client['id']] = [
+            'rut' => $client['rut'] ?? '',
+            'name' => $client['name'] ?? '',
+            'giro' => $client['giro'] ?? '',
+            'activity_code' => $client['activity_code'] ?? '',
+            'address' => $client['address'] ?? '',
+            'commune' => $client['commune'] ?? '',
+            'city' => $client['city'] ?? '',
+        ];
+        return $carry;
+    }, []), JSON_UNESCAPED_UNICODE); ?>;
     const billableTableElement = document.getElementById('billable-items-table');
     const billableCard = document.getElementById('billable-card');
     let billableTable = null;
+
+    const siiInputs = {
+        sii_receiver_rut: document.querySelector('[name="sii_receiver_rut"]'),
+        sii_receiver_name: document.querySelector('[name="sii_receiver_name"]'),
+        sii_receiver_giro: document.querySelector('[name="sii_receiver_giro"]'),
+        sii_receiver_activity_code: document.querySelector('[name="sii_receiver_activity_code"]'),
+        sii_receiver_address: document.querySelector('[name="sii_receiver_address"]'),
+        sii_receiver_commune: document.querySelector('[name="sii_receiver_commune"]'),
+        sii_receiver_city: document.querySelector('[name="sii_receiver_city"]'),
+    };
+
+    const hasSiiValues = () => Object.values(siiInputs).some((input) => input && input.value.trim() !== '');
+
+    const applyClientSii = (clientId, force = false) => {
+        const data = clientSiiMap?.[clientId];
+        if (!data) {
+            return;
+        }
+        if (!force && hasSiiValues()) {
+            const confirmed = window.confirm('Ya hay datos SII ingresados. ¿Quieres reemplazarlos con los datos del cliente?');
+            if (!confirmed) {
+                return;
+            }
+        }
+        if (siiInputs.sii_receiver_rut) siiInputs.sii_receiver_rut.value = data.rut || '';
+        if (siiInputs.sii_receiver_name) siiInputs.sii_receiver_name.value = data.name || '';
+        if (siiInputs.sii_receiver_giro) siiInputs.sii_receiver_giro.value = data.giro || '';
+        if (siiInputs.sii_receiver_activity_code) siiInputs.sii_receiver_activity_code.value = data.activity_code || '';
+        if (siiInputs.sii_receiver_address) siiInputs.sii_receiver_address.value = data.address || '';
+        if (siiInputs.sii_receiver_commune) siiInputs.sii_receiver_commune.value = data.commune || '';
+        if (siiInputs.sii_receiver_city) siiInputs.sii_receiver_city.value = data.city || '';
+    };
 
     const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
@@ -359,6 +403,7 @@
         serviceInput.value = '';
         if (clientSelect && project.client_id) {
             clientSelect.value = project.client_id;
+            applyClientSii(Number(project.client_id));
         }
         if (dueDateInput && project.delivery_date) {
             dueDateInput.value = project.delivery_date;
@@ -373,6 +418,7 @@
         projectInput.value = '';
         if (clientSelect && service.client_id) {
             clientSelect.value = service.client_id;
+            applyClientSii(Number(service.client_id));
         }
         if (dueDateInput && service.due_date) {
             dueDateInput.value = service.due_date;
@@ -388,6 +434,7 @@
         projectInput.value = '';
         if (clientSelect && renewal.client_id) {
             clientSelect.value = renewal.client_id;
+            applyClientSii(Number(renewal.client_id));
         }
         if (dueDateInput && renewal.renewal_date) {
             dueDateInput.value = renewal.renewal_date;
@@ -402,6 +449,7 @@
         projectInput.value = quote.project_id || '';
         if (clientSelect && quote.client_id) {
             clientSelect.value = quote.client_id;
+            applyClientSii(Number(quote.client_id));
         }
         const quoteItems = Array.isArray(quote.items) ? quote.items : [];
         if (quoteItems.length > 0) {
@@ -438,6 +486,7 @@
         projectInput.value = '';
         if (clientSelect && order.client_id) {
             clientSelect.value = order.client_id;
+            applyClientSii(Number(order.client_id));
         }
         if (dueDateInput && order.order_date) {
             dueDateInput.value = order.order_date;
@@ -500,6 +549,7 @@
     };
 
     clientSelect?.addEventListener('change', () => {
+        applyClientSii(Number(clientSelect?.value || 0));
         filterOptionsByClient(serviceSelect, billableServices, 'servicio', 'id');
         filterOptionsByClient(projectSelect, billableProjects, 'proyecto', 'id');
     });
@@ -740,6 +790,7 @@
     if (prefillService) {
         fillFromServiceData(prefillService);
     }
+    applyClientSii(Number(clientSelect?.value || 0));
     reloadBillableTable();
 
     document.addEventListener('click', (event) => {

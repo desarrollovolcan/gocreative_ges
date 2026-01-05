@@ -1,9 +1,14 @@
 <?php
 $documents = $documents ?? [];
+$users = $users ?? [];
 $documentCount = count($documents);
+$userCount = count($users);
 $documentHelp = $documentCount > 0
     ? 'Adjunta documentos del módulo Documentos para preparar cada reunión o recordatorio.'
     : 'Aún no hay documentos disponibles. Súbelos desde el módulo de Documentos.';
+$attendeeHelp = $userCount > 0
+    ? 'Selecciona participantes internos para compartir el evento.'
+    : 'No hay usuarios disponibles en tu empresa.';
 ?>
 
 <div class="d-flex mb-3 gap-1">
@@ -174,6 +179,29 @@ $documentHelp = $documentCount > 0
                                 <?php endif; ?>
                                 <div class="border rounded-2 p-2 bg-light" id="event-documents-preview">
                                     <span class="text-muted fs-xs">Sin documentos adjuntos.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-2">
+                                <label class="control-label form-label" for="event-attendees">Invitados internos</label>
+                                <p class="text-muted fs-xs mb-2"><?php echo e($attendeeHelp); ?></p>
+                                <?php if ($userCount === 0): ?>
+                                    <span class="text-muted fs-xs">No hay usuarios activos para asignar.</span>
+                                <?php else: ?>
+                                    <select class="form-select" name="attendees[]" id="event-attendees" multiple size="5">
+                                        <?php foreach ($users as $user): ?>
+                                            <option value="<?php echo e((string)$user['id']); ?>" data-user-name="<?php echo e((string)($user['name'] ?? '')); ?>">
+                                                <?php echo e((string)($user['name'] ?? '')); ?>
+                                                <?php if (!empty($user['email'])): ?>
+                                                    (<?php echo e((string)$user['email']); ?>)
+                                                <?php endif; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                <?php endif; ?>
+                                <div class="border rounded-2 p-2 bg-light mt-2" id="event-attendees-preview">
+                                    <span class="text-muted fs-xs">Sin invitados asignados.</span>
                                 </div>
                             </div>
                         </div>

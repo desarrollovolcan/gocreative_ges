@@ -1131,3 +1131,19 @@ CREATE TABLE calendar_event_documents (
         FOREIGN KEY (document_id) REFERENCES documents(id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE calendar_event_attendees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at DATETIME NOT NULL,
+    UNIQUE KEY idx_calendar_event_attendee_unique (event_id, user_id),
+    INDEX idx_calendar_event_attendees_event (event_id),
+    INDEX idx_calendar_event_attendees_user (user_id),
+    CONSTRAINT fk_calendar_event_attendees_event
+        FOREIGN KEY (event_id) REFERENCES calendar_events(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_calendar_event_attendees_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
+);

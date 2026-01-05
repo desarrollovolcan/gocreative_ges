@@ -24,6 +24,8 @@ class CalendarSchedule {
         this.eventReminderInput = document.getElementById('event-reminder');
         this.eventAllDayInput = document.getElementById('event-all-day');
         this.eventDescriptionInput = document.getElementById('event-description');
+        this.eventAttendeesInput = document.getElementById('event-attendees');
+        this.attendeesPreview = document.getElementById('event-attendees-preview');
         this.documentPreview = document.getElementById('event-documents-preview');
         this.documentCheckboxes = document.querySelectorAll('.calendar-document-checkbox');
         this.config = window.calendarConfig || {};
@@ -131,6 +133,12 @@ class CalendarSchedule {
             });
         });
 
+        if (self.eventAttendeesInput) {
+            self.eventAttendeesInput.addEventListener('change', function () {
+                self.updateAttendeesPreview();
+            });
+        }
+
         self.formEvent?.addEventListener('submit', function (e) {
             e.preventDefault();
             const form = self.formEvent;
@@ -229,6 +237,7 @@ class CalendarSchedule {
             this.eventDescriptionInput.value = '';
         }
         this.resetDocumentSelection([]);
+        this.resetAttendeeSelection([]);
     }
 
     populateFormFromEvent(event) {
@@ -262,6 +271,8 @@ class CalendarSchedule {
         }
         const docs = event.extendedProps?.documents || [];
         this.resetDocumentSelection(docs.map(function (doc) { return doc.id; }));
+        const attendees = event.extendedProps?.attendees || [];
+        this.resetAttendeeSelection(attendees.map(function (attendee) { return attendee.id; }));
     }
 
     setDateInputs(startDate, allDay, endDate = null) {
@@ -353,6 +364,7 @@ class CalendarSchedule {
             reminder_minutes: this.eventReminderInput?.value || null,
             description: this.eventDescriptionInput?.value || '',
             documents: this.getSelectedDocumentIds(),
+            attendees: this.getSelectedAttendeeIds(),
             csrf_token: this.config.csrfToken
         };
     }
@@ -386,6 +398,31 @@ class CalendarSchedule {
         this.updateDocumentPreview();
     }
 
+    getSelectedAttendeeIds() {
+        if (!this.eventAttendeesInput) {
+            return [];
+        }
+        return Array.from(this.eventAttendeesInput.selectedOptions)
+            .map(function (option) {
+                return parseInt(option.value, 10);
+            })
+            .filter(function (id) {
+                return !Number.isNaN(id) && id > 0;
+            });
+    }
+
+    resetAttendeeSelection(selectedIds) {
+        if (!this.eventAttendeesInput) {
+            return;
+        }
+        const ids = selectedIds || [];
+        Array.from(this.eventAttendeesInput.options).forEach(function (option) {
+            const optionId = parseInt(option.value, 10);
+            option.selected = ids.includes(optionId);
+        });
+        this.updateAttendeesPreview();
+    }
+
     updateDocumentPreview() {
         if (!this.documentPreview) {
             return;
@@ -408,6 +445,26 @@ class CalendarSchedule {
             return '<div class="d-flex align-items-center gap-2 fs-xs">' +
                 '<i class="ti ti-file"></i>' +
                 '<a class="link-reset" href="' + doc.url + '" target="_blank">' + doc.name + '</a>' +
+                '</div>';
+        }).join('');
+    }
+
+    updateAttendeesPreview() {
+        if (!this.attendeesPreview || !this.eventAttendeesInput) {
+            return;
+        }
+        const selected = Array.from(this.eventAttendeesInput.selectedOptions).map(function (option) {
+            return option.getAttribute('data-user-name') || option.textContent.trim();
+        }).filter(Boolean);
+
+        if (selected.length === 0) {
+            this.attendeesPreview.innerHTML = '<span class="text-muted fs-xs">Sin invitados asignados.</span>';
+            return;
+        }
+        this.attendeesPreview.innerHTML = selected.map(function (name) {
+            return '<div class="d-flex align-items-center gap-2 fs-xs">' +
+                '<i class="ti ti-user"></i>' +
+                '<span>' + name + '</span>' +
                 '</div>';
         }).join('');
     }
@@ -456,7 +513,8 @@ class CalendarSchedule {
                 location: payload.location,
                 description: payload.description,
                 reminder_minutes: payload.reminder_minutes !== null && payload.reminder_minutes !== '' ? parseInt(payload.reminder_minutes, 10) : null,
-                documents: this.collectSelectedDocuments()
+                documents: this.collectSelectedDocuments(),
+                attendees: this.collectSelectedAttendees()
             }
         };
     }
@@ -475,6 +533,20 @@ class CalendarSchedule {
         return docs;
     }
 
+    collectSelectedAttendees() {
+        if (!this.eventAttendeesInput) {
+            return [];
+        }
+        return Array.from(this.eventAttendeesInput.selectedOptions).map(function (option) {
+            return {
+                id: parseInt(option.value, 10),
+                name: option.getAttribute('data-user-name') || option.textContent.trim()
+            };
+        }).filter(function (attendee) {
+            return !Number.isNaN(attendee.id) && attendee.id > 0;
+        });
+    }
+
     applyEventUpdates(event, data) {
         event.setProp('title', data.title);
         event.setStart(data.start);
@@ -486,6 +558,7 @@ class CalendarSchedule {
         event.setExtendedProp('description', data.extendedProps.description);
         event.setExtendedProp('reminder_minutes', data.extendedProps.reminder_minutes);
         event.setExtendedProp('documents', data.extendedProps.documents);
+        event.setExtendedProp('attendees', data.extendedProps.attendees);
     }
 
     async deleteEvent() {
@@ -524,6 +597,7 @@ class CalendarSchedule {
             reminder_minutes: event.extendedProps?.reminder_minutes || null,
             description: event.extendedProps?.description || '',
             documents: (event.extendedProps?.documents || []).map(function (doc) { return doc.id; }),
+            attendees: (event.extendedProps?.attendees || []).map(function (attendee) { return attendee.id; }),
             csrf_token: this.config.csrfToken
         };
         const response = await fetch(this.config.storeUrl, {

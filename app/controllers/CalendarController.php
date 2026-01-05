@@ -24,11 +24,14 @@ class CalendarController extends Controller
         $this->ensureCalendarTables();
         $calendarModel = new CalendarModel($this->db);
         $documents = $calendarModel->listDocuments((int)$companyId);
+        $usersModel = new UsersModel($this->db);
+        $users = $usersModel->allActive((int)$companyId);
 
         $this->render('calendar/index', [
             'title' => 'Calendario',
             'pageTitle' => 'Calendario',
             'documents' => $documents,
+            'users' => $users,
         ]);
     }
 
@@ -168,6 +171,8 @@ class CalendarController extends Controller
 
         $documentIds = $this->sanitizeDocumentIds($data['documents'] ?? []);
         $this->syncEventDocuments($eventId, (int)$companyId, $documentIds);
+        $attendeeIds = $this->sanitizeDocumentIds($data['attendees'] ?? []);
+        $this->syncEventAttendees($eventId, (int)$companyId, $attendeeIds);
 
         echo json_encode(['success' => true, 'id' => $eventId], JSON_UNESCAPED_UNICODE);
     }
@@ -283,6 +288,37 @@ class CalendarController extends Controller
         }
     }
 
+    private function syncEventAttendees(int $eventId, int $companyId, array $attendeeIds): void
+    {
+        $this->db->execute('DELETE FROM calendar_event_attendees WHERE event_id = :event_id', [
+            'event_id' => $eventId,
+        ]);
+        if (empty($attendeeIds)) {
+            return;
+        }
+        $placeholders = [];
+        $params = ['company_id' => $companyId];
+        foreach ($attendeeIds as $index => $attendeeId) {
+            $key = 'user' . $index;
+            $placeholders[] = ':' . $key;
+            $params[$key] = $attendeeId;
+        }
+        $rows = $this->db->fetchAll(
+            'SELECT id FROM users WHERE company_id = :company_id AND deleted_at IS NULL AND id IN (' . implode(',', $placeholders) . ')',
+            $params
+        );
+        foreach ($rows as $row) {
+            $this->db->execute(
+                'INSERT INTO calendar_event_attendees (event_id, user_id, created_at)
+                 VALUES (:event_id, :user_id, NOW())',
+                [
+                    'event_id' => $eventId,
+                    'user_id' => (int)$row['id'],
+                ]
+            );
+        }
+    }
+
     private function ensureCalendarTables(): void
     {
         $this->db->execute(
@@ -325,6 +361,23 @@ class CalendarController extends Controller
                     ON DELETE CASCADE,
                 CONSTRAINT fk_calendar_event_documents_document
                     FOREIGN KEY (document_id) REFERENCES documents(id)
+                    ON DELETE CASCADE
+            )'
+        );
+        $this->db->execute(
+            'CREATE TABLE IF NOT EXISTS calendar_event_attendees (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                event_id INT NOT NULL,
+                user_id INT NOT NULL,
+                created_at DATETIME NOT NULL,
+                UNIQUE KEY idx_calendar_event_attendee_unique (event_id, user_id),
+                INDEX idx_calendar_event_attendees_event (event_id),
+                INDEX idx_calendar_event_attendees_user (user_id),
+                CONSTRAINT fk_calendar_event_attendees_event
+                    FOREIGN KEY (event_id) REFERENCES calendar_events(id)
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_calendar_event_attendees_user
+                    FOREIGN KEY (user_id) REFERENCES users(id)
                     ON DELETE CASCADE
             )'
         );

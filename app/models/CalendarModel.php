@@ -30,6 +30,7 @@ class CalendarModel
         );
         $eventIds = array_map(static fn(array $row) => (int)$row['id'], $rows);
         $documentsByEvent = $this->documentsForEvents($eventIds);
+        $attendeesByEvent = $this->attendeesForEvents($eventIds);
         $events = [];
 
         foreach ($rows as $row) {
@@ -49,6 +50,7 @@ class CalendarModel
                     'description' => $row['description'],
                     'reminder_minutes' => $row['reminder_minutes'] !== null ? (int)$row['reminder_minutes'] : null,
                     'documents' => $documentsByEvent[(int)$row['id']] ?? [],
+                    'attendees' => $attendeesByEvent[(int)$row['id']] ?? [],
                 ],
             ];
         }
@@ -111,6 +113,37 @@ class CalendarModel
             ];
         }
         return $documentsByEvent;
+    }
+
+    private function attendeesForEvents(array $eventIds): array
+    {
+        $eventIds = array_values(array_filter(array_unique($eventIds), static fn(int $id) => $id > 0));
+        if (empty($eventIds)) {
+            return [];
+        }
+        $placeholders = [];
+        $params = [];
+        foreach ($eventIds as $index => $eventId) {
+            $key = 'event' . $index;
+            $placeholders[] = ':' . $key;
+            $params[$key] = $eventId;
+        }
+        $rows = $this->db->fetchAll(
+            'SELECT cea.event_id, u.id, u.name, u.email
+             FROM calendar_event_attendees cea
+             INNER JOIN users u ON u.id = cea.user_id AND u.deleted_at IS NULL
+             WHERE cea.event_id IN (' . implode(',', $placeholders) . ')',
+            $params
+        );
+        $attendeesByEvent = [];
+        foreach ($rows as $row) {
+            $attendeesByEvent[(int)$row['event_id']][] = [
+                'id' => (int)$row['id'],
+                'name' => $row['name'] ?? '',
+                'email' => $row['email'] ?? '',
+            ];
+        }
+        return $attendeesByEvent;
     }
 
     private function normalizeDateTime(?string $value): ?string

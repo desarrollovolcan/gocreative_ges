@@ -59,15 +59,25 @@ class AccountingController extends Controller
         $name = trim($_POST['name'] ?? '');
         $type = trim($_POST['type'] ?? '');
         $parentId = (int)($_POST['parent_id'] ?? 0);
+        $isActive = isset($_POST['is_active']) ? 1 : 0;
         $allowedTypes = ['activo', 'pasivo', 'patrimonio', 'resultado'];
         if ($code === '' || $name === '' || !in_array($type, $allowedTypes, true)) {
             flash('error', 'Completa código, nombre y tipo de cuenta válido.');
+            $this->redirect('index.php?route=accounting/chart/create');
+        }
+        $existing = $this->accounts->findByCode($companyId, $code);
+        if ($existing) {
+            flash('error', 'Ya existe una cuenta con ese código.');
             $this->redirect('index.php?route=accounting/chart/create');
         }
         $level = 1;
         if ($parentId > 0) {
             $parent = $this->accounts->find($parentId);
             if ($parent && (int)$parent['company_id'] === $companyId) {
+                if (($parent['type'] ?? '') !== $type) {
+                    flash('error', 'El tipo debe coincidir con la cuenta madre.');
+                    $this->redirect('index.php?route=accounting/chart/create');
+                }
                 $level = (int)($parent['level'] ?? 1) + 1;
             } else {
                 $parentId = 0;
@@ -80,11 +90,114 @@ class AccountingController extends Controller
             'type' => $type,
             'level' => $level,
             'parent_id' => $parentId ?: null,
-            'is_active' => 1,
+            'is_active' => $isActive,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         flash('success', 'Cuenta contable creada correctamente.');
+        $this->redirect('index.php?route=accounting/chart');
+    }
+
+    public function chartEdit(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $accountId = (int)($_GET['id'] ?? 0);
+        $account = $this->accounts->find($accountId);
+        if (!$account || (int)$account['company_id'] !== $companyId) {
+            flash('error', 'Cuenta contable no encontrada.');
+            $this->redirect('index.php?route=accounting/chart');
+        }
+        $accounts = $this->accounts->byCompany($companyId);
+        $children = $this->accounts->byParent($companyId, $accountId);
+        $this->render('accounting/chart-edit', [
+            'title' => 'Editar cuenta contable',
+            'pageTitle' => 'Editar cuenta contable',
+            'account' => $account,
+            'accounts' => $accounts,
+            'children' => $children,
+        ]);
+    }
+
+    public function chartUpdate(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $accountId = (int)($_POST['id'] ?? 0);
+        $account = $this->accounts->find($accountId);
+        if (!$account || (int)$account['company_id'] !== $companyId) {
+            flash('error', 'Cuenta contable no encontrada.');
+            $this->redirect('index.php?route=accounting/chart');
+        }
+        $code = trim($_POST['code'] ?? '');
+        $name = trim($_POST['name'] ?? '');
+        $type = trim($_POST['type'] ?? '');
+        $parentId = (int)($_POST['parent_id'] ?? 0);
+        $isActive = isset($_POST['is_active']) ? 1 : 0;
+        $allowedTypes = ['activo', 'pasivo', 'patrimonio', 'resultado'];
+        if ($code === '' || $name === '' || !in_array($type, $allowedTypes, true)) {
+            flash('error', 'Completa código, nombre y tipo de cuenta válido.');
+            $this->redirect('index.php?route=accounting/chart/edit&id=' . $accountId);
+        }
+        $existing = $this->accounts->findByCode($companyId, $code, $accountId);
+        if ($existing) {
+            flash('error', 'Ya existe una cuenta con ese código.');
+            $this->redirect('index.php?route=accounting/chart/edit&id=' . $accountId);
+        }
+        if ($parentId === $accountId) {
+            flash('error', 'La cuenta no puede ser su propia madre.');
+            $this->redirect('index.php?route=accounting/chart/edit&id=' . $accountId);
+        }
+        $level = 1;
+        $parentIdValue = null;
+        if ($parentId > 0) {
+            $parent = $this->accounts->find($parentId);
+            if (!$parent || (int)$parent['company_id'] !== $companyId) {
+                flash('error', 'Cuenta madre inválida.');
+                $this->redirect('index.php?route=accounting/chart/edit&id=' . $accountId);
+            }
+            if (($parent['type'] ?? '') !== $type) {
+                flash('error', 'El tipo debe coincidir con la cuenta madre.');
+                $this->redirect('index.php?route=accounting/chart/edit&id=' . $accountId);
+            }
+            $level = (int)($parent['level'] ?? 1) + 1;
+            $parentIdValue = $parentId;
+        }
+        $this->accounts->update($accountId, [
+            'code' => $code,
+            'name' => $name,
+            'type' => $type,
+            'level' => $level,
+            'parent_id' => $parentIdValue,
+            'is_active' => $isActive,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        flash('success', 'Cuenta contable actualizada.');
+        $this->redirect('index.php?route=accounting/chart');
+    }
+
+    public function chartDelete(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $accountId = (int)($_POST['id'] ?? 0);
+        $account = $this->accounts->find($accountId);
+        if (!$account || (int)$account['company_id'] !== $companyId) {
+            flash('error', 'Cuenta contable no encontrada.');
+            $this->redirect('index.php?route=accounting/chart');
+        }
+        if ($this->accounts->hasChildren($companyId, $accountId)) {
+            flash('error', 'No puedes eliminar la cuenta porque tiene subcuentas asociadas.');
+            $this->redirect('index.php?route=accounting/chart');
+        }
+        if ($this->accounts->hasJournalLines($companyId, $accountId)) {
+            flash('error', 'No puedes eliminar la cuenta porque tiene movimientos asociados.');
+            $this->redirect('index.php?route=accounting/chart');
+        }
+        $this->accounts->delete($accountId);
+        flash('success', 'Cuenta contable eliminada.');
         $this->redirect('index.php?route=accounting/chart');
     }
 
@@ -97,6 +210,32 @@ class AccountingController extends Controller
             'title' => 'Libro diario',
             'pageTitle' => 'Libro diario',
             'journals' => $journals,
+        ]);
+    }
+
+    public function journalsShow(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $journalId = (int)($_GET['id'] ?? 0);
+        $journal = $this->db->fetch(
+            'SELECT aj.*, COALESCE(SUM(ajl.debit), 0) as total_debit, COALESCE(SUM(ajl.credit), 0) as total_credit
+             FROM accounting_journals aj
+             LEFT JOIN accounting_journal_lines ajl ON aj.id = ajl.journal_id
+             WHERE aj.id = :id AND aj.company_id = :company_id
+             GROUP BY aj.id',
+            ['id' => $journalId, 'company_id' => $companyId]
+        );
+        if (!$journal) {
+            flash('error', 'Asiento contable no encontrado.');
+            $this->redirect('index.php?route=accounting/journals');
+        }
+        $lines = $this->journalLines->byJournal($journalId);
+        $this->render('accounting/journals-show', [
+            'title' => 'Detalle de asiento',
+            'pageTitle' => 'Detalle de asiento',
+            'journal' => $journal,
+            'lines' => $lines,
         ]);
     }
 
@@ -306,6 +445,103 @@ class AccountingController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         flash('success', 'Periodo contable cerrado.');
+        $this->redirect('index.php?route=accounting/periods');
+    }
+
+    public function periodsRequestOpen(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $periodId = (int)($_POST['period_id'] ?? 0);
+        $period = $this->periods->find($periodId);
+        if (!$period || (int)$period['company_id'] !== $companyId) {
+            flash('error', 'Periodo contable no encontrado.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        if (($period['status'] ?? '') !== 'cerrado') {
+            flash('error', 'El período ya está abierto.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        $code = (string)random_int(100000, 999999);
+        $_SESSION['accounting_period_open_code'][$companyId][$periodId] = [
+            'code' => $code,
+            'expires_at' => time() + 600,
+        ];
+        $admins = $this->db->fetchAll(
+            'SELECT users.email
+             FROM users
+             JOIN roles ON users.role_id = roles.id
+             WHERE users.company_id = :company_id AND users.deleted_at IS NULL AND roles.name = "admin"',
+            ['company_id' => $companyId]
+        );
+        $recipients = array_values(array_filter(array_map(static function ($row) {
+            return $row['email'] ?? '';
+        }, $admins), static function ($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        }));
+        if (empty($recipients)) {
+            $fallback = Auth::user()['email'] ?? '';
+            if (filter_var($fallback, FILTER_VALIDATE_EMAIL)) {
+                $recipients = [$fallback];
+            }
+        }
+        if (empty($recipients)) {
+            flash('error', 'No encontramos un correo de administrador válido para enviar el código.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        $mailer = new Mailer($this->db);
+        $subject = 'Código para abrir período contable';
+        $body = '<p>Se solicitó la apertura del período contable <strong>' . e($period['period'] ?? '') . '</strong>.</p>'
+            . '<p>Tu código de autorización es: <strong>' . e($code) . '</strong></p>'
+            . '<p>Este código vence en 10 minutos.</p>';
+        $sent = $mailer->send('info', $recipients, $subject, $body);
+        if (!$sent) {
+            $errorDetail = $mailer->getLastError() ?: 'No se pudo enviar el correo.';
+            flash('error', 'No se pudo enviar el código: ' . $errorDetail);
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        flash('success', 'Código enviado al correo del administrador.');
+        $this->redirect('index.php?route=accounting/periods');
+    }
+
+    public function periodsOpen(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $periodId = (int)($_POST['period_id'] ?? 0);
+        $code = trim($_POST['open_code'] ?? '');
+        $period = $this->periods->find($periodId);
+        if (!$period || (int)$period['company_id'] !== $companyId) {
+            flash('error', 'Periodo contable no encontrado.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        if (($period['status'] ?? '') !== 'cerrado') {
+            flash('error', 'El período ya está abierto.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        $stored = $_SESSION['accounting_period_open_code'][$companyId][$periodId] ?? null;
+        if (!$stored || empty($stored['code']) || empty($stored['expires_at'])) {
+            flash('error', 'Debes solicitar un código para abrir el período.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        if (time() > (int)$stored['expires_at']) {
+            unset($_SESSION['accounting_period_open_code'][$companyId][$periodId]);
+            flash('error', 'El código ha expirado. Solicita uno nuevo.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        if (!hash_equals((string)$stored['code'], $code)) {
+            flash('error', 'El código ingresado no es válido.');
+            $this->redirect('index.php?route=accounting/periods');
+        }
+        unset($_SESSION['accounting_period_open_code'][$companyId][$periodId]);
+        $this->periods->update($periodId, [
+            'status' => 'abierto',
+            'closed_at' => null,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        flash('success', 'Periodo contable abierto.');
         $this->redirect('index.php?route=accounting/periods');
     }
 }

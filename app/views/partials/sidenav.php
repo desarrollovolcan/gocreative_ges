@@ -326,7 +326,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </li>
                 <?php endif; ?>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccessAny(['documents_view', 'projects_view', 'products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'sales_view', 'sales_edit', 'services_view', 'services_edit', 'system_services_view', 'system_services_edit', 'service_types_view', 'service_types_edit'])): ?>
+            <?php if ($hasCompany && $canAccessAny(['documents_view', 'calendar_view', 'projects_view', 'products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'sales_view', 'sales_edit', 'services_view', 'services_edit', 'system_services_view', 'system_services_edit', 'service_types_view', 'service_types_edit'])): ?>
                 <li class="side-nav-title">Operaciones</li>
             <?php endif; ?>
             <?php if ($hasCompany && $hasPermission('documents_view')): ?>
@@ -336,6 +336,17 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                         <span class="menu-label">
                             <span class="menu-text">Documentos</span>
                             <span class="menu-caption">Biblioteca de recursos</span>
+                        </span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if ($hasCompany && $canAccessAny(['calendar_view', 'calendar_edit'])): ?>
+                <li class="side-nav-item">
+                    <a href="index.php?route=calendar" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="calendar"></i></span>
+                        <span class="menu-label">
+                            <span class="menu-text">Calendario</span>
+                            <span class="menu-caption">Reuniones y recordatorios</span>
                         </span>
                     </a>
                 </li>

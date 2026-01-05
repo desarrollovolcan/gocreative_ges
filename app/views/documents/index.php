@@ -190,12 +190,12 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                                             <i class="<?php echo e($fileIcon($document['extension'] ?? '')); ?> fs-18 avatar-title"></i>
                                         </div>
                                         <div class="flex-grow-1">
-                                            <h5 class="mb-1 fs-xs text-truncate">
+                                            <h5 class="mb-1 fs-xs text-truncate documents-card-title">
                                                 <a href="<?php echo e($document['download_url']); ?>" class="link-reset">
                                                     <?php echo e($document['name']); ?>
                                                 </a>
                                             </h5>
-                                            <p class="text-muted mb-0 fs-xs">
+                                            <p class="text-muted mb-0 fs-xs text-truncate documents-card-meta">
                                                 <?php echo e($formatSize($document['size'] ?? 0)); ?>
                                                 <?php if (!empty($document['category']['name'])): ?>
                                                     · <?php echo e((string)$document['category']['name']); ?>
@@ -265,11 +265,6 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                         <table class="table table-sm align-middle mb-0" data-table-sort>
                             <thead class="bg-light-subtle text-muted fs-xs">
                                 <tr>
-                                    <th style="width: 24px;">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" data-table-check-all>
-                                        </div>
-                                    </th>
                                     <th>Nombre</th>
                                     <th>Tipo</th>
                                     <th>Categoría</th>
@@ -282,18 +277,13 @@ $filterLink = static function (string $filter = 'all', ?int $categoryId = null):
                             <tbody>
                                 <?php if (empty($documents)): ?>
                                     <tr>
-                                        <td colspan="8" class="text-center text-muted py-4">
+                                        <td colspan="7" class="text-center text-muted py-4">
                                             No hay documentos cargados todavía.
                                         </td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($documents as $document): ?>
                                         <tr>
-                                            <td>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" data-table-check>
-                                                </div>
-                                            </td>
                                             <td>
                                                 <div class="d-flex align-items-center gap-2">
                                                     <div class="avatar-xs bg-light text-muted rounded-2">
@@ -663,6 +653,14 @@ document.addEventListener('DOMContentLoaded', () => {
     .documents-compact .actions-dropdown .btn {
         padding: 0.25rem 0.6rem;
         font-size: 0.75rem;
+    }
+
+    .documents-compact-card .documents-card-title,
+    .documents-compact-card .documents-card-meta {
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .documents-filter-bar {

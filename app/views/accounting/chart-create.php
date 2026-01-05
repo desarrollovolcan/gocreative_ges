@@ -36,6 +36,12 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_active" id="account-active" checked>
+                        <label class="form-check-label" for="account-active">Cuenta activa</label>
+                    </div>
+                </div>
                 <div class="col-12 d-flex justify-content-end">
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>

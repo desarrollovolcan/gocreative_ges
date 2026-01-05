@@ -110,6 +110,22 @@
                                     <input type="text" name="address" class="form-control">
                                 </div>
                                 <div class="col-md-6">
+                                    <label class="form-label">Giro</label>
+                                    <input type="text" name="giro" class="form-control" placeholder="Ej: Servicios informáticos">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Código actividad</label>
+                                    <input type="text" name="activity_code" class="form-control" placeholder="Ej: 620100">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Comuna</label>
+                                    <input type="text" name="commune" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Ciudad</label>
+                                    <input type="text" name="city" class="form-control">
+                                </div>
+                                <div class="col-md-6">
                                     <label class="form-label">Estado</label>
                                     <select name="status" class="form-select">
                                         <option value="activo">Activo</option>
@@ -179,6 +195,10 @@
         mandante_phone: 'mandante_phone',
         mandante_email: 'mandante_email',
         address: 'address',
+        giro: 'giro',
+        activity_code: 'activity_code',
+        commune: 'commune',
+        city: 'city',
         status: 'status',
         notes: 'notes',
     };

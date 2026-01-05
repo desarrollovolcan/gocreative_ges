@@ -59,15 +59,25 @@ class AccountingController extends Controller
         $name = trim($_POST['name'] ?? '');
         $type = trim($_POST['type'] ?? '');
         $parentId = (int)($_POST['parent_id'] ?? 0);
+        $isActive = isset($_POST['is_active']) ? 1 : 0;
         $allowedTypes = ['activo', 'pasivo', 'patrimonio', 'resultado'];
         if ($code === '' || $name === '' || !in_array($type, $allowedTypes, true)) {
             flash('error', 'Completa código, nombre y tipo de cuenta válido.');
+            $this->redirect('index.php?route=accounting/chart/create');
+        }
+        $existing = $this->accounts->findByCode($companyId, $code);
+        if ($existing) {
+            flash('error', 'Ya existe una cuenta con ese código.');
             $this->redirect('index.php?route=accounting/chart/create');
         }
         $level = 1;
         if ($parentId > 0) {
             $parent = $this->accounts->find($parentId);
             if ($parent && (int)$parent['company_id'] === $companyId) {
+                if (($parent['type'] ?? '') !== $type) {
+                    flash('error', 'El tipo debe coincidir con la cuenta madre.');
+                    $this->redirect('index.php?route=accounting/chart/create');
+                }
                 $level = (int)($parent['level'] ?? 1) + 1;
             } else {
                 $parentId = 0;
@@ -80,11 +90,90 @@ class AccountingController extends Controller
             'type' => $type,
             'level' => $level,
             'parent_id' => $parentId ?: null,
-            'is_active' => 1,
+            'is_active' => $isActive,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         flash('success', 'Cuenta contable creada correctamente.');
+        $this->redirect('index.php?route=accounting/chart');
+    }
+
+    public function chartEdit(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $accountId = (int)($_GET['id'] ?? 0);
+        $account = $this->accounts->find($accountId);
+        if (!$account || (int)$account['company_id'] !== $companyId) {
+            flash('error', 'Cuenta contable no encontrada.');
+            $this->redirect('index.php?route=accounting/chart');
+        }
+        $accounts = $this->accounts->byCompany($companyId);
+        $children = $this->accounts->byParent($companyId, $accountId);
+        $this->render('accounting/chart-edit', [
+            'title' => 'Editar cuenta contable',
+            'pageTitle' => 'Editar cuenta contable',
+            'account' => $account,
+            'accounts' => $accounts,
+            'children' => $children,
+        ]);
+    }
+
+    public function chartUpdate(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $accountId = (int)($_POST['id'] ?? 0);
+        $account = $this->accounts->find($accountId);
+        if (!$account || (int)$account['company_id'] !== $companyId) {
+            flash('error', 'Cuenta contable no encontrada.');
+            $this->redirect('index.php?route=accounting/chart');
+        }
+        $code = trim($_POST['code'] ?? '');
+        $name = trim($_POST['name'] ?? '');
+        $type = trim($_POST['type'] ?? '');
+        $parentId = (int)($_POST['parent_id'] ?? 0);
+        $isActive = isset($_POST['is_active']) ? 1 : 0;
+        $allowedTypes = ['activo', 'pasivo', 'patrimonio', 'resultado'];
+        if ($code === '' || $name === '' || !in_array($type, $allowedTypes, true)) {
+            flash('error', 'Completa código, nombre y tipo de cuenta válido.');
+            $this->redirect('index.php?route=accounting/chart/edit&id=' . $accountId);
+        }
+        $existing = $this->accounts->findByCode($companyId, $code, $accountId);
+        if ($existing) {
+            flash('error', 'Ya existe una cuenta con ese código.');
+            $this->redirect('index.php?route=accounting/chart/edit&id=' . $accountId);
+        }
+        if ($parentId === $accountId) {
+            flash('error', 'La cuenta no puede ser su propia madre.');
+            $this->redirect('index.php?route=accounting/chart/edit&id=' . $accountId);
+        }
+        $level = 1;
+        $parentIdValue = null;
+        if ($parentId > 0) {
+            $parent = $this->accounts->find($parentId);
+            if (!$parent || (int)$parent['company_id'] !== $companyId) {
+                flash('error', 'Cuenta madre inválida.');
+                $this->redirect('index.php?route=accounting/chart/edit&id=' . $accountId);
+            }
+            if (($parent['type'] ?? '') !== $type) {
+                flash('error', 'El tipo debe coincidir con la cuenta madre.');
+                $this->redirect('index.php?route=accounting/chart/edit&id=' . $accountId);
+            }
+            $level = (int)($parent['level'] ?? 1) + 1;
+            $parentIdValue = $parentId;
+        }
+        $this->accounts->update($accountId, [
+            'code' => $code,
+            'name' => $name,
+            'type' => $type,
+            'level' => $level,
+            'parent_id' => $parentIdValue,
+            'is_active' => $isActive,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        flash('success', 'Cuenta contable actualizada.');
         $this->redirect('index.php?route=accounting/chart');
     }
 

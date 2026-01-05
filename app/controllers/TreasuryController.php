@@ -34,6 +34,31 @@ class TreasuryController extends Controller
         ]);
     }
 
+    public function showAccount(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $accountId = (int)($_GET['id'] ?? 0);
+        $account = $this->db->fetch(
+            'SELECT * FROM bank_accounts WHERE id = :id AND company_id = :company_id',
+            ['id' => $accountId, 'company_id' => $companyId]
+        );
+        if (!$account) {
+            flash('error', 'Cuenta bancaria no encontrada.');
+            $this->redirect('index.php?route=treasury/accounts');
+        }
+        $transactions = $this->db->fetchAll(
+            'SELECT * FROM bank_transactions WHERE bank_account_id = :account_id AND company_id = :company_id ORDER BY transaction_date DESC, id DESC',
+            ['account_id' => $accountId, 'company_id' => $companyId]
+        );
+        $this->render('treasury/account-show', [
+            'title' => 'Detalle cuenta bancaria',
+            'pageTitle' => 'Detalle cuenta bancaria',
+            'account' => $account,
+            'transactions' => $transactions,
+        ]);
+    }
+
     public function storeAccount(): void
     {
         $this->requireLogin();
@@ -65,6 +90,29 @@ class TreasuryController extends Controller
             'accounts' => $accounts,
             'transactions' => $transactions,
             'today' => date('Y-m-d'),
+        ]);
+    }
+
+    public function showTransaction(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $transactionId = (int)($_GET['id'] ?? 0);
+        $transaction = $this->db->fetch(
+            'SELECT bt.*, ba.name as account_name
+             FROM bank_transactions bt
+             JOIN bank_accounts ba ON bt.bank_account_id = ba.id
+             WHERE bt.id = :id AND bt.company_id = :company_id',
+            ['id' => $transactionId, 'company_id' => $companyId]
+        );
+        if (!$transaction) {
+            flash('error', 'Movimiento bancario no encontrado.');
+            $this->redirect('index.php?route=treasury/transactions');
+        }
+        $this->render('treasury/transaction-show', [
+            'title' => 'Detalle movimiento bancario',
+            'pageTitle' => 'Detalle movimiento bancario',
+            'transaction' => $transaction,
         ]);
     }
 

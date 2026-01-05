@@ -43,6 +43,26 @@ class FixedAssetsController extends Controller
         ]);
     }
 
+    public function show(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $assetId = (int)($_GET['id'] ?? 0);
+        $asset = $this->db->fetch(
+            'SELECT * FROM fixed_assets WHERE id = :id AND company_id = :company_id',
+            ['id' => $assetId, 'company_id' => $companyId]
+        );
+        if (!$asset) {
+            flash('error', 'Activo fijo no encontrado.');
+            $this->redirect('index.php?route=fixed-assets');
+        }
+        $this->render('fixed-assets/show', [
+            'title' => 'Detalle de activo fijo',
+            'pageTitle' => 'Detalle de activo fijo',
+            'asset' => $asset,
+        ]);
+    }
+
     public function store(): void
     {
         $this->requireLogin();

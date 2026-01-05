@@ -91,4 +91,51 @@ class InventoryController extends Controller
         flash('success', 'Movimiento de inventario registrado.');
         $this->redirect('index.php?route=inventory/movements');
     }
+
+    public function editMovement(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $movementId = (int)($_GET['id'] ?? 0);
+        $movement = $this->db->fetch(
+            'SELECT im.*, p.name as product_name
+             FROM inventory_movements im
+             JOIN products p ON im.product_id = p.id
+             WHERE im.id = :id AND im.company_id = :company_id',
+            ['id' => $movementId, 'company_id' => $companyId]
+        );
+        if (!$movement) {
+            flash('error', 'Movimiento de inventario no encontrado.');
+            $this->redirect('index.php?route=inventory/movements');
+        }
+        $this->render('inventory/movement-edit', [
+            'title' => 'Editar movimiento de inventario',
+            'pageTitle' => 'Editar movimiento de inventario',
+            'movement' => $movement,
+        ]);
+    }
+
+    public function updateMovement(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $movementId = (int)($_POST['id'] ?? 0);
+        $movement = $this->db->fetch(
+            'SELECT id FROM inventory_movements WHERE id = :id AND company_id = :company_id',
+            ['id' => $movementId, 'company_id' => $companyId]
+        );
+        if (!$movement) {
+            flash('error', 'Movimiento de inventario no encontrado.');
+            $this->redirect('index.php?route=inventory/movements');
+        }
+        $this->movements->update($movementId, [
+            'reference_type' => trim($_POST['reference_type'] ?? ''),
+            'reference_id' => (int)($_POST['reference_id'] ?? 0) ?: null,
+            'notes' => trim($_POST['notes'] ?? ''),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        flash('success', 'Movimiento de inventario actualizado.');
+        $this->redirect('index.php?route=inventory/movements');
+    }
 }

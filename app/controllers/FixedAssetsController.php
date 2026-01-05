@@ -88,4 +88,57 @@ class FixedAssetsController extends Controller
         flash('success', 'Activo fijo registrado.');
         $this->redirect('index.php?route=fixed-assets');
     }
+
+    public function edit(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $assetId = (int)($_GET['id'] ?? 0);
+        $asset = $this->db->fetch(
+            'SELECT * FROM fixed_assets WHERE id = :id AND company_id = :company_id',
+            ['id' => $assetId, 'company_id' => $companyId]
+        );
+        if (!$asset) {
+            flash('error', 'Activo fijo no encontrado.');
+            $this->redirect('index.php?route=fixed-assets');
+        }
+        $this->render('fixed-assets/edit', [
+            'title' => 'Editar activo fijo',
+            'pageTitle' => 'Editar activo fijo',
+            'asset' => $asset,
+        ]);
+    }
+
+    public function update(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $assetId = (int)($_POST['id'] ?? 0);
+        $asset = $this->db->fetch(
+            'SELECT id FROM fixed_assets WHERE id = :id AND company_id = :company_id',
+            ['id' => $assetId, 'company_id' => $companyId]
+        );
+        if (!$asset) {
+            flash('error', 'Activo fijo no encontrado.');
+            $this->redirect('index.php?route=fixed-assets');
+        }
+        $value = (float)($_POST['acquisition_value'] ?? 0);
+        $accumulated = (float)($_POST['accumulated_depreciation'] ?? 0);
+        $bookValue = max(0, $value - $accumulated);
+        $this->assets->update($assetId, [
+            'name' => trim($_POST['name'] ?? ''),
+            'category' => trim($_POST['category'] ?? ''),
+            'acquisition_date' => trim($_POST['acquisition_date'] ?? date('Y-m-d')),
+            'acquisition_value' => $value,
+            'depreciation_method' => $_POST['depreciation_method'] ?? 'linea_recta',
+            'useful_life_months' => (int)($_POST['useful_life_months'] ?? 0),
+            'accumulated_depreciation' => $accumulated,
+            'book_value' => $bookValue,
+            'status' => $_POST['status'] ?? 'activo',
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        flash('success', 'Activo fijo actualizado.');
+        $this->redirect('index.php?route=fixed-assets');
+    }
 }

@@ -90,6 +90,9 @@
                                                 <li>
                                                     <a class="dropdown-item" href="index.php?route=inventory/movements/show&id=<?php echo (int)$movement['id']; ?>">Ver detalle</a>
                                                 </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="index.php?route=inventory/movements/edit&id=<?php echo (int)$movement['id']; ?>">Editar</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </td>

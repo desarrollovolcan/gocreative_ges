@@ -78,6 +78,52 @@ class TreasuryController extends Controller
         $this->redirect('index.php?route=treasury/accounts');
     }
 
+    public function editAccount(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $accountId = (int)($_GET['id'] ?? 0);
+        $account = $this->db->fetch(
+            'SELECT * FROM bank_accounts WHERE id = :id AND company_id = :company_id',
+            ['id' => $accountId, 'company_id' => $companyId]
+        );
+        if (!$account) {
+            flash('error', 'Cuenta bancaria no encontrada.');
+            $this->redirect('index.php?route=treasury/accounts');
+        }
+        $this->render('treasury/account-edit', [
+            'title' => 'Editar cuenta bancaria',
+            'pageTitle' => 'Editar cuenta bancaria',
+            'account' => $account,
+        ]);
+    }
+
+    public function updateAccount(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $accountId = (int)($_POST['id'] ?? 0);
+        $account = $this->db->fetch(
+            'SELECT id FROM bank_accounts WHERE id = :id AND company_id = :company_id',
+            ['id' => $accountId, 'company_id' => $companyId]
+        );
+        if (!$account) {
+            flash('error', 'Cuenta bancaria no encontrada.');
+            $this->redirect('index.php?route=treasury/accounts');
+        }
+        $this->accounts->update($accountId, [
+            'name' => trim($_POST['name'] ?? ''),
+            'bank_name' => trim($_POST['bank_name'] ?? ''),
+            'account_number' => trim($_POST['account_number'] ?? ''),
+            'currency' => $_POST['currency'] ?? 'CLP',
+            'current_balance' => (float)($_POST['current_balance'] ?? 0),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        flash('success', 'Cuenta bancaria actualizada.');
+        $this->redirect('index.php?route=treasury/accounts');
+    }
+
     public function transactions(): void
     {
         $this->requireLogin();
@@ -148,6 +194,52 @@ class TreasuryController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         flash('success', 'Movimiento bancario registrado.');
+        $this->redirect('index.php?route=treasury/transactions');
+    }
+
+    public function editTransaction(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $transactionId = (int)($_GET['id'] ?? 0);
+        $transaction = $this->db->fetch(
+            'SELECT bt.*, ba.name as account_name
+             FROM bank_transactions bt
+             JOIN bank_accounts ba ON bt.bank_account_id = ba.id
+             WHERE bt.id = :id AND bt.company_id = :company_id',
+            ['id' => $transactionId, 'company_id' => $companyId]
+        );
+        if (!$transaction) {
+            flash('error', 'Movimiento bancario no encontrado.');
+            $this->redirect('index.php?route=treasury/transactions');
+        }
+        $this->render('treasury/transaction-edit', [
+            'title' => 'Editar movimiento bancario',
+            'pageTitle' => 'Editar movimiento bancario',
+            'transaction' => $transaction,
+        ]);
+    }
+
+    public function updateTransaction(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $transactionId = (int)($_POST['id'] ?? 0);
+        $transaction = $this->db->fetch(
+            'SELECT id FROM bank_transactions WHERE id = :id AND company_id = :company_id',
+            ['id' => $transactionId, 'company_id' => $companyId]
+        );
+        if (!$transaction) {
+            flash('error', 'Movimiento bancario no encontrado.');
+            $this->redirect('index.php?route=treasury/transactions');
+        }
+        $this->transactions->update($transactionId, [
+            'reference' => trim($_POST['reference'] ?? ''),
+            'description' => trim($_POST['description'] ?? ''),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        flash('success', 'Movimiento bancario actualizado.');
         $this->redirect('index.php?route=treasury/transactions');
     }
 }

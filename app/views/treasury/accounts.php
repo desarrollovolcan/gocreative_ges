@@ -72,6 +72,9 @@
                                                 <li>
                                                     <a class="dropdown-item" href="index.php?route=treasury/accounts/show&id=<?php echo (int)$account['id']; ?>">Ver detalle</a>
                                                 </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="index.php?route=treasury/accounts/edit&id=<?php echo (int)$account['id']; ?>">Editar</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </td>

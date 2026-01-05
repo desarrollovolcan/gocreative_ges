@@ -38,6 +38,9 @@
                                         <li>
                                             <a class="dropdown-item" href="index.php?route=fixed-assets/show&id=<?php echo (int)$asset['id']; ?>">Ver detalle</a>
                                         </li>
+                                        <li>
+                                            <a class="dropdown-item" href="index.php?route=fixed-assets/edit&id=<?php echo (int)$asset['id']; ?>">Editar</a>
+                                        </li>
                                     </ul>
                                 </div>
                             </td>

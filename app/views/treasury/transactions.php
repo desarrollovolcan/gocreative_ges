@@ -62,6 +62,7 @@
                                 <th>Tipo</th>
                                 <th>Monto</th>
                                 <th>Saldo</th>
+                                <th class="text-end">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,11 +73,26 @@
                                     <td class="text-capitalize"><?php echo e($transaction['type']); ?></td>
                                     <td><?php echo e(format_currency((float)($transaction['amount'] ?? 0))); ?></td>
                                     <td><?php echo e(format_currency((float)($transaction['balance'] ?? 0))); ?></td>
+                                    <td class="text-end">
+                                        <div class="dropdown actions-dropdown">
+                                            <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Acciones
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="index.php?route=treasury/transactions/show&id=<?php echo (int)$transaction['id']; ?>">Ver detalle</a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="index.php?route=treasury/transactions/edit&id=<?php echo (int)$transaction['id']; ?>">Editar</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                             <?php if (empty($transactions)): ?>
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted">No hay movimientos registrados.</td>
+                                    <td colspan="6" class="text-center text-muted">No hay movimientos registrados.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>

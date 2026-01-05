@@ -64,6 +64,53 @@ class TaxesController extends Controller
         $this->redirect('index.php?route=taxes');
     }
 
+    public function editPeriod(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $periodId = (int)($_GET['id'] ?? 0);
+        $period = $this->db->fetch(
+            'SELECT * FROM tax_periods WHERE id = :id AND company_id = :company_id',
+            ['id' => $periodId, 'company_id' => $companyId]
+        );
+        if (!$period) {
+            flash('error', 'Período tributario no encontrado.');
+            $this->redirect('index.php?route=taxes');
+        }
+        $this->render('taxes/period-edit', [
+            'title' => 'Editar período tributario',
+            'pageTitle' => 'Editar período tributario',
+            'period' => $period,
+        ]);
+    }
+
+    public function updatePeriod(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $periodId = (int)($_POST['id'] ?? 0);
+        $period = $this->db->fetch(
+            'SELECT id FROM tax_periods WHERE id = :id AND company_id = :company_id',
+            ['id' => $periodId, 'company_id' => $companyId]
+        );
+        if (!$period) {
+            flash('error', 'Período tributario no encontrado.');
+            $this->redirect('index.php?route=taxes');
+        }
+        $this->periods->update($periodId, [
+            'period' => trim($_POST['period'] ?? ''),
+            'iva_debito' => (float)($_POST['iva_debito'] ?? 0),
+            'iva_credito' => (float)($_POST['iva_credito'] ?? 0),
+            'remanente' => (float)($_POST['remanente'] ?? 0),
+            'impuesto_unico' => (float)($_POST['impuesto_unico'] ?? 0),
+            'status' => $_POST['status'] ?? 'pendiente',
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        flash('success', 'Período tributario actualizado.');
+        $this->redirect('index.php?route=taxes');
+    }
+
     public function storeWithholding(): void
     {
         $this->requireLogin();
@@ -98,5 +145,53 @@ class TaxesController extends Controller
         );
         flash('success', 'Retención registrada.');
         $this->redirect('index.php?route=taxes&period_id=' . $periodId);
+    }
+
+    public function editWithholding(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $withholdingId = (int)($_GET['id'] ?? 0);
+        $withholding = $this->db->fetch(
+            'SELECT * FROM tax_withholdings WHERE id = :id AND company_id = :company_id',
+            ['id' => $withholdingId, 'company_id' => $companyId]
+        );
+        if (!$withholding) {
+            flash('error', 'Retención no encontrada.');
+            $this->redirect('index.php?route=taxes');
+        }
+        $this->render('taxes/withholding-edit', [
+            'title' => 'Editar retención',
+            'pageTitle' => 'Editar retención',
+            'withholding' => $withholding,
+        ]);
+    }
+
+    public function updateWithholding(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $withholdingId = (int)($_POST['id'] ?? 0);
+        $withholding = $this->db->fetch(
+            'SELECT id, period_id FROM tax_withholdings WHERE id = :id AND company_id = :company_id',
+            ['id' => $withholdingId, 'company_id' => $companyId]
+        );
+        if (!$withholding) {
+            flash('error', 'Retención no encontrada.');
+            $this->redirect('index.php?route=taxes');
+        }
+        $baseAmount = (float)($_POST['base_amount'] ?? 0);
+        $rate = (float)($_POST['rate'] ?? 0);
+        $amount = $baseAmount * ($rate / 100);
+        $this->withholdings->update($withholdingId, [
+            'type' => trim($_POST['type'] ?? ''),
+            'base_amount' => $baseAmount,
+            'rate' => $rate,
+            'amount' => $amount,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        flash('success', 'Retención actualizada.');
+        $this->redirect('index.php?route=taxes&period_id=' . (int)$withholding['period_id']);
     }
 }

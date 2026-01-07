@@ -45,6 +45,76 @@
     </div>
 
     <?php include __DIR__ . '/../../../partials/footer-scripts.php'; ?>
+    <?php
+    $reportTemplates = [];
+    $reportsDir = __DIR__ . '/../../../documento';
+    if (is_dir($reportsDir)) {
+        $templatePaths = glob($reportsDir . '/*.php') ?: [];
+        foreach ($templatePaths as $templatePath) {
+            $filename = basename($templatePath);
+            $baseName = pathinfo($filename, PATHINFO_FILENAME);
+            $label = preg_replace('/^informe/i', 'Informe ', $baseName);
+            $label = preg_replace('/([a-z])([A-Z])/', '$1 $2', $label);
+            $label = str_replace('_', ' ', $label);
+            $label = trim($label);
+            $reportTemplates[] = [
+                'file' => $filename,
+                'label' => $label,
+                'url' => 'documento/' . $filename,
+            ];
+        }
+        usort(
+            $reportTemplates,
+            static fn(array $a, array $b): int => strcasecmp($a['label'], $b['label'])
+        );
+    }
+    ?>
+    <script>
+        window.reportTemplates = <?php echo json_encode($reportTemplates); ?>;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const templates = window.reportTemplates || [];
+            if (!templates.length) {
+                return;
+            }
+
+            const route = new URLSearchParams(window.location.search).get('route') || '';
+            if (!route || !/(?:^|\\/)create$|(?:^|\\/)edit$/.test(route)) {
+                return;
+            }
+
+            const findTemplate = (file) => templates.find((template) => template.file === file);
+            const defaultTemplate = findTemplate('informeIcargaEspanol.php') ?? templates[0];
+            const invoiceTemplate = findTemplate('informeIcargaInvoice.php') ?? defaultTemplate;
+            const selectedTemplate = /^(invoices|quotes)(?:\\/|$)/.test(route)
+                ? invoiceTemplate
+                : defaultTemplate;
+
+            if (!selectedTemplate) {
+                return;
+            }
+
+            document.querySelectorAll('form').forEach((form) => {
+                if (form.dataset.reportsInjected) {
+                    return;
+                }
+
+                const actionContainer = document.createElement('div');
+                actionContainer.className = 'd-flex justify-content-end gap-2 mt-3';
+
+                const reportButton = document.createElement('a');
+                reportButton.className = 'btn btn-outline-primary';
+                reportButton.href = selectedTemplate.url;
+                reportButton.target = '_blank';
+                reportButton.rel = 'noopener';
+                reportButton.textContent = 'Informe';
+
+                actionContainer.appendChild(reportButton);
+                form.appendChild(actionContainer);
+                form.dataset.reportsInjected = 'true';
+            });
+        });
+    </script>
 </body>
 
 </html>

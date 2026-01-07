@@ -56,6 +56,12 @@
             <div class="col-md-3">
                 <button type="submit" class="btn btn-outline-primary">Ver vista previa</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'email_templates/edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

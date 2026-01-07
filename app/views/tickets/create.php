@@ -44,6 +44,12 @@
                 <a href="index.php?route=tickets" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Crear ticket</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'tickets/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

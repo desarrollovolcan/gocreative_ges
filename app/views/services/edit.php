@@ -147,7 +147,13 @@
                 <a href="index.php?route=services" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Actualizar</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'services/edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>
 

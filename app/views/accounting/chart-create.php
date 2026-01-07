@@ -46,6 +46,12 @@
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'accounting/chart-create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

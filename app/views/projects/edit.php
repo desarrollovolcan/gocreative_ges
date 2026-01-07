@@ -172,7 +172,13 @@
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">Agregar tarea</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'projects/edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>
 

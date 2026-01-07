@@ -17,6 +17,12 @@
                 <button type="submit" class="btn btn-primary">Guardar cambios</button>
                 <a href="index.php?route=roles" class="btn btn-light">Cancelar</a>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'roles/edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

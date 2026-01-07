@@ -36,6 +36,12 @@
                     <button type="submit" class="btn btn-primary">Guardar cambios</button>
                 </div>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'treasury/transaction-edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

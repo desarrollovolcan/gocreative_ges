@@ -105,7 +105,13 @@
                             <a href="index.php?route=purchases" class="btn btn-light ms-2">Cancelar</a>
                         </div>
                     </div>
-                </form>
+                
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'purchases/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
             </div>
         </div>
     </div>

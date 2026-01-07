@@ -55,6 +55,12 @@
                     <button type="submit" class="btn btn-primary">Actualizar</button>
                 </div>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'accounting/chart-edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

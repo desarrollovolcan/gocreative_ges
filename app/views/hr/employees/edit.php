@@ -171,7 +171,13 @@
                 <button type="submit" class="btn btn-primary">Actualizar</button>
                 <a href="index.php?route=hr/employees" class="btn btn-light">Cancelar</a>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'hr/employees/edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>
 

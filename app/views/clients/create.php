@@ -172,7 +172,13 @@
                 <a href="index.php?route=clients" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'clients/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>
 

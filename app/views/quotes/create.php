@@ -147,7 +147,13 @@ $defaultIssueDate = date('Y-m-d');
                 <a href="index.php?route=quotes" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'quotes/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>
 

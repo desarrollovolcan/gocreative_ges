@@ -82,7 +82,13 @@
                             <a href="index.php?route=products" class="btn btn-light ms-2">Cancelar</a>
                         </div>
                     </div>
-                </form>
+                
+    <?php
+    $reportTemplate = 'informeIcargaEnglish.php';
+    $reportSource = 'products/edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
             </div>
         </div>
     </div>

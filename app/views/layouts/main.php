@@ -46,53 +46,61 @@
 
     <?php include __DIR__ . '/../../../partials/footer-scripts.php'; ?>
     <?php
-    $reportTemplates = [];
-    $reportsDir = __DIR__ . '/../../../documento';
-    if (is_dir($reportsDir)) {
-        $templatePaths = glob($reportsDir . '/*.php') ?: [];
-        foreach ($templatePaths as $templatePath) {
-            $filename = basename($templatePath);
-            $baseName = pathinfo($filename, PATHINFO_FILENAME);
-            $label = preg_replace('/^informe/i', 'Informe ', $baseName);
-            $label = preg_replace('/([a-z])([A-Z])/', '$1 $2', $label);
-            $label = str_replace('_', ' ', $label);
-            $label = trim($label);
-            $reportTemplates[] = [
-                'file' => $filename,
-                'label' => $label,
-                'url' => 'documento/' . $filename,
-            ];
-        }
-        usort(
-            $reportTemplates,
-            static fn(array $a, array $b): int => strcasecmp($a['label'], $b['label'])
-        );
-    }
+    $reportTemplateByRoute = [
+        'email_templates/create' => 'informeIcargaEspanol.php',
+        'email_templates/edit' => 'informeIcargaEspanol.php',
+        'purchases/create' => 'informeIcargaEspanol.php',
+        'treasury/transaction-edit' => 'informeIcargaEspanol.php',
+        'treasury/account-edit' => 'informeIcargaEspanol.php',
+        'products/create' => 'informeIcargaEspanol.php',
+        'products/edit' => 'informeIcargaEspanol.php',
+        'taxes/period-edit' => 'informeIcargaEspanol.php',
+        'taxes/withholding-edit' => 'informeIcargaEspanol.php',
+        'roles/create' => 'informeIcargaEspanol.php',
+        'roles/edit' => 'informeIcargaEspanol.php',
+        'companies/create' => 'informeIcargaEspanol.php',
+        'companies/edit' => 'informeIcargaEspanol.php',
+        'services/create' => 'informeIcargaEspanol.php',
+        'services/edit' => 'informeIcargaEspanol.php',
+        'sales/create' => 'informeIcargaEspanol.php',
+        'fixed-assets/create' => 'informeIcargaEspanol.php',
+        'fixed-assets/edit' => 'informeIcargaEspanol.php',
+        'quotes/create' => 'informeIcargaInvoice.php',
+        'quotes/edit' => 'informeIcargaInvoice.php',
+        'hr/payrolls/create' => 'informeIcargaEspanol.php',
+        'hr/contracts/create' => 'informeIcargaEspanol.php',
+        'hr/contracts/edit' => 'informeIcargaEspanol.php',
+        'hr/attendance/create' => 'informeIcargaEspanol.php',
+        'hr/employees/create' => 'informeIcargaEspanol.php',
+        'hr/employees/edit' => 'informeIcargaEspanol.php',
+        'tickets/create' => 'informeIcargaEspanol.php',
+        'suppliers/create' => 'informeIcargaEspanol.php',
+        'suppliers/edit' => 'informeIcargaEspanol.php',
+        'users/create' => 'informeIcargaEspanol.php',
+        'users/edit' => 'informeIcargaEspanol.php',
+        'projects/create' => 'informeIcargaEspanol.php',
+        'projects/edit' => 'informeIcargaEspanol.php',
+        'inventory/movement-edit' => 'informeIcargaEspanol.php',
+        'clients/create' => 'informeIcargaEspanol.php',
+        'clients/edit' => 'informeIcargaEspanol.php',
+        'accounting/journals-create' => 'informeIcargaEspanol.php',
+        'accounting/chart-create' => 'informeIcargaEspanol.php',
+        'accounting/chart-edit' => 'informeIcargaEspanol.php',
+        'honorarios/create' => 'informeIcargaEspanol.php',
+        'invoices/create' => 'informeIcargaInvoice.php',
+        'invoices/edit' => 'informeIcargaInvoice.php',
+    ];
     ?>
     <script>
-        window.reportTemplates = <?php echo json_encode($reportTemplates); ?>;
+        window.reportTemplateByRoute = <?php echo json_encode($reportTemplateByRoute); ?>;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const templates = window.reportTemplates || [];
-            if (!templates.length) {
-                return;
-            }
-
             const route = new URLSearchParams(window.location.search).get('route') || '';
-            if (!route || !/(?:^|\\/)create$|(?:^|\\/)edit$/.test(route)) {
+            if (!route || !(route in window.reportTemplateByRoute)) {
                 return;
             }
 
-            const findTemplate = (file) => templates.find((template) => template.file === file);
-            const defaultTemplate = findTemplate('informeIcargaEspanol.php') ?? templates[0];
-            const invoiceTemplate = findTemplate('informeIcargaInvoice.php') ?? defaultTemplate;
-            const selectedTemplate = /^(invoices|quotes)(?:\\/|$)/.test(route)
-                ? invoiceTemplate
-                : defaultTemplate;
-
-            if (!selectedTemplate) {
-                return;
-            }
+            const selectedTemplate = window.reportTemplateByRoute[route];
 
             document.querySelectorAll('form').forEach((form) => {
                 if (form.dataset.reportsInjected) {
@@ -102,14 +110,12 @@
                 const actionContainer = document.createElement('div');
                 actionContainer.className = 'd-flex justify-content-end gap-2 mt-3';
 
-                const reportButton = document.createElement('a');
-                reportButton.className = 'btn btn-outline-primary';
-                reportButton.href = selectedTemplate.url;
-                reportButton.target = '_blank';
-                reportButton.rel = 'noopener';
-                reportButton.textContent = 'Informe';
+                const downloadButton = document.createElement('a');
+                downloadButton.className = 'btn btn-outline-primary';
+                downloadButton.href = `index.php?route=reports/download&template=${encodeURIComponent(selectedTemplate)}&source=${encodeURIComponent(route)}`;
+                downloadButton.textContent = 'Descargar PDF';
 
-                actionContainer.appendChild(reportButton);
+                actionContainer.appendChild(downloadButton);
                 form.appendChild(actionContainer);
                 form.dataset.reportsInjected = 'true';
             });

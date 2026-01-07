@@ -4,8 +4,16 @@ class ReportsController
 {
     public function download(): void
     {
-        $template = isset($_GET['template']) ? basename((string)$_GET['template']) : '';
-        $source = isset($_GET['source']) ? (string)$_GET['source'] : 'formulario';
+        $isPost = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
+        if ($isPost) {
+            verify_csrf();
+        }
+        $template = $isPost
+            ? (isset($_POST['report_template']) ? basename((string)$_POST['report_template']) : '')
+            : (isset($_GET['template']) ? basename((string)$_GET['template']) : '');
+        $source = $isPost
+            ? (isset($_POST['report_source']) ? (string)$_POST['report_source'] : 'formulario')
+            : (isset($_GET['source']) ? (string)$_GET['source'] : 'formulario');
         $templateByRoute = [
             'email_templates/create' => 'informeIcargaEspanol.php',
             'email_templates/edit' => 'informeIcargaEspanol.php',
@@ -130,6 +138,9 @@ class ReportsController
             return;
         }
 
+        $reportTemplate = $template;
+        $reportSource = $source;
         require_once $reportPath;
+        return;
     }
 }

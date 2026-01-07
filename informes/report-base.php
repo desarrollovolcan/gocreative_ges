@@ -7,11 +7,45 @@ function generate_form_report(array $config): void
     $title = $config['title'] ?? 'Informe de formulario';
     $source = $config['source'] ?? 'formulario';
     $template = $config['template'] ?? 'plantilla';
+    $data = $config['data'] ?? $_POST;
 
     $normalizeText = static function ($text): string {
         $text = (string)($text ?? '');
         $converted = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
         return $converted !== false ? $converted : utf8_decode($text);
+    };
+    $formatValue = static function ($value): string {
+        if (is_bool($value)) {
+            return $value ? 'Sí' : 'No';
+        }
+        if (is_array($value)) {
+            return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+        return trim((string)$value);
+    };
+    $shouldSkipField = static function (string $key): bool {
+        $lower = strtolower($key);
+        if ($lower === 'csrf_token' || $lower === 'report_template' || $lower === 'report_source') {
+            return true;
+        }
+        return str_contains($lower, 'password');
+    };
+    $buildFieldRows = static function (array $payload) use ($formatValue, $shouldSkipField): array {
+        $fields = [];
+        foreach ($payload as $key => $value) {
+            if ($shouldSkipField((string)$key)) {
+                continue;
+            }
+            if (is_array($value)) {
+                continue;
+            }
+            $label = ucwords(str_replace(['_', '-'], ' ', (string)$key));
+            $fields[] = [
+                'label' => $label,
+                'value' => $formatValue($value),
+            ];
+        }
+        return $fields;
     };
 
     $pdf = new InvoiceTemplatePDF('P', 'mm', 'Letter');
@@ -43,6 +77,59 @@ function generate_form_report(array $config): void
         ['label' => $normalizeText('Plantilla base'), 'value' => $normalizeText(pathinfo($template, PATHINFO_FILENAME))],
         ['label' => $normalizeText('Fecha de generación'), 'value' => $normalizeText(date('d/m/Y H:i'))],
     ], 2);
+
+    $fields = $buildFieldRows($data);
+    if ($fields) {
+        $pdf->Section(
+            $normalizeText('Datos del formulario'),
+            $normalizeText('Resumen de la información enviada desde el formulario.')
+        );
+        $pdf->FieldGrid(array_map(static function (array $field) use ($normalizeText): array {
+            return [
+                'label' => $normalizeText($field['label']),
+                'value' => $normalizeText($field['value']),
+            ];
+        }, $fields), 2);
+    }
+
+    if (!empty($data['items']) && is_array($data['items'])) {
+        $rows = [];
+        foreach ($data['items'] as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $rows[] = [
+                $item['descripcion'] ?? ($item['detalle'] ?? ''),
+                $item['cantidad'] ?? '',
+                $item['precio_unitario'] ?? ($item['precio'] ?? ''),
+                $item['total'] ?? '',
+            ];
+        }
+        if ($rows) {
+            $pdf->Section(
+                $normalizeText('Detalle de ítems'),
+                $normalizeText('Listado de líneas asociadas al formulario.')
+            );
+            $pdf->DataTable(
+                [
+                    $normalizeText('Detalle'),
+                    $normalizeText('Cantidad'),
+                    $normalizeText('Precio'),
+                    $normalizeText('Total'),
+                ],
+                array_map(static function (array $row) use ($normalizeText, $formatValue): array {
+                    return [
+                        $normalizeText($formatValue($row[0] ?? '')),
+                        $normalizeText($formatValue($row[1] ?? '')),
+                        $normalizeText($formatValue($row[2] ?? '')),
+                        $normalizeText($formatValue($row[3] ?? '')),
+                    ];
+                }, $rows),
+                [80, 30, 40, 40],
+                ['L', 'C', 'R', 'R']
+            );
+        }
+    }
 
     $pdf->Section(
         $normalizeText('Detalle del informe'),

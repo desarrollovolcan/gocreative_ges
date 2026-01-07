@@ -3,7 +3,9 @@ $reportTemplate = $reportTemplate ?? '';
 $reportSource = $reportSource ?? '';
 ?>
 <?php if ($reportTemplate !== '' && $reportSource !== ''): ?>
-    <a class="btn btn-outline-primary" href="index.php?route=reports/download&amp;template=<?php echo urlencode($reportTemplate); ?>&amp;source=<?php echo urlencode($reportSource); ?>">
+    <input type="hidden" name="report_template" value="<?php echo e($reportTemplate); ?>">
+    <input type="hidden" name="report_source" value="<?php echo e($reportSource); ?>">
+    <button type="submit" class="btn btn-outline-primary" formaction="index.php?route=reports/download" formmethod="post" formtarget="_blank">
         Descargar PDF
-    </a>
+    </button>
 <?php endif; ?>

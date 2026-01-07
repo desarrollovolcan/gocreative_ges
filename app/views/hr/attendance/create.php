@@ -46,6 +46,12 @@
                 <button type="submit" class="btn btn-primary">Guardar</button>
                 <a href="index.php?route=hr/attendance" class="btn btn-light">Cancelar</a>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'hr/attendance/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

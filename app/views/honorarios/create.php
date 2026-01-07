@@ -50,6 +50,12 @@
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'honorarios/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

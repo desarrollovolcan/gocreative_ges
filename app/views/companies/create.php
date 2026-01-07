@@ -8,6 +8,12 @@
                 <a href="index.php?route=companies" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'companies/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

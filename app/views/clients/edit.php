@@ -190,7 +190,13 @@
                 <a href="index.php?route=clients" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Actualizar</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'clients/edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>
 

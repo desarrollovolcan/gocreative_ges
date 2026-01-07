@@ -55,7 +55,13 @@
             <div class="d-flex justify-content-end mt-3">
                 <button type="submit" class="btn btn-primary">Registrar asiento</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'accounting/journals-create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>
 

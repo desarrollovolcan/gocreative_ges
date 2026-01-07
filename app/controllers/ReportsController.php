@@ -50,6 +50,50 @@ class ReportsController
             'invoices/create' => 'informeIcargaInvoice.php',
             'invoices/edit' => 'informeIcargaInvoice.php',
         ];
+        $titlesByRoute = [
+            'email_templates/create' => 'Informe plantilla de correo',
+            'email_templates/edit' => 'Informe plantilla de correo',
+            'purchases/create' => 'Informe de compra',
+            'treasury/transaction-edit' => 'Informe de transacción',
+            'treasury/account-edit' => 'Informe de cuenta',
+            'products/create' => 'Informe de producto',
+            'products/edit' => 'Informe de producto',
+            'taxes/period-edit' => 'Informe de periodo tributario',
+            'taxes/withholding-edit' => 'Informe de retención',
+            'roles/create' => 'Informe de rol',
+            'roles/edit' => 'Informe de rol',
+            'companies/create' => 'Informe de empresa',
+            'companies/edit' => 'Informe de empresa',
+            'services/create' => 'Informe de servicio',
+            'services/edit' => 'Informe de servicio',
+            'sales/create' => 'Informe de venta',
+            'fixed-assets/create' => 'Informe de activo fijo',
+            'fixed-assets/edit' => 'Informe de activo fijo',
+            'quotes/create' => 'Informe de cotización',
+            'quotes/edit' => 'Informe de cotización',
+            'hr/payrolls/create' => 'Informe de nómina',
+            'hr/contracts/create' => 'Informe de contrato',
+            'hr/contracts/edit' => 'Informe de contrato',
+            'hr/attendance/create' => 'Informe de asistencia',
+            'hr/employees/create' => 'Informe de empleado',
+            'hr/employees/edit' => 'Informe de empleado',
+            'tickets/create' => 'Informe de ticket',
+            'suppliers/create' => 'Informe de proveedor',
+            'suppliers/edit' => 'Informe de proveedor',
+            'users/create' => 'Informe de usuario',
+            'users/edit' => 'Informe de usuario',
+            'projects/create' => 'Informe de proyecto',
+            'projects/edit' => 'Informe de proyecto',
+            'inventory/movement-edit' => 'Informe de movimiento de inventario',
+            'clients/create' => 'Informe de cliente',
+            'clients/edit' => 'Informe de cliente',
+            'accounting/journals-create' => 'Informe de asiento contable',
+            'accounting/chart-create' => 'Informe de plan de cuentas',
+            'accounting/chart-edit' => 'Informe de plan de cuentas',
+            'honorarios/create' => 'Informe de honorarios',
+            'invoices/create' => 'Informe de factura',
+            'invoices/edit' => 'Informe de factura',
+        ];
 
         $reportsDir = __DIR__ . '/../../documento';
         if ($template === '' || !is_dir($reportsDir)) {
@@ -75,9 +119,10 @@ class ReportsController
 
         $pdf = new FPDF('P', 'mm', 'A4');
         $pdf->AddPage();
-        $pdf->SetTitle('Informe de formulario');
+        $title = $titlesByRoute[$source] ?? 'Informe de formulario';
+        $pdf->SetTitle($title);
         $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, 'Informe de formulario', 0, 1, 'L');
+        $pdf->Cell(0, 10, $title, 0, 1, 'L');
         $pdf->SetFont('Arial', '', 12);
         $pdf->Cell(0, 8, 'Formulario: ' . $source, 0, 1, 'L');
         $pdf->Cell(0, 8, 'Plantilla base: ' . pathinfo($template, PATHINFO_FILENAME), 0, 1, 'L');

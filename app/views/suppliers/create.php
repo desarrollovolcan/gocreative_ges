@@ -115,7 +115,13 @@
                                                             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                             <input type="hidden" name="id" value="<?php echo (int)$supplier['id']; ?>">
                                                             <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
-                                                        </form>
+                                                        
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'suppliers/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
                                                     </li>
                                                 </ul>
                                             </div>

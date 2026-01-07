@@ -180,7 +180,13 @@
             </div>
             <input type="hidden" name="service_id" data-service-id value="<?php echo (int)($selectedServiceId ?? 0); ?>">
             <input type="hidden" name="project_id" data-project-id value="<?php echo (int)($selectedProjectId ?? 0); ?>">
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaInvoice.php';
+    $reportSource = 'invoices/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
         <!-- Jquery for Datatables-->
         <script src="assets/plugins/jquery/jquery.min.js"></script>

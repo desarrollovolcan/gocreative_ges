@@ -40,6 +40,12 @@
                     <button type="submit" class="btn btn-primary">Guardar cambios</button>
                 </div>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'taxes/period-edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

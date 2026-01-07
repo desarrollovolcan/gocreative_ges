@@ -148,7 +148,13 @@ $item = $items[0] ?? [
                 <a href="index.php?route=quotes" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaInvoice.php';
+    $reportSource = 'quotes/edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>
 

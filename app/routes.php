@@ -14,6 +14,7 @@ return [
     'documents/categories/assign' => ['DocumentsController', 'assignCategory'],
     'documents/categories/delete' => ['DocumentsController', 'deleteCategory'],
     'documents/download' => ['DocumentsController', 'download'],
+    'reports/download' => ['ReportsController', 'download'],
     'calendar' => ['CalendarController', 'index'],
     'calendar/events' => ['CalendarController', 'events'],
     'calendar/store' => ['CalendarController', 'store'],

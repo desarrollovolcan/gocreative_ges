@@ -115,22 +115,53 @@ class ReportsController
             return;
         }
 
-        require_once __DIR__ . '/../../api/fpdf/fpdf.php';
+        require_once __DIR__ . '/../reports/InvoiceTemplatePDF.php';
 
-        $pdf = new FPDF('P', 'mm', 'A4');
-        $pdf->AddPage();
         $title = $titlesByRoute[$source] ?? 'Informe de formulario';
-        $pdf->SetTitle($title);
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, $title, 0, 1, 'L');
-        $pdf->SetFont('Arial', '', 12);
-        $pdf->Cell(0, 8, 'Formulario: ' . $source, 0, 1, 'L');
-        $pdf->Cell(0, 8, 'Plantilla base: ' . pathinfo($template, PATHINFO_FILENAME), 0, 1, 'L');
-        $pdf->Ln(4);
-        $pdf->MultiCell(0, 6, 'Este reporte usa FPDF como generador. La plantilla indicada proviene de la carpeta documento/.');
-        $pdf->Ln(4);
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->MultiCell(0, 5, 'Este PDF corresponde al formulario actual y sirve como referencia de formato para el reporte asociado.');
+        $normalizeText = static function ($text): string {
+            $text = (string)($text ?? '');
+            $converted = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
+            return $converted !== false ? $converted : utf8_decode($text);
+        };
+
+        $pdf = new InvoiceTemplatePDF('P', 'mm', 'Letter');
+        $pdf->AliasNbPages();
+        $pdf->docTitle = $normalizeText($title);
+        $pdf->docSubTitle = $normalizeText('Informe generado para el formulario solicitado');
+        $pdf->brandName = $normalizeText('GoCreative GES');
+        $pdf->brandRUT = $normalizeText('76.123.456-7');
+        $pdf->brandAddress = $normalizeText('Gestión Empresarial y Servicios');
+        $pdf->brandContact = $normalizeText('soporte@gocreative.cl • +56 9 0000 0000 • gocreative.cl');
+        $pdf->footerLeft = $normalizeText('Documento generado automáticamente');
+        $pdf->SetTitle($normalizeText($title));
+        $pdf->AddPage();
+
+        $actionLabel = 'Detalle';
+        if (str_contains($source, 'create')) {
+            $actionLabel = 'Creación';
+        } elseif (str_contains($source, 'edit')) {
+            $actionLabel = 'Actualización';
+        }
+
+        $pdf->Section(
+            $normalizeText('Resumen del formulario'),
+            $normalizeText('Información base del reporte vinculado al formulario.')
+        );
+        $pdf->FieldGrid([
+            ['label' => $normalizeText('Formulario'), 'value' => $normalizeText($source)],
+            ['label' => $normalizeText('Acción'), 'value' => $normalizeText($actionLabel)],
+            ['label' => $normalizeText('Plantilla base'), 'value' => $normalizeText(pathinfo($template, PATHINFO_FILENAME))],
+            ['label' => $normalizeText('Fecha de generación'), 'value' => $normalizeText(date('d/m/Y H:i'))],
+        ], 2);
+
+        $pdf->Section(
+            $normalizeText('Detalle del informe'),
+            $normalizeText('Cada formulario tiene su propio informe generado con la plantilla de diseño.')
+        );
+        $pdf->NotesBlock(
+            $normalizeText('Observaciones'),
+            $normalizeText('Este documento fue generado con FPDF usando la plantilla de informes y corresponde al formulario solicitado.')
+        );
 
         $filename = 'informe-' . preg_replace('/[^a-z0-9\\-]+/i', '-', pathinfo($template, PATHINFO_FILENAME)) . '.pdf';
         $pdf->Output('D', $filename);

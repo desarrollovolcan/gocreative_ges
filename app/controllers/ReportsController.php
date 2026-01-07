@@ -115,58 +115,90 @@ class ReportsController
             return;
         }
 
-        require_once __DIR__ . '/../../api/fpdf/fpdf.php';
+        require_once __DIR__ . '/../reports/InvoiceTemplatePDF.php';
 
-        $pdf = new FPDF('P', 'mm', 'A4');
-        $pdf->AddPage();
         $title = $titlesByRoute[$source] ?? 'Informe de formulario';
-        $pdf->SetTitle($title);
+        $pdf = new InvoiceTemplatePDF('P', 'mm', 'Letter');
+        $pdf->AliasNbPages();
         $pdf->SetAutoPageBreak(true, 18);
+        $pdf->SetMargins($pdf->mx, 24, $pdf->mx);
 
-        $pdf->SetFillColor(37, 99, 235);
-        $pdf->Rect(0, 0, 210, 18, 'F');
-        $pdf->SetTextColor(255, 255, 255);
-        $pdf->SetFont('Arial', 'B', 14);
-        $pdf->SetXY(14, 6);
-        $pdf->Cell(0, 6, $title, 0, 1, 'L');
+        $pdf->brandName = 'Go Creative SpA';
+        $pdf->brandRUT = '15.626.773-2';
+        $pdf->brandAddress = 'Santiago, Chile';
+        $pdf->brandContact = 'contacto@gocreative.cl • +56 9 0000 0000 • gocreative.cl';
+        $pdf->docTitle = strtoupper($title);
+        $pdf->docSubTitle = 'Plantilla base reutilizable (minimalista)';
+        $pdf->footerLeft = 'Generado por sistema • Conserva este documento como respaldo';
 
-        $pdf->SetTextColor(31, 41, 55);
-        $pdf->SetFont('Arial', '', 11);
-        $pdf->SetXY(14, 24);
-        $pdf->Cell(0, 6, 'Formulario: ' . $source, 0, 1, 'L');
-        $pdf->Cell(0, 6, 'Plantilla base: ' . pathinfo($template, PATHINFO_FILENAME), 0, 1, 'L');
-        $pdf->Ln(4);
+        $pdf->AddPage();
 
-        $pdf->SetFillColor(243, 244, 246);
-        $pdf->SetDrawColor(229, 231, 235);
-        $pdf->SetFont('Arial', 'B', 11);
-        $pdf->Cell(60, 8, 'Campo', 1, 0, 'L', true);
-        $pdf->Cell(0, 8, 'Valor', 1, 1, 'L', true);
-        $pdf->SetFont('Arial', '', 10);
-
-        $items = [];
-        $walker = function ($data, $prefix = '') use (&$items, &$walker) {
-            foreach ((array)$data as $key => $value) {
-                $label = $prefix === '' ? (string)$key : $prefix . '.' . $key;
-                if (is_array($value)) {
-                    $walker($value, $label);
-                } else {
-                    $items[] = [$label, (string)$value];
-                }
+        $pdf->Section('Datos del documento', 'Resumen de los valores capturados en el formulario.');
+        $fieldsDoc = [];
+        $skipKeys = ['csrf_token'];
+        foreach ($_POST as $key => $value) {
+            if (in_array($key, $skipKeys, true)) {
+                continue;
             }
-        };
-        $walker($_POST);
+            if (is_array($value)) {
+                continue;
+            }
+            $label = ucwords(str_replace(['_', '-'], ' ', (string)$key));
+            $fieldsDoc[] = ['label' => $label, 'value' => (string)$value];
+        }
+        if ($fieldsDoc === []) {
+            $fieldsDoc[] = ['label' => 'Sin datos', 'value' => 'El formulario no contiene valores ingresados.'];
+        }
+        $pdf->FieldGrid($fieldsDoc, cols: 3);
 
-        if ($items === []) {
-            $items[] = ['Sin datos', 'El formulario no contiene valores en este momento.'];
+        $estado = isset($_POST['estado']) ? strtoupper((string)$_POST['estado']) : 'REGISTRO';
+        $chipX = $pdf->GetPageWidth() - $pdf->mx - 42;
+        $chipY = 42;
+        $pdf->StatusChip($estado, [229, 231, 235], [55, 65, 81], $chipX, $chipY);
+
+        if (!empty($_POST['items']) && is_array($_POST['items'])) {
+            $pdf->Section('Detalle de ítems', 'Listado de ítems incluidos en el formulario.');
+            $headers = ['Descripción', 'Cant.', 'Precio', 'Impuesto', 'Total'];
+            $widths = [90, 14, 24, 20, 24];
+            $rows = [];
+            foreach ((array)$_POST['items'] as $item) {
+                $rows[] = [
+                    (string)($item['descripcion'] ?? $item['name'] ?? ''),
+                    (string)($item['cantidad'] ?? $item['qty'] ?? ''),
+                    (string)($item['precio_unitario'] ?? $item['price'] ?? ''),
+                    (string)($item['impuesto_pct'] ?? $item['tax'] ?? ''),
+                    (string)($item['total'] ?? ''),
+                ];
+            }
+            if ($rows !== []) {
+                $pdf->DataTable($headers, $rows, $widths, aligns: ['L', 'R', 'R', 'R', 'R']);
+            }
         }
 
-        foreach ($items as [$label, $value]) {
-            $pdf->SetFillColor(255, 255, 255);
-            $pdf->SetTextColor(55, 65, 81);
-            $pdf->Cell(60, 7, mb_substr($label, 0, 30), 1, 0, 'L', false);
-            $pdf->MultiCell(0, 7, mb_substr($value, 0, 120), 1, 'L');
+        $totals = [];
+        if (isset($_POST['subtotal'])) {
+            $totals[] = ['label' => 'Subtotal', 'value' => (string)$_POST['subtotal'], 'bold' => true];
         }
+        if (isset($_POST['impuestos'])) {
+            $totals[] = ['label' => 'Impuestos', 'value' => (string)$_POST['impuestos']];
+        }
+        if (isset($_POST['total'])) {
+            $totals[] = ['label' => 'Total', 'value' => (string)$_POST['total'], 'bold' => true, 'big' => true];
+        }
+        if ($totals !== []) {
+            $pdf->TotalsBlock($totals);
+        }
+
+        if (!empty($_POST['notas'])) {
+            $pdf->NotesBlock('Observaciones', (string)$_POST['notas']);
+        }
+
+        $pdf->Section('Firma / Aprobación');
+        $pdf->FieldGrid([
+            ['label' => 'Responsable', 'value' => '________________________'],
+            ['label' => 'Cargo', 'value' => '________________________'],
+            ['label' => 'Fecha', 'value' => '________________________'],
+        ], cols: 3);
 
         $filename = 'informe-' . preg_replace('/[^a-z0-9\\-]+/i', '-', pathinfo($template, PATHINFO_FILENAME)) . '.pdf';
         $pdf->Output('D', $filename);

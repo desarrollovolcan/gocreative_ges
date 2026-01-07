@@ -108,7 +108,7 @@ class SalesController extends Controller
         $client = null;
         if ($clientId > 0) {
             $client = $this->db->fetch(
-                'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+                'SELECT id, rut, name, giro, activity_code, address, commune, city FROM clients WHERE id = :id AND company_id = :company_id',
                 ['id' => $clientId, 'company_id' => $companyId]
             );
             if (!$client) {
@@ -118,7 +118,7 @@ class SalesController extends Controller
         }
 
         $isPos = ($_POST['channel'] ?? '') === 'pos';
-        $siiData = sii_document_payload($_POST);
+        $siiData = sii_document_payload($_POST, $client ? sii_receiver_payload($client) : []);
         $siiErrors = validate_sii_document_payload($siiData);
         if ($siiErrors) {
             flash('error', implode(' ', $siiErrors));

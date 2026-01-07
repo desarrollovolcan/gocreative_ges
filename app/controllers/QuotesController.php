@@ -77,14 +77,14 @@ class QuotesController extends Controller
         $numero = trim($_POST['numero'] ?? '');
         $clientId = (int)($_POST['client_id'] ?? 0);
         $client = $this->db->fetch(
-            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            'SELECT id, rut, name, giro, activity_code, address, commune, city FROM clients WHERE id = :id AND company_id = :company_id',
             ['id' => $clientId, 'company_id' => $companyId]
         );
         if (!$client) {
             flash('error', 'Cliente no encontrado para esta empresa.');
             $this->redirect('index.php?route=quotes/create');
         }
-        $siiData = sii_document_payload($_POST);
+        $siiData = sii_document_payload($_POST, sii_receiver_payload($client));
         $siiErrors = validate_sii_document_payload($siiData);
         if ($siiErrors) {
             flash('error', implode(' ', $siiErrors));
@@ -244,7 +244,16 @@ class QuotesController extends Controller
                 $this->redirect('index.php?route=quotes/edit&id=' . $id);
             }
         }
-        $siiData = sii_document_payload($_POST);
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = $this->db->fetch(
+            'SELECT id, rut, name, giro, activity_code, address, commune, city FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=quotes/edit&id=' . $id);
+        }
+        $siiData = sii_document_payload($_POST, sii_receiver_payload($client));
         $siiErrors = validate_sii_document_payload($siiData);
         if ($siiErrors) {
             flash('error', implode(' ', $siiErrors));
@@ -252,7 +261,7 @@ class QuotesController extends Controller
         }
 
         $this->quotes->update($id, array_merge([
-            'client_id' => (int)($_POST['client_id'] ?? 0),
+            'client_id' => $clientId,
             'system_service_id' => $serviceId !== '' ? $serviceId : null,
             'project_id' => $projectId !== '' ? $projectId : null,
             'numero' => trim($_POST['numero'] ?? ''),

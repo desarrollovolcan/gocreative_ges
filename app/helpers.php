@@ -289,7 +289,20 @@ function sii_document_types(): array
     ];
 }
 
-function sii_document_payload(array $source): array
+function sii_receiver_payload(array $entity): array
+{
+    return [
+        'sii_receiver_rut' => normalize_rut($entity['rut'] ?? $entity['tax_id'] ?? ''),
+        'sii_receiver_name' => trim((string)($entity['name'] ?? '')),
+        'sii_receiver_giro' => trim((string)($entity['giro'] ?? '')),
+        'sii_receiver_activity_code' => trim((string)($entity['activity_code'] ?? '')),
+        'sii_receiver_address' => trim((string)($entity['address'] ?? '')),
+        'sii_receiver_commune' => trim((string)($entity['commune'] ?? '')),
+        'sii_receiver_city' => trim((string)($entity['city'] ?? '')),
+    ];
+}
+
+function sii_document_payload(array $source, array $fallback = []): array
 {
     $payload = [
         'sii_document_type' => trim((string)($source['sii_document_type'] ?? '')),
@@ -304,6 +317,14 @@ function sii_document_payload(array $source): array
         'sii_tax_rate' => (float)($source['sii_tax_rate'] ?? 19),
         'sii_exempt_amount' => (float)($source['sii_exempt_amount'] ?? 0),
     ];
+    foreach ($fallback as $key => $value) {
+        if (!array_key_exists($key, $payload)) {
+            continue;
+        }
+        if (is_string($payload[$key]) && trim($payload[$key]) === '' && trim((string)$value) !== '') {
+            $payload[$key] = $value;
+        }
+    }
     return $payload;
 }
 

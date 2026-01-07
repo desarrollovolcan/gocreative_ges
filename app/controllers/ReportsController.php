@@ -50,49 +50,49 @@ class ReportsController
             'invoices/create' => 'informeIcargaInvoice.php',
             'invoices/edit' => 'informeIcargaInvoice.php',
         ];
-        $titlesByRoute = [
-            'email_templates/create' => 'Informe plantilla de correo',
-            'email_templates/edit' => 'Informe plantilla de correo',
-            'purchases/create' => 'Informe de compra',
-            'treasury/transaction-edit' => 'Informe de transacción',
-            'treasury/account-edit' => 'Informe de cuenta',
-            'products/create' => 'Informe de producto',
-            'products/edit' => 'Informe de producto',
-            'taxes/period-edit' => 'Informe de periodo tributario',
-            'taxes/withholding-edit' => 'Informe de retención',
-            'roles/create' => 'Informe de rol',
-            'roles/edit' => 'Informe de rol',
-            'companies/create' => 'Informe de empresa',
-            'companies/edit' => 'Informe de empresa',
-            'services/create' => 'Informe de servicio',
-            'services/edit' => 'Informe de servicio',
-            'sales/create' => 'Informe de venta',
-            'fixed-assets/create' => 'Informe de activo fijo',
-            'fixed-assets/edit' => 'Informe de activo fijo',
-            'quotes/create' => 'Informe de cotización',
-            'quotes/edit' => 'Informe de cotización',
-            'hr/payrolls/create' => 'Informe de nómina',
-            'hr/contracts/create' => 'Informe de contrato',
-            'hr/contracts/edit' => 'Informe de contrato',
-            'hr/attendance/create' => 'Informe de asistencia',
-            'hr/employees/create' => 'Informe de empleado',
-            'hr/employees/edit' => 'Informe de empleado',
-            'tickets/create' => 'Informe de ticket',
-            'suppliers/create' => 'Informe de proveedor',
-            'suppliers/edit' => 'Informe de proveedor',
-            'users/create' => 'Informe de usuario',
-            'users/edit' => 'Informe de usuario',
-            'projects/create' => 'Informe de proyecto',
-            'projects/edit' => 'Informe de proyecto',
-            'inventory/movement-edit' => 'Informe de movimiento de inventario',
-            'clients/create' => 'Informe de cliente',
-            'clients/edit' => 'Informe de cliente',
-            'accounting/journals-create' => 'Informe de asiento contable',
-            'accounting/chart-create' => 'Informe de plan de cuentas',
-            'accounting/chart-edit' => 'Informe de plan de cuentas',
-            'honorarios/create' => 'Informe de honorarios',
-            'invoices/create' => 'Informe de factura',
-            'invoices/edit' => 'Informe de factura',
+        $reportFileByRoute = [
+            'email_templates/create' => 'email_templates_create.php',
+            'email_templates/edit' => 'email_templates_edit.php',
+            'purchases/create' => 'purchases_create.php',
+            'treasury/transaction-edit' => 'treasury_transaction_edit.php',
+            'treasury/account-edit' => 'treasury_account_edit.php',
+            'products/create' => 'products_create.php',
+            'products/edit' => 'products_edit.php',
+            'taxes/period-edit' => 'taxes_period_edit.php',
+            'taxes/withholding-edit' => 'taxes_withholding_edit.php',
+            'roles/create' => 'roles_create.php',
+            'roles/edit' => 'roles_edit.php',
+            'companies/create' => 'companies_create.php',
+            'companies/edit' => 'companies_edit.php',
+            'services/create' => 'services_create.php',
+            'services/edit' => 'services_edit.php',
+            'sales/create' => 'sales_create.php',
+            'fixed-assets/create' => 'fixed_assets_create.php',
+            'fixed-assets/edit' => 'fixed_assets_edit.php',
+            'quotes/create' => 'quotes_create.php',
+            'quotes/edit' => 'quotes_edit.php',
+            'hr/payrolls/create' => 'hr_payrolls_create.php',
+            'hr/contracts/create' => 'hr_contracts_create.php',
+            'hr/contracts/edit' => 'hr_contracts_edit.php',
+            'hr/attendance/create' => 'hr_attendance_create.php',
+            'hr/employees/create' => 'hr_employees_create.php',
+            'hr/employees/edit' => 'hr_employees_edit.php',
+            'tickets/create' => 'tickets_create.php',
+            'suppliers/create' => 'suppliers_create.php',
+            'suppliers/edit' => 'suppliers_edit.php',
+            'users/create' => 'users_create.php',
+            'users/edit' => 'users_edit.php',
+            'projects/create' => 'projects_create.php',
+            'projects/edit' => 'projects_edit.php',
+            'inventory/movement-edit' => 'inventory_movement_edit.php',
+            'clients/create' => 'clients_create.php',
+            'clients/edit' => 'clients_edit.php',
+            'accounting/journals-create' => 'accounting_journals_create.php',
+            'accounting/chart-create' => 'accounting_chart_create.php',
+            'accounting/chart-edit' => 'accounting_chart_edit.php',
+            'honorarios/create' => 'honorarios_create.php',
+            'invoices/create' => 'invoices_create.php',
+            'invoices/edit' => 'invoices_edit.php',
         ];
 
         $reportsDir = __DIR__ . '/../../documento';
@@ -115,55 +115,21 @@ class ReportsController
             return;
         }
 
-        require_once __DIR__ . '/../reports/InvoiceTemplatePDF.php';
-
-        $title = $titlesByRoute[$source] ?? 'Informe de formulario';
-        $normalizeText = static function ($text): string {
-            $text = (string)($text ?? '');
-            $converted = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
-            return $converted !== false ? $converted : utf8_decode($text);
-        };
-
-        $pdf = new InvoiceTemplatePDF('P', 'mm', 'Letter');
-        $pdf->AliasNbPages();
-        $pdf->docTitle = $normalizeText($title);
-        $pdf->docSubTitle = $normalizeText('Informe generado para el formulario solicitado');
-        $pdf->brandName = $normalizeText('GoCreative GES');
-        $pdf->brandRUT = $normalizeText('76.123.456-7');
-        $pdf->brandAddress = $normalizeText('Gestión Empresarial y Servicios');
-        $pdf->brandContact = $normalizeText('soporte@gocreative.cl • +56 9 0000 0000 • gocreative.cl');
-        $pdf->footerLeft = $normalizeText('Documento generado automáticamente');
-        $pdf->SetTitle($normalizeText($title));
-        $pdf->AddPage();
-
-        $actionLabel = 'Detalle';
-        if (str_contains($source, 'create')) {
-            $actionLabel = 'Creación';
-        } elseif (str_contains($source, 'edit')) {
-            $actionLabel = 'Actualización';
+        $reportFile = $reportFileByRoute[$source] ?? '';
+        $reportsPath = __DIR__ . '/../../informes';
+        if ($reportFile === '' || !is_dir($reportsPath)) {
+            http_response_code(404);
+            echo 'Informe no encontrado.';
+            return;
         }
 
-        $pdf->Section(
-            $normalizeText('Resumen del formulario'),
-            $normalizeText('Información base del reporte vinculado al formulario.')
-        );
-        $pdf->FieldGrid([
-            ['label' => $normalizeText('Formulario'), 'value' => $normalizeText($source)],
-            ['label' => $normalizeText('Acción'), 'value' => $normalizeText($actionLabel)],
-            ['label' => $normalizeText('Plantilla base'), 'value' => $normalizeText(pathinfo($template, PATHINFO_FILENAME))],
-            ['label' => $normalizeText('Fecha de generación'), 'value' => $normalizeText(date('d/m/Y H:i'))],
-        ], 2);
+        $reportPath = $reportsPath . '/' . $reportFile;
+        if (!is_file($reportPath)) {
+            http_response_code(404);
+            echo 'Informe no encontrado.';
+            return;
+        }
 
-        $pdf->Section(
-            $normalizeText('Detalle del informe'),
-            $normalizeText('Cada formulario tiene su propio informe generado con la plantilla de diseño.')
-        );
-        $pdf->NotesBlock(
-            $normalizeText('Observaciones'),
-            $normalizeText('Este documento fue generado con FPDF usando la plantilla de informes y corresponde al formulario solicitado.')
-        );
-
-        $filename = 'informe-' . preg_replace('/[^a-z0-9\\-]+/i', '-', pathinfo($template, PATHINFO_FILENAME)) . '.pdf';
-        $pdf->Output('D', $filename);
+        require_once $reportPath;
     }
 }

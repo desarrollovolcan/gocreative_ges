@@ -51,7 +51,7 @@ class ReportsController
             'inventory/movement-edit' => 'informeIcargaEspanol.php',
             'clients/create' => 'informeIcargaEspanol.php',
             'clients/edit' => 'informeIcargaEspanol.php',
-            'crm/briefs' => 'informeIcargaEspanol.php',
+            'crm/briefs' => 'informeFicha.php',
             'accounting/journals-create' => 'informeIcargaEspanol.php',
             'accounting/chart-create' => 'informeIcargaEspanol.php',
             'accounting/chart-edit' => 'informeIcargaEspanol.php',

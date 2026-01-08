@@ -72,7 +72,7 @@
             <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 mt-4">
                 <button type="submit" class="btn btn-primary">Guardar brief</button>
                 <?php
-                $reportTemplate = 'informeIcargaEspanol.php';
+                $reportTemplate = 'informeFicha.php';
                 $reportSource = 'crm/briefs';
                 include __DIR__ . '/../partials/report-download.php';
                 ?>
@@ -152,7 +152,7 @@
                                             <li>
                                                 <a
                                                     class="dropdown-item"
-                                                    href="index.php?route=reports/download&amp;template=informeIcargaEspanol.php&amp;source=crm/briefs"
+                                                    href="index.php?route=reports/download&amp;template=informeFicha.php&amp;source=crm/briefs"
                                                     target="_blank"
                                                     rel="noopener"
                                                 >

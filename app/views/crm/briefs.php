@@ -1,15 +1,27 @@
+<?php
+$editBrief = $editBrief ?? null;
+$isEdit = is_array($editBrief) && !empty($editBrief);
+$formBrief = $isEdit ? $editBrief : [];
+$formAction = $isEdit ? 'index.php?route=crm/briefs/update' : 'index.php?route=crm/briefs/store';
+?>
+
 <div class="card mb-4">
     <div class="card-header">
-        <h4 class="card-title mb-1">Nuevo brief comercial</h4>
-        <p class="text-muted mb-0">Registra los requerimientos comerciales y genera el reporte PDF.</p>
+        <h4 class="card-title mb-1"><?php echo $isEdit ? 'Editar brief comercial' : 'Nuevo brief comercial'; ?></h4>
+        <p class="text-muted mb-0">
+            <?php echo $isEdit ? 'Actualiza la información del brief y genera el reporte PDF.' : 'Registra los requerimientos comerciales y genera el reporte PDF.'; ?>
+        </p>
     </div>
     <div class="card-body">
-        <form method="post" action="index.php?route=crm/briefs/store">
+        <form method="post" action="<?php echo e($formAction); ?>">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+            <?php if ($isEdit): ?>
+                <input type="hidden" name="id" value="<?php echo (int)($formBrief['id'] ?? 0); ?>">
+            <?php endif; ?>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label" for="brief-title">Nombre del brief</label>
-                    <input type="text" class="form-control" id="brief-title" name="title" placeholder="Ej: Campaña verano 2025" autocomplete="off" required>
+                    <input type="text" class="form-control" id="brief-title" name="title" value="<?php echo e($formBrief['title'] ?? ''); ?>" placeholder="Ej: Campaña verano 2025" autocomplete="off" required>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="brief-client">Cliente</label>
@@ -25,7 +37,8 @@
                                 data-contact-phone="<?php echo e($client['phone'] ?? ''); ?>"
                                 data-address="<?php echo e($client['address'] ?? ''); ?>"
                                 data-rut="<?php echo e($client['rut'] ?? ''); ?>"
-                                data-billing-email="<?php echo e($client['billing_email'] ?? ''); ?>">
+                                data-billing-email="<?php echo e($client['billing_email'] ?? ''); ?>"
+                                <?php echo (int)($formBrief['client_id'] ?? 0) === (int)$client['id'] ? 'selected' : ''; ?>>
                                 <?php echo e($client['name']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -33,44 +46,52 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="brief-contact-name">Contacto</label>
-                    <input type="text" class="form-control" id="brief-contact-name" name="contact_name" placeholder="Nombre del contacto" autocomplete="name" data-client-field="contact_name">
+                    <input type="text" class="form-control" id="brief-contact-name" name="contact_name" value="<?php echo e($formBrief['contact_name'] ?? ''); ?>" placeholder="Nombre del contacto" autocomplete="name" data-client-field="contact_name">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="brief-contact-email">Correo contacto</label>
-                    <input type="email" class="form-control" id="brief-contact-email" name="contact_email" placeholder="contacto@cliente.cl" autocomplete="email" inputmode="email" data-client-field="contact_email">
+                    <input type="email" class="form-control" id="brief-contact-email" name="contact_email" value="<?php echo e($formBrief['contact_email'] ?? ''); ?>" placeholder="contacto@cliente.cl" autocomplete="email" inputmode="email" data-client-field="contact_email">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="brief-contact-phone">Teléfono contacto</label>
-                    <input type="tel" class="form-control" id="brief-contact-phone" name="contact_phone" placeholder="+56 9 1234 5678" autocomplete="tel" inputmode="tel" data-client-field="contact_phone">
+                    <input type="tel" class="form-control" id="brief-contact-phone" name="contact_phone" value="<?php echo e($formBrief['contact_phone'] ?? ''); ?>" placeholder="+56 9 1234 5678" autocomplete="tel" inputmode="tel" data-client-field="contact_phone">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="brief-service">Servicio solicitado</label>
-                    <input type="text" class="form-control" id="brief-service" name="service_summary" placeholder="Ej: Branding, Ads, Web">
+                    <input type="text" class="form-control" id="brief-service" name="service_summary" value="<?php echo e($formBrief['service_summary'] ?? ''); ?>" placeholder="Ej: Branding, Ads, Web">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="brief-budget">Presupuesto estimado (CLP)</label>
-                    <input type="number" class="form-control" id="brief-budget" name="expected_budget" min="0" step="0.01" placeholder="Ej: 1500000" inputmode="decimal">
+                    <input type="number" class="form-control" id="brief-budget" name="expected_budget" min="0" step="0.01" value="<?php echo e($formBrief['expected_budget'] ?? ''); ?>" placeholder="Ej: 1500000" inputmode="decimal">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="brief-start">Fecha deseada</label>
-                    <input type="date" class="form-control" id="brief-start" name="desired_start_date">
+                    <input type="date" class="form-control" id="brief-start" name="desired_start_date" value="<?php echo e($formBrief['desired_start_date'] ?? ''); ?>">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="brief-status">Estado</label>
                     <select class="form-select" id="brief-status" name="status">
-                        <option value="nuevo">Nuevo</option>
-                        <option value="en_revision">En revisión</option>
-                        <option value="aprobado">Aprobado</option>
-                        <option value="descartado">Descartado</option>
+                        <?php $currentStatus = $formBrief['status'] ?? 'nuevo'; ?>
+                        <option value="nuevo" <?php echo $currentStatus === 'nuevo' ? 'selected' : ''; ?>>Nuevo</option>
+                        <option value="en_revision" <?php echo $currentStatus === 'en_revision' ? 'selected' : ''; ?>>En revisión</option>
+                        <option value="en_ejecucion" <?php echo $currentStatus === 'en_ejecucion' ? 'selected' : ''; ?>>En ejecución</option>
+                        <option value="aprobado" <?php echo $currentStatus === 'aprobado' ? 'selected' : ''; ?>>Aprobado</option>
+                        <option value="descartado" <?php echo $currentStatus === 'descartado' ? 'selected' : ''; ?>>Descartado</option>
                     </select>
                 </div>
                 <div class="col-12">
                     <label class="form-label" for="brief-notes">Notas comerciales</label>
-                    <textarea class="form-control" id="brief-notes" name="notes" rows="3" placeholder="Contexto, objetivos y próximos pasos"></textarea>
+                    <textarea class="form-control" id="brief-notes" name="notes" rows="3" placeholder="Contexto, objetivos y próximos pasos"><?php echo e($formBrief['notes'] ?? ''); ?></textarea>
                 </div>
             </div>
             <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 mt-4">
-                <button type="submit" class="btn btn-primary">Guardar brief</button>
+                <?php if ($isEdit): ?>
+                    <a href="index.php?route=crm/briefs" class="btn btn-light">Cancelar edición</a>
+                <?php endif; ?>
+                <button type="submit" class="btn btn-primary"><?php echo $isEdit ? 'Actualizar brief' : 'Guardar brief'; ?></button>
+                <?php if ($isEdit): ?>
+                    <input type="hidden" name="brief_id" value="<?php echo (int)($formBrief['id'] ?? 0); ?>">
+                <?php endif; ?>
                 <?php
                 $reportTemplate = 'informeFicha.php';
                 $reportSource = 'crm/briefs';
@@ -117,7 +138,17 @@
                                 <td><?php echo e($brief['service_summary'] ?? ''); ?></td>
                                 <td>
                                     <?php $status = $brief['status'] ?? 'nuevo'; ?>
-                                    <span class="badge bg-<?php echo $status === 'aprobado' ? 'success' : ($status === 'en_revision' ? 'warning' : ($status === 'descartado' ? 'danger' : 'info')); ?>-subtle text-<?php echo $status === 'aprobado' ? 'success' : ($status === 'en_revision' ? 'warning' : ($status === 'descartado' ? 'danger' : 'info')); ?>">
+                                    <?php
+                                    $statusClasses = [
+                                        'aprobado' => ['success', 'success'],
+                                        'en_revision' => ['warning', 'warning'],
+                                        'en_ejecucion' => ['primary', 'primary'],
+                                        'descartado' => ['danger', 'danger'],
+                                        'nuevo' => ['info', 'info'],
+                                    ];
+                                    [$bgClass, $textClass] = $statusClasses[$status] ?? ['info', 'info'];
+                                    ?>
+                                    <span class="badge bg-<?php echo $bgClass; ?>-subtle text-<?php echo $textClass; ?>">
                                         <?php echo e(str_replace('_', ' ', $status)); ?>
                                     </span>
                                 </td>
@@ -130,29 +161,21 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             <li>
-                                                <button
-                                                    type="button"
-                                                    class="dropdown-item dropdown-item-button"
-                                                    data-action="execute"
-                                                    data-brief-id="<?php echo (int)($brief['id'] ?? 0); ?>"
-                                                >
-                                                    Ejecutar
-                                                </button>
+                                                <form method="post" action="index.php?route=crm/briefs/execute" onsubmit="return confirm('¿Marcar este brief como en ejecución?');">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                    <input type="hidden" name="id" value="<?php echo (int)($brief['id'] ?? 0); ?>">
+                                                    <button type="submit" class="dropdown-item dropdown-item-button">Ejecutar</button>
+                                                </form>
                                             </li>
                                             <li>
-                                                <button
-                                                    type="button"
-                                                    class="dropdown-item dropdown-item-button"
-                                                    data-action="edit"
-                                                    data-brief-id="<?php echo (int)($brief['id'] ?? 0); ?>"
-                                                >
+                                                <a class="dropdown-item" href="index.php?route=crm/briefs/edit&amp;id=<?php echo (int)($brief['id'] ?? 0); ?>">
                                                     Editar
-                                                </button>
+                                                </a>
                                             </li>
                                             <li>
                                                 <a
                                                     class="dropdown-item"
-                                                    href="index.php?route=reports/download&amp;template=informeFicha.php&amp;source=crm/briefs"
+                                                    href="index.php?route=reports/download&amp;template=informeFicha.php&amp;source=crm/briefs&amp;id=<?php echo (int)($brief['id'] ?? 0); ?>"
                                                     target="_blank"
                                                     rel="noopener"
                                                 >
@@ -160,14 +183,11 @@
                                                 </a>
                                             </li>
                                             <li>
-                                                <button
-                                                    type="button"
-                                                    class="dropdown-item dropdown-item-button text-danger"
-                                                    data-action="delete"
-                                                    data-brief-id="<?php echo (int)($brief['id'] ?? 0); ?>"
-                                                >
-                                                    Eliminar
-                                                </button>
+                                                <form method="post" action="index.php?route=crm/briefs/delete" onsubmit="return confirm('¿Eliminar este brief comercial?');">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                    <input type="hidden" name="id" value="<?php echo (int)($brief['id'] ?? 0); ?>">
+                                                    <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                                </form>
                                             </li>
                                         </ul>
                                     </div>

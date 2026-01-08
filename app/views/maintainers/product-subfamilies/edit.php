@@ -27,7 +27,13 @@
                         <button type="submit" class="btn btn-primary">Actualizar</button>
                         <a href="index.php?route=maintainers/product-subfamilies" class="btn btn-light">Cancelar</a>
                     </div>
-                </form>
+                
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'maintainers/product-subfamilies/edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
             </div>
         </div>
     </div>

@@ -19,6 +19,12 @@
                 <button type="submit" class="btn btn-primary">Guardar</button>
                 <a href="index.php?route=maintainers/hr-departments" class="btn btn-light">Cancelar</a>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'maintainers/hr-departments/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

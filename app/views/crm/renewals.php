@@ -1,10 +1,115 @@
-<div class="card">
+<div class="card mb-4" id="renewal-form-card">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h4 class="card-title mb-1" data-renewal-form-title>Nueva renovación</h4>
+            <p class="text-muted mb-0">Centraliza la información para anticipar vencimientos y mantener seguimiento.</p>
+        </div>
+        <a class="btn btn-outline-primary" href="#renewals-list">Ver listado</a>
+    </div>
+    <div class="card-body">
+        <form method="post" action="index.php?route=crm/renewals/store" id="renewal-form">
+            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+            <input type="hidden" name="id" id="renewal-id">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="renewal-client">Cliente</label>
+                    <select class="form-select" id="renewal-client" name="client_id" data-client-select required>
+                        <option value="">Selecciona cliente</option>
+                        <?php foreach ($clients as $client): ?>
+                            <?php
+                            $contactName = $client['contact'] ?: $client['name'];
+                            ?>
+                            <option value="<?php echo (int)$client['id']; ?>"
+                                data-contact-name="<?php echo e($contactName); ?>"
+                                data-contact-email="<?php echo e($client['email'] ?? ''); ?>"
+                                data-contact-phone="<?php echo e($client['phone'] ?? ''); ?>"
+                                data-address="<?php echo e($client['address'] ?? ''); ?>"
+                                data-rut="<?php echo e($client['rut'] ?? ''); ?>"
+                                data-billing-email="<?php echo e($client['billing_email'] ?? ''); ?>">
+                                <?php echo e($client['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="renewal-service">Servicio</label>
+                    <select class="form-select" id="renewal-service" name="service_id">
+                        <option value="">Selecciona servicio</option>
+                        <?php foreach ($services as $service): ?>
+                            <option value="<?php echo (int)$service['id']; ?>"><?php echo e($service['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="renewal-date">Fecha renovación</label>
+                    <input type="date" class="form-control" id="renewal-date" name="renewal_date" value="<?php echo date('Y-m-d'); ?>" data-default-date="<?php echo date('Y-m-d'); ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="renewal-amount">Monto (CLP)</label>
+                    <input type="number" class="form-control" id="renewal-amount" name="amount" min="0" step="0.01" placeholder="Ej: 450000" inputmode="decimal" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="renewal-currency">Moneda</label>
+                    <select class="form-select" id="renewal-currency" name="currency">
+                        <option value="CLP" selected>CLP</option>
+                        <option value="USD">USD</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="renewal-status">Estado</label>
+                    <select class="form-select" id="renewal-status" name="status">
+                        <option value="pendiente">Pendiente</option>
+                        <option value="en_negociacion">En negociación</option>
+                        <option value="renovado">Renovado</option>
+                        <option value="no_renovado">No renovado</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="renewal-reminder">Recordatorio (días)</label>
+                    <input type="number" class="form-control" id="renewal-reminder" name="reminder_days" min="1" value="15">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="renewal-contact-name">Contacto cliente</label>
+                    <input type="text" class="form-control" id="renewal-contact-name" name="contact_name" data-client-field="contact_name" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="renewal-contact-email">Correo contacto</label>
+                    <input type="email" class="form-control" id="renewal-contact-email" name="contact_email" data-client-field="contact_email" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="renewal-contact-phone">Teléfono contacto</label>
+                    <input type="text" class="form-control" id="renewal-contact-phone" name="contact_phone" data-client-field="contact_phone" readonly>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="renewal-notes">Notas</label>
+                    <textarea class="form-control" id="renewal-notes" name="notes" rows="3" placeholder="Responsables, acuerdos y próximos pasos"></textarea>
+                </div>
+            </div>
+            <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                <button type="button" class="btn btn-light w-100 w-sm-auto" id="renewal-reset">Cancelar edición</button>
+                <button type="submit" class="btn btn-primary w-100 w-sm-auto" data-renewal-submit>Guardar renovación</button>
+            </div>
+            <?php
+            $reportTemplate = 'informeIcargaEspanol.php';
+            $reportSource = 'crm/renewals';
+            include __DIR__ . '/../partials/report-download.php';
+            ?>
+        </form>
+        <form method="post" action="index.php?route=crm/renewals/send-email" class="mt-3 d-none" id="renewal-email-form">
+            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+            <input type="hidden" name="id" id="renewal-email-id">
+            <button type="submit" class="btn btn-soft-info w-100 w-sm-auto">Enviar correo</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" id="renewals-list">
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div>
             <h4 class="card-title mb-1">Renovaciones</h4>
             <p class="text-muted mb-0">Anticipa renovaciones y mantén el control de servicios activos.</p>
         </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#renewalModal" data-mode="create">Nueva renovación</button>
+        <a class="btn btn-outline-primary" href="#renewal-form-card" data-mode="create">Nueva renovación</a>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -24,7 +129,7 @@
                 <tbody>
                     <?php if (empty($renewals)): ?>
                         <tr>
-                            <td colspan="7" class="text-center text-muted">No hay renovaciones registradas.</td>
+                            <td colspan="8" class="text-center text-muted">No hay renovaciones registradas.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($renewals as $renewal): ?>
@@ -59,10 +164,7 @@
                                             <li>
                                                 <button
                                                     type="button"
-                                                    class="dropdown-item dropdown-item-button"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#renewalModal"
-                                                    data-mode="edit"
+                                                    class="dropdown-item dropdown-item-button js-renewal-edit"
                                                     data-id="<?php echo (int)$renewal['id']; ?>"
                                                     data-date="<?php echo e($renewal['renewal_date']); ?>"
                                                     data-status="<?php echo e($renewal['status']); ?>"
@@ -104,116 +206,14 @@
     </div>
 </div>
 
-<div class="modal fade" id="renewalModal" tabindex="-1" aria-labelledby="renewalModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form method="post" action="index.php?route=crm/renewals/store" id="renewal-form">
-                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                <input type="hidden" name="id" id="renewal-id">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="renewalModalLabel" data-renewal-modal-title>Nueva renovación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label" for="renewal-client">Cliente</label>
-                            <select class="form-select" id="renewal-client" name="client_id" data-client-select required>
-                                <option value="">Selecciona cliente</option>
-                                <?php foreach ($clients as $client): ?>
-                                    <?php
-                                    $contactName = $client['contact'] ?: $client['name'];
-                                    ?>
-                                    <option value="<?php echo (int)$client['id']; ?>"
-                                        data-contact-name="<?php echo e($contactName); ?>"
-                                        data-contact-email="<?php echo e($client['email'] ?? ''); ?>"
-                                        data-contact-phone="<?php echo e($client['phone'] ?? ''); ?>"
-                                        data-address="<?php echo e($client['address'] ?? ''); ?>"
-                                        data-rut="<?php echo e($client['rut'] ?? ''); ?>"
-                                        data-billing-email="<?php echo e($client['billing_email'] ?? ''); ?>">
-                                        <?php echo e($client['name']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="renewal-service">Servicio</label>
-                            <select class="form-select" id="renewal-service" name="service_id">
-                                <option value="">Selecciona servicio</option>
-                                <?php foreach ($services as $service): ?>
-                                    <option value="<?php echo (int)$service['id']; ?>"><?php echo e($service['name']); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="renewal-date">Fecha renovación</label>
-                            <input type="date" class="form-control" id="renewal-date" name="renewal_date" value="<?php echo date('Y-m-d'); ?>" data-default-date="<?php echo date('Y-m-d'); ?>">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="renewal-amount">Monto (CLP)</label>
-                            <input type="number" class="form-control" id="renewal-amount" name="amount" min="0" step="0.01" placeholder="Ej: 450000" inputmode="decimal" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="renewal-currency">Moneda</label>
-                            <select class="form-select" id="renewal-currency" name="currency">
-                                <option value="CLP" selected>CLP</option>
-                                <option value="USD">USD</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="renewal-status">Estado</label>
-                            <select class="form-select" id="renewal-status" name="status">
-                                <option value="pendiente">Pendiente</option>
-                                <option value="en_negociacion">En negociación</option>
-                                <option value="renovado">Renovado</option>
-                                <option value="no_renovado">No renovado</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="renewal-reminder">Recordatorio (días)</label>
-                            <input type="number" class="form-control" id="renewal-reminder" name="reminder_days" min="1" value="15">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="renewal-contact-name">Contacto cliente</label>
-                            <input type="text" class="form-control" id="renewal-contact-name" name="contact_name" data-client-field="contact_name" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="renewal-contact-email">Correo contacto</label>
-                            <input type="email" class="form-control" id="renewal-contact-email" name="contact_email" data-client-field="contact_email" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="renewal-contact-phone">Teléfono contacto</label>
-                            <input type="text" class="form-control" id="renewal-contact-phone" name="contact_phone" data-client-field="contact_phone" readonly>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label" for="renewal-notes">Notas</label>
-                            <textarea class="form-control" id="renewal-notes" name="notes" rows="3" placeholder="Responsables, acuerdos y próximos pasos"></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cancelar</button>
-                    <form method="post" action="index.php?route=crm/renewals/send-email" class="w-100 w-sm-auto d-none" id="renewal-email-form">
-                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                        <input type="hidden" name="id" id="renewal-email-id">
-                        <button type="submit" class="btn btn-soft-info w-100">Enviar correo</button>
-                    </form>
-                    <button type="submit" class="btn btn-primary w-100 w-sm-auto" data-renewal-submit>Guardar renovación</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <script src="assets/js/pages/crm-modal-forms.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var modal = document.getElementById('renewalModal');
     var form = document.getElementById('renewal-form');
-    if (!modal || !form) return;
+    if (!form) return;
 
-    var titleEl = modal.querySelector('[data-renewal-modal-title]');
-    var submitBtn = modal.querySelector('[data-renewal-submit]');
+    var titleEl = document.querySelector('[data-renewal-form-title]');
+    var submitBtn = form.querySelector('[data-renewal-submit]');
     var clientSelect = document.getElementById('renewal-client');
     var serviceSelect = document.getElementById('renewal-service');
     var dateInput = document.getElementById('renewal-date');
@@ -225,6 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var idInput = document.getElementById('renewal-id');
     var emailForm = document.getElementById('renewal-email-form');
     var emailIdInput = document.getElementById('renewal-email-id');
+    var resetBtn = document.getElementById('renewal-reset');
 
     var defaultDate = dateInput ? dateInput.getAttribute('data-default-date') : '';
     var updateEmailButtonVisibility = function (status, hasId) {
@@ -242,9 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (dateInput && defaultDate) {
             dateInput.value = defaultDate;
         }
-        if (form.action) {
-            form.action = 'index.php?route=crm/renewals/store';
-        }
+        form.action = 'index.php?route=crm/renewals/store';
         if (idInput) {
             idInput.value = '';
         }
@@ -257,78 +256,71 @@ document.addEventListener('DOMContentLoaded', function () {
         if (submitBtn) {
             submitBtn.textContent = 'Guardar renovación';
         }
-        if (emailForm) {
-            emailForm.classList.add('d-none');
-        }
+        updateEmailButtonVisibility(statusSelect ? statusSelect.value : 'pendiente', false);
     };
 
-    modal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var mode = button ? button.getAttribute('data-mode') : 'create';
-
-        if (!button || mode === 'create') {
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
             resetForm();
-            return;
-        }
+            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
 
-        var id = button.getAttribute('data-id') || '';
-        var date = button.getAttribute('data-date') || '';
-        var status = button.getAttribute('data-status') || 'pendiente';
-        var amount = button.getAttribute('data-amount') || '';
-        var currency = button.getAttribute('data-currency') || 'CLP';
-        var reminder = button.getAttribute('data-reminder') || '15';
-        var notes = button.getAttribute('data-notes') || '';
-        var clientId = button.getAttribute('data-client-id') || '';
-        var serviceId = button.getAttribute('data-service-id') || '';
+    document.querySelectorAll('.js-renewal-edit').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var id = button.getAttribute('data-id') || '';
+            var date = button.getAttribute('data-date') || '';
+            var status = button.getAttribute('data-status') || 'pendiente';
+            var amount = button.getAttribute('data-amount') || '';
+            var currency = button.getAttribute('data-currency') || 'CLP';
+            var reminder = button.getAttribute('data-reminder') || '15';
+            var notes = button.getAttribute('data-notes') || '';
+            var clientId = button.getAttribute('data-client-id') || '';
+            var serviceId = button.getAttribute('data-service-id') || '';
 
-        if (form.action) {
             form.action = 'index.php?route=crm/renewals/update';
-        }
-        if (idInput) {
-            idInput.value = id;
-        }
-        if (emailIdInput) {
-            emailIdInput.value = id;
-        }
-        if (titleEl) {
-            titleEl.textContent = 'Editar renovación';
-        }
-        if (submitBtn) {
-            submitBtn.textContent = 'Actualizar renovación';
-        }
+            if (idInput) {
+                idInput.value = id;
+            }
+            if (emailIdInput) {
+                emailIdInput.value = id;
+            }
+            if (titleEl) {
+                titleEl.textContent = 'Editar renovación';
+            }
+            if (submitBtn) {
+                submitBtn.textContent = 'Actualizar renovación';
+            }
 
-        if (clientSelect) {
-            clientSelect.value = clientId;
-            clientSelect.dispatchEvent(new Event('change'));
-        }
-        if (serviceSelect) {
-            serviceSelect.value = serviceId;
-        }
-        if (dateInput) {
-            dateInput.value = date;
-        }
-        if (statusSelect) {
-            statusSelect.value = status;
-        }
-        if (amountInput) {
-            amountInput.value = amount;
-        }
-        if (currencySelect) {
-            currencySelect.value = currency;
-        }
-        if (reminderInput) {
-            reminderInput.value = reminder;
-        }
-        if (notesInput) {
-            notesInput.value = notes;
-        }
-        if (emailForm) {
+            if (clientSelect) {
+                clientSelect.value = clientId;
+                clientSelect.dispatchEvent(new Event('change'));
+            }
+            if (serviceSelect) {
+                serviceSelect.value = serviceId;
+            }
+            if (dateInput) {
+                dateInput.value = date;
+            }
+            if (statusSelect) {
+                statusSelect.value = status;
+            }
+            if (amountInput) {
+                amountInput.value = amount;
+            }
+            if (currencySelect) {
+                currencySelect.value = currency;
+            }
+            if (reminderInput) {
+                reminderInput.value = reminder;
+            }
+            if (notesInput) {
+                notesInput.value = notes;
+            }
+
             updateEmailButtonVisibility(status, !!id);
-        }
-    });
-
-    modal.addEventListener('hidden.bs.modal', function () {
-        resetForm();
+            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
     });
 
     if (statusSelect) {
@@ -338,5 +330,7 @@ document.addEventListener('DOMContentLoaded', function () {
             updateEmailButtonVisibility(status, hasId);
         });
     }
+
+    updateEmailButtonVisibility(statusSelect ? statusSelect.value : 'pendiente', false);
 });
 </script>

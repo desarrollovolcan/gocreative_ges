@@ -24,6 +24,12 @@
                 <button type="submit" class="btn btn-primary">Actualizar</button>
                 <a href="index.php?route=maintainers/hr-contract-types" class="btn btn-light">Cancelar</a>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'maintainers/hr-contract-types/edit';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>

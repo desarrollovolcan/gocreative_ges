@@ -395,6 +395,33 @@ class CrmController extends Controller
         $this->redirect('index.php?route=crm/briefs');
     }
 
+    public function reportBrief(): void
+    {
+        $this->requireLogin();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            flash('error', 'Brief comercial no encontrado.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $brief = $this->db->fetch(
+            'SELECT id FROM commercial_briefs WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$brief) {
+            flash('error', 'Brief comercial no encontrado.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $GLOBALS['db'] = $this->db;
+        $_GET['id'] = $id;
+        require_once __DIR__ . '/../../informes/briefs_create.php';
+        exit;
+    }
+
     public function orders(): void
     {
         $this->requireLogin();

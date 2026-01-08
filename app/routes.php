@@ -148,6 +148,7 @@ return [
     'crm/briefs/update' => ['CrmController', 'updateBrief'],
     'crm/briefs/execute' => ['CrmController', 'executeBrief'],
     'crm/briefs/delete' => ['CrmController', 'deleteBrief'],
+    'crm/briefs/report' => ['CrmController', 'reportBrief'],
     'crm/orders' => ['CrmController', 'orders'],
     'crm/orders/store' => ['CrmController', 'storeOrder'],
     'crm/renewals' => ['CrmController', 'renewals'],

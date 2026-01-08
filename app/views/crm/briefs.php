@@ -90,13 +90,21 @@ $formAction = $isEdit ? 'index.php?route=crm/briefs/update' : 'index.php?route=c
                 <?php endif; ?>
                 <button type="submit" class="btn btn-primary"><?php echo $isEdit ? 'Actualizar brief' : 'Guardar brief'; ?></button>
                 <?php if ($isEdit): ?>
-                    <input type="hidden" name="brief_id" value="<?php echo (int)($formBrief['id'] ?? 0); ?>">
+                    <a
+                        class="btn btn-outline-primary"
+                        href="index.php?route=crm/briefs/report&amp;id=<?php echo (int)($formBrief['id'] ?? 0); ?>"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        Descargar PDF
+                    </a>
+                <?php else: ?>
+                    <?php
+                    $reportTemplate = 'informeFicha.php';
+                    $reportSource = 'crm/briefs';
+                    include __DIR__ . '/../partials/report-download.php';
+                    ?>
                 <?php endif; ?>
-                <?php
-                $reportTemplate = 'informeFicha.php';
-                $reportSource = 'crm/briefs';
-                include __DIR__ . '/../partials/report-download.php';
-                ?>
             </div>
         </form>
     </div>
@@ -175,7 +183,7 @@ $formAction = $isEdit ? 'index.php?route=crm/briefs/update' : 'index.php?route=c
                                             <li>
                                                 <a
                                                     class="dropdown-item"
-                                                    href="index.php?route=reports/download&amp;template=informeFicha.php&amp;source=crm/briefs&amp;id=<?php echo (int)($brief['id'] ?? 0); ?>"
+                                                    href="index.php?route=crm/briefs/report&amp;id=<?php echo (int)($brief['id'] ?? 0); ?>"
                                                     target="_blank"
                                                     rel="noopener"
                                                 >

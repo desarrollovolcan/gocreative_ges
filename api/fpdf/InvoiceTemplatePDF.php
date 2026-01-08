@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../api/fpdf/fpdf.php';
+require_once __DIR__ . '/fpdf.php';
 
 /**
  * Plantilla minimalista tipo Factura/Informe (FPDF)

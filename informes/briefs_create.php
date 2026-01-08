@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/InvoiceTemplatePDF.php';
+require_once __DIR__ . '/../api/fpdf/InvoiceTemplatePDF.php';
 
 $briefId = (int)($_GET['id'] ?? 0);
 if ($briefId <= 0) {

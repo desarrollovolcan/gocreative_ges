@@ -11,8 +11,8 @@
                         <a href="index.php?route=projects/create" class="btn btn-primary">Nuevo Proyecto</a>
                         <a href="index.php?route=tickets/create" class="btn btn-info">Nuevo Ticket</a>
                         <a href="index.php?route=invoices/create" class="btn btn-success">Nueva Factura</a>
-                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#crmQuickProjectModal">Registro rápido</button>
-                        <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#crmQuickServiceModal">Solicitud servicio</button>
+                        <a href="#crm-quick-project" class="btn btn-outline-primary">Registro rápido</a>
+                        <a href="#crm-quick-service" class="btn btn-outline-warning">Solicitud servicio</a>
                     </div>
                 </div>
                 <div class="row g-3">
@@ -94,16 +94,16 @@
     </div>
 </div>
 
-<div class="modal fade" id="crmQuickProjectModal" tabindex="-1" aria-labelledby="crmQuickProjectLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form>
-                <div class="modal-header">
-                    <h5 class="modal-title" id="crmQuickProjectLabel">Registro rápido de proyecto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-muted">Estandariza el ingreso de proyectos ligados a clientes y servicios.</p>
+<div class="row g-4">
+    <div class="col-lg-6" id="crm-quick-project">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-1">Registro rápido de proyecto</h5>
+                <p class="text-muted mb-0">Estandariza el ingreso de proyectos ligados a clientes y servicios.</p>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label" for="crm-project-name">Nombre del proyecto</label>
@@ -156,26 +156,28 @@
                             <textarea class="form-control" id="crm-project-scope" placeholder="Describe entregables, tiempos y responsables"></textarea>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar proyecto</button>
-                </div>
-            </form>
+                    <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                        <button type="reset" class="btn btn-light w-100 w-sm-auto">Limpiar</button>
+                        <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar proyecto</button>
+                    </div>
+                    <?php
+                    $reportTemplate = 'informeIcargaEspanol.php';
+                    $reportSource = 'crm/hub/project';
+                    include __DIR__ . '/../partials/report-download.php';
+                    ?>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-
-<div class="modal fade" id="crmQuickServiceModal" tabindex="-1" aria-labelledby="crmQuickServiceLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form>
-                <div class="modal-header">
-                    <h5 class="modal-title" id="crmQuickServiceLabel">Solicitud de servicio</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-muted">Captura solicitudes de soporte para clientes activos.</p>
+    <div class="col-lg-6" id="crm-quick-service">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-1">Solicitud de servicio</h5>
+                <p class="text-muted mb-0">Captura solicitudes de soporte para clientes activos.</p>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label" for="crm-service-client">Cliente</label>
@@ -227,12 +229,17 @@
                             <textarea class="form-control" id="crm-service-notes" placeholder="Describe el servicio solicitado"></textarea>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                    <button type="button" class="btn btn-light w-100 w-sm-auto" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-warning w-100 w-sm-auto">Crear ticket</button>
-                </div>
-            </form>
+                    <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                        <button type="reset" class="btn btn-light w-100 w-sm-auto">Limpiar</button>
+                        <button type="submit" class="btn btn-warning w-100 w-sm-auto">Crear ticket</button>
+                    </div>
+                    <?php
+                    $reportTemplate = 'informeIcargaEspanol.php';
+                    $reportSource = 'crm/hub/service';
+                    include __DIR__ . '/../partials/report-download.php';
+                    ?>
+                </form>
+            </div>
         </div>
     </div>
 </div>

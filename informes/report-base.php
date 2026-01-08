@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/InvoiceTemplatePDF.php';
+require_once __DIR__ . '/../api/fpdf/InvoiceTemplatePDF.php';
 
 function generate_form_report(array $config): void
 {

@@ -40,7 +40,13 @@
                 <a href="index.php?route=maintainers/services" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
-        </form>
+        
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'maintainers/services/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
     </div>
 </div>
 
@@ -80,7 +86,13 @@
                                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                     <input type="hidden" name="id" value="<?php echo $service['id']; ?>">
                                                     <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
-                                                </form>
+                                                
+    <?php
+    $reportTemplate = 'informeIcargaEspanol.php';
+    $reportSource = 'maintainers/services/create';
+    include __DIR__ . '/../partials/report-download.php';
+    ?>
+</form>
                                             </li>
                                         </ul>
                                     </div>

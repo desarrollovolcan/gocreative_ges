@@ -100,12 +100,13 @@
                         <th>Estado</th>
                         <th class="text-end">Presupuesto</th>
                         <th>Fecha deseada</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($briefs)): ?>
                         <tr>
-                            <td colspan="7" class="text-center text-muted">No hay briefs comerciales registrados.</td>
+                            <td colspan="8" class="text-center text-muted">No hay briefs comerciales registrados.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($briefs as $brief): ?>
@@ -122,6 +123,55 @@
                                 </td>
                                 <td class="text-end"><?php echo e(format_currency((float)($brief['expected_budget'] ?? 0))); ?></td>
                                 <td><?php echo e($brief['desired_start_date'] ?? '-'); ?></td>
+                                <td class="text-end">
+                                    <div class="dropdown actions-dropdown">
+                                        <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Acciones
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <button
+                                                    type="button"
+                                                    class="dropdown-item dropdown-item-button"
+                                                    data-action="execute"
+                                                    data-brief-id="<?php echo (int)($brief['id'] ?? 0); ?>"
+                                                >
+                                                    Ejecutar
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    type="button"
+                                                    class="dropdown-item dropdown-item-button"
+                                                    data-action="edit"
+                                                    data-brief-id="<?php echo (int)($brief['id'] ?? 0); ?>"
+                                                >
+                                                    Editar
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    class="dropdown-item"
+                                                    href="index.php?route=reports/download&amp;template=informeIcargaEspanol.php&amp;source=crm/briefs"
+                                                    target="_blank"
+                                                    rel="noopener"
+                                                >
+                                                    Descargar PDF
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    type="button"
+                                                    class="dropdown-item dropdown-item-button text-danger"
+                                                    data-action="delete"
+                                                    data-brief-id="<?php echo (int)($brief['id'] ?? 0); ?>"
+                                                >
+                                                    Eliminar
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>

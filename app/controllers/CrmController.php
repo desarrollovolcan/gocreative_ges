@@ -185,6 +185,45 @@ class CrmController extends Controller
             'pageTitle' => 'Briefs Comerciales',
             'briefs' => $briefs,
             'clients' => $clients,
+            'editBrief' => null,
+        ]);
+    }
+
+    public function editBrief(): void
+    {
+        $this->requireLogin();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $id = (int)($_GET['id'] ?? 0);
+        $editBrief = $this->db->fetch(
+            'SELECT commercial_briefs.*, clients.name as client_name
+             FROM commercial_briefs
+             JOIN clients ON commercial_briefs.client_id = clients.id
+             WHERE commercial_briefs.deleted_at IS NULL AND commercial_briefs.company_id = :company_id AND commercial_briefs.id = :id',
+            ['company_id' => $companyId, 'id' => $id]
+        );
+        if (!$editBrief) {
+            flash('error', 'Brief comercial no encontrado.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $briefs = $this->db->fetchAll(
+            'SELECT commercial_briefs.*, clients.name as client_name
+             FROM commercial_briefs
+             JOIN clients ON commercial_briefs.client_id = clients.id
+             WHERE commercial_briefs.deleted_at IS NULL AND commercial_briefs.company_id = :company_id
+             ORDER BY commercial_briefs.id DESC',
+            ['company_id' => $companyId]
+        );
+        $clients = $this->clients->active($companyId);
+        $this->render('crm/briefs', [
+            'title' => 'Briefs Comerciales',
+            'pageTitle' => 'Briefs Comerciales',
+            'briefs' => $briefs,
+            'clients' => $clients,
+            'editBrief' => $editBrief,
         ]);
     }
 
@@ -206,6 +245,9 @@ class CrmController extends Controller
             flash('error', 'Cliente no encontrado para esta empresa.');
             $this->redirect('index.php?route=crm/briefs');
         }
+        $statusInput = $_POST['status'] ?? 'nuevo';
+        $allowedStatuses = ['nuevo', 'en_revision', 'en_ejecucion', 'aprobado', 'descartado'];
+        $status = in_array($statusInput, $allowedStatuses, true) ? $statusInput : 'nuevo';
         $data = [
             'company_id' => $companyId,
             'client_id' => $clientId,
@@ -216,7 +258,7 @@ class CrmController extends Controller
             'service_summary' => trim($_POST['service_summary'] ?? ''),
             'expected_budget' => $_POST['expected_budget'] !== '' ? (float)$_POST['expected_budget'] : null,
             'desired_start_date' => $_POST['desired_start_date'] !== '' ? $_POST['desired_start_date'] : null,
-            'status' => $_POST['status'] ?? 'nuevo',
+            'status' => $status,
             'notes' => trim($_POST['notes'] ?? ''),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -229,6 +271,161 @@ class CrmController extends Controller
         audit($this->db, Auth::user()['id'], 'create', 'commercial_briefs');
         flash('success', 'Brief comercial creado correctamente.');
         $this->redirect('index.php?route=crm/briefs');
+    }
+
+    public function updateBrief(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $id = (int)($_POST['id'] ?? 0);
+        $brief = $this->db->fetch(
+            'SELECT id FROM commercial_briefs WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$brief) {
+            flash('error', 'Brief comercial no encontrado.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $clientId = (int)($_POST['client_id'] ?? 0);
+        $client = $this->db->fetch(
+            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+            ['id' => $clientId, 'company_id' => $companyId]
+        );
+        if (!$client) {
+            flash('error', 'Cliente no encontrado para esta empresa.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $statusInput = $_POST['status'] ?? 'nuevo';
+        $allowedStatuses = ['nuevo', 'en_revision', 'en_ejecucion', 'aprobado', 'descartado'];
+        $status = in_array($statusInput, $allowedStatuses, true) ? $statusInput : 'nuevo';
+        $data = [
+            'client_id' => $clientId,
+            'title' => trim($_POST['title'] ?? ''),
+            'contact_name' => trim($_POST['contact_name'] ?? ''),
+            'contact_email' => trim($_POST['contact_email'] ?? ''),
+            'contact_phone' => trim($_POST['contact_phone'] ?? ''),
+            'service_summary' => trim($_POST['service_summary'] ?? ''),
+            'expected_budget' => $_POST['expected_budget'] !== '' ? (float)$_POST['expected_budget'] : null,
+            'desired_start_date' => $_POST['desired_start_date'] !== '' ? $_POST['desired_start_date'] : null,
+            'status' => $status,
+            'notes' => trim($_POST['notes'] ?? ''),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+        if ($data['title'] === '') {
+            flash('error', 'Ingresa un nombre para el brief.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $this->db->execute(
+            'UPDATE commercial_briefs
+             SET client_id = :client_id,
+                 title = :title,
+                 contact_name = :contact_name,
+                 contact_email = :contact_email,
+                 contact_phone = :contact_phone,
+                 service_summary = :service_summary,
+                 expected_budget = :expected_budget,
+                 desired_start_date = :desired_start_date,
+                 status = :status,
+                 notes = :notes,
+                 updated_at = :updated_at
+             WHERE id = :id AND company_id = :company_id',
+            array_merge($data, ['id' => $id, 'company_id' => $companyId])
+        );
+        audit($this->db, Auth::user()['id'], 'update', 'commercial_briefs', $id);
+        flash('success', 'Brief comercial actualizado correctamente.');
+        $this->redirect('index.php?route=crm/briefs');
+    }
+
+    public function executeBrief(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $id = (int)($_POST['id'] ?? 0);
+        $brief = $this->db->fetch(
+            'SELECT id FROM commercial_briefs WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$brief) {
+            flash('error', 'Brief comercial no encontrado.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $this->db->execute(
+            'UPDATE commercial_briefs SET status = :status, updated_at = NOW() WHERE id = :id AND company_id = :company_id',
+            ['status' => 'en_ejecucion', 'id' => $id, 'company_id' => $companyId]
+        );
+        audit($this->db, Auth::user()['id'], 'update', 'commercial_briefs', $id);
+        flash('success', 'Brief comercial marcado en ejecución.');
+        $this->redirect('index.php?route=crm/briefs');
+    }
+
+    public function deleteBrief(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $id = (int)($_POST['id'] ?? 0);
+        $brief = $this->db->fetch(
+            'SELECT id FROM commercial_briefs WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$brief) {
+            flash('error', 'Brief comercial no encontrado.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $this->db->execute(
+            'UPDATE commercial_briefs SET deleted_at = NOW() WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        audit($this->db, Auth::user()['id'], 'delete', 'commercial_briefs', $id);
+        flash('success', 'Brief comercial eliminado correctamente.');
+        $this->redirect('index.php?route=crm/briefs');
+    }
+
+    public function reportBrief(): void
+    {
+        $this->requireLogin();
+        $companyId = current_company_id();
+        if (!$companyId) {
+            flash('error', 'Selecciona una empresa para continuar.');
+            $this->redirect('index.php?route=auth/switch-company');
+        }
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            flash('error', 'Brief comercial no encontrado.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $brief = $this->db->fetch(
+            'SELECT id FROM commercial_briefs WHERE id = :id AND company_id = :company_id AND deleted_at IS NULL',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$brief) {
+            flash('error', 'Brief comercial no encontrado.');
+            $this->redirect('index.php?route=crm/briefs');
+        }
+        $GLOBALS['db'] = $this->db;
+        $_GET['id'] = $id;
+        try {
+            require_once __DIR__ . '/../../informes/briefs_create.php';
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to generate brief report: ' . $e->getMessage());
+            http_response_code(500);
+            echo 'No se pudo generar el informe.';
+        }
+        exit;
     }
 
     public function orders(): void

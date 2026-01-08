@@ -418,7 +418,13 @@ class CrmController extends Controller
         }
         $GLOBALS['db'] = $this->db;
         $_GET['id'] = $id;
-        require_once __DIR__ . '/../../informes/briefs_create.php';
+        try {
+            require_once __DIR__ . '/../../informes/briefs_create.php';
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to generate brief report: ' . $e->getMessage());
+            http_response_code(500);
+            echo 'No se pudo generar el informe.';
+        }
         exit;
     }
 

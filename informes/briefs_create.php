@@ -24,13 +24,19 @@ if ($companyId) {
     $params['company_id'] = $companyId;
 }
 
-$brief = $db->fetch(
-    'SELECT commercial_briefs.*, clients.name as client_name, clients.email as client_email, clients.phone as client_phone
-     FROM commercial_briefs
-     JOIN clients ON commercial_briefs.client_id = clients.id
-     WHERE commercial_briefs.deleted_at IS NULL AND commercial_briefs.id = :id' . $companyFilter,
-    $params
-);
+try {
+    $brief = $db->fetch(
+        'SELECT commercial_briefs.*, clients.name as client_name, clients.email as client_email, clients.phone as client_phone
+         FROM commercial_briefs
+         JOIN clients ON commercial_briefs.client_id = clients.id
+         WHERE commercial_briefs.deleted_at IS NULL AND commercial_briefs.id = :id' . $companyFilter,
+        $params
+    );
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo 'No se pudo generar el informe.';
+    exit;
+}
 
 if (!$brief) {
     http_response_code(404);

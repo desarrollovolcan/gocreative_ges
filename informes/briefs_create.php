@@ -1,23 +1,15 @@
 <?php
 
 require_once __DIR__ . '/InvoiceTemplatePDF.php';
-require_once __DIR__ . '/report-base.php';
 
-$briefId = (int)($_POST['brief_id'] ?? $_GET['id'] ?? 0);
+$briefId = (int)($_GET['id'] ?? 0);
 if ($briefId <= 0) {
-    generate_form_report([
-        'title' => 'Informe de brief comercial',
-        'source' => 'crm/briefs',
-        'template' => 'informeFicha.php',
-    ]);
+    http_response_code(404);
+    echo 'Informe no encontrado.';
+    exit;
 }
 
 $db = $GLOBALS['db'] ?? null;
-if (!$db) {
-    require_once __DIR__ . '/../app/bootstrap.php';
-    $db = $GLOBALS['db'] ?? null;
-}
-
 if (!$db) {
     http_response_code(500);
     echo 'No se pudo generar el informe.';

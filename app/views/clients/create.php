@@ -29,30 +29,30 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Razón social</label>
-                                    <input type="text" name="name" class="form-control" required>
+                                    <input type="text" name="name" class="form-control" autocomplete="organization" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">RUT</label>
-                                    <input type="text" name="rut" class="form-control" placeholder="12.345.678-9" data-client-lookup>
+                                    <input type="text" name="rut" class="form-control" placeholder="12.345.678-9" autocomplete="off" data-client-lookup>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Email principal</label>
-                                    <input type="email" name="email" class="form-control" required data-client-lookup>
+                                    <input type="email" name="email" class="form-control" autocomplete="email" required data-client-lookup>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Email cobranza</label>
-                                    <div class="input-group">
-                                        <input type="email" name="billing_email" class="form-control">
+                                    <div class="input-group input-group-responsive">
+                                        <input type="email" name="billing_email" class="form-control" autocomplete="email">
                                         <button class="btn btn-outline-secondary" type="button" data-copy-billing>Usar principal</button>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Teléfono</label>
-                                    <input type="text" name="phone" class="form-control">
+                                    <input type="text" name="phone" class="form-control" autocomplete="tel" inputmode="tel">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Contacto</label>
-                                    <input type="text" name="contact" class="form-control">
+                                    <input type="text" name="contact" class="form-control" autocomplete="name">
                                 </div>
                             </div>
                         </section>
@@ -73,7 +73,7 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label fw-semibold">Dirección tributaria</label>
-                                    <input type="text" name="address" class="form-control">
+                                    <input type="text" name="address" class="form-control" autocomplete="street-address">
                                 </div>
                                 <div class="col-12">
                                     <?php
@@ -103,19 +103,19 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Mandante - Nombre</label>
-                                    <input type="text" name="mandante_name" class="form-control">
+                                    <input type="text" name="mandante_name" class="form-control" autocomplete="organization">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Mandante - RUT</label>
-                                    <input type="text" name="mandante_rut" class="form-control">
+                                    <input type="text" name="mandante_rut" class="form-control" autocomplete="off">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Mandante - Teléfono</label>
-                                    <input type="text" name="mandante_phone" class="form-control">
+                                    <input type="text" name="mandante_phone" class="form-control" autocomplete="tel" inputmode="tel">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Mandante - Correo</label>
-                                    <input type="email" name="mandante_email" class="form-control">
+                                    <input type="email" name="mandante_email" class="form-control" autocomplete="email">
                                 </div>
                             </div>
                         </section>
@@ -145,19 +145,18 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label fw-semibold">Correo de acceso</label>
-                                    <input type="email" class="form-control" name="portal_email_display" readonly>
+                                    <input type="email" class="form-control" name="portal_email_display" autocomplete="email" readonly>
                                     <small class="text-muted">Se usa el email principal como usuario.</small>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label fw-semibold">Contraseña portal</label>
-                                    <div class="input-group">
+                                    <div class="input-group input-group-responsive">
                                         <input type="password" name="portal_password" class="form-control" required data-password-field>
                                         <button class="btn btn-outline-secondary" type="button" data-toggle-password>Mostrar</button>
                                         <button class="btn btn-outline-secondary" type="button" data-generate-password>Generar</button>
                                     </div>
                                     <small class="text-muted">Comparte esta contraseña con el cliente.</small>
                                 </div>
-                                <small class="text-muted">Comparte esta contraseña con el cliente.</small>
                             </div>
                         </section>
                         <section class="border rounded-3 p-3 p-md-4 bg-white">
@@ -168,7 +167,7 @@
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-end gap-2 mt-3">
+            <div class="form-actions mt-3">
                 <a href="index.php?route=clients" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </div>

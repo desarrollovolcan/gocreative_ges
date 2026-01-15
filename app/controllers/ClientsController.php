@@ -47,16 +47,25 @@ class ClientsController extends Controller
             $this->redirect('index.php?route=clients/create');
         }
         $billingEmail = $this->normalizeOptional($_POST['billing_email'] ?? null);
-        if ($billingEmail !== null && !Validator::email($billingEmail)) {
+        if (!Validator::optionalEmail($billingEmail)) {
             flash('error', 'El email de cobranza no es válido.');
             $this->redirect('index.php?route=clients/create');
         }
         $mandanteEmail = $this->normalizeOptional($_POST['mandante_email'] ?? null);
-        if ($mandanteEmail !== null && !Validator::email($mandanteEmail)) {
+        if (!Validator::optionalEmail($mandanteEmail)) {
             flash('error', 'El email del mandante no es válido.');
             $this->redirect('index.php?route=clients/create');
         }
         $rut = normalize_rut($_POST['rut'] ?? '');
+        if (!Validator::rut($rut)) {
+            flash('error', 'El RUT del cliente no es válido.');
+            $this->redirect('index.php?route=clients/create');
+        }
+        $mandanteRut = normalize_rut($_POST['mandante_rut'] ?? '');
+        if (!Validator::rut($mandanteRut)) {
+            flash('error', 'El RUT del mandante no es válido.');
+            $this->redirect('index.php?route=clients/create');
+        }
         $companyId = current_company_id();
         $existingQuery = 'SELECT id FROM clients WHERE deleted_at IS NULL AND company_id = :company_id AND (email = :email';
         $existingParams = ['company_id' => $companyId, 'email' => $email];
@@ -99,7 +108,7 @@ class ClientsController extends Controller
             'city' => $this->normalizeOptional($_POST['city'] ?? null),
             'contact' => $this->normalizeOptional($_POST['contact'] ?? null),
             'mandante_name' => $this->normalizeOptional($_POST['mandante_name'] ?? null),
-            'mandante_rut' => $this->normalizeOptional(normalize_rut($_POST['mandante_rut'] ?? '')),
+            'mandante_rut' => $this->normalizeOptional($mandanteRut),
             'mandante_phone' => $this->normalizeOptional($_POST['mandante_phone'] ?? null),
             'mandante_email' => $mandanteEmail,
             'avatar_path' => $avatarResult['path'],
@@ -170,16 +179,25 @@ class ClientsController extends Controller
                 $this->redirect('index.php?route=clients/edit&id=' . $id);
             }
             $billingEmail = $this->normalizeOptional($_POST['billing_email'] ?? null);
-            if ($billingEmail !== null && !Validator::email($billingEmail)) {
+            if (!Validator::optionalEmail($billingEmail)) {
                 flash('error', 'El email de cobranza no es válido.');
                 $this->redirect('index.php?route=clients/edit&id=' . $id);
             }
             $mandanteEmail = $this->normalizeOptional($_POST['mandante_email'] ?? null);
-            if ($mandanteEmail !== null && !Validator::email($mandanteEmail)) {
+            if (!Validator::optionalEmail($mandanteEmail)) {
                 flash('error', 'El email del mandante no es válido.');
                 $this->redirect('index.php?route=clients/edit&id=' . $id);
             }
             $rut = normalize_rut($_POST['rut'] ?? '');
+            if (!Validator::rut($rut)) {
+                flash('error', 'El RUT del cliente no es válido.');
+                $this->redirect('index.php?route=clients/edit&id=' . $id);
+            }
+            $mandanteRut = normalize_rut($_POST['mandante_rut'] ?? '');
+            if (!Validator::rut($mandanteRut)) {
+                flash('error', 'El RUT del mandante no es válido.');
+                $this->redirect('index.php?route=clients/edit&id=' . $id);
+            }
             $existingQuery = 'SELECT id FROM clients WHERE deleted_at IS NULL AND company_id = :company_id AND id != :id AND (email = :email';
             $existingParams = ['company_id' => $companyId, 'id' => $id, 'email' => $email];
             if ($rut !== '') {
@@ -214,7 +232,7 @@ class ClientsController extends Controller
                 'city' => $this->normalizeOptional($_POST['city'] ?? null),
                 'contact' => $this->normalizeOptional($_POST['contact'] ?? null),
                 'mandante_name' => $this->normalizeOptional($_POST['mandante_name'] ?? null),
-                'mandante_rut' => $this->normalizeOptional(normalize_rut($_POST['mandante_rut'] ?? '')),
+                'mandante_rut' => $this->normalizeOptional($mandanteRut),
                 'mandante_phone' => $this->normalizeOptional($_POST['mandante_phone'] ?? null),
                 'mandante_email' => $mandanteEmail,
                 'portal_token' => $portalToken,

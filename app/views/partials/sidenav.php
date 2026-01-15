@@ -629,6 +629,11 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                         <span class="menu-text">Configuraciones</span>
                                     </a>
                                 </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=maintainers/form-audit" class="side-nav-link">
+                                        <span class="menu-text">Auditoría formularios</span>
+                                    </a>
+                                </li>
                             <?php endif; ?>
                             <?php if ($hasCompany && $hasPermission('email_config_view')): ?>
                                 <li class="side-nav-item">

@@ -37,10 +37,6 @@
                                     <input type="text" name="name" class="form-control" value="<?php echo e($client['name'] ?? ''); ?>" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">RUT</label>
-                                    <input type="text" name="rut" class="form-control" value="<?php echo e($client['rut'] ?? ''); ?>">
-                                </div>
-                                <div class="col-md-6">
                                     <label class="form-label">Email principal</label>
                                     <input type="email" name="email" class="form-control" value="<?php echo e($client['email'] ?? ''); ?>" required>
                                 </div>
@@ -98,17 +94,17 @@
                     </div>
                 </div>
                 <div class="accordion-item">
-                    <h2 class="accordion-header" id="editHeadingAdditional">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#editCollapseAdditional" aria-expanded="false" aria-controls="editCollapseAdditional">
-                            Datos adicionales
+                    <h2 class="accordion-header" id="editHeadingSii">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#editCollapseSii" aria-expanded="false" aria-controls="editCollapseSii">
+                            Datos tributarios (SII)
                         </button>
                     </h2>
-                    <div id="editCollapseAdditional" class="accordion-collapse collapse" aria-labelledby="editHeadingAdditional" data-bs-parent="#clientEditAccordion">
+                    <div id="editCollapseSii" class="accordion-collapse collapse" aria-labelledby="editHeadingSii" data-bs-parent="#clientEditAccordion">
                         <div class="accordion-body">
                             <div class="row g-2">
-                                <div class="col-12">
-                                    <label class="form-label">Dirección</label>
-                                    <input type="text" name="address" class="form-control" value="<?php echo e($client['address'] ?? ''); ?>">
+                                <div class="col-md-6">
+                                    <label class="form-label">RUT</label>
+                                    <input type="text" name="rut" class="form-control" value="<?php echo e($client['rut'] ?? ''); ?>" placeholder="12.345.678-9">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Giro</label>
@@ -118,6 +114,10 @@
                                     <label class="form-label">Código actividad</label>
                                     <input type="text" name="activity_code" class="form-control" value="<?php echo e($client['activity_code'] ?? ''); ?>" placeholder="Ej: 620100">
                                 </div>
+                                <div class="col-12">
+                                    <label class="form-label">Dirección tributaria</label>
+                                    <input type="text" name="address" class="form-control" value="<?php echo e($client['address'] ?? ''); ?>">
+                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Comuna</label>
                                     <input type="text" name="commune" class="form-control" value="<?php echo e($client['commune'] ?? ''); ?>">
@@ -126,6 +126,19 @@
                                     <label class="form-label">Ciudad</label>
                                     <input type="text" name="city" class="form-control" value="<?php echo e($client['city'] ?? ''); ?>">
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="editHeadingAdditional">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#editCollapseAdditional" aria-expanded="false" aria-controls="editCollapseAdditional">
+                            Datos adicionales
+                        </button>
+                    </h2>
+                    <div id="editCollapseAdditional" class="accordion-collapse collapse" aria-labelledby="editHeadingAdditional" data-bs-parent="#clientEditAccordion">
+                        <div class="accordion-body">
+                            <div class="row g-2">
                                 <div class="col-md-6">
                                     <label class="form-label">Estado</label>
                                     <select name="status" class="form-select">

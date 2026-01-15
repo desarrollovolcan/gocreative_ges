@@ -54,11 +54,6 @@
                                     <label class="form-label">Contacto</label>
                                     <input type="text" name="contact" class="form-control">
                                 </div>
-                                <div class="col-12">
-                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-copy-mandante>
-                                        Usar datos de la empresa para el mandante
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -72,6 +67,17 @@
                     <div id="collapseMandante" class="accordion-collapse collapse" aria-labelledby="headingMandante" data-bs-parent="#clientFormAccordion">
                         <div class="accordion-body">
                             <div class="row g-2">
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="syncMandanteCreate" data-sync-mandante>
+                                        <label class="form-check-label" for="syncMandanteCreate">Sincronizar con datos de la empresa</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-copy-mandante>
+                                        Usar datos de la empresa para el mandante
+                                    </button>
+                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Mandante - Nombre</label>
                                     <input type="text" name="mandante_name" class="form-control">
@@ -292,6 +298,30 @@
 
     const portalEmailDisplay = getInput('portal_email_display');
     const emailInput = getInput('email');
+    const mandanteSyncToggle = document.querySelector('[data-sync-mandante]');
+    const mandanteMappings = {
+        contact: 'mandante_name',
+        rut: 'mandante_rut',
+        phone: 'mandante_phone',
+        email: 'mandante_email',
+    };
+    const syncMandanteFromCompany = () => {
+        if (!mandanteSyncToggle?.checked) {
+            return;
+        }
+        Object.entries(mandanteMappings).forEach(([from, to]) => {
+            const fromInput = getInput(from);
+            const toInput = getInput(to);
+            if (fromInput && toInput) {
+                toInput.value = fromInput.value;
+            }
+        });
+        const mandanteCollapse = document.getElementById('collapseMandante');
+        if (mandanteCollapse && !mandanteCollapse.classList.contains('show')) {
+            mandanteCollapse.classList.add('show');
+        }
+    };
+
     const syncPortalEmail = () => {
         if (portalEmailDisplay && emailInput) {
             portalEmailDisplay.value = emailInput.value;
@@ -311,24 +341,17 @@
     });
 
     document.querySelector('[data-copy-mandante]')?.addEventListener('click', () => {
-        const mappings = {
-            contact: 'mandante_name',
-            rut: 'mandante_rut',
-            phone: 'mandante_phone',
-            email: 'mandante_email',
-        };
-        Object.entries(mappings).forEach(([from, to]) => {
-            const fromInput = getInput(from);
-            const toInput = getInput(to);
-            if (fromInput && toInput) {
-                toInput.value = fromInput.value;
-            }
-        });
-        const mandanteCollapse = document.getElementById('collapseMandante');
-        if (mandanteCollapse && !mandanteCollapse.classList.contains('show')) {
-            mandanteCollapse.classList.add('show');
+        if (mandanteSyncToggle) {
+            mandanteSyncToggle.checked = true;
         }
+        syncMandanteFromCompany();
     });
+
+    Object.keys(mandanteMappings).forEach((field) => {
+        getInput(field)?.addEventListener('input', syncMandanteFromCompany);
+    });
+    mandanteSyncToggle?.addEventListener('change', syncMandanteFromCompany);
+    syncMandanteFromCompany();
 
     document.querySelector('[data-generate-password]')?.addEventListener('click', () => {
         const passwordInput = getInput('portal_password');
@@ -352,5 +375,12 @@
         const isPassword = passwordInput.type === 'password';
         passwordInput.type = isPassword ? 'text' : 'password';
         button.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+    });
+
+    clientForm?.addEventListener('submit', () => {
+        const billingInput = getInput('billing_email');
+        if (emailInput && billingInput && billingInput.value.trim() === '') {
+            billingInput.value = emailInput.value;
+        }
     });
 </script>

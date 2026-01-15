@@ -226,6 +226,8 @@ return [
     'maintainers/email-config/test' => ['EmailConfigController', 'test'],
     'maintainers/online-payments' => ['OnlinePaymentsConfigController', 'index'],
     'maintainers/online-payments/update' => ['OnlinePaymentsConfigController', 'update'],
+    'maintainers/sii-activities' => ['SiiActivitiesController', 'index'],
+    'maintainers/chile-communes' => ['ChileCommunesController', 'index'],
     'companies' => ['CompaniesController', 'index'],
     'companies/create' => ['CompaniesController', 'create'],
     'companies/store' => ['CompaniesController', 'store'],

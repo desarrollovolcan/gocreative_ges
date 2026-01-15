@@ -157,6 +157,7 @@
                                     </div>
                                     <small class="text-muted">Comparte esta contraseña con el cliente.</small>
                                 </div>
+                                <small class="text-muted">Comparte esta contraseña con el cliente.</small>
                             </div>
                         </section>
                         <section class="border rounded-3 p-3 p-md-4 bg-white">

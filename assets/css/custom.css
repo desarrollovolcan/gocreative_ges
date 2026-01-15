@@ -174,17 +174,9 @@ body {
     padding-left: 0.35rem;
 }
 
-.topnav-toggle-button {
-    display: none;
-}
-
-html[data-layout="topnav"] .topnav-toggle-button {
+html[data-sidenav-size="offcanvas"] .sidenav-toggle-button {
     display: inline-flex;
     align-items: center;
-}
-
-html[data-layout="topnav"] .sidenav-toggle-button {
-    display: none;
 }
 
 @media (max-width: 767.98px) {

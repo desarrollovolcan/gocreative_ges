@@ -24,9 +24,15 @@ class ClientsController extends Controller
     public function create(): void
     {
         $this->requireLogin();
+        $communeCityMap = chile_commune_city_map($this->db);
+        $communes = array_keys($communeCityMap);
+        $activityCodeOptions = sii_activity_code_options($this->db);
         $this->render('clients/create', [
             'title' => 'Nuevo Cliente',
             'pageTitle' => 'Nuevo Cliente',
+            'communes' => $communes,
+            'communeCityMap' => $communeCityMap,
+            'activityCodeOptions' => $activityCodeOptions,
         ]);
     }
 
@@ -115,11 +121,17 @@ class ClientsController extends Controller
         if (!$client) {
             $this->redirect('index.php?route=clients');
         }
+        $communeCityMap = chile_commune_city_map($this->db);
+        $communes = array_keys($communeCityMap);
+        $activityCodeOptions = sii_activity_code_options($this->db);
         $this->render('clients/edit', [
             'title' => 'Editar Cliente',
             'pageTitle' => 'Editar Cliente',
             'client' => $client,
             'portalUrl' => $this->buildPortalUrl($client),
+            'communes' => $communes,
+            'communeCityMap' => $communeCityMap,
+            'activityCodeOptions' => $activityCodeOptions,
         ]);
     }
 

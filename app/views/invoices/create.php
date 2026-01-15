@@ -251,19 +251,38 @@
         sii_receiver_commune: document.querySelector('[name="sii_receiver_commune"]'),
         sii_receiver_city: document.querySelector('[name="sii_receiver_city"]'),
     };
+    const siiWarning = document.querySelector('[data-sii-warning]');
+    const siiWarningText = document.querySelector('[data-sii-warning-text]');
+    const siiWarningLink = document.querySelector('[data-sii-warning-link]');
+    const siiRequiredFields = [
+        { key: 'rut', label: 'RUT' },
+        { key: 'name', label: 'Razón social' },
+        { key: 'giro', label: 'Giro' },
+        { key: 'activity_code', label: 'Código actividad' },
+        { key: 'address', label: 'Dirección' },
+        { key: 'commune', label: 'Comuna' },
+        { key: 'city', label: 'Ciudad' },
+    ];
 
-    const hasSiiValues = () => Object.values(siiInputs).some((input) => input && input.value.trim() !== '');
+    const updateSiiWarning = (data, clientId) => {
+        if (!siiWarning || !siiWarningText || !siiWarningLink) {
+            return;
+        }
+        const missing = siiRequiredFields.filter((field) => !(data?.[field.key] || '').trim());
+        if (missing.length === 0 || !clientId) {
+            siiWarning.classList.add('d-none');
+            return;
+        }
+        siiWarningText.textContent = `Completa en la ficha del cliente: ${missing.map((field) => field.label).join(', ')}.`;
+        siiWarningLink.href = `index.php?route=clients/edit&id=${clientId}`;
+        siiWarning.classList.remove('d-none');
+    };
 
     const applyClientSii = (clientId, force = false) => {
         const data = clientSiiMap?.[clientId];
         if (!data) {
+            updateSiiWarning({}, clientId);
             return;
-        }
-        if (!force && hasSiiValues()) {
-            const confirmed = window.confirm('Ya hay datos SII ingresados. ¿Quieres reemplazarlos con los datos del cliente?');
-            if (!confirmed) {
-                return;
-            }
         }
         if (siiInputs.sii_receiver_rut) siiInputs.sii_receiver_rut.value = data.rut || '';
         if (siiInputs.sii_receiver_name) siiInputs.sii_receiver_name.value = data.name || '';
@@ -272,6 +291,7 @@
         if (siiInputs.sii_receiver_address) siiInputs.sii_receiver_address.value = data.address || '';
         if (siiInputs.sii_receiver_commune) siiInputs.sii_receiver_commune.value = data.commune || '';
         if (siiInputs.sii_receiver_city) siiInputs.sii_receiver_city.value = data.city || '';
+        updateSiiWarning(data, clientId);
     };
 
     const formatNumber = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;

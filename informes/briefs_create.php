@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../api/fpdf/InvoiceTemplatePDF.php';
+require_once __DIR__ . '/../api/fpdf/FormTemplatePDF.php';
 
 $briefId = (int)($_GET['id'] ?? 0);
 if ($briefId <= 0) {
@@ -54,7 +54,7 @@ $formatCurrency = static function ($value): string {
     return '$' . number_format($amount, 0, ',', '.');
 };
 
-$pdf = new InvoiceTemplatePDF('P', 'mm', 'Letter');
+$pdf = new FormTemplatePDF('P', 'mm', 'Letter');
 $pdf->AliasNbPages();
 $pdf->docTitle = $normalizeText('Informe de Brief Comercial');
 $pdf->docSubTitle = $normalizeText('Resumen detallado del brief');
@@ -103,5 +103,5 @@ $pdf->NotesBlock(
 );
 
 $filename = 'brief-comercial-' . preg_replace('/[^a-z0-9\\-]+/i', '-', (string)($brief['id'] ?? '')) . '.pdf';
-$pdf->Output('I', $filename);
+$pdf->Output('D', $filename);
 exit;

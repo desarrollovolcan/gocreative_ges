@@ -236,6 +236,34 @@ function chile_communes(Database $db): array
     return array_keys(chile_commune_city_map($db));
 }
 
+function sii_activity_code_options(Database $db): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
+    try {
+        $rows = $db->fetchAll('SELECT code, name FROM sii_activity_codes ORDER BY code');
+    } catch (Throwable $e) {
+        log_message('error', 'Failed to load SII activity codes: ' . $e->getMessage());
+        $cache = [];
+        return $cache;
+    }
+
+    $options = [];
+    foreach ($rows as $row) {
+        $code = trim((string)($row['code'] ?? ''));
+        $name = trim((string)($row['name'] ?? ''));
+        if ($code === '' && $name === '') {
+            continue;
+        }
+        $options[] = ['code' => $code, 'name' => $name];
+    }
+    $cache = $options;
+    return $options;
+}
+
 function upload_avatar(?array $file, string $prefix): array
 {
     if ($file === null || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {

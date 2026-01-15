@@ -19,6 +19,7 @@ class SettingsController extends Controller
         $currencyFormat = $this->settings->get('currency_format', $this->config['currency_format'] ?? []);
         $communeCityMap = chile_commune_city_map($this->db);
         $communes = array_keys($communeCityMap);
+        $activityCodeOptions = sii_activity_code_options($this->db);
         $this->render('settings/index', [
             'title' => 'Configuración',
             'pageTitle' => 'Configuración',
@@ -28,6 +29,7 @@ class SettingsController extends Controller
             'currencyFormat' => $currencyFormat,
             'communes' => $communes,
             'communeCityMap' => $communeCityMap,
+            'activityCodeOptions' => $activityCodeOptions,
         ]);
     }
 

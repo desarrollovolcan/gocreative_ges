@@ -1,5 +1,5 @@
-<div class="card">
-    <div class="card-body">
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
         <?php if (!empty($_SESSION['success'])): ?>
             <div class="alert alert-success"><?php echo e($_SESSION['success']); unset($_SESSION['success']); ?></div>
         <?php endif; ?>
@@ -21,9 +21,9 @@
                     </h2>
                     <div id="editCollapseCompany" class="accordion-collapse collapse show" aria-labelledby="editHeadingCompany" data-bs-parent="#clientEditAccordion">
                         <div class="accordion-body">
-                            <div class="row g-2">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Foto de perfil</label>
+                                    <label class="form-label fw-semibold">Foto de perfil</label>
                                     <input type="file" name="avatar" class="form-control" accept="image/png,image/jpeg,image/webp">
                                     <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>
                                 </div>
@@ -33,26 +33,26 @@
                                     <?php endif; ?>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Razón social</label>
+                                    <label class="form-label fw-semibold">Razón social</label>
                                     <input type="text" name="name" class="form-control" value="<?php echo e($client['name'] ?? ''); ?>" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Email principal</label>
+                                    <label class="form-label fw-semibold">Email principal</label>
                                     <input type="email" name="email" class="form-control" value="<?php echo e($client['email'] ?? ''); ?>" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Email cobranza</label>
+                                    <label class="form-label fw-semibold">Email cobranza</label>
                                     <div class="input-group">
                                         <input type="email" name="billing_email" class="form-control" value="<?php echo e($client['billing_email'] ?? ''); ?>">
                                         <button class="btn btn-outline-secondary" type="button" data-copy-billing>Usar principal</button>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Teléfono</label>
+                                    <label class="form-label fw-semibold">Teléfono</label>
                                     <input type="text" name="phone" class="form-control" value="<?php echo e($client['phone'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Contacto</label>
+                                    <label class="form-label fw-semibold">Contacto</label>
                                     <input type="text" name="contact" class="form-control" value="<?php echo e($client['contact'] ?? ''); ?>">
                                 </div>
                             </div>
@@ -67,9 +67,9 @@
                     </h2>
                     <div id="editCollapseMandante" class="accordion-collapse collapse" aria-labelledby="editHeadingMandante" data-bs-parent="#clientEditAccordion">
                         <div class="accordion-body">
-                            <div class="row g-2">
+                            <div class="row g-3">
                                 <div class="col-12">
-                                    <div class="form-check">
+                                    <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="syncMandanteEdit" data-sync-mandante>
                                         <label class="form-check-label" for="syncMandanteEdit">Sincronizar con datos de la empresa</label>
                                     </div>
@@ -80,19 +80,19 @@
                                     </button>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Mandante - Nombre</label>
+                                    <label class="form-label fw-semibold">Mandante - Nombre</label>
                                     <input type="text" name="mandante_name" class="form-control" value="<?php echo e($client['mandante_name'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Mandante - RUT</label>
+                                    <label class="form-label fw-semibold">Mandante - RUT</label>
                                     <input type="text" name="mandante_rut" class="form-control" value="<?php echo e($client['mandante_rut'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Mandante - Teléfono</label>
+                                    <label class="form-label fw-semibold">Mandante - Teléfono</label>
                                     <input type="text" name="mandante_phone" class="form-control" value="<?php echo e($client['mandante_phone'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Mandante - Correo</label>
+                                    <label class="form-label fw-semibold">Mandante - Correo</label>
                                     <input type="email" name="mandante_email" class="form-control" value="<?php echo e($client['mandante_email'] ?? ''); ?>">
                                 </div>
                             </div>
@@ -107,13 +107,13 @@
                     </h2>
                     <div id="editCollapseSii" class="accordion-collapse collapse" aria-labelledby="editHeadingSii" data-bs-parent="#clientEditAccordion">
                         <div class="accordion-body">
-                            <div class="row g-2">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">RUT</label>
+                                    <label class="form-label fw-semibold">RUT</label>
                                     <input type="text" name="rut" class="form-control" value="<?php echo e($client['rut'] ?? ''); ?>" placeholder="12.345.678-9">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Giro</label>
+                                    <label class="form-label fw-semibold">Giro</label>
                                     <input type="text" name="giro" class="form-control" value="<?php echo e($client['giro'] ?? ''); ?>" placeholder="Ej: Servicios informáticos">
                                 </div>
                                 <div class="col-md-6">
@@ -124,7 +124,7 @@
                                     ?>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Dirección tributaria</label>
+                                    <label class="form-label fw-semibold">Dirección tributaria</label>
                                     <input type="text" name="address" class="form-control" value="<?php echo e($client['address'] ?? ''); ?>">
                                 </div>
                                 <div class="col-12">
@@ -146,16 +146,16 @@
                     </h2>
                     <div id="editCollapseAdditional" class="accordion-collapse collapse" aria-labelledby="editHeadingAdditional" data-bs-parent="#clientEditAccordion">
                         <div class="accordion-body">
-                            <div class="row g-2">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Estado</label>
+                                    <label class="form-label fw-semibold">Estado</label>
                                     <select name="status" class="form-select">
                                         <option value="activo" <?php echo ($client['status'] ?? '') === 'activo' ? 'selected' : ''; ?>>Activo</option>
                                         <option value="inactivo" <?php echo ($client['status'] ?? '') === 'inactivo' ? 'selected' : ''; ?>>Inactivo</option>
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Notas</label>
+                                    <label class="form-label fw-semibold">Notas</label>
                                     <textarea name="notes" class="form-control" rows="3"><?php echo e($client['notes'] ?? ''); ?></textarea>
                                 </div>
                             </div>
@@ -170,14 +170,14 @@
                     </h2>
                     <div id="editCollapseAccess" class="accordion-collapse collapse" aria-labelledby="editHeadingAccess" data-bs-parent="#clientEditAccordion">
                         <div class="accordion-body">
-                            <div class="row g-2">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Correo portal (email principal)</label>
+                                    <label class="form-label fw-semibold">Correo portal (email principal)</label>
                                     <input type="email" class="form-control" name="portal_email_display" value="<?php echo e($client['email'] ?? ''); ?>" readonly>
                                     <small class="text-muted">Se usa el email principal como usuario de acceso.</small>
                                 </div>
                                 <div class="col-md-8">
-                                    <label class="form-label">Link intranet</label>
+                                    <label class="form-label fw-semibold">Link intranet</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" value="<?php echo e($portalUrl ?? ''); ?>" readonly>
                                         <button class="btn btn-soft-primary" type="button" data-copy-input <?php echo empty($portalUrl) ? 'disabled' : ''; ?>>Copiar</button>
@@ -188,7 +188,7 @@
                                     <input type="hidden" name="portal_token" value="<?php echo e($client['portal_token'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Contraseña portal</label>
+                                    <label class="form-label fw-semibold">Contraseña portal</label>
                                     <div class="input-group">
                                         <input type="password" name="portal_password" class="form-control" placeholder="Nueva contraseña" data-password-field>
                                         <button class="btn btn-outline-secondary" type="button" data-toggle-password>Mostrar</button>

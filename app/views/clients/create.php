@@ -1,5 +1,5 @@
-<div class="card">
-    <div class="card-body">
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
         <?php if (!empty($_SESSION['error'])): ?>
             <div class="alert alert-danger"><?php echo e($_SESSION['error']); unset($_SESSION['error']); ?></div>
         <?php endif; ?>
@@ -25,33 +25,33 @@
                     </h2>
                     <div id="collapseCompany" class="accordion-collapse collapse show" aria-labelledby="headingCompany" data-bs-parent="#clientFormAccordion">
                         <div class="accordion-body">
-                            <div class="row g-2">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Foto de perfil</label>
+                                    <label class="form-label fw-semibold">Foto de perfil</label>
                                     <input type="file" name="avatar" class="form-control" accept="image/png,image/jpeg,image/webp">
                                     <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Razón social</label>
+                                    <label class="form-label fw-semibold">Razón social</label>
                                     <input type="text" name="name" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Email principal</label>
+                                    <label class="form-label fw-semibold">Email principal</label>
                                     <input type="email" name="email" class="form-control" required data-client-lookup>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Email cobranza</label>
+                                    <label class="form-label fw-semibold">Email cobranza</label>
                                     <div class="input-group">
                                         <input type="email" name="billing_email" class="form-control">
                                         <button class="btn btn-outline-secondary" type="button" data-copy-billing>Usar principal</button>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Teléfono</label>
+                                    <label class="form-label fw-semibold">Teléfono</label>
                                     <input type="text" name="phone" class="form-control">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Contacto</label>
+                                    <label class="form-label fw-semibold">Contacto</label>
                                     <input type="text" name="contact" class="form-control">
                                 </div>
                             </div>
@@ -66,9 +66,9 @@
                     </h2>
                     <div id="collapseMandante" class="accordion-collapse collapse" aria-labelledby="headingMandante" data-bs-parent="#clientFormAccordion">
                         <div class="accordion-body">
-                            <div class="row g-2">
+                            <div class="row g-3">
                                 <div class="col-12">
-                                    <div class="form-check">
+                                    <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="syncMandanteCreate" data-sync-mandante>
                                         <label class="form-check-label" for="syncMandanteCreate">Sincronizar con datos de la empresa</label>
                                     </div>
@@ -79,19 +79,19 @@
                                     </button>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Mandante - Nombre</label>
+                                    <label class="form-label fw-semibold">Mandante - Nombre</label>
                                     <input type="text" name="mandante_name" class="form-control">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Mandante - RUT</label>
+                                    <label class="form-label fw-semibold">Mandante - RUT</label>
                                     <input type="text" name="mandante_rut" class="form-control">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Mandante - Teléfono</label>
+                                    <label class="form-label fw-semibold">Mandante - Teléfono</label>
                                     <input type="text" name="mandante_phone" class="form-control">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Mandante - Correo</label>
+                                    <label class="form-label fw-semibold">Mandante - Correo</label>
                                     <input type="email" name="mandante_email" class="form-control">
                                 </div>
                             </div>
@@ -106,13 +106,13 @@
                     </h2>
                     <div id="collapseSii" class="accordion-collapse collapse" aria-labelledby="headingSii" data-bs-parent="#clientFormAccordion">
                         <div class="accordion-body">
-                            <div class="row g-2">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">RUT</label>
+                                    <label class="form-label fw-semibold">RUT</label>
                                     <input type="text" name="rut" class="form-control" placeholder="12.345.678-9" data-client-lookup>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Giro</label>
+                                    <label class="form-label fw-semibold">Giro</label>
                                     <input type="text" name="giro" class="form-control" placeholder="Ej: Servicios informáticos">
                                 </div>
                                 <div class="col-md-6">
@@ -123,7 +123,7 @@
                                     ?>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Dirección tributaria</label>
+                                    <label class="form-label fw-semibold">Dirección tributaria</label>
                                     <input type="text" name="address" class="form-control">
                                 </div>
                                 <div class="col-12">
@@ -145,16 +145,16 @@
                     </h2>
                     <div id="collapseAdditional" class="accordion-collapse collapse" aria-labelledby="headingAdditional" data-bs-parent="#clientFormAccordion">
                         <div class="accordion-body">
-                            <div class="row g-2">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Estado</label>
+                                    <label class="form-label fw-semibold">Estado</label>
                                     <select name="status" class="form-select">
                                         <option value="activo">Activo</option>
                                         <option value="inactivo">Inactivo</option>
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Notas</label>
+                                    <label class="form-label fw-semibold">Notas</label>
                                     <textarea name="notes" class="form-control" rows="3"></textarea>
                                 </div>
                             </div>
@@ -169,14 +169,14 @@
                     </h2>
                     <div id="collapseAccess" class="accordion-collapse collapse" aria-labelledby="headingAccess" data-bs-parent="#clientFormAccordion">
                         <div class="accordion-body">
-                            <div class="row g-2">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Correo portal (email principal)</label>
+                                    <label class="form-label fw-semibold">Correo portal (email principal)</label>
                                     <input type="email" class="form-control" name="portal_email_display" readonly>
                                     <small class="text-muted">Se usa el email principal como usuario de acceso.</small>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Contraseña portal</label>
+                                    <label class="form-label fw-semibold">Contraseña portal</label>
                                     <div class="input-group">
                                         <input type="password" name="portal_password" class="form-control" required data-password-field>
                                         <button class="btn btn-outline-secondary" type="button" data-toggle-password>Mostrar</button>

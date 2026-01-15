@@ -46,7 +46,17 @@ class ClientsController extends Controller
             flash('error', 'Completa los campos obligatorios.');
             $this->redirect('index.php?route=clients/create');
         }
-        $rut = trim($_POST['rut'] ?? '');
+        $billingEmail = $this->normalizeOptional($_POST['billing_email'] ?? null);
+        if ($billingEmail !== '' && !Validator::email($billingEmail)) {
+            flash('error', 'El email de cobranza no es válido.');
+            $this->redirect('index.php?route=clients/create');
+        }
+        $mandanteEmail = $this->normalizeOptional($_POST['mandante_email'] ?? null);
+        if ($mandanteEmail !== '' && !Validator::email($mandanteEmail)) {
+            flash('error', 'El email del mandante no es válido.');
+            $this->redirect('index.php?route=clients/create');
+        }
+        $rut = normalize_rut($_POST['rut'] ?? '');
         $companyId = current_company_id();
         $existingQuery = 'SELECT id FROM clients WHERE deleted_at IS NULL AND company_id = :company_id AND (email = :email';
         $existingParams = ['company_id' => $companyId, 'email' => $email];
@@ -72,7 +82,6 @@ class ClientsController extends Controller
             flash('error', $avatarResult['error']);
             $this->redirect('index.php?route=clients/create');
         }
-        $billingEmail = trim($_POST['billing_email'] ?? '');
         if ($billingEmail === '' && $email !== '') {
             $billingEmail = $email;
         }
@@ -82,21 +91,21 @@ class ClientsController extends Controller
             'rut' => $rut,
             'email' => $email,
             'billing_email' => $billingEmail,
-            'phone' => trim($_POST['phone'] ?? ''),
-            'address' => trim($_POST['address'] ?? ''),
-            'giro' => trim($_POST['giro'] ?? ''),
-            'activity_code' => trim($_POST['activity_code'] ?? ''),
-            'commune' => trim($_POST['commune'] ?? ''),
-            'city' => trim($_POST['city'] ?? ''),
-            'contact' => trim($_POST['contact'] ?? ''),
-            'mandante_name' => trim($_POST['mandante_name'] ?? ''),
-            'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
-            'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
-            'mandante_email' => trim($_POST['mandante_email'] ?? ''),
+            'phone' => $this->normalizeOptional($_POST['phone'] ?? null),
+            'address' => $this->normalizeOptional($_POST['address'] ?? null),
+            'giro' => $this->normalizeOptional($_POST['giro'] ?? null),
+            'activity_code' => $this->normalizeOptional($_POST['activity_code'] ?? null),
+            'commune' => $this->normalizeOptional($_POST['commune'] ?? null),
+            'city' => $this->normalizeOptional($_POST['city'] ?? null),
+            'contact' => $this->normalizeOptional($_POST['contact'] ?? null),
+            'mandante_name' => $this->normalizeOptional($_POST['mandante_name'] ?? null),
+            'mandante_rut' => $this->normalizeOptional(normalize_rut($_POST['mandante_rut'] ?? '')),
+            'mandante_phone' => $this->normalizeOptional($_POST['mandante_phone'] ?? null),
+            'mandante_email' => $mandanteEmail,
             'avatar_path' => $avatarResult['path'],
             'portal_token' => $portalToken,
             'portal_password' => password_hash($portalPassword, PASSWORD_DEFAULT),
-            'notes' => trim($_POST['notes'] ?? ''),
+            'notes' => $this->normalizeOptional($_POST['notes'] ?? null),
             'status' => $_POST['status'] ?? 'activo',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -160,7 +169,17 @@ class ClientsController extends Controller
                 flash('error', 'Completa los campos obligatorios.');
                 $this->redirect('index.php?route=clients/edit&id=' . $id);
             }
-            $rut = trim($_POST['rut'] ?? '');
+            $billingEmail = $this->normalizeOptional($_POST['billing_email'] ?? null);
+            if ($billingEmail !== '' && !Validator::email($billingEmail)) {
+                flash('error', 'El email de cobranza no es válido.');
+                $this->redirect('index.php?route=clients/edit&id=' . $id);
+            }
+            $mandanteEmail = $this->normalizeOptional($_POST['mandante_email'] ?? null);
+            if ($mandanteEmail !== '' && !Validator::email($mandanteEmail)) {
+                flash('error', 'El email del mandante no es válido.');
+                $this->redirect('index.php?route=clients/edit&id=' . $id);
+            }
+            $rut = normalize_rut($_POST['rut'] ?? '');
             $existingQuery = 'SELECT id FROM clients WHERE deleted_at IS NULL AND company_id = :company_id AND id != :id AND (email = :email';
             $existingParams = ['company_id' => $companyId, 'id' => $id, 'email' => $email];
             if ($rut !== '') {
@@ -179,7 +198,6 @@ class ClientsController extends Controller
                 $portalToken = bin2hex(random_bytes(16));
             }
             $portalPassword = trim($_POST['portal_password'] ?? '');
-            $billingEmail = trim($_POST['billing_email'] ?? '');
             if ($billingEmail === '' && $email !== '') {
                 $billingEmail = $email;
             }
@@ -188,19 +206,19 @@ class ClientsController extends Controller
                 'rut' => $rut,
                 'email' => $email,
                 'billing_email' => $billingEmail,
-                'phone' => trim($_POST['phone'] ?? ''),
-                'address' => trim($_POST['address'] ?? ''),
-                'giro' => trim($_POST['giro'] ?? ''),
-                'activity_code' => trim($_POST['activity_code'] ?? ''),
-                'commune' => trim($_POST['commune'] ?? ''),
-                'city' => trim($_POST['city'] ?? ''),
-                'contact' => trim($_POST['contact'] ?? ''),
-                'mandante_name' => trim($_POST['mandante_name'] ?? ''),
-                'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
-                'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
-                'mandante_email' => trim($_POST['mandante_email'] ?? ''),
+                'phone' => $this->normalizeOptional($_POST['phone'] ?? null),
+                'address' => $this->normalizeOptional($_POST['address'] ?? null),
+                'giro' => $this->normalizeOptional($_POST['giro'] ?? null),
+                'activity_code' => $this->normalizeOptional($_POST['activity_code'] ?? null),
+                'commune' => $this->normalizeOptional($_POST['commune'] ?? null),
+                'city' => $this->normalizeOptional($_POST['city'] ?? null),
+                'contact' => $this->normalizeOptional($_POST['contact'] ?? null),
+                'mandante_name' => $this->normalizeOptional($_POST['mandante_name'] ?? null),
+                'mandante_rut' => $this->normalizeOptional(normalize_rut($_POST['mandante_rut'] ?? '')),
+                'mandante_phone' => $this->normalizeOptional($_POST['mandante_phone'] ?? null),
+                'mandante_email' => $mandanteEmail,
                 'portal_token' => $portalToken,
-                'notes' => trim($_POST['notes'] ?? ''),
+                'notes' => $this->normalizeOptional($_POST['notes'] ?? null),
                 'status' => $_POST['status'] ?? 'activo',
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
@@ -245,6 +263,12 @@ class ClientsController extends Controller
         $sqlState = (string)($e->getCode() ?? '');
         $message = $e->getMessage();
         return $sqlState === '23000' && str_contains($message, 'idx_clients_portal_token');
+    }
+
+    private function normalizeOptional(?string $value): ?string
+    {
+        $value = trim((string)$value);
+        return $value === '' ? null : $value;
     }
 
     public function show(): void

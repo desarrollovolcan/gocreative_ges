@@ -36,10 +36,6 @@
                                     <input type="text" name="name" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">RUT</label>
-                                    <input type="text" name="rut" class="form-control" data-client-lookup>
-                                </div>
-                                <div class="col-md-6">
                                     <label class="form-label">Email principal</label>
                                     <input type="email" name="email" class="form-control" required data-client-lookup>
                                 </div>
@@ -97,6 +93,45 @@
                     </div>
                 </div>
                 <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingSii">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSii" aria-expanded="false" aria-controls="collapseSii">
+                            Datos tributarios (SII)
+                        </button>
+                    </h2>
+                    <div id="collapseSii" class="accordion-collapse collapse" aria-labelledby="headingSii" data-bs-parent="#clientFormAccordion">
+                        <div class="accordion-body">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">RUT</label>
+                                    <input type="text" name="rut" class="form-control" placeholder="12.345.678-9" data-client-lookup>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Giro</label>
+                                    <input type="text" name="giro" class="form-control" placeholder="Ej: Servicios informáticos">
+                                </div>
+                                <div class="col-md-6">
+                                    <?php
+                                    $activityCodeValue = '';
+                                    $activityCodeOptions = $activityCodeOptions ?? [];
+                                    include __DIR__ . '/../partials/activity-code-field.php';
+                                    ?>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Dirección tributaria</label>
+                                    <input type="text" name="address" class="form-control">
+                                </div>
+                                <div class="col-12">
+                                    <?php
+                                    $communeValue = '';
+                                    $cityValue = '';
+                                    include __DIR__ . '/../partials/commune-city-fields.php';
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
                     <h2 class="accordion-header" id="headingAdditional">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdditional" aria-expanded="false" aria-controls="collapseAdditional">
                             Datos adicionales
@@ -105,26 +140,6 @@
                     <div id="collapseAdditional" class="accordion-collapse collapse" aria-labelledby="headingAdditional" data-bs-parent="#clientFormAccordion">
                         <div class="accordion-body">
                             <div class="row g-2">
-                                <div class="col-12">
-                                    <label class="form-label">Dirección</label>
-                                    <input type="text" name="address" class="form-control">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Giro</label>
-                                    <input type="text" name="giro" class="form-control" placeholder="Ej: Servicios informáticos">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Código actividad</label>
-                                    <input type="text" name="activity_code" class="form-control" placeholder="Ej: 620100">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Comuna</label>
-                                    <input type="text" name="commune" class="form-control">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Ciudad</label>
-                                    <input type="text" name="city" class="form-control">
-                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Estado</label>
                                     <select name="status" class="form-select">
@@ -228,6 +243,9 @@
                 input.value = data[key];
             }
         });
+        if (typeof window.syncCommuneCitySelects === 'function') {
+            window.syncCommuneCitySelects();
+        }
         const mandanteCollapse = document.getElementById('collapseMandante');
         if (mandanteCollapse && !mandanteCollapse.classList.contains('show')) {
             mandanteCollapse.classList.add('show');

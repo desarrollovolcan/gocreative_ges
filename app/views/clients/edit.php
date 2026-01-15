@@ -1,5 +1,5 @@
-<div class="card">
-    <div class="card-body">
+<div class="card shadow-sm border-0">
+    <div class="card-body p-3 p-md-4">
         <?php if (!empty($_SESSION['success'])): ?>
             <div class="alert alert-success"><?php echo e($_SESSION['success']); unset($_SESSION['success']); ?></div>
         <?php endif; ?>
@@ -12,102 +12,52 @@
             <div class="mb-3">
                 <?php echo render_id_badge($client['id'] ?? null); ?>
             </div>
-            <div class="accordion" id="clientEditAccordion">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="editHeadingCompany">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#editCollapseCompany" aria-expanded="true" aria-controls="editCollapseCompany">
-                            Datos de la empresa
-                        </button>
-                    </h2>
-                    <div id="editCollapseCompany" class="accordion-collapse collapse show" aria-labelledby="editHeadingCompany" data-bs-parent="#clientEditAccordion">
-                        <div class="accordion-body">
-                            <div class="row g-2">
-                                <div class="col-md-6">
-                                    <label class="form-label">Foto de perfil</label>
-                                    <input type="file" name="avatar" class="form-control" accept="image/png,image/jpeg,image/webp">
-                                    <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>
+            <div class="row g-3">
+                <div class="col-lg-8">
+                    <div class="d-grid gap-3">
+                        <section class="border rounded-3 p-3 p-md-4 bg-white">
+                            <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
+                                <div>
+                                    <h5 class="mb-1">Información del cliente</h5>
+                                    <p class="text-muted mb-0">Datos principales para contacto y facturación.</p>
                                 </div>
-                                <div class="col-md-6 d-flex align-items-end">
-                                    <?php if (!empty($client['avatar_path'])): ?>
-                                        <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-circle" style="width: 64px; height: 64px; object-fit: cover;">
-                                    <?php endif; ?>
-                                </div>
+                            </div>
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Razón social</label>
+                                    <label class="form-label fw-semibold">Razón social</label>
                                     <input type="text" name="name" class="form-control" value="<?php echo e($client['name'] ?? ''); ?>" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Email principal</label>
+                                    <label class="form-label fw-semibold">RUT</label>
+                                    <input type="text" name="rut" class="form-control" value="<?php echo e($client['rut'] ?? ''); ?>" placeholder="12.345.678-9">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Email principal</label>
                                     <input type="email" name="email" class="form-control" value="<?php echo e($client['email'] ?? ''); ?>" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Email cobranza</label>
+                                    <label class="form-label fw-semibold">Email cobranza</label>
                                     <div class="input-group">
                                         <input type="email" name="billing_email" class="form-control" value="<?php echo e($client['billing_email'] ?? ''); ?>">
                                         <button class="btn btn-outline-secondary" type="button" data-copy-billing>Usar principal</button>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Teléfono</label>
+                                    <label class="form-label fw-semibold">Teléfono</label>
                                     <input type="text" name="phone" class="form-control" value="<?php echo e($client['phone'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Contacto</label>
+                                    <label class="form-label fw-semibold">Contacto</label>
                                     <input type="text" name="contact" class="form-control" value="<?php echo e($client['contact'] ?? ''); ?>">
                                 </div>
-                                <div class="col-12">
-                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-copy-mandante>
-                                        Usar datos de la empresa para el mandante
-                                    </button>
-                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="editHeadingMandante">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#editCollapseMandante" aria-expanded="false" aria-controls="editCollapseMandante">
-                            Datos del mandante
-                        </button>
-                    </h2>
-                    <div id="editCollapseMandante" class="accordion-collapse collapse" aria-labelledby="editHeadingMandante" data-bs-parent="#clientEditAccordion">
-                        <div class="accordion-body">
-                            <div class="row g-2">
+                        </section>
+                        <section class="border rounded-3 p-3 p-md-4 bg-white">
+                            <h5 class="mb-1">Datos tributarios (SII)</h5>
+                            <p class="text-muted mb-3">Información que se usa en facturas y documentos.</p>
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Mandante - Nombre</label>
-                                    <input type="text" name="mandante_name" class="form-control" value="<?php echo e($client['mandante_name'] ?? ''); ?>">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Mandante - RUT</label>
-                                    <input type="text" name="mandante_rut" class="form-control" value="<?php echo e($client['mandante_rut'] ?? ''); ?>">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Mandante - Teléfono</label>
-                                    <input type="text" name="mandante_phone" class="form-control" value="<?php echo e($client['mandante_phone'] ?? ''); ?>">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Mandante - Correo</label>
-                                    <input type="email" name="mandante_email" class="form-control" value="<?php echo e($client['mandante_email'] ?? ''); ?>">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="editHeadingSii">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#editCollapseSii" aria-expanded="false" aria-controls="editCollapseSii">
-                            Datos tributarios (SII)
-                        </button>
-                    </h2>
-                    <div id="editCollapseSii" class="accordion-collapse collapse" aria-labelledby="editHeadingSii" data-bs-parent="#clientEditAccordion">
-                        <div class="accordion-body">
-                            <div class="row g-2">
-                                <div class="col-md-6">
-                                    <label class="form-label">RUT</label>
-                                    <input type="text" name="rut" class="form-control" value="<?php echo e($client['rut'] ?? ''); ?>" placeholder="12.345.678-9">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Giro</label>
+                                    <label class="form-label fw-semibold">Giro</label>
                                     <input type="text" name="giro" class="form-control" value="<?php echo e($client['giro'] ?? ''); ?>" placeholder="Ej: Servicios informáticos">
                                 </div>
                                 <div class="col-md-6">
@@ -118,7 +68,7 @@
                                     ?>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Dirección tributaria</label>
+                                    <label class="form-label fw-semibold">Dirección tributaria</label>
                                     <input type="text" name="address" class="form-control" value="<?php echo e($client['address'] ?? ''); ?>">
                                 </div>
                                 <div class="col-12">
@@ -129,49 +79,83 @@
                                     ?>
                                 </div>
                             </div>
-                        </div>
+                        </section>
+                        <section class="border rounded-3 p-3 p-md-4 bg-white">
+                            <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
+                                <div>
+                                    <h5 class="mb-1">Datos del mandante</h5>
+                                    <p class="text-muted mb-0">Completa solo si la facturación es para un tercero.</p>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="syncMandanteEdit" data-sync-mandante>
+                                        <label class="form-check-label" for="syncMandanteEdit">Sincronizar</label>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-copy-mandante>
+                                        Copiar datos
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Mandante - Nombre</label>
+                                    <input type="text" name="mandante_name" class="form-control" value="<?php echo e($client['mandante_name'] ?? ''); ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Mandante - RUT</label>
+                                    <input type="text" name="mandante_rut" class="form-control" value="<?php echo e($client['mandante_rut'] ?? ''); ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Mandante - Teléfono</label>
+                                    <input type="text" name="mandante_phone" class="form-control" value="<?php echo e($client['mandante_phone'] ?? ''); ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Mandante - Correo</label>
+                                    <input type="email" name="mandante_email" class="form-control" value="<?php echo e($client['mandante_email'] ?? ''); ?>">
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="editHeadingAdditional">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#editCollapseAdditional" aria-expanded="false" aria-controls="editCollapseAdditional">
-                            Datos adicionales
-                        </button>
-                    </h2>
-                    <div id="editCollapseAdditional" class="accordion-collapse collapse" aria-labelledby="editHeadingAdditional" data-bs-parent="#clientEditAccordion">
-                        <div class="accordion-body">
-                            <div class="row g-2">
-                                <div class="col-md-6">
-                                    <label class="form-label">Estado</label>
+                <div class="col-lg-4">
+                    <div class="d-grid gap-3">
+                        <section class="border rounded-3 p-3 p-md-4 bg-white">
+                            <h5 class="mb-3">Perfil y estado</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Foto de perfil</label>
+                                    <input type="file" name="avatar" class="form-control" accept="image/png,image/jpeg,image/webp">
+                                    <div class="form-text">Formatos permitidos: JPG, PNG o WEBP (máx 2MB).</div>
+                                </div>
+                                <div class="col-12 d-flex align-items-center gap-3">
+                                    <?php if (!empty($client['avatar_path'])): ?>
+                                        <img src="<?php echo e($client['avatar_path']); ?>" alt="Avatar cliente" class="rounded-circle" style="width: 64px; height: 64px; object-fit: cover;">
+                                    <?php else: ?>
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                                            <span class="text-muted">N/A</span>
+                                        </div>
+                                    <?php endif; ?>
+                                    <span class="text-muted small">Vista previa actual.</span>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Estado</label>
                                     <select name="status" class="form-select">
                                         <option value="activo" <?php echo ($client['status'] ?? '') === 'activo' ? 'selected' : ''; ?>>Activo</option>
                                         <option value="inactivo" <?php echo ($client['status'] ?? '') === 'inactivo' ? 'selected' : ''; ?>>Inactivo</option>
                                     </select>
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label">Notas</label>
-                                    <textarea name="notes" class="form-control" rows="3"><?php echo e($client['notes'] ?? ''); ?></textarea>
-                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="editHeadingAccess">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#editCollapseAccess" aria-expanded="false" aria-controls="editCollapseAccess">
-                            Acceso cliente
-                        </button>
-                    </h2>
-                    <div id="editCollapseAccess" class="accordion-collapse collapse" aria-labelledby="editHeadingAccess" data-bs-parent="#clientEditAccordion">
-                        <div class="accordion-body">
-                            <div class="row g-2">
-                                <div class="col-md-6">
-                                    <label class="form-label">Correo portal (email principal)</label>
+                        </section>
+                        <section class="border rounded-3 p-3 p-md-4 bg-white">
+                            <h5 class="mb-3">Acceso portal</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Correo de acceso</label>
                                     <input type="email" class="form-control" name="portal_email_display" value="<?php echo e($client['email'] ?? ''); ?>" readonly>
-                                    <small class="text-muted">Se usa el email principal como usuario de acceso.</small>
+                                    <small class="text-muted">Se usa el email principal como usuario.</small>
                                 </div>
-                                <div class="col-md-8">
-                                    <label class="form-label">Link intranet</label>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Link intranet</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" value="<?php echo e($portalUrl ?? ''); ?>" readonly>
                                         <button class="btn btn-soft-primary" type="button" data-copy-input <?php echo empty($portalUrl) ? 'disabled' : ''; ?>>Copiar</button>
@@ -181,8 +165,8 @@
                                     <?php endif; ?>
                                     <input type="hidden" name="portal_token" value="<?php echo e($client['portal_token'] ?? ''); ?>">
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Contraseña portal</label>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Contraseña portal</label>
                                     <div class="input-group">
                                         <input type="password" name="portal_password" class="form-control" placeholder="Nueva contraseña" data-password-field>
                                         <button class="btn btn-outline-secondary" type="button" data-toggle-password>Mostrar</button>
@@ -190,14 +174,19 @@
                                     </div>
                                     <small class="text-muted">Deja en blanco para mantener la contraseña actual.</small>
                                 </div>
-                                <div class="col-md-4 d-flex align-items-end">
+                                <div class="col-12">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="1" id="regeneratePortalToken" name="regenerate_portal_token">
                                         <label class="form-check-label" for="regeneratePortalToken">Regenerar link</label>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
+                        <section class="border rounded-3 p-3 p-md-4 bg-white">
+                            <h5 class="mb-3">Notas internas</h5>
+                            <label class="form-label fw-semibold">Notas</label>
+                            <textarea name="notes" class="form-control" rows="4"><?php echo e($client['notes'] ?? ''); ?></textarea>
+                        </section>
                     </div>
                 </div>
             </div>
@@ -205,13 +194,13 @@
                 <a href="index.php?route=clients" class="btn btn-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Actualizar</button>
             </div>
-        
-    <?php
-    $reportTemplate = 'informeIcargaEspanol.php';
-    $reportSource = 'clients/edit';
-    include __DIR__ . '/../partials/report-download.php';
-    ?>
-</form>
+
+            <?php
+            $reportTemplate = 'informeIcargaEspanol.php';
+            $reportSource = 'clients/edit';
+            include __DIR__ . '/../partials/report-download.php';
+            ?>
+        </form>
     </div>
 </div>
 
@@ -237,6 +226,25 @@
 
     const editForm = document.getElementById('client-edit-form');
     const getEditInput = (name) => editForm?.querySelector(`[name="${name}"]`);
+    const mandanteSyncToggle = document.querySelector('[data-sync-mandante]');
+    const mandanteMappings = {
+        contact: 'mandante_name',
+        rut: 'mandante_rut',
+        phone: 'mandante_phone',
+        email: 'mandante_email',
+    };
+    const syncMandanteFromCompany = () => {
+        if (!mandanteSyncToggle?.checked) {
+            return;
+        }
+        Object.entries(mandanteMappings).forEach(([from, to]) => {
+            const fromInput = getEditInput(from);
+            const toInput = getEditInput(to);
+            if (fromInput && toInput) {
+                toInput.value = fromInput.value;
+            }
+        });
+    };
 
     document.querySelector('[data-copy-billing]')?.addEventListener('click', () => {
         const emailInput = getEditInput('email');
@@ -247,23 +255,10 @@
     });
 
     document.querySelector('[data-copy-mandante]')?.addEventListener('click', () => {
-        const mappings = {
-            contact: 'mandante_name',
-            rut: 'mandante_rut',
-            phone: 'mandante_phone',
-            email: 'mandante_email',
-        };
-        Object.entries(mappings).forEach(([from, to]) => {
-            const fromInput = getEditInput(from);
-            const toInput = getEditInput(to);
-            if (fromInput && toInput) {
-                toInput.value = fromInput.value;
-            }
-        });
-        const mandanteCollapse = document.getElementById('editCollapseMandante');
-        if (mandanteCollapse && !mandanteCollapse.classList.contains('show')) {
-            mandanteCollapse.classList.add('show');
+        if (mandanteSyncToggle) {
+            mandanteSyncToggle.checked = true;
         }
+        syncMandanteFromCompany();
     });
 
     const portalEmailDisplay = getEditInput('portal_email_display');
@@ -275,6 +270,12 @@
     };
     emailInput?.addEventListener('input', syncPortalEmail);
     syncPortalEmail();
+
+    Object.keys(mandanteMappings).forEach((field) => {
+        getEditInput(field)?.addEventListener('input', syncMandanteFromCompany);
+    });
+    mandanteSyncToggle?.addEventListener('change', syncMandanteFromCompany);
+    syncMandanteFromCompany();
 
     document.querySelector('[data-generate-password]')?.addEventListener('click', () => {
         const passwordInput = getEditInput('portal_password');
@@ -298,5 +299,12 @@
         const isPassword = passwordInput.type === 'password';
         passwordInput.type = isPassword ? 'text' : 'password';
         button.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+    });
+
+    editForm?.addEventListener('submit', () => {
+        const billingInput = getEditInput('billing_email');
+        if (emailInput && billingInput && billingInput.value.trim() === '') {
+            billingInput.value = emailInput.value;
+        }
     });
 </script>

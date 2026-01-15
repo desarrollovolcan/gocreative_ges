@@ -204,7 +204,12 @@ function chile_commune_city_map(Database $db): array
     }
 
     try {
-        $rows = $db->fetchAll('SELECT commune, city FROM chile_communes ORDER BY commune, city');
+        $rows = $db->fetchAll(
+            'SELECT communes.name AS commune, cities.name AS city
+            FROM communes
+            JOIN cities ON cities.id = communes.city_id
+            ORDER BY communes.name, cities.name'
+        );
     } catch (Throwable $e) {
         log_message('error', 'Failed to load Chile commune list: ' . $e->getMessage());
         $cache = [];
@@ -713,8 +718,22 @@ function permission_catalog(): array
             'view_key' => 'sii_activity_codes_view',
             'edit_key' => null,
         ],
+        'chile_regions' => [
+            'label' => 'Regiones',
+            'routes' => ['maintainers/chile-regions'],
+            'legacy_key' => 'maintainers',
+            'view_key' => 'chile_regions_view',
+            'edit_key' => null,
+        ],
+        'chile_cities' => [
+            'label' => 'Ciudades',
+            'routes' => ['maintainers/chile-cities'],
+            'legacy_key' => 'maintainers',
+            'view_key' => 'chile_cities_view',
+            'edit_key' => null,
+        ],
         'chile_communes' => [
-            'label' => 'Comunas y ciudades',
+            'label' => 'Comunas',
             'routes' => ['maintainers/chile-communes'],
             'legacy_key' => 'maintainers',
             'view_key' => 'chile_communes_view',

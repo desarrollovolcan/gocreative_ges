@@ -8,6 +8,30 @@ CREATE TABLE IF NOT EXISTS chile_communes (
     INDEX idx_chile_communes_region (region)
 );
 
+CREATE TABLE IF NOT EXISTS regions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    UNIQUE KEY uniq_regions_name (name)
+);
+
+CREATE TABLE IF NOT EXISTS cities (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    region_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    UNIQUE KEY uniq_cities_region_name (region_id, name),
+    INDEX idx_cities_name (name),
+    FOREIGN KEY (region_id) REFERENCES regions(id)
+);
+
+CREATE TABLE IF NOT EXISTS communes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    city_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    UNIQUE KEY uniq_communes_city_name (city_id, name),
+    INDEX idx_communes_name (name),
+    FOREIGN KEY (city_id) REFERENCES cities(id)
+);
+
 CREATE TABLE IF NOT EXISTS sii_activity_codes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(20) NOT NULL,
@@ -391,6 +415,24 @@ INSERT IGNORE INTO chile_communes (commune, city, region) VALUES
 ('Timaukel', 'Timaukel', 'Magallanes y de la Antártica Chilena'),
 ('Natales', 'Natales', 'Magallanes y de la Antártica Chilena'),
 ('Torres del Paine', 'Torres del Paine', 'Magallanes y de la Antártica Chilena');
+
+INSERT IGNORE INTO regions (name)
+SELECT DISTINCT region
+FROM chile_communes
+ORDER BY region;
+
+INSERT IGNORE INTO cities (name, region_id)
+SELECT DISTINCT chile_communes.city, regions.id
+FROM chile_communes
+JOIN regions ON regions.name = chile_communes.region
+ORDER BY chile_communes.city;
+
+INSERT IGNORE INTO communes (name, city_id)
+SELECT chile_communes.commune, cities.id
+FROM chile_communes
+JOIN regions ON regions.name = chile_communes.region
+JOIN cities ON cities.name = chile_communes.city AND cities.region_id = regions.id
+ORDER BY chile_communes.commune;
 
 INSERT IGNORE INTO sii_activity_codes (code, name) VALUES
 ('011111', 'Cultivo de trigo'),

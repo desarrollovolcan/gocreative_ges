@@ -215,15 +215,36 @@ class ClientsController extends Controller
             if ($portalPassword !== '') {
                 $data['portal_password'] = password_hash($portalPassword, PASSWORD_DEFAULT);
             }
-            $this->clients->update($id, $data);
+            try {
+                $this->clients->update($id, $data);
+            } catch (PDOException $e) {
+                if ($this->isPortalTokenCollision($e)) {
+                    $data['portal_token'] = bin2hex(random_bytes(16));
+                    $this->clients->update($id, $data);
+                } else {
+                    throw $e;
+                }
+            }
             audit($this->db, Auth::user()['id'], 'update', 'clients', $id);
             flash('success', 'Datos actualizados correctamente.');
             $this->redirect('index.php?route=clients/edit&id=' . $id);
         } catch (Throwable $e) {
-            log_message('error', 'Error al actualizar cliente ' . $id . ': ' . $e->getMessage());
+            log_message('error', sprintf(
+                'Error al actualizar cliente %s: %s | Payload: %s',
+                $id,
+                $e->getMessage(),
+                json_encode($_POST, JSON_UNESCAPED_UNICODE)
+            ));
             flash('error', 'No pudimos actualizar el cliente. Revisa los datos e intenta nuevamente.');
             $this->redirect('index.php?route=clients/edit&id=' . $id);
         }
+    }
+
+    private function isPortalTokenCollision(PDOException $e): bool
+    {
+        $sqlState = (string)($e->getCode() ?? '');
+        $message = $e->getMessage();
+        return $sqlState === '23000' && str_contains($message, 'idx_clients_portal_token');
     }
 
     public function show(): void

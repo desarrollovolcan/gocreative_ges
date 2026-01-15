@@ -706,6 +706,20 @@ function permission_catalog(): array
             'view_key' => 'service_types_view',
             'edit_key' => 'service_types_edit',
         ],
+        'sii_activity_codes' => [
+            'label' => 'Actividades SII',
+            'routes' => ['maintainers/sii-activities'],
+            'legacy_key' => 'maintainers',
+            'view_key' => 'sii_activity_codes_view',
+            'edit_key' => null,
+        ],
+        'chile_communes' => [
+            'label' => 'Comunas y ciudades',
+            'routes' => ['maintainers/chile-communes'],
+            'legacy_key' => 'maintainers',
+            'view_key' => 'chile_communes_view',
+            'edit_key' => null,
+        ],
         'quotes' => [
             'label' => 'Cotizaciones',
             'routes' => ['quotes'],

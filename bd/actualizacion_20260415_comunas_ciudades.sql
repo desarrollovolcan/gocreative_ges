@@ -16,6 +16,36 @@ CREATE TABLE IF NOT EXISTS sii_activity_codes (
     INDEX idx_sii_activity_name (name)
 );
 
+SET @clients_activity_code := (
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'clients' AND COLUMN_NAME = 'activity_code'
+);
+SET @sql := IF(@clients_activity_code = 0, 'ALTER TABLE clients ADD COLUMN activity_code VARCHAR(50) NULL AFTER giro;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @clients_commune := (
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'clients' AND COLUMN_NAME = 'commune'
+);
+SET @sql := IF(@clients_commune = 0, 'ALTER TABLE clients ADD COLUMN commune VARCHAR(120) NULL AFTER activity_code;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @clients_city := (
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'clients' AND COLUMN_NAME = 'city'
+);
+SET @sql := IF(@clients_city = 0, 'ALTER TABLE clients ADD COLUMN city VARCHAR(120) NULL AFTER commune;', 'SELECT 1;');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 INSERT IGNORE INTO chile_communes (commune, city, region) VALUES
 ('Arica', 'Arica', 'Arica y Parinacota'),
 ('Camarones', 'Camarones', 'Arica y Parinacota'),

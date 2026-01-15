@@ -118,13 +118,12 @@
                                     <label class="form-label">Dirección tributaria</label>
                                     <input type="text" name="address" class="form-control" value="<?php echo e($client['address'] ?? ''); ?>">
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Comuna</label>
-                                    <input type="text" name="commune" class="form-control" value="<?php echo e($client['commune'] ?? ''); ?>">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Ciudad</label>
-                                    <input type="text" name="city" class="form-control" value="<?php echo e($client['city'] ?? ''); ?>">
+                                <div class="col-12">
+                                    <?php
+                                    $communeValue = $client['commune'] ?? '';
+                                    $cityValue = $client['city'] ?? '';
+                                    include __DIR__ . '/../partials/commune-city-fields.php';
+                                    ?>
                                 </div>
                             </div>
                         </div>

@@ -117,13 +117,12 @@
                                     <label class="form-label">Dirección tributaria</label>
                                     <input type="text" name="address" class="form-control">
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Comuna</label>
-                                    <input type="text" name="commune" class="form-control">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Ciudad</label>
-                                    <input type="text" name="city" class="form-control">
+                                <div class="col-12">
+                                    <?php
+                                    $communeValue = '';
+                                    $cityValue = '';
+                                    include __DIR__ . '/../partials/commune-city-fields.php';
+                                    ?>
                                 </div>
                             </div>
                         </div>
@@ -241,6 +240,9 @@
                 input.value = data[key];
             }
         });
+        if (typeof window.syncCommuneCitySelects === 'function') {
+            window.syncCommuneCitySelects();
+        }
         const mandanteCollapse = document.getElementById('collapseMandante');
         if (mandanteCollapse && !mandanteCollapse.classList.contains('show')) {
             mandanteCollapse.classList.add('show');

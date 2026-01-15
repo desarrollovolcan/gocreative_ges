@@ -55,11 +55,6 @@
                                     <label class="form-label">Contacto</label>
                                     <input type="text" name="contact" class="form-control" value="<?php echo e($client['contact'] ?? ''); ?>">
                                 </div>
-                                <div class="col-12">
-                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-copy-mandante>
-                                        Usar datos de la empresa para el mandante
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -73,6 +68,17 @@
                     <div id="editCollapseMandante" class="accordion-collapse collapse" aria-labelledby="editHeadingMandante" data-bs-parent="#clientEditAccordion">
                         <div class="accordion-body">
                             <div class="row g-2">
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="syncMandanteEdit" data-sync-mandante>
+                                        <label class="form-check-label" for="syncMandanteEdit">Sincronizar con datos de la empresa</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-copy-mandante>
+                                        Usar datos de la empresa para el mandante
+                                    </button>
+                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Mandante - Nombre</label>
                                     <input type="text" name="mandante_name" class="form-control" value="<?php echo e($client['mandante_name'] ?? ''); ?>">
@@ -237,23 +243,18 @@
 
     const editForm = document.getElementById('client-edit-form');
     const getEditInput = (name) => editForm?.querySelector(`[name="${name}"]`);
-
-    document.querySelector('[data-copy-billing]')?.addEventListener('click', () => {
-        const emailInput = getEditInput('email');
-        const billingInput = getEditInput('billing_email');
-        if (emailInput && billingInput) {
-            billingInput.value = emailInput.value;
+    const mandanteSyncToggle = document.querySelector('[data-sync-mandante]');
+    const mandanteMappings = {
+        contact: 'mandante_name',
+        rut: 'mandante_rut',
+        phone: 'mandante_phone',
+        email: 'mandante_email',
+    };
+    const syncMandanteFromCompany = () => {
+        if (!mandanteSyncToggle?.checked) {
+            return;
         }
-    });
-
-    document.querySelector('[data-copy-mandante]')?.addEventListener('click', () => {
-        const mappings = {
-            contact: 'mandante_name',
-            rut: 'mandante_rut',
-            phone: 'mandante_phone',
-            email: 'mandante_email',
-        };
-        Object.entries(mappings).forEach(([from, to]) => {
+        Object.entries(mandanteMappings).forEach(([from, to]) => {
             const fromInput = getEditInput(from);
             const toInput = getEditInput(to);
             if (fromInput && toInput) {
@@ -264,6 +265,21 @@
         if (mandanteCollapse && !mandanteCollapse.classList.contains('show')) {
             mandanteCollapse.classList.add('show');
         }
+    };
+
+    document.querySelector('[data-copy-billing]')?.addEventListener('click', () => {
+        const emailInput = getEditInput('email');
+        const billingInput = getEditInput('billing_email');
+        if (emailInput && billingInput) {
+            billingInput.value = emailInput.value;
+        }
+    });
+
+    document.querySelector('[data-copy-mandante]')?.addEventListener('click', () => {
+        if (mandanteSyncToggle) {
+            mandanteSyncToggle.checked = true;
+        }
+        syncMandanteFromCompany();
     });
 
     const portalEmailDisplay = getEditInput('portal_email_display');
@@ -275,6 +291,12 @@
     };
     emailInput?.addEventListener('input', syncPortalEmail);
     syncPortalEmail();
+
+    Object.keys(mandanteMappings).forEach((field) => {
+        getEditInput(field)?.addEventListener('input', syncMandanteFromCompany);
+    });
+    mandanteSyncToggle?.addEventListener('change', syncMandanteFromCompany);
+    syncMandanteFromCompany();
 
     document.querySelector('[data-generate-password]')?.addEventListener('click', () => {
         const passwordInput = getEditInput('portal_password');
@@ -298,5 +320,12 @@
         const isPassword = passwordInput.type === 'password';
         passwordInput.type = isPassword ? 'text' : 'password';
         button.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+    });
+
+    editForm?.addEventListener('submit', () => {
+        const billingInput = getEditInput('billing_email');
+        if (emailInput && billingInput && billingInput.value.trim() === '') {
+            billingInput.value = emailInput.value;
+        }
     });
 </script>

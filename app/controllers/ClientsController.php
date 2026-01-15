@@ -47,12 +47,12 @@ class ClientsController extends Controller
             $this->redirect('index.php?route=clients/create');
         }
         $billingEmail = $this->normalizeOptional($_POST['billing_email'] ?? null);
-        if ($billingEmail !== '' && !Validator::email($billingEmail)) {
+        if ($billingEmail !== null && !Validator::email($billingEmail)) {
             flash('error', 'El email de cobranza no es válido.');
             $this->redirect('index.php?route=clients/create');
         }
         $mandanteEmail = $this->normalizeOptional($_POST['mandante_email'] ?? null);
-        if ($mandanteEmail !== '' && !Validator::email($mandanteEmail)) {
+        if ($mandanteEmail !== null && !Validator::email($mandanteEmail)) {
             flash('error', 'El email del mandante no es válido.');
             $this->redirect('index.php?route=clients/create');
         }
@@ -170,12 +170,12 @@ class ClientsController extends Controller
                 $this->redirect('index.php?route=clients/edit&id=' . $id);
             }
             $billingEmail = $this->normalizeOptional($_POST['billing_email'] ?? null);
-            if ($billingEmail !== '' && !Validator::email($billingEmail)) {
+            if ($billingEmail !== null && !Validator::email($billingEmail)) {
                 flash('error', 'El email de cobranza no es válido.');
                 $this->redirect('index.php?route=clients/edit&id=' . $id);
             }
             $mandanteEmail = $this->normalizeOptional($_POST['mandante_email'] ?? null);
-            if ($mandanteEmail !== '' && !Validator::email($mandanteEmail)) {
+            if ($mandanteEmail !== null && !Validator::email($mandanteEmail)) {
                 flash('error', 'El email del mandante no es válido.');
                 $this->redirect('index.php?route=clients/edit&id=' . $id);
             }

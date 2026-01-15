@@ -332,6 +332,12 @@
     mandanteSyncToggle?.addEventListener('change', syncMandanteFromCompany);
     syncMandanteFromCompany();
 
+    Object.keys(mandanteMappings).forEach((field) => {
+        getInput(field)?.addEventListener('input', syncMandanteFromCompany);
+    });
+    mandanteSyncToggle?.addEventListener('change', syncMandanteFromCompany);
+    syncMandanteFromCompany();
+
     document.querySelector('[data-generate-password]')?.addEventListener('click', () => {
         const passwordInput = getInput('portal_password');
         if (!passwordInput) {

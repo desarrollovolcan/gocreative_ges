@@ -155,6 +155,19 @@ class ClientsController extends Controller
             flash('error', 'Completa los campos obligatorios.');
             $this->redirect('index.php?route=clients/edit&id=' . $id);
         }
+        $rut = trim($_POST['rut'] ?? '');
+        $existingQuery = 'SELECT id FROM clients WHERE deleted_at IS NULL AND company_id = :company_id AND id != :id AND (email = :email';
+        $existingParams = ['company_id' => $companyId, 'id' => $id, 'email' => $email];
+        if ($rut !== '') {
+            $existingQuery .= ' OR rut = :rut';
+            $existingParams['rut'] = $rut;
+        }
+        $existingQuery .= ')';
+        $existingClient = $this->db->fetch($existingQuery . ' LIMIT 1', $existingParams);
+        if ($existingClient) {
+            flash('error', 'Ya existe un cliente con este email o RUT. Revisa los datos antes de guardar.');
+            $this->redirect('index.php?route=clients/edit&id=' . $id);
+        }
 
         $portalToken = trim($_POST['portal_token'] ?? '');
         if (!empty($_POST['regenerate_portal_token']) || $portalToken === '') {
@@ -163,7 +176,7 @@ class ClientsController extends Controller
         $portalPassword = trim($_POST['portal_password'] ?? '');
         $data = [
             'name' => $name,
-            'rut' => trim($_POST['rut'] ?? ''),
+            'rut' => $rut,
             'email' => $email,
             'billing_email' => trim($_POST['billing_email'] ?? ''),
             'phone' => trim($_POST['phone'] ?? ''),

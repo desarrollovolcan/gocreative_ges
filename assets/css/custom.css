@@ -705,7 +705,45 @@ textarea.form-control {
     color: #ffffff;
 }
 
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.input-group-responsive .form-control {
+    min-width: 0;
+}
+
 @media (max-width: 767.98px) {
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+    .input-group-responsive {
+        flex-wrap: wrap;
+    }
+
+    .input-group-responsive > .form-control {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .input-group-responsive > .btn {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    .input-group-responsive > .btn + .btn {
+        margin-top: 0.5rem;
+    }
+
     .table-responsive .table {
         min-width: 560px;
     }

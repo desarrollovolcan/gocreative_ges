@@ -9,9 +9,11 @@
                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                     <div class="mb-3">
                         <label class="form-label">Período (ej: 2025-03)</label>
-                        <input type="text" name="period" class="form-control" placeholder="YYYY-MM" required>
+                        <input type="month" name="period" class="form-control" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Crear período</button>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Crear período</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -52,10 +54,10 @@
                                                     <input type="hidden" name="period_id" value="<?php echo (int)$period['id']; ?>">
                                                     <button type="submit" class="btn btn-outline-primary btn-sm">Enviar código</button>
                                                 </form>
-                                                <form method="post" action="index.php?route=accounting/periods/open" class="d-flex align-items-center gap-2">
+                                                <form method="post" action="index.php?route=accounting/periods/open" class="d-flex align-items-center gap-2 flex-wrap">
                                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                     <input type="hidden" name="period_id" value="<?php echo (int)$period['id']; ?>">
-                                                    <input type="text" name="open_code" class="form-control form-control-sm" placeholder="Código" required style="width: 120px;">
+                                                    <input type="text" name="open_code" class="form-control form-control-sm" placeholder="Código" inputmode="numeric" autocomplete="off" required style="width: 120px;">
                                                     <button type="submit" class="btn btn-success btn-sm">Abrir</button>
                                                 </form>
                                             </div>

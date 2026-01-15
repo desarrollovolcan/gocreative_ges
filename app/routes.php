@@ -226,6 +226,7 @@ return [
     'maintainers/email-config/test' => ['EmailConfigController', 'test'],
     'maintainers/online-payments' => ['OnlinePaymentsConfigController', 'index'],
     'maintainers/online-payments/update' => ['OnlinePaymentsConfigController', 'update'],
+    'maintainers/form-audit' => ['FormAuditController', 'index'],
     'maintainers/sii-activities' => ['SiiActivitiesController', 'index'],
     'maintainers/sii-activities/create' => ['SiiActivitiesController', 'create'],
     'maintainers/sii-activities/store' => ['SiiActivitiesController', 'store'],

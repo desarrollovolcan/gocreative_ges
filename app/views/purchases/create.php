@@ -101,8 +101,10 @@
                             </div>
                         </div>
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary">Guardar compra</button>
-                            <a href="index.php?route=purchases" class="btn btn-light ms-2">Cancelar</a>
+                            <div class="form-actions">
+                                <a href="index.php?route=purchases" class="btn btn-light">Cancelar</a>
+                                <button type="submit" class="btn btn-primary">Guardar compra</button>
+                            </div>
                         </div>
                     </div>
                 

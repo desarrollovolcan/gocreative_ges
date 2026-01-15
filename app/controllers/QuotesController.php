@@ -101,6 +101,19 @@ class QuotesController extends Controller
             }
         }
 
+        $items = $_POST['items'] ?? [];
+        $hasItems = false;
+        foreach ($items as $item) {
+            if (!empty($item['descripcion'])) {
+                $hasItems = true;
+                break;
+            }
+        }
+        if (!$hasItems) {
+            flash('error', 'Agrega al menos un ítem a la cotización.');
+            $this->redirect('index.php?route=quotes/create');
+        }
+
         $quoteId = $this->quotes->create(array_merge([
             'company_id' => $companyId,
             'client_id' => $clientId,
@@ -117,7 +130,6 @@ class QuotesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ], $siiData));
 
-        $items = $_POST['items'] ?? [];
         $itemsModel = new QuoteItemsModel($this->db);
         foreach ($items as $item) {
             if (empty($item['descripcion'])) {
@@ -259,6 +271,18 @@ class QuotesController extends Controller
             flash('error', implode(' ', $siiErrors));
             $this->redirect('index.php?route=quotes/edit&id=' . $id);
         }
+        $items = $_POST['items'] ?? [];
+        $hasItems = false;
+        foreach ($items as $item) {
+            if (!empty($item['descripcion'])) {
+                $hasItems = true;
+                break;
+            }
+        }
+        if (!$hasItems) {
+            flash('error', 'Agrega al menos un ítem a la cotización.');
+            $this->redirect('index.php?route=quotes/edit&id=' . $id);
+        }
 
         $this->quotes->update($id, array_merge([
             'client_id' => $clientId,
@@ -275,7 +299,6 @@ class QuotesController extends Controller
         ], $siiData));
 
         $this->db->execute('DELETE FROM quote_items WHERE quote_id = :quote_id', ['quote_id' => $id]);
-        $items = $_POST['items'] ?? [];
         $itemsModel = new QuoteItemsModel($this->db);
         foreach ($items as $item) {
             if (empty($item['descripcion'])) {

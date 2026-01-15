@@ -71,7 +71,7 @@ class PurchasesController extends Controller
             flash('error', 'Proveedor no válido.');
             $this->redirect('index.php?route=purchases/create');
         }
-        $siiData = sii_document_payload($_POST);
+        $siiData = sii_document_payload($_POST, sii_receiver_payload($supplier));
         $siiErrors = validate_sii_document_payload($siiData);
         if ($siiErrors) {
             flash('error', implode(' ', $siiErrors));

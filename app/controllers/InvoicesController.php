@@ -463,6 +463,19 @@ class InvoicesController extends Controller
             $this->redirect('index.php?route=invoices/create');
         }
 
+        $items = $_POST['items'] ?? [];
+        $hasItems = false;
+        foreach ($items as $item) {
+            if (!empty($item['descripcion'])) {
+                $hasItems = true;
+                break;
+            }
+        }
+        if (!$hasItems) {
+            flash('error', 'Agrega al menos un ítem a la factura.');
+            $this->redirect('index.php?route=invoices/create');
+        }
+
         $invoiceId = $this->invoices->create(array_merge([
             'company_id' => $companyId,
             'client_id' => $clientId,
@@ -480,7 +493,6 @@ class InvoicesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ], $siiData));
 
-        $items = $_POST['items'] ?? [];
         $itemsModel = new InvoiceItemsModel($this->db);
         foreach ($items as $item) {
             if (empty($item['descripcion'])) {
@@ -622,6 +634,18 @@ class InvoicesController extends Controller
             flash('error', implode(' ', $siiErrors));
             $this->redirect('index.php?route=invoices/edit&id=' . $id);
         }
+        $items = $_POST['items'] ?? [];
+        $hasItems = false;
+        foreach ($items as $item) {
+            if (!empty($item['descripcion'])) {
+                $hasItems = true;
+                break;
+            }
+        }
+        if (!$hasItems) {
+            flash('error', 'Agrega al menos un ítem a la factura.');
+            $this->redirect('index.php?route=invoices/edit&id=' . $id);
+        }
         $serviceId = trim($_POST['service_id'] ?? '');
         $projectId = trim($_POST['project_id'] ?? '');
         $issueDate = trim($_POST['fecha_emision'] ?? '');
@@ -644,7 +668,6 @@ class InvoicesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ], $siiData));
 
-        $items = $_POST['items'] ?? [];
         $itemsModel = new InvoiceItemsModel($this->db);
         $this->db->execute('DELETE FROM invoice_items WHERE invoice_id = :invoice_id', ['invoice_id' => $id]);
         foreach ($items as $item) {

@@ -196,6 +196,46 @@ function login_logo_src(array $companySettings): string
     return $loginLogoVariant === 'dark' ? $logoBlack : $logoColor;
 }
 
+function chile_commune_city_map(Database $db): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
+    try {
+        $rows = $db->fetchAll('SELECT commune, city FROM chile_communes ORDER BY commune, city');
+    } catch (Throwable $e) {
+        log_message('error', 'Failed to load Chile commune list: ' . $e->getMessage());
+        $cache = [];
+        return $cache;
+    }
+
+    $map = [];
+    foreach ($rows as $row) {
+        $commune = trim((string)($row['commune'] ?? ''));
+        $city = trim((string)($row['city'] ?? ''));
+        if ($commune === '') {
+            continue;
+        }
+        $map[$commune] ??= [];
+        if ($city !== '' && !in_array($city, $map[$commune], true)) {
+            $map[$commune][] = $city;
+        }
+    }
+    ksort($map);
+    foreach ($map as &$cities) {
+        sort($cities);
+    }
+    $cache = $map;
+    return $cache;
+}
+
+function chile_communes(Database $db): array
+{
+    return array_keys(chile_commune_city_map($db));
+}
+
 function upload_avatar(?array $file, string $prefix): array
 {
     if ($file === null || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {

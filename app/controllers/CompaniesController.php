@@ -26,9 +26,13 @@ class CompaniesController extends Controller
     {
         $this->requireLogin();
         $this->requireRole('admin');
+        $communeCityMap = chile_commune_city_map($this->db);
+        $communes = array_keys($communeCityMap);
         $this->render('companies/create', [
             'title' => 'Nueva Empresa',
             'pageTitle' => 'Nueva Empresa',
+            'communes' => $communes,
+            'communeCityMap' => $communeCityMap,
         ]);
     }
 
@@ -70,10 +74,14 @@ class CompaniesController extends Controller
         if (!$company) {
             $this->redirect('index.php?route=companies');
         }
+        $communeCityMap = chile_commune_city_map($this->db);
+        $communes = array_keys($communeCityMap);
         $this->render('companies/edit', [
             'title' => 'Editar Empresa',
             'pageTitle' => 'Editar Empresa',
             'company' => $company,
+            'communes' => $communes,
+            'communeCityMap' => $communeCityMap,
         ]);
     }
 

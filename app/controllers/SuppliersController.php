@@ -38,10 +38,14 @@ class SuppliersController extends Controller
         $this->requireLogin();
         $companyId = $this->requireCompany();
         $suppliers = $this->suppliers->active($companyId);
+        $communeCityMap = chile_commune_city_map($this->db);
+        $communes = array_keys($communeCityMap);
         $this->render('suppliers/create', [
             'title' => 'Nuevo proveedor',
             'pageTitle' => 'Nuevo proveedor',
             'suppliers' => $suppliers,
+            'communes' => $communes,
+            'communeCityMap' => $communeCityMap,
         ]);
     }
 
@@ -83,11 +87,15 @@ class SuppliersController extends Controller
         if (!$supplier) {
             $this->redirect('index.php?route=suppliers');
         }
+        $communeCityMap = chile_commune_city_map($this->db);
+        $communes = array_keys($communeCityMap);
 
         $this->render('suppliers/edit', [
             'title' => 'Editar proveedor',
             'pageTitle' => 'Editar proveedor',
             'supplier' => $supplier,
+            'communes' => $communes,
+            'communeCityMap' => $communeCityMap,
         ]);
     }
 

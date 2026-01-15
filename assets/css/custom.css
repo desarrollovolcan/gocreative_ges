@@ -174,6 +174,45 @@ body {
     padding-left: 0.35rem;
 }
 
+.topnav-toggle-button {
+    display: none;
+}
+
+html[data-layout="topnav"] .topnav-toggle-button {
+    display: inline-flex;
+    align-items: center;
+}
+
+html[data-layout="topnav"] .sidenav-toggle-button {
+    display: none;
+}
+
+@media (max-width: 767.98px) {
+    .app-topbar .topbar-menu {
+        flex-wrap: wrap;
+        row-gap: 0.5rem;
+    }
+
+    .sidenav-menu .logo {
+        justify-content: flex-start;
+        padding: 0 16px;
+    }
+
+    .side-nav .side-nav-link {
+        padding: 0.6rem 0.75rem;
+        gap: 8px;
+    }
+
+    .side-nav .side-nav-link .menu-caption {
+        display: none;
+    }
+
+    .side-nav .menu-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+
 .flow-step .side-nav-link {
     position: relative;
     border: 1px solid rgba(255, 255, 255, 0.12);

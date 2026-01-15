@@ -46,7 +46,17 @@ class ClientsController extends Controller
             flash('error', 'Completa los campos obligatorios.');
             $this->redirect('index.php?route=clients/create');
         }
-        $rut = trim($_POST['rut'] ?? '');
+        $billingEmail = $this->normalizeOptional($_POST['billing_email'] ?? null);
+        if ($billingEmail !== '' && !Validator::email($billingEmail)) {
+            flash('error', 'El email de cobranza no es válido.');
+            $this->redirect('index.php?route=clients/create');
+        }
+        $mandanteEmail = $this->normalizeOptional($_POST['mandante_email'] ?? null);
+        if ($mandanteEmail !== '' && !Validator::email($mandanteEmail)) {
+            flash('error', 'El email del mandante no es válido.');
+            $this->redirect('index.php?route=clients/create');
+        }
+        $rut = normalize_rut($_POST['rut'] ?? '');
         $companyId = current_company_id();
         $existingQuery = 'SELECT id FROM clients WHERE deleted_at IS NULL AND company_id = :company_id AND (email = :email';
         $existingParams = ['company_id' => $companyId, 'email' => $email];
@@ -72,27 +82,30 @@ class ClientsController extends Controller
             flash('error', $avatarResult['error']);
             $this->redirect('index.php?route=clients/create');
         }
+        if ($billingEmail === '' && $email !== '') {
+            $billingEmail = $email;
+        }
         $data = [
             'company_id' => $companyId,
             'name' => $name,
             'rut' => $rut,
             'email' => $email,
-            'billing_email' => trim($_POST['billing_email'] ?? ''),
-            'phone' => trim($_POST['phone'] ?? ''),
-            'address' => trim($_POST['address'] ?? ''),
-            'giro' => trim($_POST['giro'] ?? ''),
-            'activity_code' => trim($_POST['activity_code'] ?? ''),
-            'commune' => trim($_POST['commune'] ?? ''),
-            'city' => trim($_POST['city'] ?? ''),
-            'contact' => trim($_POST['contact'] ?? ''),
-            'mandante_name' => trim($_POST['mandante_name'] ?? ''),
-            'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
-            'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
-            'mandante_email' => trim($_POST['mandante_email'] ?? ''),
+            'billing_email' => $billingEmail,
+            'phone' => $this->normalizeOptional($_POST['phone'] ?? null),
+            'address' => $this->normalizeOptional($_POST['address'] ?? null),
+            'giro' => $this->normalizeOptional($_POST['giro'] ?? null),
+            'activity_code' => $this->normalizeOptional($_POST['activity_code'] ?? null),
+            'commune' => $this->normalizeOptional($_POST['commune'] ?? null),
+            'city' => $this->normalizeOptional($_POST['city'] ?? null),
+            'contact' => $this->normalizeOptional($_POST['contact'] ?? null),
+            'mandante_name' => $this->normalizeOptional($_POST['mandante_name'] ?? null),
+            'mandante_rut' => $this->normalizeOptional(normalize_rut($_POST['mandante_rut'] ?? '')),
+            'mandante_phone' => $this->normalizeOptional($_POST['mandante_phone'] ?? null),
+            'mandante_email' => $mandanteEmail,
             'avatar_path' => $avatarResult['path'],
             'portal_token' => $portalToken,
             'portal_password' => password_hash($portalPassword, PASSWORD_DEFAULT),
-            'notes' => trim($_POST['notes'] ?? ''),
+            'notes' => $this->normalizeOptional($_POST['notes'] ?? null),
             'status' => $_POST['status'] ?? 'activo',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -141,62 +154,121 @@ class ClientsController extends Controller
         verify_csrf();
         $id = (int)($_POST['id'] ?? 0);
         $companyId = current_company_id();
-        $client = $this->db->fetch(
-            'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
-            ['id' => $id, 'company_id' => $companyId]
-        );
-        if (!$client) {
-            flash('error', 'Cliente no encontrado para esta empresa.');
-            $this->redirect('index.php?route=clients');
-        }
-        $name = trim($_POST['name'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        if (!Validator::required($name) || !Validator::email($email)) {
-            flash('error', 'Completa los campos obligatorios.');
-            $this->redirect('index.php?route=clients/edit&id=' . $id);
-        }
+        try {
+            $client = $this->db->fetch(
+                'SELECT id FROM clients WHERE id = :id AND company_id = :company_id',
+                ['id' => $id, 'company_id' => $companyId]
+            );
+            if (!$client) {
+                flash('error', 'Cliente no encontrado para esta empresa.');
+                $this->redirect('index.php?route=clients');
+            }
+            $name = trim($_POST['name'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            if (!Validator::required($name) || !Validator::email($email)) {
+                flash('error', 'Completa los campos obligatorios.');
+                $this->redirect('index.php?route=clients/edit&id=' . $id);
+            }
+            $billingEmail = $this->normalizeOptional($_POST['billing_email'] ?? null);
+            if ($billingEmail !== '' && !Validator::email($billingEmail)) {
+                flash('error', 'El email de cobranza no es válido.');
+                $this->redirect('index.php?route=clients/edit&id=' . $id);
+            }
+            $mandanteEmail = $this->normalizeOptional($_POST['mandante_email'] ?? null);
+            if ($mandanteEmail !== '' && !Validator::email($mandanteEmail)) {
+                flash('error', 'El email del mandante no es válido.');
+                $this->redirect('index.php?route=clients/edit&id=' . $id);
+            }
+            $rut = normalize_rut($_POST['rut'] ?? '');
+            $existingQuery = 'SELECT id FROM clients WHERE deleted_at IS NULL AND company_id = :company_id AND id != :id AND (email = :email';
+            $existingParams = ['company_id' => $companyId, 'id' => $id, 'email' => $email];
+            if ($rut !== '') {
+                $existingQuery .= ' OR rut = :rut';
+                $existingParams['rut'] = $rut;
+            }
+            $existingQuery .= ')';
+            $existingClient = $this->db->fetch($existingQuery . ' LIMIT 1', $existingParams);
+            if ($existingClient) {
+                flash('error', 'Ya existe un cliente con este email o RUT. Revisa los datos antes de guardar.');
+                $this->redirect('index.php?route=clients/edit&id=' . $id);
+            }
 
-        $portalToken = trim($_POST['portal_token'] ?? '');
-        if (!empty($_POST['regenerate_portal_token']) || $portalToken === '') {
-            $portalToken = bin2hex(random_bytes(16));
-        }
-        $portalPassword = trim($_POST['portal_password'] ?? '');
-        $data = [
-            'name' => $name,
-            'rut' => trim($_POST['rut'] ?? ''),
-            'email' => $email,
-            'billing_email' => trim($_POST['billing_email'] ?? ''),
-            'phone' => trim($_POST['phone'] ?? ''),
-            'address' => trim($_POST['address'] ?? ''),
-            'giro' => trim($_POST['giro'] ?? ''),
-            'activity_code' => trim($_POST['activity_code'] ?? ''),
-            'commune' => trim($_POST['commune'] ?? ''),
-            'city' => trim($_POST['city'] ?? ''),
-            'contact' => trim($_POST['contact'] ?? ''),
-            'mandante_name' => trim($_POST['mandante_name'] ?? ''),
-            'mandante_rut' => trim($_POST['mandante_rut'] ?? ''),
-            'mandante_phone' => trim($_POST['mandante_phone'] ?? ''),
-            'mandante_email' => trim($_POST['mandante_email'] ?? ''),
-            'portal_token' => $portalToken,
-            'notes' => trim($_POST['notes'] ?? ''),
-            'status' => $_POST['status'] ?? 'activo',
-            'updated_at' => date('Y-m-d H:i:s'),
-        ];
-        $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'client');
-        if (!empty($avatarResult['error'])) {
-            flash('error', $avatarResult['error']);
+            $portalToken = trim($_POST['portal_token'] ?? '');
+            if (!empty($_POST['regenerate_portal_token']) || $portalToken === '') {
+                $portalToken = bin2hex(random_bytes(16));
+            }
+            $portalPassword = trim($_POST['portal_password'] ?? '');
+            if ($billingEmail === '' && $email !== '') {
+                $billingEmail = $email;
+            }
+            $data = [
+                'name' => $name,
+                'rut' => $rut,
+                'email' => $email,
+                'billing_email' => $billingEmail,
+                'phone' => $this->normalizeOptional($_POST['phone'] ?? null),
+                'address' => $this->normalizeOptional($_POST['address'] ?? null),
+                'giro' => $this->normalizeOptional($_POST['giro'] ?? null),
+                'activity_code' => $this->normalizeOptional($_POST['activity_code'] ?? null),
+                'commune' => $this->normalizeOptional($_POST['commune'] ?? null),
+                'city' => $this->normalizeOptional($_POST['city'] ?? null),
+                'contact' => $this->normalizeOptional($_POST['contact'] ?? null),
+                'mandante_name' => $this->normalizeOptional($_POST['mandante_name'] ?? null),
+                'mandante_rut' => $this->normalizeOptional(normalize_rut($_POST['mandante_rut'] ?? '')),
+                'mandante_phone' => $this->normalizeOptional($_POST['mandante_phone'] ?? null),
+                'mandante_email' => $mandanteEmail,
+                'portal_token' => $portalToken,
+                'notes' => $this->normalizeOptional($_POST['notes'] ?? null),
+                'status' => $_POST['status'] ?? 'activo',
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+            $avatarResult = upload_avatar($_FILES['avatar'] ?? null, 'client');
+            if (!empty($avatarResult['error'])) {
+                flash('error', $avatarResult['error']);
+                $this->redirect('index.php?route=clients/edit&id=' . $id);
+            }
+            if (!empty($avatarResult['path'])) {
+                $data['avatar_path'] = $avatarResult['path'];
+            }
+            if ($portalPassword !== '') {
+                $data['portal_password'] = password_hash($portalPassword, PASSWORD_DEFAULT);
+            }
+            try {
+                $this->clients->update($id, $data);
+            } catch (PDOException $e) {
+                if ($this->isPortalTokenCollision($e)) {
+                    $data['portal_token'] = bin2hex(random_bytes(16));
+                    $this->clients->update($id, $data);
+                } else {
+                    throw $e;
+                }
+            }
+            audit($this->db, Auth::user()['id'], 'update', 'clients', $id);
+            flash('success', 'Datos actualizados correctamente.');
+            $this->redirect('index.php?route=clients/edit&id=' . $id);
+        } catch (Throwable $e) {
+            log_message('error', sprintf(
+                'Error al actualizar cliente %s: %s | Payload: %s',
+                $id,
+                $e->getMessage(),
+                json_encode($_POST, JSON_UNESCAPED_UNICODE)
+            ));
+            flash('error', 'No pudimos actualizar el cliente. Revisa los datos e intenta nuevamente.');
             $this->redirect('index.php?route=clients/edit&id=' . $id);
         }
-        if (!empty($avatarResult['path'])) {
-            $data['avatar_path'] = $avatarResult['path'];
-        }
-        if ($portalPassword !== '') {
-            $data['portal_password'] = password_hash($portalPassword, PASSWORD_DEFAULT);
-        }
-        $this->clients->update($id, $data);
-        audit($this->db, Auth::user()['id'], 'update', 'clients', $id);
-        flash('success', 'Datos actualizados correctamente.');
-        $this->redirect('index.php?route=clients/edit&id=' . $id);
+    }
+
+    private function isPortalTokenCollision(PDOException $e): bool
+    {
+        $sqlState = (string)($e->getCode() ?? '');
+        $message = $e->getMessage();
+        return $sqlState === '23000' && str_contains($message, 'idx_clients_portal_token');
+    }
+
+    private function normalizeOptional(?string $value): ?string
+    {
+        $value = trim((string)$value);
+        return $value === '' ? null : $value;
     }
 
     public function show(): void

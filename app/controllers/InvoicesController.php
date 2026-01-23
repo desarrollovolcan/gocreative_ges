@@ -771,12 +771,18 @@ class InvoicesController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
         $this->syncInvoiceBalance($invoiceId);
-        $this->db->execute('INSERT INTO notifications (company_id, title, message, type, created_at, updated_at) VALUES (:company_id, :title, :message, :type, NOW(), NOW())', [
-            'company_id' => current_company_id(),
-            'title' => 'Pago registrado',
-            'message' => 'Se registró un pago para la factura #' . $invoiceId,
-            'type' => 'success',
-        ]);
+        $invoiceNumberRow = $this->db->fetch(
+            'SELECT numero FROM invoices WHERE id = :id AND company_id = :company_id',
+            ['id' => $invoiceId, 'company_id' => current_company_id()]
+        );
+        $invoiceNumber = trim((string)($invoiceNumberRow['numero'] ?? ''));
+        create_notification(
+            $this->db,
+            current_company_id(),
+            'Pago registrado',
+            'Se registró un pago para la factura ' . ($invoiceNumber !== '' ? $invoiceNumber : '#' . $invoiceId) . '.',
+            'success'
+        );
         $this->sendPaymentReceiptEmail($paymentId, true);
         audit($this->db, Auth::user()['id'], 'pay', 'invoices', $invoiceId);
         flash('success', 'Pago registrado correctamente.');

@@ -121,4 +121,26 @@ class CompaniesController extends Controller
         flash('success', 'Empresa actualizada correctamente.');
         $this->redirect('index.php?route=companies');
     }
+
+    public function delete(): void
+    {
+        $this->requireLogin();
+        $this->requireRole('admin');
+        verify_csrf();
+        $id = (int)($_POST['id'] ?? 0);
+        $company = $this->companies->find($id);
+        if (!$company) {
+            flash('error', 'Empresa no encontrada.');
+            $this->redirect('index.php?route=companies');
+        }
+        try {
+            $this->db->execute('DELETE FROM companies WHERE id = :id', ['id' => $id]);
+            audit($this->db, Auth::user()['id'], 'delete', 'companies', $id);
+            flash('success', 'Empresa eliminada correctamente.');
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to delete company: ' . $e->getMessage());
+            flash('error', 'No se pudo eliminar la empresa.');
+        }
+        $this->redirect('index.php?route=companies');
+    }
 }

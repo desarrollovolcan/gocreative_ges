@@ -119,4 +119,37 @@ class ChileRegionsController extends Controller
         }
         $this->redirect('index.php?route=maintainers/chile-regions');
     }
+
+    public function delete(): void
+    {
+        $this->requireLogin();
+        $this->requireRole('admin');
+        verify_csrf();
+        $id = (int)($_POST['id'] ?? 0);
+        $region = $this->db->fetch(
+            'SELECT id FROM regions WHERE id = :id',
+            ['id' => $id]
+        );
+        if (!$region) {
+            flash('error', 'Región no encontrada.');
+            $this->redirect('index.php?route=maintainers/chile-regions');
+        }
+        $hasCities = $this->db->fetch(
+            'SELECT id FROM cities WHERE region_id = :id LIMIT 1',
+            ['id' => $id]
+        );
+        if ($hasCities) {
+            flash('error', 'No se puede eliminar la región mientras tenga ciudades asociadas.');
+            $this->redirect('index.php?route=maintainers/chile-regions');
+        }
+        try {
+            $this->db->execute('DELETE FROM regions WHERE id = :id', ['id' => $id]);
+            audit($this->db, Auth::user()['id'], 'delete', 'regions', $id);
+            flash('success', 'Región eliminada correctamente.');
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to delete Chile region: ' . $e->getMessage());
+            flash('error', 'No se pudo eliminar la región.');
+        }
+        $this->redirect('index.php?route=maintainers/chile-regions');
+    }
 }

@@ -136,6 +136,31 @@ class ChileCommunesController extends Controller
         $this->redirect('index.php?route=maintainers/chile-communes');
     }
 
+    public function delete(): void
+    {
+        $this->requireLogin();
+        $this->requireRole('admin');
+        verify_csrf();
+        $id = (int)($_POST['id'] ?? 0);
+        $commune = $this->db->fetch(
+            'SELECT id FROM communes WHERE id = :id',
+            ['id' => $id]
+        );
+        if (!$commune) {
+            flash('error', 'Comuna no encontrada.');
+            $this->redirect('index.php?route=maintainers/chile-communes');
+        }
+        try {
+            $this->db->execute('DELETE FROM communes WHERE id = :id', ['id' => $id]);
+            audit($this->db, Auth::user()['id'], 'delete', 'chile_communes', $id);
+            flash('success', 'Comuna eliminada correctamente.');
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to delete Chile commune: ' . $e->getMessage());
+            flash('error', 'No se pudo eliminar la comuna.');
+        }
+        $this->redirect('index.php?route=maintainers/chile-communes');
+    }
+
     private function loadCities(): array
     {
         try {

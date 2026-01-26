@@ -41,6 +41,13 @@
                                         <li>
                                             <a class="dropdown-item" href="index.php?route=fixed-assets/edit&id=<?php echo (int)$asset['id']; ?>">Editar</a>
                                         </li>
+                                        <li>
+                                            <form method="post" action="index.php?route=fixed-assets/delete" onsubmit="return confirm('¿Eliminar este activo fijo?');">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="id" value="<?php echo (int)$asset['id']; ?>">
+                                                <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                            </form>
+                                        </li>
                                     </ul>
                                 </div>
                             </td>

@@ -149,6 +149,33 @@ class EmailQueueController extends Controller
         $this->redirect('index.php?route=email-queue');
     }
 
+    public function delete(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $id = (int)($_POST['id'] ?? 0);
+        $email = $this->db->fetch(
+            'SELECT id FROM email_queue WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => current_company_id()]
+        );
+        if (!$email) {
+            flash('error', 'Correo no encontrado.');
+            $this->redirect('index.php?route=email-queue');
+        }
+        try {
+            $this->db->execute(
+                'DELETE FROM email_queue WHERE id = :id AND company_id = :company_id',
+                ['id' => $id, 'company_id' => current_company_id()]
+            );
+            audit($this->db, Auth::user()['id'], 'delete', 'email_queue', $id);
+            flash('success', 'Correo eliminado de la cola.');
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to delete queued email: ' . $e->getMessage());
+            flash('error', 'No se pudo eliminar el correo.');
+        }
+        $this->redirect('index.php?route=email-queue');
+    }
+
     private function createNotification(string $title, string $message, string $type): void
     {
         try {

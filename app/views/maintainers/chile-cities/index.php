@@ -34,9 +34,23 @@
                                 <td><?php echo e($city['name'] ?? ''); ?></td>
                                 <td><?php echo e($city['region'] ?? ''); ?></td>
                                 <td class="text-end">
-                                    <a href="index.php?route=maintainers/chile-cities/edit&id=<?php echo $city['id']; ?>" class="btn btn-soft-primary btn-sm">
-                                        Editar
-                                    </a>
+                                    <div class="dropdown actions-dropdown">
+                                        <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Acciones
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a href="index.php?route=maintainers/chile-cities/edit&id=<?php echo $city['id']; ?>" class="dropdown-item">Editar</a>
+                                            </li>
+                                            <li>
+                                                <form method="post" action="index.php?route=maintainers/chile-cities/delete" onsubmit="return confirm('¿Eliminar esta ciudad?');">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                    <input type="hidden" name="id" value="<?php echo (int)$city['id']; ?>">
+                                                    <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

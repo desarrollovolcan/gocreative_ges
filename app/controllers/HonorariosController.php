@@ -71,4 +71,32 @@ class HonorariosController extends Controller
         flash('success', 'Boleta de honorarios registrada.');
         $this->redirect('index.php?route=honorarios');
     }
+
+    public function delete(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $id = (int)($_POST['id'] ?? 0);
+        $document = $this->db->fetch(
+            'SELECT id FROM honorarios_documents WHERE id = :id AND company_id = :company_id',
+            ['id' => $id, 'company_id' => $companyId]
+        );
+        if (!$document) {
+            flash('error', 'Boleta no encontrada.');
+            $this->redirect('index.php?route=honorarios');
+        }
+        try {
+            $this->db->execute(
+                'DELETE FROM honorarios_documents WHERE id = :id AND company_id = :company_id',
+                ['id' => $id, 'company_id' => $companyId]
+            );
+            audit($this->db, Auth::user()['id'], 'delete', 'honorarios_documents', $id);
+            flash('success', 'Boleta eliminada correctamente.');
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to delete honorarios document: ' . $e->getMessage());
+            flash('error', 'No se pudo eliminar la boleta.');
+        }
+        $this->redirect('index.php?route=honorarios');
+    }
 }

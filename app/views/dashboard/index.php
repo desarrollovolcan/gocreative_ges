@@ -388,6 +388,7 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                                                 <th>Emisión</th>
                                                 <th class="text-end">Total</th>
                                                 <th>Estado</th>
+                                                <th class="text-end">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -405,6 +406,13 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                                                         <span class="badge bg-<?php echo ($invoice['estado'] ?? '') === 'pagada' ? 'success' : (($invoice['estado'] ?? '') === 'vencida' ? 'danger' : 'warning'); ?>-subtle text-<?php echo ($invoice['estado'] ?? '') === 'pagada' ? 'success' : (($invoice['estado'] ?? '') === 'vencida' ? 'danger' : 'warning'); ?>">
                                                             <?php echo e($invoice['estado'] ?? 'pendiente'); ?>
                                                         </span>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <form method="post" action="index.php?route=invoices/delete" onsubmit="return confirm('¿Eliminar esta factura?');">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                            <input type="hidden" name="id" value="<?php echo (int)$invoice['id']; ?>">
+                                                            <button type="submit" class="btn btn-sm btn-soft-danger">Eliminar</button>
+                                                        </form>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -425,6 +433,7 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                                                 <th>Cliente</th>
                                                 <th>Vencimiento</th>
                                                 <th class="text-end">Total</th>
+                                                <th class="text-end">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -438,6 +447,13 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                                                     <td><?php echo e($invoice['client_name'] ?? ''); ?></td>
                                                     <td><?php echo e($invoice['fecha_vencimiento'] ?? ''); ?></td>
                                                     <td class="text-end"><?php echo e(format_currency((float)($invoice['total'] ?? 0))); ?></td>
+                                                    <td class="text-end">
+                                                        <form method="post" action="index.php?route=invoices/delete" onsubmit="return confirm('¿Eliminar esta factura?');">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                            <input type="hidden" name="id" value="<?php echo (int)$invoice['id']; ?>">
+                                                            <button type="submit" class="btn btn-sm btn-soft-danger">Eliminar</button>
+                                                        </form>
+                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -479,6 +495,7 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                                                 <th>Servicio</th>
                                                 <th>Cliente</th>
                                                 <th>Vence</th>
+                                                <th class="text-end">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -487,6 +504,13 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                                                     <td><?php echo e($service['name'] ?? ''); ?></td>
                                                     <td><?php echo e($service['client_name'] ?? ''); ?></td>
                                                     <td><?php echo e($service['due_date'] ?? ''); ?></td>
+                                                    <td class="text-end">
+                                                        <form method="post" action="index.php?route=services/delete" onsubmit="return confirm('¿Eliminar este servicio?');">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                            <input type="hidden" name="id" value="<?php echo (int)$service['id']; ?>">
+                                                            <button type="submit" class="btn btn-sm btn-soft-danger">Eliminar</button>
+                                                        </form>
+                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -504,6 +528,7 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                                             <tr>
                                                 <th>Cliente</th>
                                                 <th class="text-end">Total facturado</th>
+                                                <th class="text-end">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -511,6 +536,13 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                                                 <tr>
                                                     <td><?php echo e($client['client_name'] ?? ''); ?></td>
                                                     <td class="text-end"><?php echo e(format_currency((float)($client['total'] ?? 0))); ?></td>
+                                                    <td class="text-end">
+                                                        <form method="post" action="index.php?route=clients/delete" onsubmit="return confirm('¿Eliminar este cliente?');">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                            <input type="hidden" name="id" value="<?php echo (int)($client['client_id'] ?? 0); ?>">
+                                                            <button type="submit" class="btn btn-sm btn-soft-danger">Eliminar</button>
+                                                        </form>
+                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -547,6 +579,7 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                                         <th>Fecha</th>
                                         <th>Método</th>
                                         <th class="text-end">Monto</th>
+                                        <th class="text-end">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -557,6 +590,14 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                                             <td><?php echo e($payment['fecha_pago'] ?? ''); ?></td>
                                             <td><?php echo e($payment['metodo'] ?? ''); ?></td>
                                             <td class="text-end"><?php echo e(format_currency((float)($payment['monto'] ?? 0))); ?></td>
+                                            <td class="text-end">
+                                                <form method="post" action="index.php?route=invoices/payments/delete" onsubmit="return confirm('¿Eliminar este pago?');">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                    <input type="hidden" name="payment_id" value="<?php echo (int)$payment['id']; ?>">
+                                                    <input type="hidden" name="invoice_id" value="<?php echo (int)($payment['invoice_id'] ?? 0); ?>">
+                                                    <button type="submit" class="btn btn-sm btn-soft-danger">Eliminar</button>
+                                                </form>
+                                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

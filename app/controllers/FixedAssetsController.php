@@ -141,4 +141,32 @@ class FixedAssetsController extends Controller
         flash('success', 'Activo fijo actualizado.');
         $this->redirect('index.php?route=fixed-assets');
     }
+
+    public function delete(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $assetId = (int)($_POST['id'] ?? 0);
+        $asset = $this->db->fetch(
+            'SELECT id FROM fixed_assets WHERE id = :id AND company_id = :company_id',
+            ['id' => $assetId, 'company_id' => $companyId]
+        );
+        if (!$asset) {
+            flash('error', 'Activo fijo no encontrado.');
+            $this->redirect('index.php?route=fixed-assets');
+        }
+        try {
+            $this->db->execute(
+                'DELETE FROM fixed_assets WHERE id = :id AND company_id = :company_id',
+                ['id' => $assetId, 'company_id' => $companyId]
+            );
+            audit($this->db, Auth::user()['id'], 'delete', 'fixed_assets', $assetId);
+            flash('success', 'Activo fijo eliminado.');
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to delete fixed asset: ' . $e->getMessage());
+            flash('error', 'No se pudo eliminar el activo fijo.');
+        }
+        $this->redirect('index.php?route=fixed-assets');
+    }
 }

@@ -61,7 +61,7 @@ class DashboardController extends Controller
                 $companyParams
             );
             $topClients = $this->db->fetchAll(
-                'SELECT clients.name as client_name, COALESCE(SUM(invoices.total),0) as total
+                'SELECT clients.id as client_id, clients.name as client_name, COALESCE(SUM(invoices.total),0) as total
                  FROM invoices
                  JOIN clients ON invoices.client_id = clients.id
                  WHERE invoices.deleted_at IS NULL' . ($companyId ? ' AND invoices.company_id = :company_id' : '') . '

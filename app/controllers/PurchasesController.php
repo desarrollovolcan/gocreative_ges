@@ -157,6 +157,23 @@ class PurchasesController extends Controller
         ]);
     }
 
+    public function delete(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $id = (int)($_POST['id'] ?? 0);
+        $purchase = $this->purchases->findForCompany($id, $companyId);
+        if (!$purchase) {
+            flash('error', 'Compra no encontrada.');
+            $this->redirect('index.php?route=purchases');
+        }
+        $this->purchases->softDelete($id);
+        audit($this->db, Auth::user()['id'], 'delete', 'purchases', $id);
+        flash('success', 'Compra eliminada correctamente.');
+        $this->redirect('index.php?route=purchases');
+    }
+
     private function collectItems(int $companyId): array
     {
         $productIds = $_POST['product_id'] ?? [];

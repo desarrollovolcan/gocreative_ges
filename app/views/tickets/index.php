@@ -22,7 +22,7 @@
                             <th>Estado</th>
                             <th>Prioridad</th>
                             <th>Actualizado</th>
-                            <th class="text-end">Acción</th>
+                            <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -39,7 +39,23 @@
                                 <td><?php echo e(ucfirst($ticket['priority'] ?? 'media')); ?></td>
                                 <td><?php echo e($ticket['updated_at'] ?? ''); ?></td>
                                 <td class="text-end">
-                                    <a href="index.php?route=tickets/show&id=<?php echo (int)$ticket['id']; ?>" class="btn btn-light btn-sm">Ver</a>
+                                    <div class="dropdown actions-dropdown">
+                                        <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Acciones
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a href="index.php?route=tickets/show&id=<?php echo (int)$ticket['id']; ?>" class="dropdown-item">Ver</a>
+                                            </li>
+                                            <li>
+                                                <form method="post" action="index.php?route=tickets/delete" onsubmit="return confirm('¿Eliminar este ticket?');">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                    <input type="hidden" name="id" value="<?php echo (int)$ticket['id']; ?>">
+                                                    <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

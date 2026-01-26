@@ -121,4 +121,29 @@ class SiiActivitiesController extends Controller
         }
         $this->redirect('index.php?route=maintainers/sii-activities');
     }
+
+    public function delete(): void
+    {
+        $this->requireLogin();
+        $this->requireRole('admin');
+        verify_csrf();
+        $id = (int)($_POST['id'] ?? 0);
+        $activity = $this->db->fetch(
+            'SELECT id FROM sii_activity_codes WHERE id = :id',
+            ['id' => $id]
+        );
+        if (!$activity) {
+            flash('error', 'Actividad no encontrada.');
+            $this->redirect('index.php?route=maintainers/sii-activities');
+        }
+        try {
+            $this->db->execute('DELETE FROM sii_activity_codes WHERE id = :id', ['id' => $id]);
+            audit($this->db, Auth::user()['id'], 'delete', 'sii_activity_codes', $id);
+            flash('success', 'Actividad eliminada correctamente.');
+        } catch (Throwable $e) {
+            log_message('error', 'Failed to delete SII activity: ' . $e->getMessage());
+            flash('error', 'No se pudo eliminar la actividad.');
+        }
+        $this->redirect('index.php?route=maintainers/sii-activities');
+    }
 }

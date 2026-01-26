@@ -113,6 +113,13 @@
                                                 <li>
                                                     <a class="dropdown-item" href="index.php?route=taxes/periods/edit&id=<?php echo (int)$period['id']; ?>">Editar</a>
                                                 </li>
+                                                <li>
+                                                    <form method="post" action="index.php?route=taxes/periods/delete" onsubmit="return confirm('¿Eliminar este período y sus retenciones?');">
+                                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                        <input type="hidden" name="id" value="<?php echo (int)$period['id']; ?>">
+                                                        <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                                    </form>
+                                                </li>
                                             </ul>
                                         </div>
                                     </td>
@@ -159,6 +166,13 @@
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
                                                     <a class="dropdown-item" href="index.php?route=taxes/withholdings/edit&id=<?php echo (int)$row['id']; ?>">Editar</a>
+                                                </li>
+                                                <li>
+                                                    <form method="post" action="index.php?route=taxes/withholdings/delete" onsubmit="return confirm('¿Eliminar esta retención?');">
+                                                        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                        <input type="hidden" name="id" value="<?php echo (int)$row['id']; ?>">
+                                                        <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                                    </form>
                                                 </li>
                                             </ul>
                                         </div>

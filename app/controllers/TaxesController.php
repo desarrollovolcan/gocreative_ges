@@ -194,4 +194,80 @@ class TaxesController extends Controller
         flash('success', 'Retención actualizada.');
         $this->redirect('index.php?route=taxes&period_id=' . (int)$withholding['period_id']);
     }
+
+    public function deletePeriod(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $periodId = (int)($_POST['id'] ?? 0);
+        $period = $this->db->fetch(
+            'SELECT id FROM tax_periods WHERE id = :id AND company_id = :company_id',
+            ['id' => $periodId, 'company_id' => $companyId]
+        );
+        if (!$period) {
+            flash('error', 'Período tributario no encontrado.');
+            $this->redirect('index.php?route=taxes');
+        }
+        $pdo = $this->db->pdo();
+        try {
+            $pdo->beginTransaction();
+            $this->db->execute(
+                'DELETE FROM tax_withholdings WHERE period_id = :period_id AND company_id = :company_id',
+                ['period_id' => $periodId, 'company_id' => $companyId]
+            );
+            $this->db->execute(
+                'DELETE FROM tax_periods WHERE id = :id AND company_id = :company_id',
+                ['id' => $periodId, 'company_id' => $companyId]
+            );
+            audit($this->db, Auth::user()['id'], 'delete', 'tax_periods', $periodId);
+            $pdo->commit();
+            flash('success', 'Período tributario eliminado.');
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            log_message('error', 'Failed to delete tax period: ' . $e->getMessage());
+            flash('error', 'No se pudo eliminar el período.');
+        }
+        $this->redirect('index.php?route=taxes');
+    }
+
+    public function deleteWithholding(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $companyId = $this->requireCompany();
+        $withholdingId = (int)($_POST['id'] ?? 0);
+        $withholding = $this->db->fetch(
+            'SELECT id, period_id, amount FROM tax_withholdings WHERE id = :id AND company_id = :company_id',
+            ['id' => $withholdingId, 'company_id' => $companyId]
+        );
+        if (!$withholding) {
+            flash('error', 'Retención no encontrada.');
+            $this->redirect('index.php?route=taxes');
+        }
+        $pdo = $this->db->pdo();
+        try {
+            $pdo->beginTransaction();
+            $this->db->execute(
+                'DELETE FROM tax_withholdings WHERE id = :id AND company_id = :company_id',
+                ['id' => $withholdingId, 'company_id' => $companyId]
+            );
+            $this->db->execute(
+                'UPDATE tax_periods SET total_retenciones = GREATEST(total_retenciones - :amount, 0), updated_at = NOW() WHERE id = :period_id AND company_id = :company_id',
+                [
+                    'amount' => (float)($withholding['amount'] ?? 0),
+                    'period_id' => (int)$withholding['period_id'],
+                    'company_id' => $companyId,
+                ]
+            );
+            audit($this->db, Auth::user()['id'], 'delete', 'tax_withholdings', $withholdingId);
+            $pdo->commit();
+            flash('success', 'Retención eliminada.');
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            log_message('error', 'Failed to delete tax withholding: ' . $e->getMessage());
+            flash('error', 'No se pudo eliminar la retención.');
+        }
+        $this->redirect('index.php?route=taxes&period_id=' . (int)$withholding['period_id']);
+    }
 }

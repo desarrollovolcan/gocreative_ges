@@ -47,7 +47,23 @@
                             </td>
                             <td class="text-end"><?php echo e(format_currency((float)($sale['total'] ?? 0))); ?></td>
                             <td class="text-end">
-                                <a href="index.php?route=sales/show&id=<?php echo (int)$sale['id']; ?>" class="btn btn-soft-primary btn-sm">Ver</a>
+                                <div class="dropdown actions-dropdown">
+                                    <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Acciones
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a href="index.php?route=sales/show&id=<?php echo (int)$sale['id']; ?>" class="dropdown-item">Ver</a>
+                                        </li>
+                                        <li>
+                                            <form method="post" action="index.php?route=sales/delete" onsubmit="return confirm('¿Eliminar esta venta?');">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="id" value="<?php echo (int)$sale['id']; ?>">
+                                                <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

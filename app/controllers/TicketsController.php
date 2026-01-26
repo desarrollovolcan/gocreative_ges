@@ -187,6 +187,38 @@ class TicketsController extends Controller
         $this->redirect('index.php?route=tickets/show&id=' . $ticketId);
     }
 
+    public function delete(): void
+    {
+        $this->requireLogin();
+        verify_csrf();
+        $ticketId = (int)($_POST['id'] ?? 0);
+        $ticket = $this->tickets->findWithClient($ticketId, current_company_id());
+        if (!$ticket) {
+            flash('error', 'Ticket no encontrado.');
+            $this->redirect('index.php?route=tickets');
+        }
+        $pdo = $this->db->pdo();
+        try {
+            $pdo->beginTransaction();
+            $this->db->execute(
+                'DELETE FROM support_ticket_messages WHERE ticket_id = :ticket_id',
+                ['ticket_id' => $ticketId]
+            );
+            $this->db->execute(
+                'DELETE FROM support_tickets WHERE id = :id AND company_id = :company_id',
+                ['id' => $ticketId, 'company_id' => current_company_id()]
+            );
+            audit($this->db, Auth::user()['id'], 'delete', 'support_tickets', $ticketId);
+            $pdo->commit();
+            flash('success', 'Ticket eliminado correctamente.');
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            log_message('error', 'Failed to delete ticket: ' . $e->getMessage());
+            flash('error', 'No se pudo eliminar el ticket.');
+        }
+        $this->redirect('index.php?route=tickets');
+    }
+
     public function messages(): void
     {
         $this->requireLogin();

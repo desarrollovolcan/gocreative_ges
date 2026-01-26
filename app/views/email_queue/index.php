@@ -71,12 +71,12 @@
                             </td>
                             <td><?php echo e($email['scheduled_at']); ?></td>
                             <td class="text-end">
-                                <?php if ($email['status'] !== 'sent'): ?>
-                                    <div class="dropdown actions-dropdown">
-                                        <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Acciones
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
+                                <div class="dropdown actions-dropdown">
+                                    <button class="btn btn-soft-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Acciones
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <?php if ($email['status'] !== 'sent'): ?>
                                             <li>
                                                 <form method="post" action="index.php?route=email-queue/send">
                                                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
@@ -84,11 +84,16 @@
                                                     <button type="submit" class="dropdown-item dropdown-item-button">Enviar ahora</button>
                                                 </form>
                                             </li>
-                                        </ul>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="text-muted">Enviado</span>
-                                <?php endif; ?>
+                                        <?php endif; ?>
+                                        <li>
+                                            <form method="post" action="index.php?route=email-queue/delete" onsubmit="return confirm('¿Eliminar este correo de la cola?');">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <input type="hidden" name="id" value="<?php echo (int)$email['id']; ?>">
+                                                <button type="submit" class="dropdown-item dropdown-item-button text-danger">Eliminar</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

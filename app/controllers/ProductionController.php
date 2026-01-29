@@ -98,6 +98,69 @@ class ProductionController extends Controller
         ]);
     }
 
+    public function stock(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $rows = $this->db->fetchAll(
+            'SELECT p.id, p.name, p.sku, p.stock, p.cost, COALESCE(SUM(po.quantity), 0) AS produced_quantity
+             FROM production_outputs po
+             JOIN production_orders o ON o.id = po.production_id
+             JOIN products p ON p.id = po.product_id
+             WHERE o.company_id = :company_id
+             GROUP BY p.id, p.name, p.sku, p.stock, p.cost
+             ORDER BY p.name ASC',
+            ['company_id' => $companyId]
+        );
+
+        $this->render('production/stock', [
+            'title' => 'Stock producido',
+            'pageTitle' => 'Stock de productos producidos',
+            'rows' => $rows,
+        ]);
+    }
+
+    public function inputsReport(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $rows = $this->db->fetchAll(
+            'SELECT pi.*, p.name AS product_name, o.production_date
+             FROM production_inputs pi
+             JOIN production_orders o ON o.id = pi.production_id
+             JOIN products p ON p.id = pi.product_id
+             WHERE o.company_id = :company_id
+             ORDER BY o.production_date DESC, pi.id DESC',
+            ['company_id' => $companyId]
+        );
+
+        $this->render('production/inputs', [
+            'title' => 'Consumos de producción',
+            'pageTitle' => 'Consumos de producción',
+            'rows' => $rows,
+        ]);
+    }
+
+    public function expensesReport(): void
+    {
+        $this->requireLogin();
+        $companyId = $this->requireCompany();
+        $rows = $this->db->fetchAll(
+            'SELECT pe.*, o.production_date
+             FROM production_expenses pe
+             JOIN production_orders o ON o.id = pe.production_id
+             WHERE o.company_id = :company_id
+             ORDER BY o.production_date DESC, pe.id DESC',
+            ['company_id' => $companyId]
+        );
+
+        $this->render('production/expenses', [
+            'title' => 'Gastos de producción',
+            'pageTitle' => 'Gastos de producción',
+            'rows' => $rows,
+        ]);
+    }
+
     public function store(): void
     {
         $this->requireLogin();

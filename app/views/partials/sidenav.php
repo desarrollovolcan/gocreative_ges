@@ -67,12 +67,12 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                 </li>
             <?php endif; ?>
             <?php if ($hasCompany && $canAccessAny(['products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'product_families_view', 'product_subfamilies_view', 'production_view', 'production_edit'])): ?>
-                <li class="side-nav-title">Productos &amp; materias primas</li>
+                <li class="side-nav-title">Productos</li>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarInventory" aria-expanded="false" aria-controls="sidebarInventory" class="side-nav-link">
                         <span class="menu-icon"><i data-lucide="package"></i></span>
                         <span class="menu-label">
-                            <span class="menu-text">Productos &amp; materias primas</span>
+                            <span class="menu-text">Productos</span>
                             <span class="menu-caption">Compras y gestión productiva</span>
                         </span>
                         <span class="menu-arrow"></span>

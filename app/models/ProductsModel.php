@@ -36,4 +36,15 @@ class ProductsModel extends Model
             ]
         );
     }
+
+    public function updateCost(int $id, float $cost): void
+    {
+        $this->db->execute(
+            'UPDATE products SET cost = :cost, updated_at = NOW() WHERE id = :id',
+            [
+                'cost' => $cost,
+                'id' => $id,
+            ]
+        );
+    }
 }

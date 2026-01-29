@@ -66,6 +66,70 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
+            <?php if ($hasCompany && $canAccessAny(['products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'product_families_view', 'product_subfamilies_view', 'production_view', 'production_edit'])): ?>
+                <li class="side-nav-title">Productos &amp; materias primas</li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarInventory" aria-expanded="false" aria-controls="sidebarInventory" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="package"></i></span>
+                        <span class="menu-label">
+                            <span class="menu-text">Productos &amp; materias primas</span>
+                            <span class="menu-caption">Compras y gestión productiva</span>
+                        </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarInventory">
+                        <ul class="sub-menu">
+                            <?php if ($hasPermission('products_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=products" class="side-nav-link">
+                                        <span class="menu-text">Listado productos</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('suppliers_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=suppliers" class="side-nav-link">
+                                        <span class="menu-text">Proveedores</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('purchases_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=purchases" class="side-nav-link">
+                                        <span class="menu-text">Compras</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('production_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production/inputs" class="side-nav-link">
+                                        <span class="menu-text">Consumos para producción</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production/expenses" class="side-nav-link">
+                                        <span class="menu-text">Gastos para producción</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('product_families_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=maintainers/product-families" class="side-nav-link">
+                                        <span class="menu-text">Familias</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('product_subfamilies_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=maintainers/product-subfamilies" class="side-nav-link">
+                                        <span class="menu-text">Subfamilias</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </li>
+            <?php endif; ?>
             <?php if ($hasCompany && $hasPermission('crm_view')): ?>
                 <li class="side-nav-title">Comercial</li>
                 <li class="side-nav-item">
@@ -335,70 +399,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccessAny(['products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'product_families_view', 'product_subfamilies_view', 'production_view', 'production_edit'])): ?>
-                <li class="side-nav-title">Productos y materias primas</li>
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarInventory" aria-expanded="false" aria-controls="sidebarInventory" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="package"></i></span>
-                        <span class="menu-label">
-                            <span class="menu-text">Productos y materias primas</span>
-                            <span class="menu-caption">Compras y gestión productiva</span>
-                        </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarInventory">
-                        <ul class="sub-menu">
-                            <?php if ($hasPermission('products_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=products" class="side-nav-link">
-                                        <span class="menu-text">Listado productos</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('suppliers_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=suppliers" class="side-nav-link">
-                                        <span class="menu-text">Proveedores</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('purchases_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=purchases" class="side-nav-link">
-                                        <span class="menu-text">Compras</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('production_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=production/inputs" class="side-nav-link">
-                                        <span class="menu-text">Consumos para producción</span>
-                                    </a>
-                                </li>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=production/expenses" class="side-nav-link">
-                                        <span class="menu-text">Gastos para producción</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('product_families_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=maintainers/product-families" class="side-nav-link">
-                                        <span class="menu-text">Familias</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('product_subfamilies_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=maintainers/product-subfamilies" class="side-nav-link">
-                                        <span class="menu-text">Subfamilias</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
-                </li>
-            <?php endif; ?>
             <?php if ($hasCompany && $canAccessAny(['production_view', 'production_edit'])): ?>
                 <li class="side-nav-title">Producción</li>
                 <li class="side-nav-item">
@@ -416,45 +416,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                 <li class="side-nav-item">
                                     <a href="index.php?route=production" class="side-nav-link">
                                         <span class="menu-text">Órdenes de producción</span>
-                                    </a>
-                                </li>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=production/stock" class="side-nav-link">
-                                        <span class="menu-text">Stock producido</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
-                </li>
-            <?php endif; ?>
-            <?php if ($hasCompany && $canAccessAny(['production_view', 'production_edit'])): ?>
-                <li class="side-nav-title">Producción</li>
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarProduction" aria-expanded="false" aria-controls="sidebarProduction" class="side-nav-link">
-                        <span class="menu-icon"><i data-lucide="factory"></i></span>
-                        <span class="menu-label">
-                            <span class="menu-text">Producción</span>
-                            <span class="menu-caption">Costos y stock final</span>
-                        </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarProduction">
-                        <ul class="sub-menu">
-                            <?php if ($hasPermission('production_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=production" class="side-nav-link">
-                                        <span class="menu-text">Órdenes de producción</span>
-                                    </a>
-                                </li>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=production/inputs" class="side-nav-link">
-                                        <span class="menu-text">Consumos de producción</span>
-                                    </a>
-                                </li>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=production/expenses" class="side-nav-link">
-                                        <span class="menu-text">Gastos de producción</span>
                                     </a>
                                 </li>
                                 <li class="side-nav-item">

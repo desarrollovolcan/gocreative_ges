@@ -310,15 +310,24 @@
                 <h6 class="card-title mb-0">Productos</h6>
             </div>
             <div class="card-body p-0 d-flex flex-column">
-                <div class="p-2">
+                <div class="p-2 d-flex flex-column gap-2">
+                    <?php if ($isPos): ?>
+                        <select class="form-select form-select-sm" id="product-type-filter">
+                            <option value="all">Todos los productos</option>
+                            <option value="produced">Productos fabricados</option>
+                            <option value="regular">Productos normales</option>
+                        </select>
+                    <?php endif; ?>
                     <input type="text" class="form-control form-control-sm w-100" id="search-products" placeholder="Buscar producto">
                 </div>
                 <div class="list-group list-group-flush flex-grow-1 overflow-auto w-100">
                     <?php foreach ($products as $product): ?>
+                        <?php $isProduced = in_array((int)($product['id'] ?? 0), $producedProductIds ?? [], true); ?>
                         <button type="button"
                                 class="list-group-item list-group-item-action d-flex justify-content-between align-items-center add-product w-100"
                                 data-product-id="<?php echo (int)$product['id']; ?>"
                                 data-price="<?php echo e((float)($product['price'] ?? 0)); ?>"
+                                data-produced="<?php echo $isProduced ? '1' : '0'; ?>"
                                 data-name="<?php echo e(strtolower($product['name'] ?? '')); ?>"
                                 data-label="<?php echo e($product['name']); ?>">
                             <span class="flex-grow-1">
@@ -394,6 +403,7 @@
         const holdButton = document.getElementById('mark-hold');
         const productSelectors = document.querySelectorAll('.add-product');
         const searchProducts = document.getElementById('search-products');
+        const productTypeFilter = document.getElementById('product-type-filter');
         const mainCard = document.querySelector('.pos-main-card');
         const sideCard = document.querySelector('.pos-side-card');
         const clientSelect = document.querySelector('select[name="client_id"]');
@@ -530,14 +540,19 @@
                 });
             });
         });
-        function filterList(input, elements) {
-            const term = (input?.value || '').toLowerCase();
-            elements.forEach((el) => {
+        function filterList() {
+            const term = (searchProducts?.value || '').toLowerCase();
+            const type = productTypeFilter?.value || 'all';
+            productSelectors.forEach((el) => {
                 const name = (el.dataset.name || '').toLowerCase();
-                el.style.display = name.includes(term) ? '' : 'none';
+                const isProduced = (el.dataset.produced || '0') === '1';
+                const matchesTerm = name.includes(term);
+                const matchesType = type === 'all' || (type === 'produced' && isProduced) || (type === 'regular' && !isProduced);
+                el.style.display = matchesTerm && matchesType ? '' : 'none';
             });
         }
-        searchProducts?.addEventListener('input', () => filterList(searchProducts, productSelectors));
+        searchProducts?.addEventListener('input', filterList);
+        productTypeFilter?.addEventListener('change', filterList);
         function syncCardHeights() {
             if (mainCard && sideCard) {
                 sideCard.style.minHeight = `${mainCard.clientHeight}px`;
@@ -546,6 +561,7 @@
         window.addEventListener('resize', syncCardHeights);
         syncCardHeights();
         applyClientSii(Number(clientSelect?.value || 0));
+        filterList();
         recalc();
     })();
 </script>

@@ -64,6 +64,14 @@ class SalesController extends Controller
         $products = $this->products->active($companyId);
         $clients = $this->clients->active($companyId);
         $services = $this->services->active($companyId);
+        $producedProductIds = $this->db->fetchAll(
+            'SELECT DISTINCT po.product_id
+             FROM production_outputs po
+             JOIN production_orders o ON o.id = po.production_id
+             WHERE o.company_id = :company_id',
+            ['company_id' => $companyId]
+        );
+        $producedProductIds = array_map(static fn(array $row): int => (int)$row['product_id'], $producedProductIds);
         $invoiceDefaults = $this->settings->get('invoice_defaults', []);
         $taxDefault = !empty($invoiceDefaults['apply_tax']) ? (float)($invoiceDefaults['tax_rate'] ?? 0) : 0;
         $session = null;
@@ -91,6 +99,7 @@ class SalesController extends Controller
             'today' => date('Y-m-d'),
             'taxDefault' => $taxDefault,
             'isPos' => $isPos,
+            'producedProductIds' => $producedProductIds,
             'posSession' => $session,
             'sessionTotals' => $sessionTotals,
             'posReady' => $posReady,

@@ -5,6 +5,8 @@ class CrmController extends Controller
     private ClientsModel $clients;
     private CommercialBriefsModel $briefs;
     private SalesOrdersModel $orders;
+    private SalesOrderItemsModel $orderItems;
+    private ProductsModel $products;
     private ServiceRenewalsModel $renewals;
     private ServicesModel $services;
     private EmailQueueModel $queue;
@@ -16,6 +18,8 @@ class CrmController extends Controller
         $this->clients = new ClientsModel($db);
         $this->briefs = new CommercialBriefsModel($db);
         $this->orders = new SalesOrdersModel($db);
+        $this->orderItems = new SalesOrderItemsModel($db);
+        $this->products = new ProductsModel($db);
         $this->renewals = new ServiceRenewalsModel($db);
         $this->services = new ServicesModel($db);
         $this->queue = new EmailQueueModel($db);
@@ -447,12 +451,14 @@ class CrmController extends Controller
         );
         $clients = $this->clients->active($companyId);
         $briefs = $this->briefs->active($companyId);
+        $products = $this->products->active($companyId);
         $this->render('crm/orders', [
             'title' => 'Órdenes de Venta',
             'pageTitle' => 'Órdenes de Venta',
             'orders' => $orders,
             'clients' => $clients,
             'briefs' => $briefs,
+            'products' => $products,
         ]);
     }
 
@@ -486,6 +492,13 @@ class CrmController extends Controller
         if ($orderNumber === '') {
             $orderNumber = 'OV-' . date('Ymd-His');
         }
+        $items = $this->collectOrderItems($companyId);
+        if (empty($items)) {
+            flash('error', 'Agrega al menos un producto a la orden.');
+            $this->redirect('index.php?route=crm/orders');
+        }
+
+        $total = array_sum(array_map(static fn(array $item) => $item['subtotal'], $items));
         $data = [
             'company_id' => $companyId,
             'client_id' => $clientId,
@@ -493,7 +506,7 @@ class CrmController extends Controller
             'order_number' => $orderNumber,
             'order_date' => $_POST['order_date'] !== '' ? $_POST['order_date'] : date('Y-m-d'),
             'status' => $_POST['status'] ?? 'pendiente',
-            'total' => (float)($_POST['total'] ?? 0),
+            'total' => $total,
             'currency' => $_POST['currency'] ?? 'CLP',
             'notes' => trim($_POST['notes'] ?? ''),
             'created_at' => date('Y-m-d H:i:s'),
@@ -503,10 +516,61 @@ class CrmController extends Controller
             flash('error', 'Ingresa un total válido para la orden.');
             $this->redirect('index.php?route=crm/orders');
         }
-        $this->orders->create($data);
-        audit($this->db, Auth::user()['id'], 'create', 'sales_orders');
-        flash('success', 'Orden de venta creada correctamente.');
+
+        $pdo = $this->db->pdo();
+        try {
+            $pdo->beginTransaction();
+            $orderId = $this->orders->create($data);
+            foreach ($items as $item) {
+                $this->orderItems->create([
+                    'sales_order_id' => $orderId,
+                    'product_id' => $item['product']['id'],
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'],
+                    'subtotal' => $item['subtotal'],
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+            audit($this->db, Auth::user()['id'], 'create', 'sales_orders', $orderId);
+            $pdo->commit();
+            flash('success', 'Orden de venta creada correctamente.');
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            log_message('error', 'Error al crear orden de venta: ' . $e->getMessage());
+            flash('error', 'No pudimos guardar la orden. Inténtalo nuevamente.');
+        }
+
         $this->redirect('index.php?route=crm/orders');
+    }
+
+    private function collectOrderItems(int $companyId): array
+    {
+        $productIds = $_POST['order_product_id'] ?? [];
+        $quantities = $_POST['order_quantity'] ?? [];
+        $unitPrices = $_POST['order_unit_price'] ?? [];
+        $items = [];
+
+        foreach ($productIds as $index => $productId) {
+            $productId = (int)$productId;
+            $quantity = max(0, (int)($quantities[$index] ?? 0));
+            $unitPrice = max(0.0, (float)($unitPrices[$index] ?? 0));
+            if ($productId <= 0 || $quantity <= 0) {
+                continue;
+            }
+            $product = $this->products->findForCompany($productId, $companyId);
+            if (!$product) {
+                continue;
+            }
+            $items[] = [
+                'product' => $product,
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'subtotal' => $quantity * $unitPrice,
+            ];
+        }
+
+        return $items;
     }
 
     public function renewals(): void

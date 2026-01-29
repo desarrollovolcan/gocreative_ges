@@ -1525,6 +1525,19 @@ CREATE TABLE sales_orders (
     FOREIGN KEY (brief_id) REFERENCES commercial_briefs(id)
 );
 
+CREATE TABLE sales_order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sales_order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    unit_price DECIMAL(12,2) NOT NULL DEFAULT 0,
+    subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (sales_order_id) REFERENCES sales_orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
 CREATE TABLE service_renewals (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_id INT NOT NULL,
@@ -1576,6 +1589,7 @@ CREATE INDEX idx_production_orders_company ON production_orders(company_id);
 CREATE INDEX idx_production_inputs_production ON production_inputs(production_id);
 CREATE INDEX idx_production_outputs_production ON production_outputs(production_id);
 CREATE INDEX idx_production_expenses_production ON production_expenses(production_id);
+CREATE INDEX idx_sales_order_items_order ON sales_order_items(sales_order_id);
 CREATE INDEX idx_sales_company ON sales(company_id);
 CREATE INDEX idx_pos_sessions_company_user ON pos_sessions(company_id, user_id);
 

@@ -428,6 +428,45 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </div>
                 </li>
             <?php endif; ?>
+            <?php if ($hasCompany && $canAccessAny(['production_view', 'production_edit'])): ?>
+                <li class="side-nav-title">Producción</li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarProduction" aria-expanded="false" aria-controls="sidebarProduction" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="factory"></i></span>
+                        <span class="menu-label">
+                            <span class="menu-text">Producción</span>
+                            <span class="menu-caption">Costos y stock final</span>
+                        </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarProduction">
+                        <ul class="sub-menu">
+                            <?php if ($hasPermission('production_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production" class="side-nav-link">
+                                        <span class="menu-text">Órdenes de producción</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production/inputs" class="side-nav-link">
+                                        <span class="menu-text">Consumos de producción</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production/expenses" class="side-nav-link">
+                                        <span class="menu-text">Gastos de producción</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production/stock" class="side-nav-link">
+                                        <span class="menu-text">Stock producido</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </li>
+            <?php endif; ?>
             <?php if ($hasCompany && $canAccessAny(['services_view', 'services_edit', 'system_services_view', 'system_services_edit', 'service_types_view', 'service_types_edit'])): ?>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarServices" aria-expanded="false" aria-controls="sidebarServices" class="side-nav-link">

@@ -53,7 +53,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="order-total">Total (CLP)</label>
-                    <input type="number" class="form-control" id="order-total" name="total" min="0" step="0.01" placeholder="Ej: 1800000" inputmode="decimal" required>
+                    <input type="number" class="form-control" id="order-total" name="total" min="0" step="0.01" placeholder="Ej: 1800000" inputmode="decimal" readonly>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label" for="order-currency">Moneda</label>
@@ -80,6 +80,41 @@
                     <input type="text" class="form-control" id="order-contact-phone" name="contact_phone" data-client-field="contact_phone" readonly>
                 </div>
                 <div class="col-12">
+                    <label class="form-label">Detalle de productos</label>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle" id="order-items-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 45%;">Producto</th>
+                                    <th style="width: 15%;">Cantidad</th>
+                                    <th style="width: 20%;">Precio unitario</th>
+                                    <th class="text-end" style="width: 15%;">Subtotal</th>
+                                    <th style="width: 5%;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="item-row">
+                                    <td>
+                                        <select name="order_product_id[]" class="form-select form-select-sm order-product">
+                                            <option value="">Selecciona</option>
+                                            <?php foreach ($products as $product): ?>
+                                                <option value="<?php echo (int)$product['id']; ?>" data-price="<?php echo e((float)($product['price'] ?? 0)); ?>">
+                                                    <?php echo e($product['name']); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                    <td><input type="number" name="order_quantity[]" class="form-control form-control-sm order-qty" min="1" value="1"></td>
+                                    <td><input type="number" name="order_unit_price[]" class="form-control form-control-sm order-price" step="0.01" min="0" value="0"></td>
+                                    <td class="text-end order-subtotal fw-semibold">0</td>
+                                    <td><button type="button" class="btn btn-link text-danger p-0 remove-row">✕</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="add-order-item">Agregar producto</button>
+                </div>
+                <div class="col-12">
                     <label class="form-label" for="order-notes">Notas</label>
                     <textarea class="form-control" id="order-notes" name="notes" rows="3" placeholder="Condiciones comerciales, alcance y responsables"></textarea>
                 </div>
@@ -88,11 +123,6 @@
                 <button type="reset" class="btn btn-light w-100 w-sm-auto">Limpiar formulario</button>
                 <button type="submit" class="btn btn-primary w-100 w-sm-auto">Guardar orden</button>
             </div>
-            <?php
-            $reportTemplate = 'informeIcargaEspanol.php';
-            $reportSource = 'crm/orders';
-            include __DIR__ . '/../partials/report-download.php';
-            ?>
         </form>
     </div>
 </div>
@@ -179,6 +209,66 @@ document.addEventListener('DOMContentLoaded', function () {
     var totalInput = document.getElementById('order-total');
     var currencySelect = document.getElementById('order-currency');
     var notesInput = document.getElementById('order-notes');
+    var itemsTable = document.querySelector('#order-items-table tbody');
+    var addItemButton = document.getElementById('add-order-item');
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(amount || 0);
+    }
+
+    function recalcOrderTotal() {
+        var total = 0;
+        itemsTable.querySelectorAll('.item-row').forEach(function (row) {
+            var qty = parseFloat(row.querySelector('.order-qty').value) || 0;
+            var price = parseFloat(row.querySelector('.order-price').value) || 0;
+            var subtotal = qty * price;
+            total += subtotal;
+            row.querySelector('.order-subtotal').textContent = formatCurrency(subtotal);
+        });
+        if (totalInput) {
+            totalInput.value = total.toFixed(2);
+        }
+    }
+
+    function attachItemHandlers(row) {
+        row.querySelectorAll('input, select').forEach(function (input) {
+            input.addEventListener('input', recalcOrderTotal);
+            input.addEventListener('change', function () {
+                if (input.classList.contains('order-product')) {
+                    var price = parseFloat(input.selectedOptions[0]?.dataset?.price || 0);
+                    var priceInput = row.querySelector('.order-price');
+                    if (priceInput && (!priceInput.value || parseFloat(priceInput.value) === 0)) {
+                        priceInput.value = price;
+                    }
+                }
+                recalcOrderTotal();
+            });
+        });
+        row.querySelector('.remove-row')?.addEventListener('click', function () {
+            if (row.parentElement.children.length > 1) {
+                row.remove();
+                recalcOrderTotal();
+            }
+        });
+    }
+
+    if (itemsTable) {
+        itemsTable.querySelectorAll('.item-row').forEach(attachItemHandlers);
+    }
+    if (addItemButton) {
+        addItemButton.addEventListener('click', function () {
+            var row = itemsTable.querySelector('.item-row').cloneNode(true);
+            row.querySelectorAll('select').forEach(function (select) {
+                select.value = '';
+            });
+            row.querySelectorAll('input').forEach(function (input) {
+                input.value = input.classList.contains('order-qty') ? '1' : '0';
+            });
+            attachItemHandlers(row);
+            itemsTable.appendChild(row);
+            recalcOrderTotal();
+        });
+    }
 
     document.querySelectorAll('.js-order-duplicate').forEach(function (button) {
         button.addEventListener('click', function () {
@@ -198,9 +288,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (statusSelect) {
                 statusSelect.value = button.getAttribute('data-order-status') || 'pendiente';
             }
-            if (totalInput) {
-                totalInput.value = button.getAttribute('data-order-total') || '';
-            }
+            recalcOrderTotal();
             if (currencySelect) {
                 currencySelect.value = button.getAttribute('data-order-currency') || 'CLP';
             }
@@ -211,5 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
             form.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     });
+
+    recalcOrderTotal();
 });
 </script>

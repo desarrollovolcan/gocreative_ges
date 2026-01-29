@@ -51,6 +51,32 @@ class DashboardController extends Controller
                  LIMIT 5',
                 $companyParams
             );
+            $productionCompanyFilter = $companyId ? ' AND o.company_id = :company_id' : '';
+            $productionCost = $this->db->fetch(
+                'SELECT COALESCE(SUM(total_cost), 0) as total
+                 FROM production_orders
+                 WHERE 1=1' . $companyFilter,
+                $companyParams
+            );
+            $producedUnits = $this->db->fetch(
+                'SELECT COALESCE(SUM(po.quantity), 0) as total
+                 FROM production_outputs po
+                 JOIN production_orders o ON o.id = po.production_id
+                 WHERE 1=1' . $productionCompanyFilter,
+                $companyParams
+            );
+            $producedSales = $this->db->fetch(
+                'SELECT COALESCE(SUM(si.subtotal), 0) as total
+                 FROM sale_items si
+                 JOIN sales s ON s.id = si.sale_id
+                 WHERE si.product_id IN (
+                     SELECT DISTINCT po.product_id
+                     FROM production_outputs po
+                     JOIN production_orders o ON o.id = po.production_id
+                     WHERE 1=1' . $productionCompanyFilter . '
+                 )' . ($companyId ? ' AND s.company_id = :company_id' : ''),
+                $companyParams
+            );
             $upcomingServices = $this->db->fetchAll(
                 'SELECT services.*, clients.name as client_name
                  FROM services
@@ -130,6 +156,9 @@ class DashboardController extends Controller
             $upcoming30 = ['total' => 0];
             $recentInvoices = [];
             $overdueInvoices = [];
+            $productionCost = ['total' => 0];
+            $producedUnits = ['total' => 0];
+            $producedSales = ['total' => 0];
             $upcomingServices = [];
             $topClients = [];
             $recentPayments = [];
@@ -163,6 +192,10 @@ class DashboardController extends Controller
             'upcoming30' => $upcoming30['total'] ?? 0,
             'recentInvoices' => $recentInvoices,
             'overdueInvoices' => $overdueInvoices,
+            'productionCost' => $productionCost['total'] ?? 0,
+            'productionProfit' => ($producedSales['total'] ?? 0) - ($productionCost['total'] ?? 0),
+            'producedSales' => $producedSales['total'] ?? 0,
+            'producedUnits' => $producedUnits['total'] ?? 0,
             'upcomingServices' => $upcomingServices,
             'topClients' => $topClients,
             'recentPayments' => $recentPayments,

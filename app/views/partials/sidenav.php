@@ -84,26 +84,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Panel CRM</span>
                                 </a>
                             </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=crm/reports" class="side-nav-link">
-                                    <span class="menu-text">Reportes &amp; Insights</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=crm/briefs" class="side-nav-link">
-                                    <span class="menu-text">Briefs Comerciales</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=crm/orders" class="side-nav-link">
-                                    <span class="menu-text">Órdenes de Venta</span>
-                                </a>
-                            </li>
-                            <li class="side-nav-item">
-                                <a href="index.php?route=crm/renewals" class="side-nav-link">
-                                    <span class="menu-text">Renovaciones</span>
-                                </a>
-                            </li>
                         </ul>
                     </div>
                 </li>
@@ -199,13 +179,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                     <span class="menu-text">Renovaciones</span>
                                 </a>
                             </li>
-                            <?php if ($hasPermission('services_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=services" class="side-nav-link">
-                                        <span class="menu-text">Servicios</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
                             <?php if ($hasPermission('tickets_view')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=tickets" class="side-nav-link">
@@ -419,6 +392,45 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                 <li class="side-nav-item">
                                     <a href="index.php?route=pos" class="side-nav-link">
                                         <span class="menu-text">Punto de venta</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </li>
+            <?php endif; ?>
+            <?php if ($hasCompany && $canAccessAny(['production_view', 'production_edit'])): ?>
+                <li class="side-nav-title">Producción</li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarProduction" aria-expanded="false" aria-controls="sidebarProduction" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="factory"></i></span>
+                        <span class="menu-label">
+                            <span class="menu-text">Producción</span>
+                            <span class="menu-caption">Costos y stock final</span>
+                        </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarProduction">
+                        <ul class="sub-menu">
+                            <?php if ($hasPermission('production_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production" class="side-nav-link">
+                                        <span class="menu-text">Órdenes de producción</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production/inputs" class="side-nav-link">
+                                        <span class="menu-text">Consumos de producción</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production/expenses" class="side-nav-link">
+                                        <span class="menu-text">Gastos de producción</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production/stock" class="side-nav-link">
+                                        <span class="menu-text">Stock producido</span>
                                     </a>
                                 </li>
                             <?php endif; ?>

@@ -362,7 +362,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccessAny(['products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'sales_view', 'sales_edit'])): ?>
+            <?php if ($hasCompany && $canAccessAny(['products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'production_view', 'production_edit', 'sales_view', 'sales_edit'])): ?>
                 <li class="side-nav-title">Inventario</li>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarInventory" aria-expanded="false" aria-controls="sidebarInventory" class="side-nav-link">
@@ -393,6 +393,13 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                 <li class="side-nav-item">
                                     <a href="index.php?route=purchases" class="side-nav-link">
                                         <span class="menu-text">Compras</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('production_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=production" class="side-nav-link">
+                                        <span class="menu-text">Producción</span>
                                     </a>
                                 </li>
                             <?php endif; ?>

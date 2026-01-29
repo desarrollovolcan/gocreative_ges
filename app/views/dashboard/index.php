@@ -9,18 +9,18 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
     <div class="dashboard-hero dashboard-hero-light mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-                <h3 class="mb-1">Panel comercial</h3>
-                <p class="mb-2">Indicadores actualizados de proyectos, servicios y facturación.</p>
+                <h3 class="mb-1">Panel de producción</h3>
+                <p class="mb-2">Costos, ganancias y ventas de productos producidos.</p>
                 <div class="d-flex flex-wrap gap-2">
-                    <span class="badge bg-primary-subtle text-primary">Servicios activos: <?php echo (int)$servicesActive; ?></span>
-                    <span class="badge bg-success-subtle text-success">Proyectos activos: <?php echo (int)$projectsTotal; ?></span>
-                    <span class="badge bg-info-subtle text-info">Tickets abiertos: <?php echo (int)$ticketsOpen; ?></span>
+                    <span class="badge bg-primary-subtle text-primary">Unidades producidas: <?php echo (int)$producedUnits; ?></span>
+                    <span class="badge bg-success-subtle text-success">Ventas producidas: <?php echo e(format_currency((float)$producedSales)); ?></span>
+                    <span class="badge bg-info-subtle text-info">Ganancia producción: <?php echo e(format_currency((float)$productionProfit)); ?></span>
                 </div>
             </div>
             <div class="d-flex flex-wrap flex-sm-nowrap align-items-center gap-2">
-                <a href="index.php?route=crm/hub" class="btn btn-primary btn-sm">Ir al CRM</a>
-                <a href="index.php?route=projects/create" class="btn btn-outline-primary btn-sm">Nuevo proyecto</a>
-                <a href="index.php?route=invoices/create" class="btn btn-outline-primary btn-sm">Nueva factura</a>
+                <a href="index.php?route=production" class="btn btn-primary btn-sm">Ir a producción</a>
+                <a href="index.php?route=production/create" class="btn btn-outline-primary btn-sm">Nueva orden</a>
+                <a href="index.php?route=production/stock" class="btn btn-outline-primary btn-sm">Stock producido</a>
             </div>
         </div>
     </div>
@@ -31,12 +31,12 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <p class="stat-label">Facturación mes</p>
-                            <h3 class="stat-value"><?php echo e(format_currency((float)$monthBilling)); ?></h3>
-                            <span class="stat-sub">Pagos del mes: <?php echo e(format_currency((float)$paymentsMonth)); ?></span>
+                            <p class="stat-label">Costo producción</p>
+                            <h3 class="stat-value"><?php echo e(format_currency((float)$productionCost)); ?></h3>
+                            <span class="stat-sub">Total insumos + gastos</span>
                         </div>
                         <div class="stat-icon bg-primary-subtle text-primary">
-                            <i class="ti ti-currency-dollar"></i>
+                            <i class="ti ti-stack-2"></i>
                         </div>
                     </div>
                 </div>
@@ -47,12 +47,12 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <p class="stat-label">Facturas pendientes</p>
-                            <h3 class="stat-value"><?php echo e(format_currency((float)$pending)); ?></h3>
-                            <span class="stat-sub"><?php echo (int)$pendingCount; ?> pendientes</span>
+                            <p class="stat-label">Ventas productos producidos</p>
+                            <h3 class="stat-value"><?php echo e(format_currency((float)$producedSales)); ?></h3>
+                            <span class="stat-sub">Ventas asociadas a producción</span>
                         </div>
                         <div class="stat-icon bg-warning-subtle text-warning">
-                            <i class="ti ti-alert-triangle"></i>
+                            <i class="ti ti-cash"></i>
                         </div>
                     </div>
                 </div>
@@ -63,12 +63,12 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <p class="stat-label">Facturas vencidas</p>
-                            <h3 class="stat-value"><?php echo e(format_currency((float)$overdue)); ?></h3>
-                            <span class="stat-sub"><?php echo (int)$overdueCount; ?> vencidas</span>
+                            <p class="stat-label">Ganancia producción</p>
+                            <h3 class="stat-value"><?php echo e(format_currency((float)$productionProfit)); ?></h3>
+                            <span class="stat-sub">Ventas - costos</span>
                         </div>
                         <div class="stat-icon bg-danger-subtle text-danger">
-                            <i class="ti ti-alert-octagon"></i>
+                            <i class="ti ti-chart-bar"></i>
                         </div>
                     </div>
                 </div>
@@ -79,12 +79,12 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <p class="stat-label">Clientes activos</p>
-                            <h3 class="stat-value"><?php echo (int)$clientsActive; ?></h3>
-                            <span class="stat-sub"><?php echo (int)$projectsTotal; ?> proyectos activos</span>
+                            <p class="stat-label">Unidades producidas</p>
+                            <h3 class="stat-value"><?php echo (int)$producedUnits; ?></h3>
+                            <span class="stat-sub">Producción acumulada</span>
                         </div>
                         <div class="stat-icon bg-success-subtle text-success">
-                            <i class="ti ti-users"></i>
+                            <i class="ti ti-package"></i>
                         </div>
                     </div>
                 </div>
@@ -187,6 +187,46 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-2">
+        <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <h6 class="mb-1">Costo por producto producido</h6>
+                <p class="text-muted mb-0 small">Detalle de costos unitarios y unidades producidas.</p>
+            </div>
+            <a href="index.php?route=production/stock" class="btn btn-outline-primary btn-sm">Ver stock producido</a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-end">Unidades producidas</th>
+                            <th class="text-end">Costo unitario</th>
+                            <th class="text-end">Stock actual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($producedProducts)): ?>
+                            <tr>
+                                <td colspan="4" class="text-muted text-center">Sin producción registrada.</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($producedProducts as $item): ?>
+                                <tr>
+                                    <td><?php echo e($item['name'] ?? ''); ?></td>
+                                    <td class="text-end"><?php echo (int)($item['produced_quantity'] ?? 0); ?></td>
+                                    <td class="text-end"><?php echo e(format_currency((float)($item['cost'] ?? 0))); ?></td>
+                                    <td class="text-end"><?php echo (int)($item['stock'] ?? 0); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

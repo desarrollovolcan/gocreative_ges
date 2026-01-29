@@ -669,6 +669,13 @@ function permission_catalog(): array
             'view_key' => 'purchases_view',
             'edit_key' => 'purchases_edit',
         ],
+        'purchase_orders' => [
+            'label' => 'Órdenes de compra',
+            'routes' => ['purchase-orders'],
+            'legacy_key' => 'purchases',
+            'view_key' => 'purchase_orders_view',
+            'edit_key' => 'purchase_orders_edit',
+        ],
         'production' => [
             'label' => 'Producción',
             'routes' => ['production'],

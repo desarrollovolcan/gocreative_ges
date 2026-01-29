@@ -66,7 +66,7 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if ($hasCompany && $canAccessAny(['products_view', 'products_edit', 'suppliers_view', 'suppliers_edit', 'purchases_view', 'purchases_edit', 'product_families_view', 'product_subfamilies_view', 'production_view', 'production_edit'])): ?>
+            <?php if ($hasCompany && $canAccessAny(['products_view', 'products_edit', 'product_families_view', 'product_subfamilies_view', 'production_view', 'production_edit'])): ?>
                 <li class="side-nav-title">Productos</li>
                 <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarInventory" aria-expanded="false" aria-controls="sidebarInventory" class="side-nav-link">
@@ -83,20 +83,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                 <li class="side-nav-item">
                                     <a href="index.php?route=products" class="side-nav-link">
                                         <span class="menu-text">Listado productos</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('suppliers_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=suppliers" class="side-nav-link">
-                                        <span class="menu-text">Proveedores</span>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if ($hasPermission('purchases_view')): ?>
-                                <li class="side-nav-item">
-                                    <a href="index.php?route=purchases" class="side-nav-link">
-                                        <span class="menu-text">Compras</span>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -152,6 +138,80 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                                 <li class="side-nav-item">
                                     <a href="index.php?route=production/stock" class="side-nav-link">
                                         <span class="menu-text">Stock producido</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </li>
+            <?php endif; ?>
+            <?php if ($hasCompany && $canAccessAny(['purchase_orders_view', 'purchase_orders_edit', 'purchases_view', 'purchases_edit', 'suppliers_view', 'suppliers_edit'])): ?>
+                <li class="side-nav-title">Compras</li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarPurchases" aria-expanded="false" aria-controls="sidebarPurchases" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="shopping-bag"></i></span>
+                        <span class="menu-label">
+                            <span class="menu-text">Compras</span>
+                            <span class="menu-caption">Órdenes, proveedores y recepciones</span>
+                        </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarPurchases">
+                        <ul class="sub-menu">
+                            <?php if ($hasPermission('purchase_orders_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=purchase-orders" class="side-nav-link">
+                                        <span class="menu-text">Órdenes de compra</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('purchases_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=purchases" class="side-nav-link">
+                                        <span class="menu-text">Compras</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('suppliers_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=suppliers" class="side-nav-link">
+                                        <span class="menu-text">Proveedores</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </li>
+            <?php endif; ?>
+            <?php if ($hasCompany && $canAccessAny(['sales_view', 'sales_edit', 'clients_view', 'clients_edit', 'crm_view'])): ?>
+                <li class="side-nav-title">Ventas</li>
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#sidebarSales" aria-expanded="false" aria-controls="sidebarSales" class="side-nav-link">
+                        <span class="menu-icon"><i data-lucide="shopping-cart"></i></span>
+                        <span class="menu-label">
+                            <span class="menu-text">Ventas</span>
+                            <span class="menu-caption">Órdenes y gestión comercial</span>
+                        </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarSales">
+                        <ul class="sub-menu">
+                            <?php if ($hasPermission('crm_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=crm/orders" class="side-nav-link">
+                                        <span class="menu-text">Órdenes de venta</span>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($hasPermission('sales_view')): ?>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=sales" class="side-nav-link">
+                                        <span class="menu-text">Ventas</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="index.php?route=pos" class="side-nav-link">
+                                        <span class="menu-text">Punto de venta</span>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -224,11 +284,6 @@ $logoSmallBlack = $companySettings['logo_black'] ?? 'assets/images/logo-sm.png';
                     </a>
                     <div class="collapse" id="sidebarCrmVentas">
                         <ul class="sub-menu">
-                            <li class="side-nav-item">
-                                <a href="index.php?route=crm/orders" class="side-nav-link">
-                                    <span class="menu-text">Órdenes de Venta</span>
-                                </a>
-                            </li>
                             <?php if ($hasPermission('invoices_view')): ?>
                                 <li class="side-nav-item">
                                     <a href="index.php?route=invoices" class="side-nav-link">

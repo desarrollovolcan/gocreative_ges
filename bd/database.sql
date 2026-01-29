@@ -1254,6 +1254,36 @@ CREATE TABLE purchases (
     FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
 );
 
+CREATE TABLE purchase_orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    supplier_id INT NOT NULL,
+    reference VARCHAR(100) NULL,
+    order_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pendiente',
+    subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    total DECIMAL(12,2) NOT NULL DEFAULT 0,
+    notes TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+);
+
+CREATE TABLE purchase_order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    purchase_order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    unit_cost DECIMAL(12,2) NOT NULL DEFAULT 0,
+    subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (purchase_order_id) REFERENCES purchase_orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
 CREATE TABLE purchase_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     purchase_id INT NOT NULL,
@@ -1265,6 +1295,54 @@ CREATE TABLE purchase_items (
     updated_at DATETIME NOT NULL,
     FOREIGN KEY (purchase_id) REFERENCES purchases(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE production_orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    production_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'completada',
+    total_cost DECIMAL(12,2) NOT NULL DEFAULT 0,
+    notes TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE production_inputs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    production_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    unit_cost DECIMAL(12,2) NOT NULL DEFAULT 0,
+    subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (production_id) REFERENCES production_orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE production_outputs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    production_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    unit_cost DECIMAL(12,2) NOT NULL DEFAULT 0,
+    subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (production_id) REFERENCES production_orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE production_expenses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    production_id INT NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (production_id) REFERENCES production_orders(id)
 );
 
 CREATE TABLE pos_sessions (
@@ -1492,6 +1570,12 @@ CREATE INDEX idx_product_subfamilies_company ON product_subfamilies(company_id);
 CREATE INDEX idx_products_company ON products(company_id);
 CREATE INDEX idx_products_supplier ON products(supplier_id);
 CREATE INDEX idx_purchases_company ON purchases(company_id);
+CREATE INDEX idx_purchase_orders_company ON purchase_orders(company_id);
+CREATE INDEX idx_purchase_order_items_order ON purchase_order_items(purchase_order_id);
+CREATE INDEX idx_production_orders_company ON production_orders(company_id);
+CREATE INDEX idx_production_inputs_production ON production_inputs(production_id);
+CREATE INDEX idx_production_outputs_production ON production_outputs(production_id);
+CREATE INDEX idx_production_expenses_production ON production_expenses(production_id);
 CREATE INDEX idx_sales_company ON sales(company_id);
 CREATE INDEX idx_pos_sessions_company_user ON pos_sessions(company_id, user_id);
 

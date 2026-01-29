@@ -77,6 +77,17 @@ class DashboardController extends Controller
                  )' . ($companyId ? ' AND s.company_id = :company_id' : ''),
                 $companyParams
             );
+            $producedProducts = $this->db->fetchAll(
+                'SELECT p.id, p.name, p.stock, p.cost, COALESCE(SUM(po.quantity), 0) AS produced_quantity
+                 FROM production_outputs po
+                 JOIN production_orders o ON o.id = po.production_id
+                 JOIN products p ON p.id = po.product_id
+                 WHERE 1=1' . $productionCompanyFilter . '
+                 GROUP BY p.id, p.name, p.stock, p.cost
+                 ORDER BY produced_quantity DESC, p.name ASC
+                 LIMIT 8',
+                $companyParams
+            );
             $upcomingServices = $this->db->fetchAll(
                 'SELECT services.*, clients.name as client_name
                  FROM services
@@ -159,6 +170,7 @@ class DashboardController extends Controller
             $productionCost = ['total' => 0];
             $producedUnits = ['total' => 0];
             $producedSales = ['total' => 0];
+            $producedProducts = [];
             $upcomingServices = [];
             $topClients = [];
             $recentPayments = [];
@@ -196,6 +208,7 @@ class DashboardController extends Controller
             'productionProfit' => ($producedSales['total'] ?? 0) - ($productionCost['total'] ?? 0),
             'producedSales' => $producedSales['total'] ?? 0,
             'producedUnits' => $producedUnits['total'] ?? 0,
+            'producedProducts' => $producedProducts,
             'upcomingServices' => $upcomingServices,
             'topClients' => $topClients,
             'recentPayments' => $recentPayments,

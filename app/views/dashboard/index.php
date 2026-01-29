@@ -191,6 +191,46 @@ $servicePressure = (int)$servicesActive > 0 ? min(100, (int)round(((int)$upcomin
         </div>
     </div>
 
+    <div class="card mt-2">
+        <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <h6 class="mb-1">Costo por producto producido</h6>
+                <p class="text-muted mb-0 small">Detalle de costos unitarios y unidades producidas.</p>
+            </div>
+            <a href="index.php?route=production/stock" class="btn btn-outline-primary btn-sm">Ver stock producido</a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-end">Unidades producidas</th>
+                            <th class="text-end">Costo unitario</th>
+                            <th class="text-end">Stock actual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($producedProducts)): ?>
+                            <tr>
+                                <td colspan="4" class="text-muted text-center">Sin producción registrada.</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($producedProducts as $item): ?>
+                                <tr>
+                                    <td><?php echo e($item['name'] ?? ''); ?></td>
+                                    <td class="text-end"><?php echo (int)($item['produced_quantity'] ?? 0); ?></td>
+                                    <td class="text-end"><?php echo e(format_currency((float)($item['cost'] ?? 0))); ?></td>
+                                    <td class="text-end"><?php echo (int)($item['stock'] ?? 0); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-2 mt-2">
         <div class="col-xxl-8">
             <div class="card h-100">

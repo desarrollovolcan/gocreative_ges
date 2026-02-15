@@ -2,6 +2,8 @@
 
 return [
     'landing' => ['LandingController', 'index'],
+    'web/settings' => ['WebSettingsController', 'index'],
+    'web/settings/update' => ['WebSettingsController', 'update'],
     'dashboard' => ['DashboardController', 'index'],
     'documents' => ['DocumentsController', 'index'],
     'documents/store' => ['DocumentsController', 'store'],

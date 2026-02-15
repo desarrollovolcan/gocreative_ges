@@ -838,6 +838,13 @@ function permission_catalog(): array
             'view_key' => 'settings_view',
             'edit_key' => 'settings_edit',
         ],
+        'web' => [
+            'label' => 'WEB Landing',
+            'routes' => ['web/settings'],
+            'legacy_key' => 'settings_view',
+            'view_key' => 'web_view',
+            'edit_key' => 'web_edit',
+        ],
         'email_config' => [
             'label' => 'Configuración de correo',
             'routes' => ['maintainers/email-config'],
@@ -1087,3 +1094,47 @@ function create_notification(Database $db, ?int $companyId, string $title, strin
         ]
     );
 }
+
+function upload_web_asset(?array $file, string $prefix): array
+{
+    if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return ['path' => null, 'error' => null];
+    }
+
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+        return ['path' => null, 'error' => 'No fue posible subir el archivo.'];
+    }
+
+    $allowedTypes = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+        'image/svg+xml' => 'svg',
+    ];
+
+    $mime = mime_content_type($file['tmp_name']) ?: '';
+    if (!isset($allowedTypes[$mime])) {
+        return ['path' => null, 'error' => 'Formato no permitido (solo JPG, PNG, WEBP o SVG).'];
+    }
+
+    if (($file['size'] ?? 0) > 4 * 1024 * 1024) {
+        return ['path' => null, 'error' => 'La imagen no puede superar 4MB.'];
+    }
+
+    $directory = __DIR__ . '/../storage/uploads/web';
+    $directoryError = ensure_upload_directory($directory);
+    if ($directoryError) {
+        return ['path' => null, 'error' => $directoryError];
+    }
+
+    $extension = $allowedTypes[$mime];
+    $filename = sprintf('%s-%s.%s', $prefix, date('YmdHis'), $extension);
+    $destination = $directory . '/' . $filename;
+
+    if (!move_uploaded_file($file['tmp_name'], $destination)) {
+        return ['path' => null, 'error' => 'No fue posible guardar la imagen en el servidor.'];
+    }
+
+    return ['path' => 'storage/uploads/web/' . $filename, 'error' => null];
+}
+

@@ -841,7 +841,7 @@ function permission_catalog(): array
         'web' => [
             'label' => 'WEB Landing',
             'routes' => ['web/settings'],
-            'legacy_key' => 'settings',
+            'legacy_key' => 'settings_view',
             'view_key' => 'web_view',
             'edit_key' => 'web_edit',
         ],

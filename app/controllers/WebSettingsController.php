@@ -13,6 +13,7 @@ class WebSettingsController extends Controller
     public function index(): void
     {
         $this->requireLogin();
+        $this->syncWebPermissions();
         $web = $this->settings->get('web_landing', $this->defaults());
         $web = array_replace_recursive($this->defaults(), is_array($web) ? $web : []);
 
@@ -141,6 +142,50 @@ class WebSettingsController extends Controller
             ];
         }
         return $plans;
+    }
+
+
+    private function syncWebPermissions(): void
+    {
+        try {
+            $viewRoles = $this->db->fetchAll("SELECT DISTINCT role_id FROM role_permissions WHERE permission_key = 'settings_view'");
+            foreach ($viewRoles as $row) {
+                $roleId = (int)($row['role_id'] ?? 0);
+                if ($roleId <= 0) {
+                    continue;
+                }
+                $exists = $this->db->fetch('SELECT id FROM role_permissions WHERE role_id = :role_id AND permission_key = :permission_key', [
+                    'role_id' => $roleId,
+                    'permission_key' => 'web_view',
+                ]);
+                if (!$exists) {
+                    $this->db->execute('INSERT INTO role_permissions (role_id, permission_key) VALUES (:role_id, :permission_key)', [
+                        'role_id' => $roleId,
+                        'permission_key' => 'web_view',
+                    ]);
+                }
+            }
+
+            $editRoles = $this->db->fetchAll("SELECT DISTINCT role_id FROM role_permissions WHERE permission_key = 'settings_edit'");
+            foreach ($editRoles as $row) {
+                $roleId = (int)($row['role_id'] ?? 0);
+                if ($roleId <= 0) {
+                    continue;
+                }
+                $exists = $this->db->fetch('SELECT id FROM role_permissions WHERE role_id = :role_id AND permission_key = :permission_key', [
+                    'role_id' => $roleId,
+                    'permission_key' => 'web_edit',
+                ]);
+                if (!$exists) {
+                    $this->db->execute('INSERT INTO role_permissions (role_id, permission_key) VALUES (:role_id, :permission_key)', [
+                        'role_id' => $roleId,
+                        'permission_key' => 'web_edit',
+                    ]);
+                }
+            }
+        } catch (Throwable $e) {
+            log_message('error', 'No se pudo sincronizar permisos WEB: ' . $e->getMessage());
+        }
     }
 
     private function defaults(): array

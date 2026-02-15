@@ -10,7 +10,7 @@
     --accent: #a3bdff;
     --ok: #29b873;
     --danger: #e85d74;
-    --container: 1240px;
+    --container: 1200px;
   }
 
   * { box-sizing: border-box; }
@@ -23,7 +23,7 @@
   }
 
   .container {
-    width: min(var(--container), calc(100% - 44px));
+    width: min(var(--container), calc(100% - 32px));
     margin-inline: auto;
   }
 
@@ -73,14 +73,14 @@
   }
   .brand {
     font-weight: 800;
-    font-size: 34px;
+    font-size: 30px;
     letter-spacing: 1px;
   }
   .nav {
     display: flex;
     align-items: center;
     gap: 22px;
-    font-size: 18px;
+    font-size: 16px;
   }
   .nav a { opacity: .92; }
   .nav a:hover { opacity: 1; }
@@ -103,7 +103,7 @@
   .hero {
     background: var(--brand);
     color: #fff;
-    padding: 54px 0 0;
+    padding: 34px 0 0;
     overflow: hidden;
   }
   .hero__top {
@@ -115,13 +115,13 @@
   .stars { color: #59d9a9; font-weight: 700; margin-bottom: 12px; }
   .hero h1 {
     margin: 0;
-    font-size: clamp(44px, 6vw, 86px);
+    font-size: clamp(34px, 5.2vw, 64px);
     line-height: .98;
     letter-spacing: -1.8px;
   }
   .hero__desc {
-    font-size: 32px;
-    line-height: 1.32;
+    font-size: 20px;
+    line-height: 1.5;
     color: rgba(255,255,255,.9);
     margin-bottom: 28px;
   }
@@ -135,7 +135,7 @@
   }
 
   .hero__mock {
-    margin-top: 54px;
+    margin-top: 36px;
     display: grid;
     grid-template-columns: 1.4fr 1fr;
     gap: 22px;
@@ -153,18 +153,18 @@
     display: grid;
     place-items: center;
     color: #fff;
-    font-size: 72px;
+    font-size: 56px;
   }
 
   .logos {
     background: #fff;
-    padding: 86px 0 54px;
+    padding: 64px 0 40px;
   }
   .logos p {
     margin: 0 0 26px;
     text-align: center;
     color: var(--muted);
-    font-size: 24px;
+    font-size: 16px;
   }
   .logo-row {
     display: grid;
@@ -182,7 +182,7 @@
   }
 
   section {
-    padding: 88px 0;
+    padding: 68px 0;
   }
   .split {
     display: grid;
@@ -195,25 +195,25 @@
     border-radius: 10px;
     min-height: 420px;
     border: 1px solid var(--line);
-    padding: 22px;
+    padding: 18px;
   }
   .image-box--mini {
     min-height: 330px;
     display: grid;
     place-items: center;
-    font-size: 88px;
+    font-size: 62px;
     color: #3251a2;
   }
   h2 {
     margin: 0 0 18px;
-    font-size: clamp(38px, 4vw, 70px);
+    font-size: clamp(30px, 4vw, 52px);
     line-height: .98;
     letter-spacing: -1px;
   }
   .lead {
     margin: 0 0 24px;
     color: #3251a2;
-    font-size: 30px;
+    font-size: 18px;
     line-height: 1.45;
   }
 
@@ -235,7 +235,7 @@
     font: inherit;
     color: var(--text);
     font-weight: 700;
-    font-size: 40px;
+    font-size: 24px;
     cursor: pointer;
     text-align: left;
   }
@@ -244,7 +244,7 @@
     line-height: 1.6;
     display: none;
     padding-top: 8px;
-    font-size: 25px;
+    font-size: 17px;
   }
   .acc__item.is-open .acc__panel { display: block; }
 
@@ -261,11 +261,11 @@
     background: #fff;
     border: 1px solid var(--line);
     border-radius: 10px;
-    padding: 24px;
+    padding: 20px;
     min-height: 220px;
   }
-  .feature h3 { margin: 0 0 8px; font-size: 43px; }
-  .feature p { margin: 0; color: #3251a2; line-height: 1.6; font-size: 23px; }
+  .feature h3 { margin: 0 0 8px; font-size: 30px; }
+  .feature p { margin: 0; color: #3251a2; line-height: 1.6; font-size: 16px; }
 
   .dark-band {
     background: var(--brand);
@@ -289,7 +289,7 @@
     padding-bottom: 10px;
     font-weight: 700;
     opacity: .95;
-    font-size: 27px;
+    font-size: 20px;
   }
   .panel-mock {
     background: #8fa8e6;
@@ -299,9 +299,9 @@
     display: grid;
     place-items: center;
     color: #fff;
-    font-size: 46px;
+    font-size: 32px;
     text-align: center;
-    padding: 24px;
+    padding: 20px;
   }
 
   .pricing h2 { text-align: center; }
@@ -314,13 +314,13 @@
     background: #fff;
     border: 1px solid var(--line);
     border-radius: 10px;
-    padding: 24px;
+    padding: 20px;
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     gap: 16px;
   }
   .price {
-    font-size: 68px;
+    font-size: 48px;
     font-weight: 700;
     line-height: 1;
   }
@@ -330,7 +330,7 @@
     color: #3251a2;
     display: grid;
     gap: 8px;
-    font-size: 22px;
+    font-size: 16px;
   }
   .btn-block {
     border: none;
@@ -339,12 +339,12 @@
     padding: 12px 14px;
     border-radius: 6px;
     font-weight: 700;
-    font-size: 22px;
+    font-size: 16px;
   }
 
   .cta-final {
     text-align: center;
-    padding: 70px 0 120px;
+    padding: 54px 0 88px;
     position: relative;
   }
   .cta-final p {
@@ -352,7 +352,7 @@
     margin: 0 auto 24px;
     color: #3251a2;
     line-height: 1.6;
-    font-size: 28px;
+    font-size: 18px;
   }
   .footer {
     background: var(--brand);
@@ -364,8 +364,8 @@
     grid-template-columns: 1.2fr 1fr 1fr 1fr;
     gap: 22px;
   }
-  .footer h4 { margin: 0 0 14px; font-size: 34px; }
-  .footer p, .footer li, .footer a { color: rgba(255,255,255,.9); font-size: 22px; }
+  .footer h4 { margin: 0 0 14px; font-size: 24px; }
+  .footer p, .footer li, .footer a { color: rgba(255,255,255,.9); font-size: 16px; }
   .footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
   .newsletter {
     display: grid;
@@ -378,7 +378,7 @@
     background: transparent;
     color: #fff;
     padding: 10px 12px;
-    font-size: 18px;
+    font-size: 16px;
   }
   .newsletter button {
     border: none;
@@ -387,7 +387,7 @@
     color: #132c6f;
     padding: 12px;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 16px;
   }
   .copy {
     margin-top: 22px;
@@ -395,7 +395,7 @@
     border-top: 1px solid rgba(255,255,255,.2);
     text-align: center;
     color: rgba(255,255,255,.86);
-    font-size: 20px;
+    font-size: 15px;
   }
 
   .to-top {
@@ -424,6 +424,12 @@
     .band-tabs { grid-template-columns: repeat(2, 1fr); }
     .nav { display: none; }
     .toggle { display: inline-block; }
+
+    .brand { font-size: 24px; }
+    .hero h1 { font-size: clamp(30px, 9vw, 42px); }
+    .hero__desc { font-size: 17px; }
+    h2 { font-size: clamp(28px, 8vw, 40px); }
+    .acc__btn { font-size: 21px; }
     .nav.is-open {
       display: grid;
       position: absolute;

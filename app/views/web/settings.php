@@ -25,6 +25,7 @@
                 <div class="col-md-4"><label class="form-label">Texto marca</label><input class="form-control" name="brand_text" value="<?php echo e($w['header']['brand_text'] ?? ''); ?>"></div>
                 <div class="col-md-4"><label class="form-label">Topline</label><input class="form-control" name="topline" value="<?php echo e($w['header']['topline'] ?? ''); ?>"></div>
                 <div class="col-md-4"><label class="form-label">Redes (texto)</label><input class="form-control" name="social" value="<?php echo e($w['header']['social'] ?? ''); ?>"></div>
+                <div class="col-md-4"><label class="form-label">URL botón Intranet</label><input class="form-control" name="intranet_url" value="<?php echo e($w['header']['intranet_url'] ?? 'login.php'); ?>"></div>
                 <div class="col-md-6"><label class="form-label">Rating</label><input class="form-control" name="hero_rating" value="<?php echo e($w['hero']['rating'] ?? ''); ?>"></div>
                 <div class="col-md-6"><label class="form-label">Título Hero</label><input class="form-control" name="hero_title" value="<?php echo e($w['hero']['title'] ?? ''); ?>"></div>
                 <div class="col-12"><label class="form-label">Descripción Hero</label><textarea class="form-control" name="hero_description" rows="3"><?php echo e($w['hero']['description'] ?? ''); ?></textarea></div>

@@ -46,6 +46,7 @@ class WebSettingsController extends Controller
                 'brand_text' => trim($_POST['brand_text'] ?? 'ACTIVAWEB'),
                 'topline' => trim($_POST['topline'] ?? 'Desarrollo escalable, crecemos con tu empresa!'),
                 'social' => trim($_POST['social'] ?? 'Facebook · Instagram · Youtube'),
+                'intranet_url' => trim($_POST['intranet_url'] ?? 'login.php'),
             ],
             'hero' => [
                 'rating' => trim($_POST['hero_rating'] ?? '★★★★★ 4.8 / 5 rating by users'),
@@ -146,7 +147,7 @@ class WebSettingsController extends Controller
     {
         return [
             'style' => ['brand' => '#142d6f', 'accent' => '#a3bdff', 'bg_soft' => '#f6f7fb', 'font_family' => 'DM Sans', 'h1_size' => 64, 'h2_size' => 52, 'body_size' => 16],
-            'header' => ['brand_text' => 'ACTIVAWEB', 'topline' => 'Desarrollo escalable, crecemos con tu empresa!', 'social' => 'Facebook · Instagram · Youtube'],
+            'header' => ['brand_text' => 'ACTIVAWEB', 'topline' => 'Desarrollo escalable, crecemos con tu empresa!', 'social' => 'Facebook · Instagram · Youtube', 'intranet_url' => 'login.php'],
             'hero' => ['rating' => '★★★★★ 4.8 / 5 rating by users', 'title' => 'IMPULSAMOS TU PRESENCIA DIGITAL', 'description' => 'Desarrolla y haz crecer tu empresa. Creamos sitios web profesionales y sistemas web a medida para pymes en Chile, optimizados para generar clientes, automatizar procesos y mejorar la gestión digital.', 'phone' => '+628-123-9876', 'email' => 'hola@activa-web.cl', 'image_main' => '', 'image_video' => ''],
             'logos_title' => 'Resultados reales, relaciones duraderas: empresas que confían en nuestras soluciones digitales.',
             'logos' => ['Municipalidad Pozo Almonte', 'Acqua Perla', 'Volcan Foods', 'Grupo LMR', 'GBC Repuestos'],

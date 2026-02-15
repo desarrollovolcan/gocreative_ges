@@ -1,7 +1,7 @@
 <?php
 $defaults = [
     'style' => ['brand' => '#142d6f', 'accent' => '#a3bdff', 'bg_soft' => '#f6f7fb', 'font_family' => 'DM Sans', 'h1_size' => 64, 'h2_size' => 52, 'body_size' => 16],
-    'header' => ['brand_text' => 'ACTIVAWEB', 'topline' => 'Desarrollo escalable, crecemos con tu empresa!', 'social' => 'Facebook · Instagram · Youtube'],
+    'header' => ['brand_text' => 'ACTIVAWEB', 'topline' => 'Desarrollo escalable, crecemos con tu empresa!', 'social' => 'Facebook · Instagram · Youtube', 'intranet_url' => 'login.php'],
     'hero' => ['rating' => '★★★★★ 4.8 / 5 rating by users', 'title' => 'IMPULSAMOS TU PRESENCIA DIGITAL', 'description' => 'Desarrolla y haz crecer tu empresa. Creamos sitios web profesionales y sistemas web a medida para pymes en Chile, optimizados para generar clientes, automatizar procesos y mejorar la gestión digital.', 'phone' => '+628-123-9876', 'email' => 'hola@activa-web.cl', 'image_main' => '', 'image_video' => ''],
     'logos_title' => 'Resultados reales, relaciones duraderas: empresas que confían en nuestras soluciones digitales.',
     'logos' => ['Municipalidad Pozo Almonte', 'Acqua Perla', 'Volcan Foods', 'Grupo LMR', 'GBC Repuestos'],
@@ -17,6 +17,8 @@ $defaults = [
 ];
 $web = array_replace_recursive($defaults, $webLanding ?? []);
 $tel = preg_replace('/[^\d+]/', '', $web['hero']['phone']);
+$intranetUrl = trim((string)($web['header']['intranet_url'] ?? 'login.php'));
+if ($intranetUrl === '') { $intranetUrl = 'login.php'; }
 ?>
 <style>
   :root {
@@ -48,7 +50,7 @@ $tel = preg_replace('/[^\d+]/', '', $web['hero']['phone']);
 </style>
 
 <div class="topline"><div class="container"><strong><?php echo e($web['header']['topline']); ?></strong><span><?php echo e($web['header']['social']); ?></span></div></div>
-<header class="header"><div class="container"><a class="brand" href="#inicio"><?php echo e($web['header']['brand_text']); ?></a><nav class="nav"><a href="#inicio">Inicio</a><a href="#servicios">Servicios</a><a href="#nosotros">Nosotros</a><a href="/intranet">Intranet</a><a href="#contacto">Contacto</a><a href="#contacto" class="nav__cta">Cotiza tu proyecto</a></nav></div></header>
+<header class="header"><div class="container"><a class="brand" href="#inicio"><?php echo e($web['header']['brand_text']); ?></a><nav class="nav"><a href="#inicio">Inicio</a><a href="#servicios">Servicios</a><a href="#nosotros">Nosotros</a><a href="<?php echo e($intranetUrl); ?>">Intranet</a><a href="#contacto">Contacto</a><a href="#contacto" class="nav__cta">Cotiza tu proyecto</a></nav></div></header>
 
 <main id="inicio">
 <section class="hero"><div class="container"><div class="hero-top"><div><div><?php echo e($web['hero']['rating']); ?></div><h1><?php echo e($web['hero']['title']); ?></h1></div><div><p class="hero-desc"><?php echo e($web['hero']['description']); ?></p><div class="chips"><a class="chip" href="tel:<?php echo e($tel); ?>"><?php echo e($web['hero']['phone']); ?></a><a class="chip" href="mailto:<?php echo e($web['hero']['email']); ?>"><?php echo e($web['hero']['email']); ?></a></div></div></div><div class="hero-media"><div class="ph" style="background-image:url('<?php echo e($web['hero']['image_main'] ?: 'https://images.unsplash.com/photo-1556740749-887f6717d7e4?q=80&w=1200&auto=format&fit=crop'); ?>')"></div><div class="ph video" style="background-image:linear-gradient(rgba(20,45,111,.55),rgba(20,45,111,.55)),url('<?php echo e($web['hero']['image_video'] ?: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop'); ?>')">▶</div></div></div></section>
@@ -68,4 +70,4 @@ $tel = preg_replace('/[^\d+]/', '', $web['hero']['phone']);
 <section id="contacto"><div class="container" style="text-align:center"><h2><?php echo e($web['contact']['title']); ?></h2><p class="lead"><?php echo e($web['contact']['text']); ?><br><?php echo e($web['contact']['city']); ?> · <?php echo e($web['contact']['email']); ?> · <?php echo e($web['contact']['phone']); ?></p><a class="btn" href="mailto:<?php echo e($web['contact']['email']); ?>">Solicitar asesoría gratuita</a></div></section>
 </main>
 
-<footer class="footer"><div class="container footer-grid"><div><h4><?php echo e($web['header']['brand_text']); ?></h4><p><?php echo e($web['footer']['about']); ?></p><p><?php echo e($web['header']['social']); ?></p></div><div><h4>Accesos rápidos</h4><ul><?php foreach (($web['footer']['quick_links'] ?? []) as $link): ?><li><?php echo e($link); ?></li><?php endforeach; ?></ul></div><div><h4>Intranet Clientes</h4><p><?php echo e($web['footer']['intranet_text']); ?></p><a href="/intranet">Intranet Cliente</a></div><div><h4>Contacto</h4><p><?php echo e($web['contact']['email']); ?><br><?php echo e($web['contact']['phone']); ?></p></div></div><div class="container copy">Desarrollado por Activa Web · © <?php echo date('Y'); ?></div></footer>
+<footer class="footer"><div class="container footer-grid"><div><h4><?php echo e($web['header']['brand_text']); ?></h4><p><?php echo e($web['footer']['about']); ?></p><p><?php echo e($web['header']['social']); ?></p></div><div><h4>Accesos rápidos</h4><ul><?php foreach (($web['footer']['quick_links'] ?? []) as $link): ?><li><?php echo e($link); ?></li><?php endforeach; ?></ul></div><div><h4>Intranet Clientes</h4><p><?php echo e($web['footer']['intranet_text']); ?></p><a href="<?php echo e($intranetUrl); ?>">Intranet Cliente</a></div><div><h4>Contacto</h4><p><?php echo e($web['contact']['email']); ?><br><?php echo e($web['contact']['phone']); ?></p></div></div><div class="container copy">Desarrollado por Activa Web · © <?php echo date('Y'); ?></div></footer>

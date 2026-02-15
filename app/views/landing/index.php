@@ -617,7 +617,7 @@
         </a>
       </div>
 
-      <a class="pill" href="tel:+56984524563" aria-label="Llamar al +56 9 8452 4563">+56 9 8452 4563</a>
+      <a class="pill" href="tel:+6281239876" aria-label="Llamar al +628-123-9876">+628-123-9876</a>
       <a class="pill" href="mailto:hola@activa-web.cl" aria-label="Escribir al correo hola@activa-web.cl">hola@activa-web.cl</a>
     </div>
   </div>
@@ -643,7 +643,7 @@
     </nav>
 
     <div class="header__cta">
-      <a class="btn btn--ghost" href="tel:+56984524563">Llamar</a>
+      <a class="btn btn--ghost" href="tel:+6281239876">Llamar</a>
       <a class="btn btn--primary" href="#contacto">Cotiza tu proyecto</a>
     </div>
   </div>
@@ -680,8 +680,8 @@
         </div>
 
         <div class="quick">
-          <a href="tel:+56984524563" aria-label="Llamar ahora">
-            <span><strong>Teléfono</strong><span class="small" style="display:block">+56 9 8452 4563</span></span>
+          <a href="tel:+6281239876" aria-label="Llamar ahora">
+            <span><strong>Teléfono</strong><span class="small" style="display:block">+628-123-9876</span></span>
             <span class="tag">Llamar</span>
           </a>
           <a href="mailto:hola@activa-web.cl" aria-label="Escribir por email">
@@ -860,6 +860,11 @@
         <article class="card" role="listitem">
           <h3>Web informativa · GBC Repuestos</h3>
           <p>Página web corporativa orientada a mostrar catálogo, servicios y facilitar el contacto con clientes.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3>Web informativa · Maysam Servicios de transporte</h3>
+          <p>Sitio web empresarial que presenta servicios de transporte, genera confianza y facilita la captación de clientes.</p>
         </article>
 
         <article class="card" role="listitem">

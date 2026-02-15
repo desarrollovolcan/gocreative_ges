@@ -1,575 +1,440 @@
 <style>
-    :root{
-      --bg: #ffffff;
-      --bg2:#f6f4ef;
-      --surface: #ffffff;
-      --surface2: #f6f4ef;
-      --text: #142d6f;
-      --muted:#42558a;
-      --muted2:#5f6f9b;
-      --border: rgba(20, 45, 111, .14);
-      --brand:#142d6f;
-      --brand2:#1e3f95;
-      --ok:#17a26a;
-      --danger:#dc2626;
-      --shadow: 0 18px 45px rgba(20,45,111,.12);
-      --shadow2: 0 8px 20px rgba(20,45,111,.10);
-      --radius: 18px;
-      --radius2: 14px;
-      --container: 1120px;
-      --pad: clamp(16px, 3vw, 28px);
-    }
+  :root {
+    --brand: #142d6f;
+    --brand-2: #1d3f97;
+    --text: #142d6f;
+    --muted: #5d6f9f;
+    --bg-soft: #f6f7fb;
+    --card: #ffffff;
+    --line: rgba(20, 45, 111, 0.14);
+    --accent: #a3bdff;
+    --ok: #29b873;
+    --danger: #e85d74;
+    --container: 1240px;
+  }
 
-    *{ box-sizing:border-box; }
-    html{ scroll-behavior:smooth; }
-    body{
-      margin:0;
-      font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--text);
-      background: linear-gradient(180deg, var(--bg), var(--bg2));
-      min-height:100vh;
-    }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--text);
+    background: var(--bg-soft);
+    font-family: "DM Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
 
-    a{ color:inherit; text-decoration:none; }
-    a:hover{ text-decoration:underline; }
-    img{ max-width:100%; height:auto; }
+  .container {
+    width: min(var(--container), calc(100% - 44px));
+    margin-inline: auto;
+  }
 
-    .container{
-      width:min(var(--container), calc(100% - 2*var(--pad)));
-      margin-inline:auto;
-    }
+  .skip-link {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    transform: translateY(-140%);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    z-index: 9999;
+  }
+  .skip-link:focus { transform: translateY(0); }
 
-    .sr-only{
-      position:absolute !important;
-      width:1px; height:1px;
-      padding:0; margin:-1px;
-      overflow:hidden; clip:rect(0,0,0,0);
-      white-space:nowrap; border:0;
-    }
-    .skip-link{
-      position:absolute;
-      top:10px; left:10px;
-      padding:10px 12px;
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:12px;
-      transform:translateY(-150%);
-      transition:transform .18s ease;
-      z-index:9999;
-    }
-    .skip-link:focus{ transform:translateY(0); outline: 3px solid rgba(37,99,235,.35); }
+  a { color: inherit; text-decoration: none; }
 
-    .topbar{
-      color:#fff;
-      border-bottom:1px solid rgba(20,45,111,.08);
+  .topline {
+    background: var(--brand);
+    color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    font-size: 14px;
+  }
+  .topline__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 0;
+  }
+  .topline__social { display: flex; gap: 14px; opacity: .95; }
+
+  .header {
+    background: var(--brand);
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 16px 0;
+  }
+  .brand {
+    font-weight: 800;
+    font-size: 34px;
+    letter-spacing: 1px;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    font-size: 18px;
+  }
+  .nav a { opacity: .92; }
+  .nav a:hover { opacity: 1; }
+  .nav__cta {
+    background: var(--accent);
+    color: #132c6f;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  .toggle {
+    display: none;
+    border: 1px solid rgba(255,255,255,.3);
+    color: #fff;
+    background: transparent;
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+
+  .hero {
+    background: var(--brand);
+    color: #fff;
+    padding: 54px 0 0;
+    overflow: hidden;
+  }
+  .hero__top {
+    display: grid;
+    grid-template-columns: 1.3fr .9fr;
+    gap: 34px;
+    align-items: center;
+  }
+  .stars { color: #59d9a9; font-weight: 700; margin-bottom: 12px; }
+  .hero h1 {
+    margin: 0;
+    font-size: clamp(44px, 6vw, 86px);
+    line-height: .98;
+    letter-spacing: -1.8px;
+  }
+  .hero__desc {
+    font-size: 32px;
+    line-height: 1.32;
+    color: rgba(255,255,255,.9);
+    margin-bottom: 28px;
+  }
+  .stores { display: flex; flex-wrap: wrap; gap: 12px; }
+  .store {
+    border: 1px solid rgba(255,255,255,.24);
+    border-radius: 7px;
+    padding: 12px 16px;
+    font-size: 15px;
+    background: rgba(0,0,0,.25);
+  }
+
+  .hero__mock {
+    margin-top: 54px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 22px;
+    transform: translateY(42px);
+  }
+  .mock-card {
+    background: #c6d6ff;
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 280px;
+    border: 1px solid rgba(255,255,255,.22);
+  }
+  .mock-card--video {
+    background: linear-gradient(rgba(29,63,151,.62), rgba(29,63,151,.62)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop') center/cover;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 72px;
+  }
+
+  .logos {
+    background: #fff;
+    padding: 86px 0 54px;
+  }
+  .logos p {
+    margin: 0 0 26px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 24px;
+  }
+  .logo-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 18px;
+  }
+  .logo {
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    padding: 22px 12px;
+    text-align: center;
+    font-weight: 700;
+    color: #284181;
+    background: #f9fbff;
+  }
+
+  section {
+    padding: 88px 0;
+  }
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 52px;
+    align-items: center;
+  }
+  .image-box {
+    background: #c6d6ff;
+    border-radius: 10px;
+    min-height: 420px;
+    border: 1px solid var(--line);
+    padding: 22px;
+  }
+  .image-box--mini {
+    min-height: 330px;
+    display: grid;
+    place-items: center;
+    font-size: 88px;
+    color: #3251a2;
+  }
+  h2 {
+    margin: 0 0 18px;
+    font-size: clamp(38px, 4vw, 70px);
+    line-height: .98;
+    letter-spacing: -1px;
+  }
+  .lead {
+    margin: 0 0 24px;
+    color: #3251a2;
+    font-size: 30px;
+    line-height: 1.45;
+  }
+
+  .acc {
+    display: grid;
+    gap: 14px;
+  }
+  .acc__item {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+  }
+  .acc__btn {
+    width: 100%;
+    border: none;
+    background: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font: inherit;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 40px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .acc__panel {
+    color: #3251a2;
+    line-height: 1.6;
+    display: none;
+    padding-top: 8px;
+    font-size: 25px;
+  }
+  .acc__item.is-open .acc__panel { display: block; }
+
+  .cards-title {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .feature {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 24px;
+    min-height: 220px;
+  }
+  .feature h3 { margin: 0 0 8px; font-size: 43px; }
+  .feature p { margin: 0; color: #3251a2; line-height: 1.6; font-size: 23px; }
+
+  .dark-band {
+    background: var(--brand);
+    color: #fff;
+    padding-bottom: 0;
+  }
+  .dark-band h2 {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 18px;
+  }
+  .band-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+  .band-tab {
+    border-bottom: 2px solid rgba(255,255,255,.45);
+    text-align: center;
+    padding-bottom: 10px;
+    font-weight: 700;
+    opacity: .95;
+    font-size: 27px;
+  }
+  .panel-mock {
+    background: #8fa8e6;
+    border-radius: 10px 10px 0 0;
+    min-height: 360px;
+    border: 1px solid rgba(255,255,255,.24);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 46px;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .pricing h2 { text-align: center; }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .plan {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 24px;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 16px;
+  }
+  .price {
+    font-size: 68px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .plan ul {
+    margin: 0;
+    padding-left: 18px;
+    color: #3251a2;
+    display: grid;
+    gap: 8px;
+    font-size: 22px;
+  }
+  .btn-block {
+    border: none;
+    background: var(--accent);
+    color: #132c6f;
+    padding: 12px 14px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 22px;
+  }
+
+  .cta-final {
+    text-align: center;
+    padding: 70px 0 120px;
+    position: relative;
+  }
+  .cta-final p {
+    max-width: 900px;
+    margin: 0 auto 24px;
+    color: #3251a2;
+    line-height: 1.6;
+    font-size: 28px;
+  }
+  .footer {
+    background: var(--brand);
+    color: #fff;
+    padding: 56px 0 18px;
+  }
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    gap: 22px;
+  }
+  .footer h4 { margin: 0 0 14px; font-size: 34px; }
+  .footer p, .footer li, .footer a { color: rgba(255,255,255,.9); font-size: 22px; }
+  .footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .newsletter {
+    display: grid;
+    gap: 10px;
+  }
+  .newsletter input {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,.45);
+    border-radius: 4px;
+    background: transparent;
+    color: #fff;
+    padding: 10px 12px;
+    font-size: 18px;
+  }
+  .newsletter button {
+    border: none;
+    border-radius: 4px;
+    background: var(--accent);
+    color: #132c6f;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .copy {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,.2);
+    text-align: center;
+    color: rgba(255,255,255,.86);
+    font-size: 20px;
+  }
+
+  .to-top {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: var(--brand);
+    border: 1px solid rgba(255,255,255,.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: .2s;
+  }
+  .to-top.is-show { opacity: 1; pointer-events: auto; }
+
+  @media (max-width: 1080px) {
+    .hero__top, .hero__mock, .split, .footer__grid { grid-template-columns: 1fr; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .logo-row { grid-template-columns: repeat(2, 1fr); }
+    .band-tabs { grid-template-columns: repeat(2, 1fr); }
+    .nav { display: none; }
+    .toggle { display: inline-block; }
+    .nav.is-open {
+      display: grid;
+      position: absolute;
+      top: 68px;
+      left: 0;
+      right: 0;
       background: var(--brand);
+      padding: 12px 22px 18px;
     }
-    .topbar__inner{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      padding:10px 0;
-      font-size:14px;
-    }
-    .topbar__msg{
-      margin:0;
-      color:rgba(255,255,255,.96);
-    }
-    .topbar__right{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.28);
-      background: rgba(255,255,255,.10);
-      text-decoration:none;
-      white-space:nowrap;
-    }
-    .pill:hover{ text-decoration:none; background: rgba(255,255,255,.12); }
-    .social{
-      display:flex; align-items:center; gap:8px;
-    }
-    .iconbtn{
-      width:34px; height:34px;
-      display:inline-grid; place-items:center;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.08);
-    }
-    .iconbtn:hover{ background: rgba(255,255,255,.12); text-decoration:none; }
-    .iconbtn svg{ width:18px; height:18px; fill:rgba(255,255,255,.96); }
-
-    header{
-      position:sticky;
-      top:0;
-      z-index:1000;
-      background: rgba(255,255,255,.96);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-    }
-    .header__inner{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      padding:14px 0;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      text-decoration:none;
-    }
-    .brand:hover{ text-decoration:none; }
-    .brand__logo{
-      width:40px; height:40px;
-      border-radius:14px;
-      display:grid; place-items:center;
-      background: linear-gradient(135deg, var(--brand), var(--brand2));
-      color:white;
-      font-weight:800;
-      letter-spacing:.5px;
-      box-shadow: var(--shadow2);
-    }
-    .brand__name{
-      color:var(--brand);
-      font-weight:800;
-      letter-spacing:.2px;
-    }
-    .nav{
-      display:flex;
-      align-items:center;
-      gap:18px;
-      color:var(--brand);
-      font-weight:600;
-    }
-    .nav a{
-      opacity:.92;
-      text-decoration:none;
-      padding:8px 10px;
-      border-radius:12px;
-    }
-    .nav a:hover{
-      background: rgba(20,45,111,.08);
-      text-decoration:none;
-      opacity:1;
-    }
-    .nav__secondary{
-      border:1px solid var(--border);
-      background: #f5f7ff;
-    }
-    .header__cta{
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding:12px 14px;
-      border-radius: 14px;
-      border:1px solid transparent;
-      font-weight:800;
-      letter-spacing:.2px;
-      text-decoration:none;
-      cursor:pointer;
-      user-select:none;
-      white-space:nowrap;
-    }
-    .btn:hover{ text-decoration:none; }
-    .btn--primary{
-      color:white;
-      background: linear-gradient(135deg, var(--brand), var(--brand2));
-      box-shadow: 0 14px 38px rgba(37,99,235,.22);
-    }
-    .btn--primary:hover{ filter: brightness(1.04); }
-    .btn--ghost{
-      color:var(--brand);
-      border-color: var(--border);
-      background: #f5f7ff;
-    }
-    .btn--ghost:hover{ background: #ebf0ff; }
-
-    .nav-toggle{
-      display:none;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background: #f5f7ff;
-      color:var(--brand);
-      cursor:pointer;
-    }
-    .nav-toggle:hover{ background: #ebf0ff; }
-
-    main{ padding-bottom: 64px; }
-    section{
-      padding: 56px 0;
-    }
-
-    .hero{
-      padding: 34px 0 18px;
-    }
-    .hero__inner{
-      display:grid;
-      grid-template-columns: 1.25fr .75fr;
-      gap: 18px;
-      align-items:stretch;
-    }
-    .hero__left{
-      padding: 34px;
-      border-radius: var(--radius);
-      background: var(--surface);
-      border:1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-    .eyebrow{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      font-weight:900;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      font-size:12px;
-      color:var(--brand);
-      background: rgba(20,45,111,.08);
-      border:1px solid rgba(20,45,111,.16);
-      padding:10px 12px;
-      border-radius: 999px;
-      margin:0 0 14px;
-    }
-    .hero h1{
-      margin:0 0 12px;
-      font-size: clamp(34px, 4.2vw, 54px);
-      line-height:1.05;
-      letter-spacing:-.02em;
-    }
-    .lead{
-      margin:0 0 18px;
-      color: var(--muted);
-      font-size: clamp(16px, 1.4vw, 18px);
-      line-height:1.6;
-      max-width: 70ch;
-    }
-    .hero__actions{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin: 18px 0;
-    }
-    .hero__bullets{
-      margin: 14px 0 0;
-      padding: 0;
-      list-style:none;
-      display:grid;
-      gap:10px;
-      color: var(--muted);
-    }
-    .hero__bullets li{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-    }
-    .hero__bullets li::before{
-      content:"✓";
-      color: var(--ok);
-      font-weight:900;
-      margin-top:1px;
-    }
-
-    .hero__card{
-      background: var(--surface);
-      border:1px solid var(--border);
-      box-shadow: var(--shadow);
-      border-radius: var(--radius);
-      padding: 22px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      gap:16px;
-    }
-    .cardtitle{
-      margin:0;
-      font-size:18px;
-      letter-spacing:-.01em;
-    }
-    .small{
-      color: var(--muted2);
-      margin: 6px 0 0;
-      line-height:1.5;
-      font-size:14px;
-    }
-    .quick{
-      display:grid;
-      gap:10px;
-      padding-top: 6px;
-    }
-    .quick a{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:12px 12px;
-      border-radius: 14px;
-      border:1px solid var(--border);
-      background: #f8f9ff;
-      text-decoration:none;
-    }
-    .quick a:hover{ background: #eef2ff; }
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size:12px;
-      font-weight:800;
-      border:1px solid var(--border);
-      background: #ffffff;
-      color:var(--brand);
-    }
-
-    .section-title{
-      color: var(--brand);
-      margin: 0 0 10px;
-      font-size: clamp(26px, 2.8vw, 36px);
-      letter-spacing:-.02em;
-    }
-    .section-subtitle{
-      color: var(--muted);
-      margin: 0 0 22px;
-      max-width: 78ch;
-      line-height:1.7;
-    }
-
-    .grid{
-      display:grid;
-      gap: 14px;
-    }
-    .grid--2{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid--3{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
-
-    .card{
-      background: var(--surface);
-      border:1px solid var(--border);
-      border-radius: var(--radius2);
-      box-shadow: var(--shadow2);
-      padding: 18px;
-    }
-    .card h3{
-      margin:0 0 8px;
-      font-size:18px;
-      letter-spacing:-.01em;
-    }
-    .card p{
-      margin:0;
-      color: var(--muted);
-      line-height:1.65;
-    }
-
-    .cta-band{
-      padding: 0;
-    }
-    .cta-band .cta{
-      margin-top: 12px;
-      padding: 26px;
-      border-radius: var(--radius);
-      background: linear-gradient(135deg, var(--brand), var(--brand2));
-      box-shadow: var(--shadow);
-      color:white;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-    .cta h2{
-      margin:0;
-      font-size: clamp(20px, 2.2vw, 28px);
-      letter-spacing:-.01em;
-    }
-    .cta p{
-      margin:8px 0 0;
-      max-width: 70ch;
-      color: rgba(255,255,255,.90);
-      line-height:1.65;
-    }
-    .cta .cta__actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .btn--light{
-      background: rgba(255,255,255,.96);
-      color:var(--brand);
-      border:1px solid rgba(255,255,255,.65);
-    }
-    .btn--light:hover{ filter: brightness(1.02); }
-
-    .kpi{
-      display:flex;
-      align-items:baseline;
-      gap:10px;
-      margin-top: 14px;
-      color: var(--brand);
-    }
-    .kpi strong{
-      font-size: 38px;
-      letter-spacing:-.02em;
-    }
-    .kpi span{ color: var(--muted); }
-
-    .contact-wrap{
-      background: var(--surface);
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px;
-    }
-    form{
-      display:grid;
-      gap:12px;
-    }
-    label{
-      font-weight:800;
-      font-size:13px;
-      color:var(--brand);
-      letter-spacing:.02em;
-    }
-    input, textarea{
-      width:100%;
-      padding:12px 12px;
-      border-radius: 14px;
-      border:1px solid var(--border);
-      background: #fff;
-      font: inherit;
-    }
-    input:focus, textarea:focus{
-      outline: 3px solid rgba(20,45,111,.18);
-      border-color: rgba(20,45,111,.35);
-    }
-    textarea{ min-height: 120px; resize: vertical; }
-    .form-row{
-      display:grid;
-      gap:12px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .hint{
-      color: var(--muted2);
-      font-size: 13px;
-      line-height:1.5;
-      margin: 0;
-    }
-    .notice{
-      display:none;
-      border-radius: 14px;
-      padding: 12px 12px;
-      border: 1px solid var(--border);
-      background: rgba(22,163,74,.10);
-      color: #0b1220;
-      font-weight:700;
-    }
-    .notice--error{
-      background: rgba(220,38,38,.10);
-    }
-
-    footer{
-      padding: 34px 0 50px;
-      color: var(--text);
-    }
-    .footer__grid{
-      display:grid;
-      gap:14px;
-      grid-template-columns: 1.2fr .8fr;
-      align-items:start;
-    }
-    .foot-card{
-      border:1px solid var(--border);
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 18px;
-      box-shadow: var(--shadow2);
-    }
-    .foot-card h3{
-      margin:0 0 10px;
-      color: var(--brand);
-      letter-spacing:-.01em;
-    }
-    .foot-card p{ margin:0; color: var(--muted); line-height:1.7; }
-    .foot-links{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top: 12px;
-    }
-    .foot-links a{
-      padding:10px 12px;
-      border-radius: 14px;
-      border:1px solid var(--border);
-      background: #f5f7ff;
-      text-decoration:none;
-    }
-    .foot-links a:hover{ background: #ebf0ff; }
-
-    .to-top{
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      z-index:1500;
-      display:none;
-      padding: 12px 13px;
-      border-radius: 16px;
-      border:1px solid var(--border);
-      background: var(--brand);
-      color: #fff;
-      box-shadow: var(--shadow2);
-    }
-    .to-top:hover{ text-decoration:none; background: var(--brand2); }
-
-    @media (max-width: 980px){
-      .hero__inner{ grid-template-columns: 1fr; }
-      .grid--3{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .footer__grid{ grid-template-columns: 1fr; }
-    }
-    @media (max-width: 760px){
-      .header__cta{ display:none; }
-      .nav-toggle{ display:inline-flex; align-items:center; gap:10px; }
-      .nav{
-        position: absolute;
-        left: 0; right: 0;
-        top: 100%;
-        margin: 0;
-        display:none;
-        flex-direction:column;
-        gap: 0;
-        padding: 10px;
-        background: rgba(255,255,255,.98);
-        border-bottom: 1px solid var(--border);
-      }
-      .nav a{
-        width:100%;
-        padding: 14px 12px;
-      }
-      .nav.is-open{ display:flex; }
-      .grid--2{ grid-template-columns: 1fr; }
-      .grid--3{ grid-template-columns: 1fr; }
-      .form-row{ grid-template-columns: 1fr; }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      html{ scroll-behavior:auto; }
-      *{ transition:none !important; animation:none !important; }
-    }
+    .nav.is-open .nav__cta { text-align: center; }
+  }
 </style>
 
 <script type="application/ld+json">
@@ -579,500 +444,301 @@
   "name": "Activa Web",
   "url": "https://activa-web.cl/",
   "email": "hola@activa-web.cl",
-  "telephone": "+56984524563",
+  "telephone": "+628-123-9876",
   "address": {
     "@type": "PostalAddress",
     "addressLocality": "Concepción",
     "addressRegion": "Biobío",
     "addressCountry": "CL"
-  },
-  "sameAs": [
-    "https://www.facebook.com/",
-    "https://www.instagram.com/",
-    "https://www.youtube.com/"
-  ]
+  }
 }
 </script>
 
 <a class="skip-link" href="#contenido">Ir al contenido</a>
 
-<div class="topbar">
-  <div class="container topbar__inner">
-    <p class="topbar__msg"><strong>Desarrollo escalable, crecemos con tu empresa!</strong></p>
-
-    <div class="topbar__right" aria-label="Redes y contacto rápido">
-      <div class="social" aria-label="Redes sociales">
-        <a class="iconbtn" href="#" aria-label="Facebook" title="Facebook">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3H13.5V9.1c0-.9.3-1.6 1.6-1.6H16.8V4.8c-.3 0-1.4-.1-2.7-.1-2.7 0-4.6 1.6-4.6 4.6V11H7v3h2.5v8h4z"/></svg>
-        </a>
-        <a class="iconbtn" href="#" aria-label="Instagram" title="Instagram">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm-5 4.3A3.7 3.7 0 1 1 8.3 12 3.7 3.7 0 0 1 12 8.3zm0 2A1.7 1.7 0 1 0 13.7 12 1.7 1.7 0 0 0 12 10.3zM18 6.8a.9.9 0 1 1-.9.9.9.9 0 0 1 .9-.9z"/></svg>
-        </a>
-        <a class="iconbtn" href="#" aria-label="YouTube" title="YouTube">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.8 7.4a3 3 0 0 0-2.1-2.1C17.9 4.8 12 4.8 12 4.8s-5.9 0-7.7.5A3 3 0 0 0 2.2 7.4 31.6 31.6 0 0 0 1.7 12c0 1.6.2 3.1.5 4.6a3 3 0 0 0 2.1 2.1c1.8.5 7.7.5 7.7.5s5.9 0 7.7-.5a3 3 0 0 0 2.1-2.1c.3-1.5.5-3 .5-4.6s-.2-3.1-.5-4.6zM10.4 15.2V8.8L15.8 12l-5.4 3.2z"/></svg>
-        </a>
-      </div>
-
-      <a class="pill" href="tel:+6281239876" aria-label="Llamar al +628-123-9876">+628-123-9876</a>
-      <a class="pill" href="mailto:hola@activa-web.cl" aria-label="Escribir al correo hola@activa-web.cl">hola@activa-web.cl</a>
-    </div>
+<div class="topline">
+  <div class="container topline__inner">
+    <div><strong>Desarrollo escalable, crecemos con tu empresa!</strong></div>
+    <div class="topline__social">Facebook · Instagram · Youtube</div>
   </div>
 </div>
 
-<header>
+<header class="header" id="inicio">
   <div class="container header__inner">
-    <a class="brand" href="#inicio" aria-label="Ir al inicio">
-      <span class="brand__logo" aria-hidden="true">AW</span>
-      <span class="brand__name">ActivaWeb</span>
-    </a>
-
-    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="siteNav">
-      <span aria-hidden="true">☰</span>
-      <span class="sr-only">Abrir menú</span>
-    </button>
-
-    <nav class="nav" id="siteNav" aria-label="Navegación principal">
+    <a href="#inicio" class="brand" aria-label="ActivaWeb">ACTIVAWEB</a>
+    <button class="toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+    <nav class="nav" id="mainNav">
       <a href="#inicio">Inicio</a>
       <a href="#servicios">Servicios</a>
       <a href="#nosotros">Nosotros</a>
-      <a class="nav__secondary" href="/intranet">Intranet</a>
+      <a href="/intranet">Intranet</a>
+      <a href="#contacto">Contacto</a>
+      <a href="#contacto" class="nav__cta">Cotiza tu proyecto</a>
     </nav>
-
-    <div class="header__cta">
-      <a class="btn btn--ghost" href="tel:+6281239876">Llamar</a>
-      <a class="btn btn--primary" href="#contacto">Cotiza tu proyecto</a>
-    </div>
   </div>
 </header>
 
 <main id="contenido">
-  <section class="hero" id="inicio" aria-labelledby="heroTitle">
-    <div class="container hero__inner">
-      <div class="hero__left">
-        <p class="eyebrow">IMPULSAMOS TU PRESENCIA DIGITAL</p>
-        <h1 id="heroTitle">Desarrolla y haz crecer tu empresa</h1>
+  <section class="hero">
+    <div class="container">
+      <div class="hero__top">
+        <div>
+          <div class="stars">★★★★★ 4.8 / 5 rating by users</div>
+          <h1>IMPULSAMOS TU PRESENCIA DIGITAL</h1>
+        </div>
+        <div>
+          <p class="hero__desc">
+            Desarrolla y haz crecer tu empresa. Creamos sitios web profesionales y sistemas web a medida para pymes en Chile,
+            optimizados para generar clientes, automatizar procesos y mejorar la gestión digital.
+          </p>
+          <div class="stores">
+            <a class="store" href="tel:+6281239876">+628-123-9876</a>
+            <a class="store" href="mailto:hola@activa-web.cl">hola@activa-web.cl</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero__mock">
+        <div class="mock-card" aria-hidden="true"></div>
+        <div class="mock-card mock-card--video" aria-hidden="true">▶</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="logos">
+    <div class="container">
+      <p>Resultados reales, relaciones duraderas: empresas que confían en nuestras soluciones digitales.</p>
+      <div class="logo-row" aria-label="Marcas">
+        <div class="logo">Municipalidad Pozo Almonte</div>
+        <div class="logo">Acqua Perla</div>
+        <div class="logo">Volcan Foods</div>
+        <div class="logo">Grupo LMR</div>
+        <div class="logo">GBC Repuestos</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="nosotros">
+    <div class="container split">
+      <div class="image-box image-box--mini" aria-hidden="true">◔</div>
+      <div>
+        <h2>Entregamos soluciones, construimos confianza</h2>
         <p class="lead">
-          Creamos sitios web profesionales y sistemas web a medida para pymes en Chile.
-          Diseñamos plataformas optimizadas, rápidas y enfocadas en generar clientes,
-          automatizar procesos y mejorar la gestión digital de tu negocio.
+          En ActivaWeb desarrollamos sistemas web y plataformas digitales a medida para empresas en Chile.
+          Trabajamos de forma cercana y estratégica para optimizar procesos, aumentar productividad y fortalecer la presencia digital.
         </p>
-
-        <div class="hero__actions" aria-label="Acciones principales">
-          <a class="btn btn--primary" href="#contacto">Cotiza tu proyecto</a>
-          <a class="btn btn--ghost" href="#portafolio">Ver portafolio</a>
-        </div>
-
-        <ul class="hero__bullets" aria-label="Beneficios">
-          <li>Soluciones tecnológicas eficientes y escalables.</li>
-          <li>Optimización para buscadores y velocidad de carga.</li>
-          <li>Soporte continuo y mejoras a largo plazo.</li>
-        </ul>
-      </div>
-
-      <aside class="hero__card" aria-label="Contacto rápido">
-        <div>
-          <p class="cardtitle">Cotiza en minutos</p>
-          <p class="small">Cuéntanos tu idea y te respondemos con una propuesta clara y aterrizada.</p>
-        </div>
-
-        <div class="quick">
-          <a href="tel:+6281239876" aria-label="Llamar ahora">
-            <span><strong>Teléfono</strong><span class="small" style="display:block">+628-123-9876</span></span>
-            <span class="tag">Llamar</span>
-          </a>
-          <a href="mailto:hola@activa-web.cl" aria-label="Escribir por email">
-            <span><strong>Email</strong><span class="small" style="display:block">hola@activa-web.cl</span></span>
-            <span class="tag">Escribir</span>
-          </a>
-          <a href="#contacto" aria-label="Ir al formulario de cotización">
-            <span><strong>Formulario</strong><span class="small" style="display:block">Cotiza tu proyecto</span></span>
-            <span class="tag">Cotizar</span>
-          </a>
-        </div>
-
-        <p class="small" style="margin:0; border-top:1px solid rgba(15,23,42,.10); padding-top:14px;">
-          <strong>Enfoque:</strong> resultados reales, relaciones duraderas.
-        </p>
-      </aside>
-    </div>
-  </section>
-
-  <section id="nosotros" aria-labelledby="nosotrosTitle">
-    <div class="container">
-      <h2 class="section-title" id="nosotrosTitle">Resultados reales, relaciones duraderas</h2>
-      <p class="section-subtitle">
-        Entregamos soluciones, construimos confianza. En ActivaWeb desarrollamos sistemas web y plataformas digitales
-        a medida para empresas en Chile, enfocándonos en optimizar procesos, aumentar productividad y fortalecer tu presencia digital.
-        Trabajamos de forma cercana y estratégica, entendiendo tus flujos de trabajo y objetivos comerciales.
-      </p>
-
-      <div class="grid grid--2">
-        <div class="card">
-          <h3>Soluciones tecnológicas con impacto</h3>
-          <p>
-            Desarrollos eficientes, escalables y orientados a resultados: automatización, control de información y mejora continua
-            para acompañar el crecimiento del negocio.
-          </p>
-        </div>
-        <div class="card">
-          <h3>Soporte y evolución</h3>
-          <p>
-            Nuestro compromiso es una relación de largo plazo: soporte post-lanzamiento, mejoras continuas y nuevas funcionalidades
-            para que tu plataforma evolucione contigo.
-          </p>
+        <div class="acc" id="accOne">
+          <div class="acc__item is-open">
+            <button class="acc__btn" type="button">Desarrollo de sistemas web a medida <span>−</span></button>
+            <div class="acc__panel">Creamos plataformas personalizadas según los procesos de tu empresa, con control en tiempo real y escalabilidad.</div>
+          </div>
+          <div class="acc__item">
+            <button class="acc__btn" type="button">Diseño y desarrollo de páginas web <span>+</span></button>
+            <div class="acc__panel">Sitios profesionales, rápidos y optimizados para buscadores, orientados a atraer clientes y vender mejor.</div>
+          </div>
+          <div class="acc__item">
+            <button class="acc__btn" type="button">Automatización de procesos empresariales <span>+</span></button>
+            <div class="acc__panel">Digitalizamos tareas repetitivas e integramos áreas para reducir errores y aumentar productividad.</div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="servicios" aria-labelledby="serviciosTitle">
+  <section id="servicios">
     <div class="container">
-      <h2 class="section-title" id="serviciosTitle">Soluciones digitales para hacer crecer tu empresa</h2>
-      <p class="section-subtitle">
-        Servicios pensados para pymes en Chile: desde páginas web rápidas hasta plataformas internas y sistemas a medida.
-      </p>
-
-      <div class="grid grid--3" role="list">
-        <article class="card" role="listitem">
-          <h3>Desarrollo de sistemas web a medida</h3>
-          <p>Plataformas personalizadas según tus procesos: flujos de trabajo, gestión interna y control en tiempo real.</p>
-        </article>
-
-        <article class="card" role="listitem">
-          <h3>Diseño y desarrollo de páginas web</h3>
-          <p>Sitios profesionales, rápidos y optimizados para buscadores, enfocados en atraer clientes y comunicar confianza.</p>
-        </article>
-
-        <article class="card" role="listitem">
-          <h3>Automatización de procesos empresariales</h3>
-          <p>Digitalizamos tareas repetitivas y conectamos áreas para reducir errores, ahorrar tiempo y aumentar productividad.</p>
-        </article>
-
-        <article class="card" role="listitem">
+      <h2 class="cards-title">Soluciones digitales para hacer crecer tu empresa</h2>
+      <div class="cards-grid">
+        <article class="feature">
           <h3>Integración de sistemas y bases de datos</h3>
-          <p>Conectamos plataformas, APIs y bases de datos para centralizar información y mejorar la toma de decisiones.</p>
+          <p>Conectamos plataformas, APIs y bases de datos para centralizar información y mejorar decisiones.</p>
         </article>
-
-        <article class="card" role="listitem">
+        <article class="feature">
           <h3>Plataformas de gestión para pymes</h3>
-          <p>Sistemas de inventario, ventas, clientes y operaciones adaptados a pequeñas y medianas empresas.</p>
+          <p>Sistemas de inventario, ventas, clientes y operaciones adaptados a pequeñas y medianas empresas chilenas.</p>
         </article>
-
-        <article class="card" role="listitem">
+        <article class="feature">
           <h3>Soporte, mejora y escalabilidad web</h3>
-          <p>Mantenimiento, optimización y nuevas funciones para que tu plataforma crezca con tu empresa.</p>
+          <p>Mantenimiento y evolución continua para que la plataforma crezca junto a tu negocio.</p>
+        </article>
+        <article class="feature">
+          <h3>Portafolio ActivaWeb (100+ proyectos)</h3>
+          <p>Municipalidad Pozo Almonte, Acqua Perla, Volcan Foods, Grupo LMR, GBC Repuestos, Maysam Transporte y Palermo Vestidos.</p>
         </article>
       </div>
     </div>
   </section>
 
-  <section id="metodologia" aria-labelledby="metodoTitle">
-    <div class="container">
-      <h2 class="section-title" id="metodoTitle">Metodología profesional</h2>
-      <p class="section-subtitle">
-        Un proceso claro para reducir riesgos, asegurar calidad y entregar una plataforma estable, rápida y confiable.
-      </p>
-
-      <div class="grid grid--3" role="list">
-        <article class="card" role="listitem">
-          <h3>Levantamiento y conocimiento del rubro</h3>
-          <p>
-            Analizamos tu empresa, procesos internos y flujos de información para diseñar una solución alineada a objetivos
-            comerciales y operativos.
-          </p>
-        </article>
-
-        <article class="card" role="listitem">
-          <h3>Desarrollo, integraciones y QA</h3>
-          <p>
-            Construimos con tecnologías modernas, integraciones necesarias y bases de datos optimizadas. Probamos funcionalidad,
-            seguridad y rendimiento.
-          </p>
-        </article>
-
-        <article class="card" role="listitem">
-          <h3>Implementación y acompañamiento</h3>
-          <p>
-            Puesta en marcha, capacitación y soporte post-lanzamiento. Seguimos optimizando para acompañar el crecimiento.
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="cta-band" aria-label="Llamado a la acción principal">
-    <div class="container">
-      <div class="cta">
-        <div>
-          <h2>Impulsa la transformación digital de tu empresa hoy</h2>
-          <p>
-            Obtén una asesoría gratuita y descubre cómo un sistema web a medida puede optimizar tus procesos,
-            aumentar tu productividad y hacer crecer tu negocio.
-          </p>
-        </div>
-        <div class="cta__actions">
-          <a class="btn btn--light" href="tel:+56984524563">+56 9 8452 4563</a>
-          <a class="btn btn--light" href="mailto:hola@activa-web.cl">hola@activa-web.cl</a>
-          <a class="btn btn--primary" href="#contacto">Quiero cotizar</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="portafolio" aria-labelledby="portafolioTitle">
-    <div class="container">
-      <h2 class="section-title" id="portafolioTitle">Portafolio ActivaWeb</h2>
-      <p class="section-subtitle">
-        Proyectos recientes, construyendo confianza y relaciones duraderas. Desarrollamos plataformas web y sistemas a medida,
-        enfocados en resultados reales, optimización de procesos y crecimiento sostenible.
-      </p>
-
-      <div class="kpi" aria-label="Métrica de proyectos realizados">
-        <strong>100+</strong>
-        <span>Proyectos realizados</span>
-      </div>
-
-      <div class="grid grid--3" style="margin-top:16px;" role="list">
-        <article class="card" role="listitem">
-          <h3>Gestión de eventos · Municipalidad Pozo Almonte</h3>
-          <p>Plataforma digital para organizar, administrar y monitorear eventos municipales de forma eficiente y centralizada.</p>
-        </article>
-
-        <article class="card" role="listitem">
-          <h3>Sistema gestión agua · Acqua Perla</h3>
-          <p>Sistema web para el control operativo, comercial y de distribución en empresa de agua purificada.</p>
-        </article>
-
-        <article class="card" role="listitem">
-          <h3>Software de trazabilidad · Volcan Foods</h3>
-          <p>Plataforma de trazabilidad para controlar procesos productivos y seguimiento de productos en tiempo real.</p>
-        </article>
-
-        <article class="card" role="listitem">
-          <h3>Web informativa · Grupo LMR</h3>
-          <p>Sitio corporativo profesional que fortalece la presencia digital y comunica los servicios de la empresa.</p>
-        </article>
-
-        <article class="card" role="listitem">
-          <h3>Web informativa · GBC Repuestos</h3>
-          <p>Página web corporativa orientada a mostrar catálogo, servicios y facilitar el contacto con clientes.</p>
-        </article>
-
-        <article class="card" role="listitem">
-          <h3>Web informativa · Maysam Servicios de transporte</h3>
-          <p>Sitio web empresarial que presenta servicios de transporte, genera confianza y facilita la captación de clientes.</p>
-        </article>
-
-        <article class="card" role="listitem">
-          <h3>Web tienda · Palermo Vestidos</h3>
-          <p>Tienda online moderna para exhibir y vender vestidos con una experiencia de compra simple y atractiva.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section id="contacto" aria-labelledby="contactoTitle">
-    <div class="container">
-      <h2 class="section-title" id="contactoTitle">Contáctanos ahora</h2>
-      <p class="section-subtitle">
-        Cuéntanos qué necesitas y te ayudamos a convertir tu idea en una solución digital sólida, moderna y pensada para generar resultados reales.
-        Analizamos tu requerimiento y te proponemos la mejor estrategia para tu negocio.
-      </p>
-
-      <div class="contact-wrap">
-        <div class="grid grid--2" style="align-items:start;">
-          <div>
-            <p class="cardtitle" style="margin:0 0 10px;">Formulario de cotización</p>
-            <p class="small" style="margin:0 0 14px;">
-              Respuesta rápida: deja tus datos y una descripción breve del proyecto.
-            </p>
-
-            <div class="notice" id="formNotice" role="status" aria-live="polite"></div>
-
-            <form id="leadForm" novalidate>
-              <div class="form-row">
-                <div>
-                  <label for="nombre">Nombre</label>
-                  <input id="nombre" name="nombre" type="text" autocomplete="name" required />
-                </div>
-                <div>
-                  <label for="empresa">Empresa</label>
-                  <input id="empresa" name="empresa" type="text" autocomplete="organization" />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div>
-                  <label for="email">Correo</label>
-                  <input id="email" name="email" type="email" autocomplete="email" required />
-                </div>
-                <div>
-                  <label for="telefono">Teléfono</label>
-                  <input id="telefono" name="telefono" type="tel" autocomplete="tel" placeholder="+56 9 ..." />
-                </div>
-              </div>
-
-              <div>
-                <label for="mensaje">¿Qué necesitas?</label>
-                <textarea id="mensaje" name="mensaje" required placeholder="Ej: necesito un sistema para inventario + ventas, o una web corporativa con formulario de contacto..."></textarea>
-              </div>
-
-              <p class="hint">
-                Al enviar, se abrirá tu cliente de correo para crear el mensaje. (Puedes conectar este formulario a un endpoint o servicio de envío cuando lo publiques.)
-              </p>
-
-              <button class="btn btn--primary" type="submit">Enviar solicitud</button>
-            </form>
+  <section>
+    <div class="container split">
+      <div>
+        <h2>Nuestra metodología de desarrollo web</h2>
+        <p class="lead">Levantamiento, desarrollo con QA e implementación con acompañamiento post-lanzamiento.</p>
+        <div class="acc" id="accTwo">
+          <div class="acc__item is-open">
+            <button class="acc__btn" type="button">Levantamiento y conocimiento del rubro <span>−</span></button>
+            <div class="acc__panel">Analizamos tu empresa y flujos para diseñar una solución alineada a tus objetivos comerciales.</div>
           </div>
-
-          <div>
-            <p class="cardtitle" style="margin:0 0 10px;">Contacto</p>
-            <p class="small" style="margin:0 0 12px;">
-              Concepción, Región del Bio bio, Chile
-            </p>
-
-            <div class="quick" aria-label="Datos de contacto">
-              <a href="mailto:hola@activa-web.cl">
-                <span><strong>Email</strong><span class="small" style="display:block">hola@activa-web.cl</span></span>
-                <span class="tag">Mail</span>
-              </a>
-              <a href="tel:+56984524563">
-                <span><strong>Teléfono</strong><span class="small" style="display:block">+56 9 8452 4563</span></span>
-                <span class="tag">Llamar</span>
-              </a>
-              <a href="/intranet">
-                <span><strong>Intranet cliente</strong><span class="small" style="display:block">Accede a tu plataforma privada</span></span>
-                <span class="tag">Entrar</span>
-              </a>
-            </div>
-
-            <div style="margin-top:14px;">
-              <p class="cardtitle" style="margin:0 0 10px;">Accesos rápidos</p>
-              <div class="foot-links" aria-label="Accesos rápidos">
-                <a href="#inicio">Inicio</a>
-                <a href="/intranet">Intranet</a>
-                <a href="#nosotros">Nosotros</a>
-                <a href="#contacto">Contacto</a>
-              </div>
-            </div>
-
-            <div style="margin-top:16px;">
-              <p class="small" style="margin:0;">
-                Acompañamos a emprendedores, pymes y profesionales con soluciones digitales y soporte cercano,
-                combinando experiencia técnica con un trato humano y comprometido.
-              </p>
-            </div>
+          <div class="acc__item">
+            <button class="acc__btn" type="button">Desarrollo, integraciones y QA <span>+</span></button>
+            <div class="acc__panel">Construimos con tecnologías modernas, pruebas funcionales, seguridad y rendimiento.</div>
+          </div>
+          <div class="acc__item">
+            <button class="acc__btn" type="button">Implementación y acompañamiento <span>+</span></button>
+            <div class="acc__panel">Capacitamos equipos y damos soporte continuo para consolidar la transformación digital.</div>
           </div>
         </div>
       </div>
+      <div class="image-box" aria-hidden="true"></div>
+    </div>
+  </section>
 
+  <section class="dark-band">
+    <div class="container">
+      <h2>Impulsa la transformación digital de tu empresa hoy</h2>
+      <div class="band-tabs">
+        <div class="band-tab">Asesoría estratégica</div>
+        <div class="band-tab">Desarrollo a medida</div>
+        <div class="band-tab">Integraciones</div>
+        <div class="band-tab">Soporte continuo</div>
+      </div>
+      <div class="panel-mock">
+        Plataforma centralizada para clientes, operaciones y control de proyectos en tiempo real.
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing">
+    <div class="container">
+      <h2>Planes de trabajo según etapa de tu empresa</h2>
+      <div class="pricing-grid">
+        <article class="plan">
+          <h3>Plan Presencia Digital</h3>
+          <div class="price">Web</div>
+          <ul>
+            <li>Sitio corporativo profesional</li>
+            <li>SEO técnico inicial</li>
+            <li>Formulario y analítica básica</li>
+          </ul>
+          <a class="btn-block" href="#contacto">Cotizar ahora</a>
+        </article>
+
+        <article class="plan">
+          <h3>Plan Automatización</h3>
+          <div class="price">Web+</div>
+          <ul>
+            <li>Procesos internos digitalizados</li>
+            <li>Integración con APIs y datos</li>
+            <li>Dashboard de seguimiento</li>
+          </ul>
+          <a class="btn-block" href="#contacto">Cotizar ahora</a>
+        </article>
+
+        <article class="plan">
+          <h3>Plan Escalamiento</h3>
+          <div class="price">Pro</div>
+          <ul>
+            <li>Plataforma a medida de alto tráfico</li>
+            <li>Roadmap evolutivo y soporte prioritario</li>
+            <li>Mejoras continuas por objetivos</li>
+          </ul>
+          <a class="btn-block" href="#contacto">Cotizar ahora</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-final" id="contacto">
+    <div class="container">
+      <h2>Contáctanos ahora y convierte tu idea en una solución real</h2>
+      <p>
+        Acompañamos a emprendedores, pymes y profesionales con soporte cercano, experiencia técnica y foco en resultados.
+        Concepción, Región del Bio bio, Chile · hola@activa-web.cl · ‪+56 9 8452 4563‬.
+      </p>
+      <a href="mailto:hola@activa-web.cl" class="nav__cta">Solicitar asesoría gratuita</a>
     </div>
   </section>
 </main>
 
-<footer aria-label="Pie de página">
+<footer class="footer">
   <div class="container footer__grid">
-    <div class="foot-card">
-      <h3>Intranet Clientes</h3>
-      <p>Accede a tu plataforma privada y mantén el control total de tus proyectos y más.</p>
-      <div class="foot-links">
-        <a href="/intranet">Intranet Cliente</a>
-        <a href="#inicio">Scroll al inicio</a>
-      </div>
+    <div>
+      <h4>ACTIVAWEB</h4>
+      <p>Desarrollamos plataformas web, sistemas a medida y soluciones digitales para empresas en Chile.</p>
+      <p style="margin-top:10px;">Facebook · Instagram · Youtube</p>
     </div>
 
-    <div class="foot-card">
-      <h3>Desarrollado por Activa Web</h3>
-      <p style="margin-top:8px;">© <span id="year"></span> · Todos los derechos reservados.</p>
+    <div>
+      <h4>Accesos rápidos</h4>
+      <ul>
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="/intranet">Intranet</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Intranet Clientes</h4>
+      <ul>
+        <li><a href="/intranet">Intranet Cliente</a></li>
+        <li>Control total de tus proyectos y más</li>
+        <li><a href="#inicio">Scroll al inicio</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Contacto</h4>
+      <form class="newsletter" onsubmit="event.preventDefault(); alert('Gracias, te contactaremos pronto.');">
+        <input type="email" placeholder="hola@tuempresa.cl" aria-label="Correo de contacto" required>
+        <button type="submit">Suscribirme / Cotizar</button>
+      </form>
+      <p style="margin-top:10px;">hola@activa-web.cl<br>+628-123-9876</p>
     </div>
   </div>
+
+  <div class="container copy">Desarrollado por Activa Web · © <span id="year"></span> Todos los derechos reservados</div>
 </footer>
 
-<a class="to-top" id="toTop" href="#inicio" aria-label="Volver arriba">↑</a>
+<a href="#inicio" class="to-top" id="toTop" aria-label="Volver arriba">↑</a>
 
 <script>
-(function () {
-  const navToggle = document.getElementById('navToggle');
-  const nav = document.getElementById('siteNav');
-  const year = document.getElementById('year');
-  const toTop = document.getElementById('toTop');
+  (function () {
+    const year = document.getElementById('year');
+    if (year) year.textContent = new Date().getFullYear();
 
-  if (year) year.textContent = new Date().getFullYear();
+    const toggle = document.getElementById('menuToggle');
+    const nav = document.getElementById('mainNav');
+    if (toggle && nav) {
+      toggle.addEventListener('click', () => nav.classList.toggle('is-open'));
+      nav.addEventListener('click', (e) => {
+        if (e.target && e.target.tagName === 'A') nav.classList.remove('is-open');
+      });
+    }
 
-  if (navToggle && nav) {
-    navToggle.addEventListener('click', () => {
-      const isOpen = nav.classList.toggle('is-open');
-      navToggle.setAttribute('aria-expanded', String(isOpen));
+    document.querySelectorAll('.acc').forEach((acc) => {
+      acc.querySelectorAll('.acc__btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const item = btn.closest('.acc__item');
+          const isOpen = item.classList.contains('is-open');
+          acc.querySelectorAll('.acc__item').forEach((it) => {
+            it.classList.remove('is-open');
+            const sign = it.querySelector('.acc__btn span');
+            if (sign) sign.textContent = '+';
+          });
+          if (!isOpen) {
+            item.classList.add('is-open');
+            const sign = item.querySelector('.acc__btn span');
+            if (sign) sign.textContent = '−';
+          }
+        });
+      });
     });
 
-    nav.addEventListener('click', (e) => {
-      const target = e.target;
-      if (target && target.tagName === 'A' && target.getAttribute('href')?.startsWith('#')) {
-        nav.classList.remove('is-open');
-        navToggle.setAttribute('aria-expanded', 'false');
-      }
-    });
-  }
-
-  window.addEventListener('scroll', () => {
-    if (!toTop) return;
-    if (window.scrollY > 700) toTop.style.display = 'inline-flex';
-    else toTop.style.display = 'none';
-  }, { passive: true });
-
-  const form = document.getElementById('leadForm');
-  const notice = document.getElementById('formNotice');
-
-  function showNotice(msg, isError) {
-    if (!notice) return;
-    notice.style.display = 'block';
-    notice.classList.toggle('notice--error', !!isError);
-    notice.textContent = msg;
-  }
-
-  function escapeText(s) {
-    return String(s || '').replace(/\s+/g, ' ').trim();
-  }
-
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      const nombre = escapeText(document.getElementById('nombre')?.value);
-      const empresa = escapeText(document.getElementById('empresa')?.value);
-      const email = escapeText(document.getElementById('email')?.value);
-      const telefono = escapeText(document.getElementById('telefono')?.value);
-      const mensaje = escapeText(document.getElementById('mensaje')?.value);
-
-      if (!nombre || !email || !mensaje) {
-        showNotice('Por favor completa al menos: Nombre, Correo y Qué necesitas.', true);
-        return;
-      }
-
-      const subject = encodeURIComponent('Cotización / Consulta - ActivaWeb');
-      const bodyLines = [
-        'Hola ActivaWeb,',
-        '',
-        'Quiero cotizar / consultar un proyecto:',
-        '',
-        '— Datos',
-        `Nombre: ${nombre}`,
-        `Empresa: ${empresa || '(no indicada)'}`,
-        `Correo: ${email}`,
-        `Teléfono: ${telefono || '(no indicado)'}`,
-        '',
-        '— Requerimiento',
-        mensaje,
-        '',
-        'Gracias.'
-      ];
-      const body = encodeURIComponent(bodyLines.join('\n'));
-
-      const mailTo = `mailto:hola@activa-web.cl?subject=${subject}&body=${body}`;
-
-      showNotice('Listo. Se abrirá tu correo para enviar la solicitud.', false);
-      window.location.href = mailTo;
-    });
-  }
-})();
+    const toTop = document.getElementById('toTop');
+    window.addEventListener('scroll', () => {
+      if (!toTop) return;
+      toTop.classList.toggle('is-show', window.scrollY > 500);
+    }, { passive: true });
+  })();
 </script>

@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'landing' => ['LandingController', 'index'],
     'dashboard' => ['DashboardController', 'index'],
     'documents' => ['DocumentsController', 'index'],
     'documents/store' => ['DocumentsController', 'store'],

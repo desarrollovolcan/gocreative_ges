@@ -2,7 +2,7 @@
 require __DIR__ . '/app/bootstrap.php';
 
 $routes = require __DIR__ . '/app/routes.php';
-$route = $_GET['route'] ?? 'dashboard';
+$route = $_GET['route'] ?? (Auth::check() ? 'dashboard' : 'landing');
 
 if (!isset($routes[$route])) {
     http_response_code(404);
